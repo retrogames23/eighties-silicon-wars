@@ -8,54 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Retro 80s CRT Monitor Theme */
-    --background: 220 100% 2%;
-    --foreground: 120 100% 75%;
+    /* Retro 80s CRT Monitor Theme - Eye-friendly version */
+    --background: 220 25% 8%;
+    --foreground: 120 20% 85%;
 
-    --card: 220 50% 5%;
-    --card-foreground: 120 100% 75%;
+    --card: 220 20% 12%;
+    --card-foreground: 120 15% 90%;
 
-    --popover: 220 50% 5%;
-    --popover-foreground: 120 100% 75%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 120 15% 90%;
 
-    --primary: 120 100% 50%;
-    --primary-foreground: 220 100% 2%;
+    --primary: 120 60% 60%;
+    --primary-foreground: 220 25% 8%;
 
-    --secondary: 280 100% 50%;
-    --secondary-foreground: 220 100% 2%;
+    --secondary: 280 40% 65%;
+    --secondary-foreground: 220 25% 8%;
 
-    --muted: 220 30% 10%;
-    --muted-foreground: 120 50% 50%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 120 10% 65%;
 
-    --accent: 180 100% 50%;
-    --accent-foreground: 220 100% 2%;
+    --accent: 180 50% 65%;
+    --accent-foreground: 220 25% 8%;
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 220 100% 2%;
+    --destructive: 0 60% 60%;
+    --destructive-foreground: 220 25% 8%;
 
-    --border: 120 100% 25%;
-    --input: 220 50% 8%;
-    --ring: 120 100% 50%;
+    --border: 120 30% 35%;
+    --input: 220 20% 15%;
+    --ring: 120 60% 60%;
 
-    --radius: 0.125rem;
+    --radius: 0.25rem;
 
-    /* Retro specific colors */
-    --neon-green: 120 100% 50%;
-    --neon-cyan: 180 100% 50%;
-    --neon-magenta: 300 100% 50%;
-    --amber: 45 100% 50%;
-    --terminal-green: 120 100% 40%;
+    /* Retro specific colors - softened */
+    --neon-green: 120 60% 60%;
+    --neon-cyan: 180 50% 65%;
+    --neon-magenta: 300 50% 70%;
+    --amber: 45 70% 65%;
+    --terminal-green: 120 40% 55%;
     
-    /* Gradients */
-    --gradient-retro: linear-gradient(135deg, hsl(120 100% 50%), hsl(180 100% 50%));
-    --gradient-terminal: linear-gradient(180deg, hsl(120 100% 35%), hsl(120 100% 25%));
-    --gradient-crt: radial-gradient(ellipse at center, hsl(220 100% 3%), hsl(220 100% 1%));
+    /* Gradients - softened */
+    --gradient-retro: linear-gradient(135deg, hsl(120 60% 60%), hsl(180 50% 65%));
+    --gradient-terminal: linear-gradient(180deg, hsl(120 40% 55%), hsl(120 30% 45%));
+    --gradient-crt: radial-gradient(ellipse at center, hsl(220 25% 10%), hsl(220 25% 6%));
     
-    /* Shadows and effects */
-    --glow-green: 0 0 20px hsl(120 100% 50% / 0.5);
-    --glow-cyan: 0 0 20px hsl(180 100% 50% / 0.5);
-    --glow-magenta: 0 0 20px hsl(300 100% 50% / 0.5);
-    --text-shadow-neon: 0 0 10px currentColor;
+    /* Shadows and effects - reduced intensity */
+    --glow-green: 0 0 15px hsl(120 60% 60% / 0.3);
+    --glow-cyan: 0 0 15px hsl(180 50% 65% / 0.3);
+    --glow-magenta: 0 0 15px hsl(300 50% 70% / 0.3);
+    --text-shadow-neon: 0 0 5px currentColor;
     
     /* Animations */
     --transition-glow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -83,12 +83,12 @@ All colors MUST be HSL.
     height: 100%;
     background: linear-gradient(
       transparent 50%, 
-      hsl(120 100% 50% / 0.02) 50%
+      hsl(120 30% 50% / 0.01) 50%
     );
-    background-size: 100% 4px;
+    background-size: 100% 6px;
     pointer-events: none;
     z-index: 1000;
-    animation: flicker 0.15s infinite linear;
+    animation: flicker 2s infinite linear;
   }
   
   .scanline {
@@ -96,16 +96,16 @@ All colors MUST be HSL.
     top: 0;
     left: 0;
     width: 100%;
-    height: 2px;
+    height: 1px;
     background: linear-gradient(
       90deg,
       transparent,
-      hsl(120 100% 50% / 0.8),
+      hsl(120 40% 60% / 0.4),
       transparent
     );
     pointer-events: none;
     z-index: 999;
-    animation: scanline 3s linear infinite;
+    animation: scanline 5s linear infinite;
   }
   
   .neon-text {

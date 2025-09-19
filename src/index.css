@@ -130,6 +130,14 @@ All colors MUST be HSL.
     box-shadow: 0 0 20px currentColor;
     text-shadow: 0 0 10px currentColor;
   }
+  
+  /* Retro tab styling */
+  .retro-tab {
+    @apply bg-transparent border border-border/50 text-muted-foreground font-mono
+           data-[state=active]:bg-neon-green/20 data-[state=active]:text-neon-green 
+           data-[state=active]:border-neon-green/50 data-[state=active]:shadow-[0_0_10px_hsl(var(--neon-green)/0.3)]
+           hover:bg-card/30 transition-all duration-300;
+  }
 }
 
 @layer utilities {

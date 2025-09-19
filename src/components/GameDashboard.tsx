@@ -1,46 +1,75 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CompanyAccount } from "@/components/CompanyAccount";
+import { DevelopmentTab } from "@/components/DevelopmentTab";
+import { MarketTab } from "@/components/MarketTab";
+import { CompanyManagement } from "@/components/CompanyManagement";
 import { 
-  DollarSign, 
-  Users, 
-  TrendingUp, 
-  Cpu, 
   Calendar,
   ChevronRight,
+  Building2,
+  Cpu,
   Monitor,
   Zap
 } from "lucide-react";
 
+interface ComputerModel {
+  id: string;
+  name: string;
+  cpu: string;
+  ram: string;
+  price: number;
+  unitsSold: number;
+  developmentCost: number;
+  releaseQuarter: number;
+  releaseYear: number;
+  status: 'development' | 'released' | 'discontinued';
+}
+
+interface Budget {
+  marketing: number;
+  development: number;
+  research: number;
+}
+
 interface GameState {
   company: {
     name: string;
+    logo: string;
     cash: number;
     employees: number;
     reputation: number;
     marketShare: number;
+    monthlyIncome: number;
+    monthlyExpenses: number;
   };
   quarter: number;
   year: number;
+  models: ComputerModel[];
+  budget: Budget;
 }
 
 interface GameDashboardProps {
   gameState: GameState;
   onNextTurn: () => void;
-  onDevelopComputer: () => void;
-  onViewMarket: () => void;
-  onManageTeam: () => void;
+  onBudgetChange: (newBudget: Budget) => void;
 }
 
 export const GameDashboard = ({ 
   gameState, 
   onNextTurn, 
-  onDevelopComputer,
-  onViewMarket,
-  onManageTeam 
+  onBudgetChange
 }: GameDashboardProps) => {
-  const formatCurrency = (amount: number) => 
-    `$${amount.toLocaleString()}`;
+  const getCompanyIcon = () => {
+    switch (gameState.company.logo) {
+      case 'building': return Building2;
+      case 'cpu': return Cpu;
+      case 'monitor': return Monitor;
+      case 'zap': return Zap;
+      default: return Building2;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-crt p-6">
@@ -50,13 +79,19 @@ export const GameDashboard = ({
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-4xl font-bold neon-text text-neon-green">
-                {gameState.company.name} CEO Terminal
-              </h1>
-              <p className="text-neon-cyan font-mono">
-                Q{gameState.quarter} {gameState.year} - Status: OPERATIONAL
-              </p>
+            <div className="flex items-center space-x-4">
+              {(() => {
+                const IconComponent = getCompanyIcon();
+                return <IconComponent className="w-12 h-12 text-neon-green" />;
+              })()}
+              <div>
+                <h1 className="text-4xl font-bold neon-text text-neon-green">
+                  {gameState.company.name}
+                </h1>
+                <p className="text-neon-cyan font-mono">
+                  Q{gameState.quarter} {gameState.year} - CEO Terminal
+                </p>
+              </div>
             </div>
             
             <Button 
@@ -70,143 +105,46 @@ export const GameDashboard = ({
             </Button>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="retro-border bg-card/50 backdrop-blur-sm">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Bargeld</p>
-                    <p className="text-2xl font-bold text-neon-green neon-text font-mono">
-                      {formatCurrency(gameState.company.cash)}
-                    </p>
-                  </div>
-                  <DollarSign className="w-8 h-8 text-neon-green" />
-                </div>
-              </div>
-            </Card>
+          {/* Tabs */}
+          <Tabs defaultValue="account" className="w-full">
+            <TabsList className="retro-border bg-card/50 backdrop-blur-sm p-1 mb-6">
+              <TabsTrigger value="account" className="retro-tab">
+                Firmenkonto
+              </TabsTrigger>
+              <TabsTrigger value="development" className="retro-tab">
+                Entwicklung
+              </TabsTrigger>
+              <TabsTrigger value="market" className="retro-tab">
+                Markt
+              </TabsTrigger>
+              <TabsTrigger value="management" className="retro-tab">
+                Unternehmen
+              </TabsTrigger>
+            </TabsList>
 
-            <Card className="retro-border bg-card/50 backdrop-blur-sm">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Mitarbeiter</p>
-                    <p className="text-2xl font-bold text-neon-cyan neon-text font-mono">
-                      {gameState.company.employees}
-                    </p>
-                  </div>
-                  <Users className="w-8 h-8 text-neon-cyan" />
-                </div>
-              </div>
-            </Card>
+            <TabsContent value="account" className="space-y-6">
+              <CompanyAccount gameState={gameState} />
+            </TabsContent>
 
-            <Card className="retro-border bg-card/50 backdrop-blur-sm">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Reputation</p>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-xl font-bold text-neon-magenta neon-text font-mono">
-                        {gameState.company.reputation}%
-                      </p>
-                    </div>
-                    <Progress 
-                      value={gameState.company.reputation} 
-                      className="mt-2 h-2" 
-                    />
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-neon-magenta" />
-                </div>
-              </div>
-            </Card>
+            <TabsContent value="development" className="space-y-6">
+              <DevelopmentTab 
+                models={gameState.models} 
+                onDevelopNewModel={() => {}} 
+              />
+            </TabsContent>
 
-            <Card className="retro-border bg-card/50 backdrop-blur-sm">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Marktanteil</p>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-xl font-bold text-amber neon-text font-mono">
-                        {gameState.company.marketShare}%
-                      </p>
-                    </div>
-                    <Progress 
-                      value={gameState.company.marketShare} 
-                      className="mt-2 h-2" 
-                    />
-                  </div>
-                  <Monitor className="w-8 h-8 text-amber" />
-                </div>
-              </div>
-            </Card>
-          </div>
+            <TabsContent value="market" className="space-y-6">
+              <MarketTab />
+            </TabsContent>
 
-          {/* Action Panel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="retro-border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all group">
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <Cpu className="w-8 h-8 text-neon-green mr-3" />
-                  <h3 className="text-xl font-bold text-primary neon-text">
-                    Computer entwickeln
-                  </h3>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  Entwickle neue Computer mit modernster 80er-Technologie
-                </p>
-                <Button 
-                  onClick={onDevelopComputer}
-                  className="w-full glow-button"
-                  variant="default"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  R&D Labor betreten
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="retro-border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all group">
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <TrendingUp className="w-8 h-8 text-neon-cyan mr-3" />
-                  <h3 className="text-xl font-bold text-primary neon-text">
-                    Markt analysieren
-                  </h3>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  Untersuche die Konkurrenz und Markttrends
-                </p>
-                <Button 
-                  onClick={onViewMarket}
-                  className="w-full glow-button"
-                  variant="secondary"
-                >
-                  Marktdaten abrufen
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="retro-border bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all group">
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <Users className="w-8 h-8 text-neon-magenta mr-3" />
-                  <h3 className="text-xl font-bold text-primary neon-text">
-                    Team verwalten
-                  </h3>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  Stelle Ingenieure und Designer ein oder befördere sie
-                </p>
-                <Button 
-                  onClick={onManageTeam}
-                  className="w-full glow-button"
-                  variant="secondary"
-                >
-                  HR-System öffnen
-                </Button>
-              </div>
-            </Card>
-          </div>
+            <TabsContent value="management" className="space-y-6">
+              <CompanyManagement 
+                budget={gameState.budget}
+                totalBudget={150000}
+                onBudgetChange={onBudgetChange}
+              />
+            </TabsContent>
+          </Tabs>
 
           {/* Terminal Footer */}
           <div className="mt-12 text-center">

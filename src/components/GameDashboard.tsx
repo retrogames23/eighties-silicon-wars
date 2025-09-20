@@ -54,12 +54,14 @@ interface GameDashboardProps {
   gameState: GameState;
   onNextTurn: () => void;
   onBudgetChange: (newBudget: Budget) => void;
+  onDevelopNewModel: () => void;
 }
 
 export const GameDashboard = ({ 
   gameState, 
   onNextTurn, 
-  onBudgetChange
+  onBudgetChange,
+  onDevelopNewModel
 }: GameDashboardProps) => {
   const getCompanyIcon = () => {
     switch (gameState.company.logo) {
@@ -129,7 +131,7 @@ export const GameDashboard = ({
             <TabsContent value="development" className="space-y-6">
               <DevelopmentTab 
                 models={gameState.models} 
-                onDevelopNewModel={() => {}} 
+                onDevelopNewModel={onDevelopNewModel} 
               />
             </TabsContent>
 

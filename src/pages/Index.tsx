@@ -57,11 +57,11 @@ const Index = () => {
     company: {
       name: '',
       logo: '',
-      cash: 500000, // Startkapital: 500.000 $
+      cash: 3000000, // Startkapital: 3 Millionen $
       employees: 8, // Kleines Team
       reputation: 0, // Noch unbekannt
       marketShare: 0, // Kein Marktanteil
-      monthlyIncome: 0, // Keine Einnahmen
+      monthlyIncome: 0, // Noch keine Einnahmen
       monthlyExpenses: 45000 // Laufende Kosten für 8 Mitarbeiter
     },
     quarter: 1,
@@ -98,33 +98,7 @@ const Index = () => {
   };
 
   const handleDevelopNewModel = () => {
-    const cpuOptions = ['MOS 6502', 'Zilog Z80', 'Motorola 68000', 'Intel 8086'];
-    const ramOptions = ['4KB', '8KB', '16KB', '32KB', '64KB', '128KB'];
-    
-    const randomCpu = cpuOptions[Math.floor(Math.random() * cpuOptions.length)];
-    const randomRam = ramOptions[Math.floor(Math.random() * ramOptions.length)];
-    
-    const newModel: ComputerModel = {
-      id: `model-${Date.now()}`,
-      name: `Computer-${gameState.models.length + 1}`,
-      cpu: randomCpu,
-      ram: randomRam,
-      price: Math.floor(Math.random() * 2000) + 500,
-      unitsSold: 0,
-      developmentCost: Math.floor(Math.random() * 100000) + 50000,
-      releaseQuarter: gameState.quarter + 1 > 4 ? 1 : gameState.quarter + 1,
-      releaseYear: gameState.quarter + 1 > 4 ? gameState.year + 1 : gameState.year,
-      status: 'development'
-    };
-
-    setGameState(prev => ({
-      ...prev,
-      models: [...prev.models, newModel],
-      company: {
-        ...prev.company,
-        cash: prev.company.cash - newModel.developmentCost
-      }
-    }));
+    setCurrentScreen('development');
   };
 
   const handleNextTurn = () => {

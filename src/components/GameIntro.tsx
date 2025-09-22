@@ -100,20 +100,10 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
             </div>
 
             {/* Controls */}
-            <div className="flex justify-center space-x-4">
-              <Button
-                onClick={playSound}
-                variant="outline"
-                className="glow-button"
-                disabled={audioPlaying}
-              >
-                <Volume2 className="w-5 h-5 mr-2" />
-                80s Sound
-              </Button>
-              
-              <Button
+            <div className="space-y-4">
+              <Button 
                 onClick={onComplete}
-                className="glow-button px-8 py-3 text-lg"
+                className="glow-button w-full"
                 variant="default"
               >
                 <ChevronRight className="w-5 h-5 mr-2" />
@@ -124,9 +114,9 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
             {/* Terminal Footer */}
             <div className="mt-12 text-center">
               <div className="inline-block p-3 bg-card/50 backdrop-blur-sm rounded border border-border/50">
-                <p className="text-sm text-terminal-green font-mono">
-                  {">>> SYSTEM INITIALISIERUNG... <<<"}
-                </p>
+              <p className="text-sm text-terminal-green font-mono">
+                {">>> WILLKOMMEN IN DEN 80ER JAHREN <<<"}
+              </p>
               </div>
             </div>
           </div>

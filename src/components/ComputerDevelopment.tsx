@@ -61,13 +61,33 @@ const components: Component[] = [
   { id: 'display3', name: 'RGB Monitor', type: 'display', performance: 65, cost: 500, description: 'Farb-Monitor RGB', year: 1981 },
 ];
 
-interface ComputerDevelopmentProps {
-  onBack: () => void;
+interface ComputerModel {
+  id: string;
+  name: string;
+  cpu: string;
+  gpu: string;
+  ram: string;
+  sound: string;
+  accessories: string[];
+  price: number;
+  developmentCost: number;
+  performance: number;
+  unitsSold: number;
+  status: 'development' | 'released';
+  releaseQuarter: number;
+  releaseYear: number;
 }
 
-export const ComputerDevelopment = ({ onBack }: ComputerDevelopmentProps) => {
+interface ComputerDevelopmentProps {
+  onBack: () => void;
+  onModelComplete: (model: ComputerModel) => void;
+}
+
+export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelopmentProps) => {
   const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
   const [developmentProgress, setDevelopmentProgress] = useState(0);
+  const [modelName, setModelName] = useState('');
+  const [showNameInput, setShowNameInput] = useState(false);
 
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0);
   const averagePerformance = selectedComponents.length > 0 
@@ -116,18 +136,45 @@ export const ComputerDevelopment = ({ onBack }: ComputerDevelopmentProps) => {
   };
 
   const startDevelopment = () => {
-    if (selectedComponents.length === 0) return;
-    
-    setDevelopmentProgress(0);
+    if (!modelName.trim()) {
+      setShowNameInput(true);
+      return;
+    }
+
     const interval = setInterval(() => {
       setDevelopmentProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
+          // Create the finished model
+          const cpu = selectedComponents.find(c => c.type === 'cpu');
+          const gpu = selectedComponents.find(c => c.type === 'gpu');
+          const memory = selectedComponents.find(c => c.type === 'memory');
+          const sound = selectedComponents.find(c => c.type === 'sound') || { name: 'PC Speaker' };
+          const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
+
+          const newModel: ComputerModel = {
+            id: Date.now().toString(),
+            name: modelName.trim(),
+            cpu: cpu?.name || '',
+            gpu: gpu?.name || '',
+            ram: memory?.name || '',
+            sound: sound.name,
+            accessories: accessories.map(a => a.name),
+            price: Math.round(totalCost * 2.5),
+            developmentCost: totalCost,
+            performance: averagePerformance,
+            unitsSold: 0,
+            status: 'released',
+            releaseQuarter: Math.floor(Math.random() * 4) + 1,
+            releaseYear: 1985 + Math.floor(Math.random() * 5)
+          };
+
+          onModelComplete(newModel);
           return 100;
         }
-        return prev + 2;
+        return prev + 10;
       });
-    }, 100);
+    }, 500);
   };
 
   const canDevelop = selectedComponents.some(c => c.type === 'cpu') && 
@@ -264,6 +311,20 @@ export const ComputerDevelopment = ({ onBack }: ComputerDevelopmentProps) => {
                         </div>
                       </div>
 
+                      {showNameInput && (
+                        <div className="space-y-2 mb-4">
+                          <label className="text-sm text-muted-foreground">Modellname:</label>
+                          <input
+                            type="text"
+                            value={modelName}
+                            onChange={(e) => setModelName(e.target.value)}
+                            placeholder="z.B. HomeComputer Pro 1985"
+                            className="w-full px-3 py-2 bg-background border border-terminal-green/30 rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-terminal-green"
+                            autoFocus
+                          />
+                        </div>
+                      )}
+
                       {developmentProgress > 0 && (
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
@@ -275,15 +336,37 @@ export const ComputerDevelopment = ({ onBack }: ComputerDevelopmentProps) => {
                       )}
 
                       <div className="space-y-2">
-                        <Button
-                          onClick={startDevelopment}
-                          disabled={!canDevelop || developmentProgress > 0}
-                          className="w-full glow-button"
-                        >
-                          {developmentProgress === 100 ? 'Entwicklung abgeschlossen!' : 
-                           developmentProgress > 0 ? 'Entwicklung läuft...' : 
-                           'Entwicklung starten'}
-                        </Button>
+                        {!showNameInput && !modelName && (
+                          <Button
+                            onClick={() => setShowNameInput(true)}
+                            disabled={!canDevelop}
+                            className="w-full glow-button"
+                          >
+                            Modellname festlegen
+                          </Button>
+                        )}
+                        
+                        {(showNameInput || modelName) && (
+                          <Button
+                            onClick={startDevelopment}
+                            disabled={!canDevelop || developmentProgress > 0 || !modelName.trim()}
+                            className="w-full glow-button"
+                          >
+                            {developmentProgress === 100 ? 'Entwicklung abgeschlossen!' : 
+                             developmentProgress > 0 ? 'Entwicklung läuft...' : 
+                             'Entwicklung starten'}
+                          </Button>
+                        )}
+                        
+                        {developmentProgress === 100 && (
+                          <Button
+                            onClick={onBack}
+                            className="w-full"
+                            variant="outline"
+                          >
+                            Zurück zum Dashboard
+                          </Button>
+                        )}
                         
                         {!canDevelop && (
                           <p className="text-xs text-red-400 text-center">

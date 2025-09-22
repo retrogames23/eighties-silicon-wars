@@ -101,6 +101,17 @@ const Index = () => {
     setCurrentScreen('development');
   };
 
+  const handleModelComplete = (model: ComputerModel) => {
+    setGameState(prev => ({
+      ...prev,
+      models: [...prev.models, model],
+      company: {
+        ...prev.company,
+        cash: prev.company.cash - model.developmentCost
+      }
+    }));
+  };
+
   const handleNextTurn = () => {
     setGameState(prev => {
       const newQuarter = prev.quarter === 4 ? 1 : prev.quarter + 1;
@@ -143,6 +154,7 @@ const Index = () => {
         return (
           <ComputerDevelopment 
             onBack={() => setCurrentScreen('dashboard')}
+            onModelComplete={handleModelComplete}
           />
         );
       

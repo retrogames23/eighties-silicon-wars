@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 const PLAYLIST = [
   '/audio/Neon_Dreams.mp3',
-  '/audio/Virtual_Dreamscape.mp3'
+  '/audio/Virtual_Dreamscape.mp3',
+  '/audio/Digital_Dreamscape.mp3'
 ];
 
 export const useAudioManager = () => {

@@ -258,7 +258,9 @@ const Index = () => {
     setQuarterResults({
       quarter: gameState.quarter,
       year: gameState.year,
-      results: result.quarterResults
+      results: result.quarterResults,
+      newsEvents: result.newsEvents,
+      marketData: result.marketData
     });
     
     // Aktualisiere den Spielzustand für das nächste Quartal

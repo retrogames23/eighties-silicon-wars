@@ -9,6 +9,7 @@ import { GameEnd } from "@/components/GameEnd";
 import { MusicToggle } from "@/components/MusicToggle";
 import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
+import { SaveGameManager } from "@/components/SaveGameManager";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
 import { toast } from "@/hooks/use-toast";
 
@@ -88,6 +89,7 @@ const Index = () => {
   const [quarterResults, setQuarterResults] = useState<any>(null);
   const [tempModel, setTempModel] = useState<ComputerModel | null>(null);
   const [gameEndCondition, setGameEndCondition] = useState<GameEndCondition | null>(null);
+  const [showSaveManager, setShowSaveManager] = useState(false);
   
   // Hardware announcement state
   const [hardwareAnnouncement, setHardwareAnnouncement] = useState<{
@@ -327,6 +329,7 @@ const Index = () => {
     setGameEndCondition(null);
     setQuarterResults(null);
     setTempModel(null);
+    setShowSaveManager(false);
     setHardwareAnnouncement({ isOpen: false, newHardware: [] });
     setAnnouncedHardware([]);
     setGameState({
@@ -356,6 +359,16 @@ const Index = () => {
     });
   };
 
+  const handleLoadGame = (loadedGameState: GameState) => {
+    setGameState(loadedGameState);
+    setCurrentScreen('dashboard');
+    setShowSaveManager(false);
+  };
+
+  const handleOpenSaveManager = () => {
+    setShowSaveManager(true);
+  };
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -366,13 +379,14 @@ const Index = () => {
       
       case 'dashboard':
         return (
-          <GameDashboard 
-            gameState={gameState}
-            onNextTurn={handleNextTurn}
-            onBudgetChange={handleBudgetChange}
-            onDevelopNewModel={handleDevelopNewModel}
-            onDiscontinueModel={handleDiscontinueModel}
-          />
+        <GameDashboard
+          gameState={gameState}
+          onNextTurn={handleNextTurn}
+          onBudgetChange={handleBudgetChange}
+          onDevelopNewModel={handleDevelopNewModel}
+          onDiscontinueModel={handleDiscontinueModel}
+          onOpenSaveManager={handleOpenSaveManager}
+        />
         );
       
       case 'development':
@@ -440,6 +454,14 @@ const Index = () => {
         year={newspaper.year}
         newsEvents={newspaper.newsEvents}
         marketData={newspaper.marketData}
+      />
+      
+      {/* Save Game Manager */}
+      <SaveGameManager
+        gameState={gameState}
+        onLoadGame={handleLoadGame}
+        isOpen={showSaveManager}
+        onClose={() => setShowSaveManager(false)}
       />
     </>
   );

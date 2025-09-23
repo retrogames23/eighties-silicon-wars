@@ -14,7 +14,8 @@ import {
   Cpu,
   Monitor,
   Zap,
-  HelpCircle
+  HelpCircle,
+  Save
 } from "lucide-react";
 
 import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
@@ -64,6 +65,7 @@ interface GameDashboardProps {
   onBudgetChange: (newBudget: Budget) => void;
   onDevelopNewModel: () => void;
   onDiscontinueModel?: (modelId: string) => void;
+  onOpenSaveManager?: () => void;
 }
 
 export const GameDashboard = ({ 
@@ -71,7 +73,8 @@ export const GameDashboard = ({
   onNextTurn, 
   onBudgetChange,
   onDevelopNewModel,
-  onDiscontinueModel
+  onDiscontinueModel,
+  onOpenSaveManager
 }: GameDashboardProps) => {
   const [showTutorial, setShowTutorial] = useState(false);
   
@@ -117,6 +120,17 @@ export const GameDashboard = ({
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Hilfe
               </Button>
+              
+              {onOpenSaveManager && (
+                <Button 
+                  variant="outline"
+                  onClick={onOpenSaveManager}
+                  className="retro-border bg-card/20 hover:bg-card/40"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Speichern
+                </Button>
+              )}
               
               <Button 
                 onClick={onNextTurn}

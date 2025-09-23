@@ -828,11 +828,11 @@ export class GameMechanics {
     };
 
     // Realistische Verkaufsberechnung
-    const gamerAppeal = this.calculateGamerAppeal(model) * 0.8; // Reduziert für Realismus
-    const businessAppeal = this.calculateBusinessAppeal(model) * 0.8;
+    const gamerAppeal = this.calculateGamerAppeal(model); // Entferne 0.8 Reduktion
+    const businessAppeal = this.calculateBusinessAppeal(model); // Entferne 0.8 Reduktion
     
-    const marketingMultiplier = Math.sqrt(marketingBudget / 25000);
-    const reputationBonus = Math.max(0.5, playerReputation / 100);
+    const marketingMultiplier = Math.max(1.0, Math.sqrt(marketingBudget / 25000)); // Minimum 1.0
+    const reputationBonus = Math.max(0.8, playerReputation / 100); // Minimum 0.8
     
     // Preis-Akzeptanz
     const gamerPriceAcceptance = model.price > economicFactors.marketSegments.gamer.maxPrice ? 
@@ -848,7 +848,7 @@ export class GameMechanics {
       reputationBonus * 
       gamerPriceAcceptance *
       (economicFactors.marketSegments.gamer.size / 30000) * // Realistische Basis
-      (0.3 + Math.random() * 0.4) // 30-70% des theoretischen Potentials
+      (0.8 + Math.random() * 0.4) // 80-120% des theoretischen Potentials
     );
 
     const businessSales = Math.floor(
@@ -857,7 +857,7 @@ export class GameMechanics {
       reputationBonus * 
       businessPriceAcceptance *
       (economicFactors.marketSegments.business.size / 50000) * // Business kauft weniger Einheiten
-      (0.2 + Math.random() * 0.3) // 20-50% des theoretischen Potentials
+      (0.6 + Math.random() * 0.6) // 60-120% des theoretischen Potentials
     );
 
     const totalUnitsSold = Math.max(0, gamerSales + businessSales);

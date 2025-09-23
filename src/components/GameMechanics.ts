@@ -444,33 +444,60 @@ export class GameMechanics {
   static checkForNewHardware(
     previousResearchBudget: number,
     currentResearchBudget: number,
+    currentYear: number,
+    currentQuarter: number,
     announcedHardware: string[] = []
   ): { name: string; type: string; description: string; performance?: number }[] {
-    const previousLevel = Math.floor(previousResearchBudget / 25000);
-    const currentLevel = Math.floor(currentResearchBudget / 25000);
+    const previousLevel = Math.floor(previousResearchBudget / 15000); // Schnellerer Unlock: alle 15k statt 25k
+    const currentLevel = Math.floor(currentResearchBudget / 15000);
     
+    // Erweiterte Hardware-Details mit mehr Komponenten
     const hardwareDetails = {
+      // Level 1 (15k+)
       'Intel 8086': { type: 'cpu', description: '16-bit Prozessor, 5 MHz - Perfekt für Business-Anwendungen', performance: 35 },
       'TI TMS9918': { type: 'gpu', description: '256x192 Pixel, 16 Farben - Exzellent für Spiele', performance: 25 },
       '64KB RAM': { type: 'ram', description: 'Erweiterte Speicherkapazität für komplexere Programme', performance: 30 },
       'AY-3-8910': { type: 'sound', description: '3-Kanal Sound-Chip für beeindruckende Audioeffekte', performance: 20 },
+      
+      // Level 2 (30k+)
       'Motorola 68000': { type: 'cpu', description: '16/32-bit Prozessor, 8 MHz - Premium-Performance', performance: 45 },
       'Atari GTIA': { type: 'gpu', description: 'Fortschrittliche Grafik mit 256 Farben', performance: 30 },
       '256KB RAM': { type: 'ram', description: 'Viel Arbeitsspeicher für professionelle Anwendungen', performance: 50 },
       'SID 6581': { type: 'sound', description: 'Legendärer Sound-Synthesizer mit 3 Stimmen', performance: 35 },
+      
+      // Level 3 (45k+)
       'Intel 80286': { type: 'cpu', description: '16-bit Prozessor, 12 MHz - Top-Performance der 80er', performance: 65 },
       'Commodore VIC-II': { type: 'gpu', description: 'Der berühmte C64-Grafikchip mit Sprites', performance: 40 },
-      'Yamaha YM2149': { type: 'sound', description: 'Professioneller Sound-Chip für hochwertige Musik', performance: 25 }
+      'Yamaha YM2149': { type: 'sound', description: 'Professioneller Sound-Chip für hochwertige Musik', performance: 25 },
+      'Diskettenlaufwerk 3.5"': { type: 'accessory', description: 'Moderne 3.5" Disketten mit 720KB', performance: 25 },
+      
+      // Level 4 (60k+)
+      'Intel 80386': { type: 'cpu', description: '32-bit Prozessor, 16 MHz - Zukunftstechnologie', performance: 85 },
+      'VGA Graphics': { type: 'gpu', description: '640x480 Pixel, 256 Farben - Professionelle Grafik', performance: 55 },
+      '512KB RAM': { type: 'ram', description: 'Massive Speicherkapazität für komplexe Anwendungen', performance: 70 },
+      'AdLib Sound': { type: 'sound', description: 'FM-Synthesizer für hochwertige Musik und Effekte', performance: 45 },
+      
+      // Level 5 (75k+)
+      'Motorola 68030': { type: 'cpu', description: '32-bit Prozessor mit MMU - Workstation-Niveau', performance: 95 },
+      'Festplatte 20MB': { type: 'accessory', description: 'Permanenter Speicher für das Betriebssystem', performance: 60 },
+      '1MB RAM': { type: 'ram', description: 'Extrem viel Arbeitsspeicher für Multitasking', performance: 90 },
+      'SCSI Controller': { type: 'accessory', description: 'Schnelle Datenübertragung für Peripheriegeräte', performance: 40 }
     };
 
     const researchUnlocks = [
-      ['Intel 8086', 'TI TMS9918', '64KB RAM', 'AY-3-8910'],
-      ['Motorola 68000', 'Atari GTIA', '256KB RAM', 'SID 6581'],
-      ['Intel 80286', 'Commodore VIC-II', 'Yamaha YM2149']
+      ['Intel 8086', 'TI TMS9918', '64KB RAM', 'AY-3-8910'], // Level 1
+      ['Motorola 68000', 'Atari GTIA', '256KB RAM', 'SID 6581'], // Level 2
+      ['Intel 80286', 'Commodore VIC-II', 'Yamaha YM2149', 'Diskettenlaufwerk 3.5"'], // Level 3
+      ['Intel 80386', 'VGA Graphics', '512KB RAM', 'AdLib Sound'], // Level 4
+      ['Motorola 68030', 'Festplatte 20MB', '1MB RAM', 'SCSI Controller'] // Level 5
     ];
+
+    // Zeitbasierte Hardware-Freischaltungen (auch ohne Forschung)
+    const timeBasedUnlocks = this.getTimeBasedHardware(currentYear, currentQuarter);
 
     const newHardware: { name: string; type: string; description: string; performance?: number }[] = [];
     
+    // Forschungsbasierte Unlocks
     for (let level = previousLevel; level < Math.min(currentLevel, researchUnlocks.length); level++) {
       const unlockedComponents = researchUnlocks[level];
       for (const component of unlockedComponents) {
@@ -488,7 +515,53 @@ export class GameMechanics {
       }
     }
     
+    // Zeitbasierte Unlocks hinzufügen
+    for (const component of timeBasedUnlocks) {
+      if (!announcedHardware.includes(component) && !newHardware.find(hw => hw.name === component)) {
+        const details = hardwareDetails[component as keyof typeof hardwareDetails];
+        if (details) {
+          newHardware.push({
+            name: component,
+            type: details.type,
+            description: details.description + " (Markteinführung)",
+            performance: details.performance
+          });
+        }
+      }
+    }
+    
     return newHardware;
+  }
+
+  static getTimeBasedHardware(year: number, quarter: number): string[] {
+    const unlocks: string[] = [];
+    
+    // 1984 Q2: Intel 8086 wird allgemein verfügbar
+    if (year > 1984 || (year === 1984 && quarter >= 2)) {
+      unlocks.push('Intel 8086');
+    }
+    
+    // 1985 Q1: Erweiterte Grafikchips
+    if (year > 1985 || (year === 1985 && quarter >= 1)) {
+      unlocks.push('TI TMS9918', 'Atari GTIA');
+    }
+    
+    // 1985 Q3: Sound-Revolution
+    if (year > 1985 || (year === 1985 && quarter >= 3)) {
+      unlocks.push('SID 6581', 'AY-3-8910');
+    }
+    
+    // 1986 Q1: 16-bit Era beginnt
+    if (year > 1986 || (year === 1986 && quarter >= 1)) {
+      unlocks.push('Motorola 68000', 'Intel 80286');
+    }
+    
+    // 1986 Q4: 32-bit Technologie (früh aber teuer)
+    if (year > 1986 || (year === 1986 && quarter >= 4)) {
+      unlocks.push('Intel 80386');
+    }
+    
+    return unlocks;
   }
   static calculateMarketShare(
     playerModels: any[],
@@ -702,6 +775,8 @@ export class GameMechanics {
     marketingBudget: number,
     playerReputation: number,
     marketSize: number,
+    currentQuarter: number,
+    currentYear: number,
     competitorModels: CompetitorModel[] = []
   ): { 
     unitsSold: number; 
@@ -728,57 +803,58 @@ export class GameMechanics {
       }
     };
 
+    // Hardware-Lifecycle: Attraktivität sinkt über Zeit
+    const quartersSinceRelease = (currentYear - model.releaseYear) * 4 + 
+                                (currentQuarter - model.releaseQuarter);
+    const ageDecayFactor = Math.max(0.1, 1 - (quartersSinceRelease * 0.08)); // 8% Verlust pro Quartal
+
     const marketingMultiplier = Math.max(1, Math.sqrt(marketingBudget / 25000));
     const reputationBonus = Math.max(0.5, playerReputation / 100);
     
     // === GAMER-MARKT ===
-    const gamerAppeal = this.calculateGamerAppeal(model);
-    const gamerMarketSize = Math.floor(marketSize * 0.75); // 75% des Marktes sind Gamer
+    const gamerAppeal = this.calculateGamerAppeal(model) * ageDecayFactor;
+    const gamerMarketSize = Math.floor(marketSize * 0.7); // 70% des Marktes sind Gamer
     const gamerMaxPrice = 1200; // Gamer haben weniger Geld
     const gamerPriceSensitivity = model.price > gamerMaxPrice ? 
       Math.max(0.1, 1 - (model.price - gamerMaxPrice) / gamerMaxPrice) : 1.0;
     
+    // Realistische 80er-Jahre-Verkaufszahlen für Gamer-Segment
     const gamerSales = Math.floor(
       (gamerAppeal / 100) * 
       marketingMultiplier * 
       reputationBonus * 
       gamerPriceSensitivity *
-      (gamerMarketSize / 100000) * // Mehr realistische Basis: 100k statt 500k
-      (2 + Math.random() * 3) // Basis-Verkaufsfaktor: 2-5 statt 0.6-1.0
+      (gamerMarketSize / 20000) * // Basis: 20k für realistische Zahlen
+      (0.8 + Math.random() * 1.4) // Basis-Verkaufsfaktor: 0.8-2.2 für 16k-44k Einheiten bei gutem Appeal
     );
 
-    console.log(`Gamer Sales Calculation for ${model.name}:`, {
-      appeal: gamerAppeal,
-      marketingMult: marketingMultiplier.toFixed(2), 
-      reputationBonus: reputationBonus.toFixed(2),
-      priceSensitivity: gamerPriceSensitivity.toFixed(2),
-      marketFactor: (gamerMarketSize / 100000).toFixed(2),
+    console.log(`Gamer Sales for ${model.name} (Age: ${quartersSinceRelease}Q):`, {
+      appeal: gamerAppeal.toFixed(1),
+      ageDecay: ageDecayFactor.toFixed(2),
       result: gamerSales
     });
 
     // === BUSINESS-MARKT ===
-    const businessAppeal = this.calculateBusinessAppeal(model);
-    const businessMarketSize = Math.floor(marketSize * 0.25); // 25% des Marktes sind Business
+    const businessAppeal = this.calculateBusinessAppeal(model) * ageDecayFactor;
+    const businessMarketSize = Math.floor(marketSize * 0.3); // 30% des Marktes sind Business
     const businessMaxPrice = 5000; // Business zahlt mehr
     const businessPriceSensitivity = model.price > businessMaxPrice ? 
       Math.max(0.2, 1 - (model.price - businessMaxPrice) / (businessMaxPrice * 2)) : 
       Math.min(1.2, 1 + (businessMaxPrice - model.price) / (businessMaxPrice * 3)); // Teurere Computer = mehr Vertrauen
     
+    // Business kauft weniger Einheiten, aber zu höheren Preisen
     const businessSales = Math.floor(
       (businessAppeal / 100) * 
       marketingMultiplier * 
       reputationBonus * 
       businessPriceSensitivity *
-      (businessMarketSize / 50000) * // Angepasst: 50k statt 200k
-      (1.5 + Math.random() * 2.5) // Basis-Verkaufsfaktor: 1.5-4.0
+      (businessMarketSize / 40000) * // Basis: 40k für Business-Markt
+      (0.5 + Math.random() * 1.0) // Basis-Verkaufsfaktor: 0.5-1.5 für 12.5k-37.5k Einheiten
     );
 
-    console.log(`Business Sales Calculation for ${model.name}:`, {
-      appeal: businessAppeal,
-      marketingMult: marketingMultiplier.toFixed(2),
-      reputationBonus: reputationBonus.toFixed(2), 
-      priceSensitivity: businessPriceSensitivity.toFixed(2),
-      marketFactor: (businessMarketSize / 50000).toFixed(2),
+    console.log(`Business Sales for ${model.name}:`, {
+      appeal: businessAppeal.toFixed(1),
+      ageDecay: ageDecayFactor.toFixed(2),
       result: businessSales
     });
 
@@ -910,6 +986,8 @@ export class GameMechanics {
     updatedCompetitors: Competitor[];
     gameEndCondition?: GameEndCondition;
     newCustomChip?: CustomChip;
+    newsEvents?: any[];
+    marketData?: any;
   } {
     const { budget, models, company } = gameState;
     
@@ -948,6 +1026,8 @@ export class GameMechanics {
           budget.marketing, 
           company.reputation, 
           1000000,
+          gameState.quarter,
+          gameState.year,
           competitorModels
         );
         
@@ -1103,11 +1183,105 @@ export class GameMechanics {
       }
     };
 
+    // Generate news events and market data for newspaper
+    const newsEvents = this.generateNewsEvents(gameState.quarter, gameState.year, gameState, updatedCompetitors);
+    const marketData = this.generateMarketData(gameState, updatedCompetitors, modelSales);
+
     return {
       updatedGameState,
       quarterResults,
       updatedCompetitors,
-      newCustomChip
+      newCustomChip,
+      newsEvents,
+      marketData
+    };
+  }
+
+  static generateNewsEvents(quarter: number, year: number, gameState: any, competitors: Competitor[]): any[] {
+    const events = [];
+    
+    // Import news events from data
+    const { getNewsForQuarter } = require('@/data/NewsEvents');
+    const historicalNews = getNewsForQuarter(quarter, year);
+    events.push(...historicalNews);
+    
+    // Add dynamic competitor news
+    competitors.forEach(comp => {
+      const newModels = comp.models.filter(model => 
+        model.releaseQuarter === quarter && model.releaseYear === year
+      );
+      
+      if (newModels.length > 0) {
+        events.push({
+          id: `${comp.name}_${year}q${quarter}`,
+          quarter,
+          year,
+          category: 'competitor',
+          headline: `${comp.name} stellt ${newModels[0].name} vor`,
+          content: `${comp.name} hat einen neuen Computer für $${newModels[0].price.toLocaleString()} angekündigt. Das Gerät soll den Markt revolutionieren.`
+        });
+      }
+    });
+    
+    // Add technology advancement news
+    if (gameState.customChips && gameState.customChips.length > 0) {
+      const latestChip = gameState.customChips[gameState.customChips.length - 1];
+      events.push({
+        id: `custom_chip_${year}q${quarter}`,
+        quarter,
+        year,
+        category: 'tech',
+        headline: 'Kleine Firma entwickelt bahnbrechende Technologie',
+        content: `Ein unbekannter Hersteller hat "${latestChip.name}" entwickelt. Die Technologie könnte den Markt verändern.`
+      });
+    }
+    
+    return events;
+  }
+
+  static generateMarketData(gameState: any, competitors: Competitor[], modelSales: any[]): any {
+    // Calculate total market size growth
+    const baseMarketSize = 5000000; // $5M base market
+    const yearGrowth = (gameState.year - 1983) * 0.3; // 30% growth per year
+    const totalMarketSize = Math.floor(baseMarketSize * (1 + yearGrowth));
+    const marketGrowth = yearGrowth > 0 ? 0.3 : 0.15; // Growth rate
+    
+    // Top computers in the market (player + competitors)
+    const topComputers = [];
+    
+    // Add player models
+    modelSales.forEach(sale => {
+      if (sale.unitsSold > 0) {
+        topComputers.push({
+          name: sale.modelName,
+          company: gameState.company.name,
+          unitsSold: sale.unitsSold,
+          marketShare: (sale.unitsSold / 100000) * 100 // Rough market share calc
+        });
+      }
+    });
+    
+    // Add competitor models (simulated)
+    competitors.forEach(comp => {
+      comp.models.forEach(model => {
+        if (model.unitsSold > 0) {
+          topComputers.push({
+            name: model.name,
+            company: comp.name,
+            unitsSold: model.unitsSold,
+            marketShare: (model.unitsSold / 100000) * 100
+          });
+        }
+      });
+    });
+    
+    // Sort by units sold and take top 5
+    topComputers.sort((a, b) => b.unitsSold - a.unitsSold);
+    
+    return {
+      totalMarketSize,
+      marketGrowth,
+      topComputers: topComputers.slice(0, 5)
     };
   }
 }

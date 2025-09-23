@@ -8,6 +8,7 @@ import { QuarterResults } from "@/components/QuarterResults";
 import { GameEnd } from "@/components/GameEnd";
 import { MusicToggle } from "@/components/MusicToggle";
 import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
+import { Newspaper } from "@/components/Newspaper";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
 import { toast } from "@/hooks/use-toast";
 
@@ -96,6 +97,15 @@ const Index = () => {
   
   // Track announced hardware to avoid duplicates
   const [announcedHardware, setAnnouncedHardware] = useState<string[]>([]);
+  
+  // Newspaper state
+  const [newspaper, setNewspaper] = useState<{
+    isOpen: boolean;
+    quarter: number;
+    year: number;
+    newsEvents: any[];
+    marketData: any;
+  }>({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null });
   
   const [gameState, setGameState] = useState<GameState>({
     company: {
@@ -211,6 +221,8 @@ const Index = () => {
     const newHardware = GameMechanics.checkForNewHardware(
       previousResearchBudget,
       result.updatedGameState.budget.research,
+      gameState.year,
+      gameState.quarter,
       announcedHardware
     );
     
@@ -274,8 +286,37 @@ const Index = () => {
   };
 
   const handleContinueFromResults = () => {
+    // Show newspaper after quarter results
+    if (quarterResults && quarterResults.newsEvents && quarterResults.marketData) {
+      setNewspaper({
+        isOpen: true,
+        quarter: quarterResults.quarter,
+        year: quarterResults.year,
+        newsEvents: quarterResults.newsEvents,
+        marketData: quarterResults.marketData
+      });
+    }
     setCurrentScreen('dashboard');
     setQuarterResults(null);
+  };
+
+  const handleDiscontinueModel = (modelId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      models: prev.models.map(model => 
+        model.id === modelId 
+          ? { ...model, status: 'discontinued' as const }
+          : model
+      )
+    }));
+    
+    const model = gameState.models.find(m => m.id === modelId);
+    if (model) {
+      toast({
+        title: "Computer eingestellt",
+        description: `${model.name} wurde vom Markt genommen.`
+      });
+    }
   };
 
   const handleGameRestart = () => {
@@ -328,6 +369,7 @@ const Index = () => {
             onNextTurn={handleNextTurn}
             onBudgetChange={handleBudgetChange}
             onDevelopNewModel={handleDevelopNewModel}
+            onDiscontinueModel={handleDiscontinueModel}
           />
         );
       
@@ -386,6 +428,16 @@ const Index = () => {
         newHardware={hardwareAnnouncement.newHardware}
         currentYear={gameState.year}
         currentQuarter={gameState.quarter}
+      />
+      
+      {/* Newspaper Dialog */}
+      <Newspaper
+        isOpen={newspaper.isOpen}
+        onClose={() => setNewspaper({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null })}
+        quarter={newspaper.quarter}
+        year={newspaper.year}
+        newsEvents={newspaper.newsEvents}
+        marketData={newspaper.marketData}
       />
     </>
   );

@@ -63,13 +63,15 @@ interface GameDashboardProps {
   onNextTurn: () => void;
   onBudgetChange: (newBudget: Budget) => void;
   onDevelopNewModel: () => void;
+  onDiscontinueModel?: (modelId: string) => void;
 }
 
 export const GameDashboard = ({ 
   gameState, 
   onNextTurn, 
   onBudgetChange,
-  onDevelopNewModel
+  onDevelopNewModel,
+  onDiscontinueModel
 }: GameDashboardProps) => {
   const [showTutorial, setShowTutorial] = useState(false);
   
@@ -152,7 +154,8 @@ export const GameDashboard = ({
             <TabsContent value="development" className="space-y-6">
               <DevelopmentTab 
                 models={gameState.models} 
-                onDevelopNewModel={onDevelopNewModel} 
+                onDevelopNewModel={onDevelopNewModel}
+                onDiscontinueModel={onDiscontinueModel}
               />
             </TabsContent>
 

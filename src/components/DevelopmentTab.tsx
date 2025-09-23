@@ -23,9 +23,10 @@ interface ComputerModel {
 interface DevelopmentTabProps {
   models: ComputerModel[];
   onDevelopNewModel: () => void;
+  onDiscontinueModel?: (modelId: string) => void;
 }
 
-export const DevelopmentTab = ({ models, onDevelopNewModel }: DevelopmentTabProps) => {
+export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }: DevelopmentTabProps) => {
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
   
   const totalRevenue = models.reduce((sum, model) => sum + (model.unitsSold * model.price), 0);
@@ -221,6 +222,16 @@ export const DevelopmentTab = ({ models, onDevelopNewModel }: DevelopmentTabProp
                     value={Math.min(100, (model.unitsSold / 100000) * 100)} 
                     className="h-2" 
                   />
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onDiscontinueModel?.(model.id)}
+                      className="text-xs"
+                    >
+                      Vom Markt nehmen
+                    </Button>
+                  </div>
                 </div>
               )}
             </Card>

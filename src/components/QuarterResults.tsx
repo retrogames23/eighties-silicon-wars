@@ -23,7 +23,6 @@ interface QuarterResultsProps {
       marketing: number;
       development: number;
       research: number;
-      operations: number;
     };
     netProfit: number;
     competitorActions: string[];
@@ -124,10 +123,6 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
                   <div className="flex justify-between">
                     <span>Forschung:</span>
                     <span className="font-mono text-red-400">{formatCurrency(results.expenses.research)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Betrieb:</span>
-                    <span className="font-mono text-red-400">{formatCurrency(results.expenses.operations)}</span>
                   </div>
                 </div>
               </CardContent>

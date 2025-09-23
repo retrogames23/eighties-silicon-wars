@@ -29,7 +29,7 @@ interface NewspaperProps {
       unitsSold: number;
       marketShare: number;
     }>;
-  };
+  } | null;
 }
 
 const getCategoryIcon = (category: string) => {
@@ -106,34 +106,40 @@ export const Newspaper = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Gesamtmarkt:</span>
-                    <span className="font-mono text-green-400">
-                      {formatCurrency(marketData.totalMarketSize)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Wachstum:</span>
-                    <Badge variant={marketData.marketGrowth > 0 ? "default" : "destructive"}>
-                      {marketData.marketGrowth > 0 ? '+' : ''}{(marketData.marketGrowth * 100).toFixed(1)}%
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Top Computer dieser Periode:</h4>
-                  {marketData.topComputers.slice(0, 3).map((computer, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span className="truncate">{computer.name}</span>
-                      <span className="font-mono text-xs">
-                        {formatUnits(computer.unitsSold)}
+              {marketData ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Gesamtmarkt:</span>
+                      <span className="font-mono text-green-400">
+                        {formatCurrency(marketData.totalMarketSize)}
                       </span>
                     </div>
-                  ))}
+                    <div className="flex justify-between">
+                      <span>Wachstum:</span>
+                      <Badge variant={marketData.marketGrowth > 0 ? "default" : "destructive"}>
+                        {marketData.marketGrowth > 0 ? '+' : ''}{(marketData.marketGrowth * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm">Top Computer dieser Periode:</h4>
+                    {marketData.topComputers.slice(0, 3).map((computer, index) => (
+                      <div key={index} className="flex justify-between text-sm">
+                        <span className="truncate">{computer.name}</span>
+                        <span className="font-mono text-xs">
+                          {formatUnits(computer.unitsSold)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  Marktdaten werden geladen...
+                </div>
+              )}
             </CardContent>
           </Card>
 

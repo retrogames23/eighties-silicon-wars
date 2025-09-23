@@ -1,146 +1,71 @@
 import { useState, useRef, useEffect } from 'react';
-import { AIMusicGenerator } from '@/utils/aiMusicGenerator';
-
-interface Track {
-  name: 'scifi' | 'jungle' | 'monkey';
-  title: string;
-}
-
-const tracks: Track[] = [
-  {
-    name: 'scifi',
-    title: 'Scifi'
-  },
-  {
-    name: 'jungle', 
-    title: 'Jungle'
-  },
-  {
-    name: 'monkey',
-    title: 'Monkey'
-  }
-];
+import { RetroMusicGenerator } from '@/utils/retroMusicGenerator';
 
 export const useAudioManager = () => {
+  const [isEnabled, setIsEnabled] = useState(true); // Standardmäßig an
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isEnabled, setIsEnabled] = useState(true);
-  const audioGeneratorRef = useRef<AIMusicGenerator | null>(null);
-  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioGeneratorRef = useRef<RetroMusicGenerator | null>(null);
 
-  // Initialize audio generator
+  // Audio Generator initialisieren
   useEffect(() => {
     try {
-      audioGeneratorRef.current = new AIMusicGenerator();
-      audioGeneratorRef.current.setVolume(0.3);
+      audioGeneratorRef.current = new RetroMusicGenerator();
+      console.log('RetroMusicGenerator initialized');
     } catch (error) {
-      console.error('Web Audio API not supported:', error);
+      console.error('Audio initialization failed:', error);
     }
 
     return () => {
-      if (currentSourceRef.current) {
-        try {
-          currentSourceRef.current.stop();
-        } catch (e) {
-          // Source might already be stopped
-        }
+      if (audioGeneratorRef.current) {
+        audioGeneratorRef.current.stop();
       }
     };
   }, []);
 
-  const playTrack = async (index: number) => {
-    if (!isEnabled || !audioGeneratorRef.current) return;
-
-    // Stop current track
-    if (currentSourceRef.current) {
-      try {
-        currentSourceRef.current.stop();
-      } catch (e) {
-        // Source might already be stopped
-      }
+  // Musik automatisch starten wenn enabled
+  useEffect(() => {
+    if (isEnabled && audioGeneratorRef.current && !isPlaying) {
+      const startMusic = async () => {
+        try {
+          await audioGeneratorRef.current!.play();
+          setIsPlaying(true);
+          console.log('Music started automatically');
+        } catch (error) {
+          console.error('Failed to start music:', error);
+        }
+      };
+      
+      // Warte kurz nach Initialisierung
+      const timer = setTimeout(startMusic, 500);
+      return () => clearTimeout(timer);
     }
+  }, [isEnabled, audioGeneratorRef.current]);
+
+  const toggleMusic = async () => {
+    if (!audioGeneratorRef.current) return;
 
     try {
-      const track = tracks[index];
-      const source = await audioGeneratorRef.current.playTrack(track.name);
-      currentSourceRef.current = source;
-      
-      // Set up ended listener for auto-next
-      source.onended = () => {
+      if (isEnabled && isPlaying) {
+        // Musik aus
+        audioGeneratorRef.current.stop();
         setIsPlaying(false);
-        // Auto-play next track after 1 second
-        setTimeout(() => {
-          nextTrack();
-        }, 1000);
-      };
-
-      setIsPlaying(true);
-      setCurrentTrackIndex(index);
+        setIsEnabled(false);
+        console.log('Music stopped');
+      } else {
+        // Musik an
+        await audioGeneratorRef.current.play();
+        setIsPlaying(true);
+        setIsEnabled(true);
+        console.log('Music started');
+      }
     } catch (error) {
-      console.error('Error playing track:', error);
-      setIsPlaying(false);
+      console.error('Failed to toggle music:', error);
     }
   };
-
-  const nextTrack = () => {
-    const nextIndex = (currentTrackIndex + 1) % tracks.length;
-    playTrack(nextIndex);
-  };
-
-  const toggleMusic = () => {
-    if (isPlaying) {
-      // Stop current track
-      if (currentSourceRef.current) {
-        try {
-          currentSourceRef.current.stop();
-          currentSourceRef.current = null;
-        } catch (e) {
-          // Source might already be stopped
-        }
-      }
-      setIsPlaying(false);
-    } else if (isEnabled) {
-      // Start playing current track
-      playTrack(currentTrackIndex);
-    }
-  };
-
-  const setEnabled = (enabled: boolean) => {
-    setIsEnabled(enabled);
-    if (!enabled) {
-      // Stop current track
-      if (currentSourceRef.current) {
-        try {
-          currentSourceRef.current.stop();
-          currentSourceRef.current = null;
-        } catch (e) {
-          // Source might already be stopped
-        }
-      }
-      setIsPlaying(false);
-    } else if (!isPlaying) {
-      // Start playing when enabling
-      playTrack(currentTrackIndex);
-    }
-  };
-
-  // Auto-start music when component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isEnabled && audioGeneratorRef.current) {
-        playTrack(0);
-      }
-    }, 1000); // Wait 1 second before auto-starting
-
-    return () => clearTimeout(timer);
-  }, [isEnabled]);
 
   return {
-    isPlaying,
     isEnabled,
-    currentTrack: tracks[currentTrackIndex],
-    toggleMusic,
-    setEnabled,
-    nextTrack
+    isPlaying,
+    toggleMusic
   };
 };

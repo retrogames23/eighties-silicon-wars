@@ -26,14 +26,8 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
               {/* Stimmungsvoller Intro-Text */}
               <div className="space-y-3 text-sm text-muted-foreground font-mono leading-relaxed">
                 <p>
-                  Das Jahr ist 1983. MTV läuft rund um die Uhr, 
-                  der DeLorean fährt durch die Straßen und 
-                  Pac-Man erobert die Spielhallen.
-                </p>
-                
-                <p>
-                  Während Knight Rider über die Highways rast
-                  und Dallas die Fernsehbildschirme beherrscht,
+                  1983: Während Knight Rider über die Highways rast 
+                  und Dallas die Fernsehbildschirme beherrscht, 
                   beginnt eine stille Revolution in den 
                   Garagen und Kellern Amerikas.
                 </p>

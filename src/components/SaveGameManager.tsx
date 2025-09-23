@@ -86,6 +86,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
 
   // Check if Supabase is properly configured
   const supabaseReady = !!supabase;
+  console.log('[SaveGameManager] supabaseReady', supabaseReady);
 
   useEffect(() => {
     if (isOpen && supabaseReady) {

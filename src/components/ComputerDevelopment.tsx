@@ -21,6 +21,8 @@ import {
   ChevronLeft,
   DollarSign
 } from "lucide-react";
+import { TestReport } from "./TestReport";
+import { TestReportGenerator } from "./TestReportGenerator";
 
 interface Component {
   id: string;
@@ -166,7 +168,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
   const [sellingPrice, setSellingPrice] = useState(0);
-  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing'>('components');
+  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing' | 'testreport'>('components');
+  const [developedModel, setDevelopedModel] = useState<ComputerModel | null>(null);
 
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
@@ -230,7 +233,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
       developmentProgress: 0
     };
 
-    onModelComplete(newModel);
+    // Zeige Testbericht vor dem finalen Abschluss
+    setCurrentStep('testreport');
+    setDevelopedModel(newModel);
+  };
+
+  const finalizeModel = () => {
+    if (developedModel) {
+      onModelComplete(developedModel);
+    }
   };
 
   const canProceedToCase = selectedComponents.some(c => c.type === 'cpu') && 
@@ -325,9 +336,9 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className={`grid gap-6 ${currentStep === 'testreport' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
             {/* Hauptbereich */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className={currentStep === 'testreport' ? '' : 'lg:col-span-2 space-y-6'}>
               
               {/* SCHRITT 1: Komponenten-Auswahl */}
               {currentStep === 'components' && (
@@ -614,161 +625,172 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                                 )}
                                 {sellingPrice > maxPrice && (
                                   <p className="text-red-400">⚠️ Sehr hoher Preis - Verkaufsrisiko!</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                                 )}
+                               </div>
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               )}
+               
+               {/* SCHRITT 5: Testbericht */}
+               {currentStep === 'testreport' && developedModel && (
+                 <TestReport
+                   model={developedModel}
+                   testResult={TestReportGenerator.generateTestReport(developedModel, 1985)}
+                   onContinue={finalizeModel}
+                 />
+               )}
             </div>
 
-            {/* Seitenleiste - Konfiguration */}
-            <div className="space-y-6">
-              <Card className="retro-border bg-card/20 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-neon-cyan">Computer-Konfiguration</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {selectedComponents.length === 0 && !selectedCase ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      Wählen Sie Komponenten aus
-                    </p>
-                  ) : (
-                    <>
-                      <div className="space-y-2">
-                        {selectedComponents.map(comp => (
-                          <div key={comp.id} className="flex justify-between items-center text-sm">
-                            <span className="text-terminal-green">{comp.name}</span>
-                            <Badge className={getTypeColor(comp.type)}>
-                              {comp.performance}/100
-                            </Badge>
-                          </div>
-                        ))}
+            {/* Seitenleiste - nur wenn nicht im Testbericht */}
+            {currentStep !== 'testreport' && (
+              <div className="space-y-6">
+                <Card className="retro-border bg-card/20 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-neon-cyan">Computer-Konfiguration</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {selectedComponents.length === 0 && !selectedCase ? (
+                      <p className="text-muted-foreground text-center py-8">
+                        Wählen Sie Komponenten aus
+                      </p>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          {selectedComponents.map(comp => (
+                            <div key={comp.id} className="flex justify-between items-center text-sm">
+                              <span className="text-terminal-green">{comp.name}</span>
+                              <Badge className={getTypeColor(comp.type)}>
+                                {comp.performance}/100
+                              </Badge>
+                            </div>
+                          ))}
+                          
+                          {selectedCase && (
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-terminal-green">{selectedCase.name}</span>
+                              <Badge className="bg-gray-500/20 text-gray-300">
+                                Case
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
                         
-                        {selectedCase && (
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-terminal-green">{selectedCase.name}</span>
-                            <Badge className="bg-gray-500/20 text-gray-300">
-                              Case
-                            </Badge>
+                        <div className="border-t border-terminal-green/30 pt-4 space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Durchschnittliche Leistung:</span>
+                            <span className="text-neon-green font-bold">{averagePerformance}/100</span>
                           </div>
-                        )}
-                      </div>
-                      
-                      <div className="border-t border-terminal-green/30 pt-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Durchschnittliche Leistung:</span>
-                          <span className="text-neon-green font-bold">{averagePerformance}/100</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Komplexität:</span>
-                          <span className="text-neon-cyan font-bold">
-                            {averagePerformance <= 40 ? 'Einfach (1 Quartal)' : 'Mittel (2 Quartale)'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Entwicklungskosten:</span>
-                          <span className="text-neon-cyan font-bold">${totalCost.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Verkaufspreis:</span>
-                          <span className="text-yellow-400 font-bold">
-                            {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Vorschlag)`}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Navigation */}
-                      <div className="pt-4 space-y-2">
-                        {currentStep === 'components' && (
-                          <Button
-                            onClick={() => setCurrentStep('case')}
-                            disabled={!canProceedToCase}
-                            className="w-full glow-button"
-                          >
-                            <ChevronRight className="w-4 h-4 mr-2" />
-                            Weiter zu Gehäuse
-                          </Button>
-                        )}
-                        
-                        {currentStep === 'case' && (
-                          <div className="space-y-2">
-                            <Button
-                              onClick={() => setCurrentStep('components')}
-                              variant="outline"
-                              className="w-full retro-border bg-card/20"
-                            >
-                              <ChevronLeft className="w-4 h-4 mr-2" />
-                              Zurück zu Komponenten
-                            </Button>
-                            <Button
-                              onClick={() => setCurrentStep('name')}
-                              disabled={!selectedCase}
-                              className="w-full glow-button"
-                            >
-                              <ChevronRight className="w-4 h-4 mr-2" />
-                              Weiter zu Name
-                            </Button>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Komplexität:</span>
+                            <span className="text-neon-cyan font-bold">
+                              {averagePerformance <= 40 ? 'Einfach (1 Quartal)' : 'Mittel (2 Quartale)'}
+                            </span>
                           </div>
-                        )}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Entwicklungskosten:</span>
+                            <span className="text-neon-cyan font-bold">${totalCost.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Verkaufspreis:</span>
+                            <span className="text-yellow-400 font-bold">
+                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Vorschlag)`}
+                            </span>
+                          </div>
+                        </div>
                         
-                        {currentStep === 'name' && (
-                          <div className="space-y-2">
+                        {/* Navigation */}
+                        <div className="pt-4 space-y-2">
+                          {currentStep === 'components' && (
                             <Button
                               onClick={() => setCurrentStep('case')}
-                              variant="outline"
-                              className="w-full retro-border bg-card/20"
-                            >
-                              <ChevronLeft className="w-4 h-4 mr-2" />
-                              Zurück zu Gehäuse
-                            </Button>
-                            <Button
-                              onClick={() => setCurrentStep('pricing')}
-                              disabled={!canProceedToPricing}
+                              disabled={!canProceedToCase}
                               className="w-full glow-button"
                             >
                               <ChevronRight className="w-4 h-4 mr-2" />
-                              Weiter zu Preissetzung
+                              Weiter zu Gehäuse
                             </Button>
-                          </div>
-                        )}
-                        
-                        {currentStep === 'pricing' && (
-                          <div className="space-y-2">
-                            <Button
-                              onClick={() => setCurrentStep('name')}
-                              variant="outline"
-                              className="w-full retro-border bg-card/20"
-                            >
-                              <ChevronLeft className="w-4 h-4 mr-2" />
-                              Zurück zu Name
-                            </Button>
-                            <Button
-                              onClick={startDevelopment}
-                              disabled={!canFinish}
-                              className="w-full glow-button"
-                            >
-                              <Zap className="w-4 h-4 mr-2" />
-                              Entwicklung starten
-                            </Button>
-                          </div>
-                        )}
-                        
-                        {!canProceedToCase && currentStep === 'components' && (
-                          <p className="text-xs text-red-400 text-center">
-                            CPU, GPU und Arbeitsspeicher sind erforderlich
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                          )}
+                          
+                          {currentStep === 'case' && (
+                            <div className="space-y-2">
+                              <Button
+                                onClick={() => setCurrentStep('components')}
+                                variant="outline"
+                                className="w-full retro-border bg-card/20"
+                              >
+                                <ChevronLeft className="w-4 h-4 mr-2" />
+                                Zurück zu Komponenten
+                              </Button>
+                              <Button
+                                onClick={() => setCurrentStep('name')}
+                                disabled={!selectedCase}
+                                className="w-full glow-button"
+                              >
+                                <ChevronRight className="w-4 h-4 mr-2" />
+                                Weiter zu Name
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {currentStep === 'name' && (
+                            <div className="space-y-2">
+                              <Button
+                                onClick={() => setCurrentStep('case')}
+                                variant="outline"
+                                className="w-full retro-border bg-card/20"
+                              >
+                                <ChevronLeft className="w-4 h-4 mr-2" />
+                                Zurück zu Gehäuse
+                              </Button>
+                              <Button
+                                onClick={() => setCurrentStep('pricing')}
+                                disabled={!canProceedToPricing}
+                                className="w-full glow-button"
+                              >
+                                <ChevronRight className="w-4 h-4 mr-2" />
+                                Weiter zu Preissetzung
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {currentStep === 'pricing' && (
+                            <div className="space-y-2">
+                              <Button
+                                onClick={() => setCurrentStep('name')}
+                                variant="outline"
+                                className="w-full retro-border bg-card/20"
+                              >
+                                <ChevronLeft className="w-4 h-4 mr-2" />
+                                Zurück zu Name
+                              </Button>
+                              <Button
+                                onClick={startDevelopment}
+                                disabled={!canFinish}
+                                className="w-full glow-button"
+                              >
+                                <Zap className="w-4 h-4 mr-2" />
+                                Computer testen
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {!canProceedToCase && currentStep === 'components' && (
+                            <p className="text-xs text-red-400 text-center">
+                              CPU, GPU und Arbeitsspeicher sind erforderlich
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </div>

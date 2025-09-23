@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save, Upload, Trash2, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import type { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 interface ComputerModel {
@@ -74,11 +75,12 @@ interface SaveGameManagerProps {
   onLoadGame: (gameState: GameState) => void;
   isOpen: boolean;
   onClose: () => void;
+  user?: User | null;
 }
 
 type SaveGame = Database['public']['Tables']['save_games']['Row'];
 
-export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: SaveGameManagerProps) => {
+export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }: SaveGameManagerProps) => {
   const [saves, setSaves] = useState<SaveGame[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveName, setSaveName] = useState('');
@@ -100,14 +102,13 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
       return;
     }
 
+    if (!user) {
+      toast.error('Bitte melden Sie sich an, um Spielstände zu verwalten');
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('Bitte melde dich an, um Spielstände zu verwalten');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('save_games')
         .select('*')
@@ -130,14 +131,13 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
       return;
     }
 
+    if (!user) {
+      toast.error('Bitte melden Sie sich an, um zu speichern');
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('Bitte melde dich an, um zu speichern');
-        return;
-      }
-
       const saveData = {
         user_id: user.id,
         slot_number: slotNumber,
@@ -234,7 +234,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
 
         <div className="space-y-4">
           {/* Supabase Status Check */}
-          {!supabaseReady && (
+          {!supabaseReady ? (
             <Card className="p-4 border border-destructive/50 bg-destructive/10">
               <div className="text-center text-sm font-mono">
                 <p className="text-destructive mb-2">SUPABASE NICHT KONFIGURIERT</p>
@@ -243,13 +243,36 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
                 </p>
               </div>
             </Card>
-          )}
+          ) : !user ? (
+            <Card className="p-4 border border-amber-500/50 bg-amber-500/10">
+              <div className="text-center text-sm font-mono">
+                <p className="text-amber-600 mb-2">ANMELDUNG ERFORDERLICH</p>
+                <p className="text-muted-foreground text-xs mb-4">
+                  Sie müssen sich anmelden, um Spielstände zu speichern und zu laden.
+                </p>
+                <Button 
+                  onClick={() => {
+                    onClose();
+                    window.location.href = '/auth';
+                  }}
+                  size="sm"
+                  className="mb-2"
+                >
+                  Jetzt anmelden
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Haben Sie noch kein Konto? Sie können sich auf der Anmeldeseite registrieren.
+                </p>
+              </div>
+            </Card>
+          ) : null}
 
           {/* Vorhandene Spielstände */}
-          <div className="space-y-2">
-            <h3 className="font-mono text-sm text-muted-foreground">
-              GESPEICHERTE SPIELSTÄNDE
-            </h3>
+          {user && (
+            <div className="space-y-2">
+              <h3 className="font-mono text-sm text-muted-foreground">
+                GESPEICHERTE SPIELSTÄNDE
+              </h3>
             
             {saves.length === 0 ? (
               <Card className="p-4 text-center text-muted-foreground font-mono text-sm">
@@ -306,9 +329,10 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
               ))
             )}
           </div>
+          )}
 
           {/* Neuen Spielstand speichern */}
-          {getEmptySlots().length > 0 && (
+          {user && getEmptySlots().length > 0 && (
             <div className="space-y-2">
               <h3 className="font-mono text-sm text-muted-foreground">
                 NEUEN SPIELSTAND SPEICHERN

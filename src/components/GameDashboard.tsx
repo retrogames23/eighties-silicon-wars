@@ -7,6 +7,7 @@ import { DevelopmentTab } from "@/components/DevelopmentTab";
 import { MarketTab } from "@/components/MarketTab";
 import { CompanyManagement } from "@/components/CompanyManagement";
 import { GameTutorial } from "@/components/GameTutorial";
+import { UserProfile } from "@/components/UserProfile";
 import { 
   Calendar,
   ChevronRight,
@@ -66,6 +67,7 @@ interface GameDashboardProps {
   onDevelopNewModel: () => void;
   onDiscontinueModel?: (modelId: string) => void;
   onOpenSaveManager?: () => void;
+  user?: any;
 }
 
 export const GameDashboard = ({ 
@@ -74,7 +76,8 @@ export const GameDashboard = ({
   onBudgetChange,
   onDevelopNewModel,
   onDiscontinueModel,
-  onOpenSaveManager
+  onOpenSaveManager,
+  user
 }: GameDashboardProps) => {
   const [showTutorial, setShowTutorial] = useState(false);
   
@@ -122,14 +125,18 @@ export const GameDashboard = ({
               </Button>
               
               {onOpenSaveManager && (
-                <Button 
-                  variant="outline"
-                  onClick={onOpenSaveManager}
-                  className="retro-border bg-card/20 hover:bg-card/40"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Speichern
-                </Button>
+                <div className="flex items-center gap-4">
+                  <Button 
+                    variant="outline"
+                    onClick={onOpenSaveManager}
+                    className="retro-border bg-card/20 hover:bg-card/40"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Speichern
+                  </Button>
+                  
+                  <UserProfile user={user} />
+                </div>
               )}
               
               <Button 

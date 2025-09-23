@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { GameIntro } from "@/components/GameIntro";
 import { CompanySetup, CompanySetupData } from "@/components/CompanySetup";
 import { GameDashboard } from "@/components/GameDashboard";
@@ -85,6 +87,8 @@ interface GameState {
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
 
 const Index = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
   const [quarterResults, setQuarterResults] = useState<any>(null);
   const [tempModel, setTempModel] = useState<ComputerModel | null>(null);
@@ -369,6 +373,25 @@ const Index = () => {
     setShowSaveManager(true);
   };
 
+  // Auth state management
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -462,6 +485,7 @@ const Index = () => {
         onLoadGame={handleLoadGame}
         isOpen={showSaveManager}
         onClose={() => setShowSaveManager(false)}
+        user={user}
       />
     </>
   );

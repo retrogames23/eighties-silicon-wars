@@ -8,7 +8,7 @@ import { QuarterResults } from "@/components/QuarterResults";
 import { GameEnd } from "@/components/GameEnd";
 import { MusicToggle } from "@/components/MusicToggle";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 interface Company {
   id: string;
@@ -165,12 +165,14 @@ const Index = () => {
       setTempModel(null);
       setCurrentScreen('dashboard');
       
-      toast.success(`${finalModel.name} mit ${computerCase.name} Case entwickelt!`);
+      toast({
+        title: "🔧 Entwicklung gestartet",
+        description: `${finalModel.name} mit ${computerCase.name} Case wird entwickelt!`
+      });
     }
   };
 
   const handleModelComplete = (model: ComputerModel) => {
-    // This is now just for legacy - should not be called
     setGameState(prev => ({
       ...prev,
       models: [...prev.models, model],
@@ -180,6 +182,11 @@ const Index = () => {
       }
     }));
     setCurrentScreen('dashboard');
+    
+    toast({
+      title: "🔧 Entwicklung gestartet",
+      description: `${model.name} wird entwickelt! Dauert ${model.developmentTime} Quartal${model.developmentTime > 1 ? 'e' : ''}.`
+    });
   };
 
   const handleNextTurn = () => {
@@ -195,10 +202,24 @@ const Index = () => {
     
     // Custom Chip Benachrichtigung
     if (result.newCustomChip) {
-      toast.success(`🎉 Custom Hardware entwickelt: ${result.newCustomChip.name}!`, {
-        description: result.newCustomChip.description
+      toast({
+        title: "🎉 Custom Hardware entwickelt!",
+        description: `${result.newCustomChip.name}: ${result.newCustomChip.description}`
       });
     }
+    
+    // Benachrichtigung für fertiggestellte Computer
+    const newlyReleasedModels = result.updatedGameState.models.filter((model: any) => 
+      model.status === 'released' && 
+      gameState.models.find((oldModel: any) => oldModel.id === model.id)?.status === 'development'
+    );
+    
+    newlyReleasedModels.forEach((model: any) => {
+      toast({
+        title: "🚀 Computer fertiggestellt!",
+        description: `${model.name} ist jetzt verfügbar und geht in den Verkauf!`
+      });
+    });
     
     // Zeige Quartalsresultate
     setQuarterResults({

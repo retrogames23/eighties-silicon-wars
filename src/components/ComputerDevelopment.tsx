@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft,
   Cpu,
@@ -11,7 +13,12 @@ import {
   Volume2,
   Monitor,
   Disc,
-  Zap
+  Zap,
+  Package,
+  Gamepad2,
+  Briefcase,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 
 interface Component {
@@ -61,6 +68,64 @@ const components: Component[] = [
   { id: 'display3', name: 'RGB Monitor', type: 'display', performance: 65, cost: 500, description: 'Farb-Monitor RGB', year: 1981 },
 ];
 
+// Case-Daten
+const computerCases = [
+  {
+    id: 'beige-tower',
+    name: 'Beige Tower',
+    type: 'office' as const,
+    quality: 65,
+    design: 40,
+    price: 80,
+    description: 'Klassisches Business-Gehäuse in beigem Kunststoff'
+  },
+  {
+    id: 'black-desktop',
+    name: 'Black Desktop',
+    type: 'office' as const,
+    quality: 70,
+    design: 55,
+    price: 120,
+    description: 'Elegantes schwarzes Desktop-Gehäuse für den Bürobereich'
+  },
+  {
+    id: 'gamer-rgb',
+    name: 'RGB Gaming Case',
+    type: 'gamer' as const,
+    quality: 85,
+    design: 90,
+    price: 200,
+    description: 'Stylisches Gaming-Gehäuse mit LED-Beleuchtung'
+  },
+  {
+    id: 'retro-wood',
+    name: 'Holz-Optik Retro',
+    type: 'gamer' as const,
+    quality: 60,
+    design: 80,
+    price: 150,
+    description: 'Nostalgisches Gehäuse in Holzoptik für Retro-Liebhaber'
+  },
+  {
+    id: 'premium-metal',
+    name: 'Premium Metall',
+    type: 'office' as const,
+    quality: 95,
+    design: 85,
+    price: 300,
+    description: 'Hochwertiges Vollmetall-Gehäuse für professionelle Anwendungen'
+  },
+  {
+    id: 'compact-mini',
+    name: 'Compact Mini',
+    type: 'office' as const,
+    quality: 75,
+    design: 65,
+    price: 100,
+    description: 'Platzsparendes Mini-Gehäuse für den Schreibtisch'
+  }
+];
+
 interface ComputerModel {
   id: string;
   name: string;
@@ -95,13 +160,13 @@ interface ComputerDevelopmentProps {
   onCaseSelection: (model: ComputerModel) => void;
 }
 
-export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }: ComputerDevelopmentProps) => {
+export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelopmentProps) => {
   const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
-  const [developmentProgress, setDevelopmentProgress] = useState(0);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name'>('components');
 
-  const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0);
+  const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
@@ -122,6 +187,48 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
       setSelectedComponents(prev => [...prev, component]);
     }
   };
+
+  const startDevelopment = () => {
+    if (!modelName.trim() || !selectedCase) return;
+
+    const cpu = selectedComponents.find(c => c.type === 'cpu');
+    const gpu = selectedComponents.find(c => c.type === 'gpu');
+    const memory = selectedComponents.find(c => c.type === 'memory');
+    const sound = selectedComponents.find(c => c.type === 'sound') || { name: 'PC Speaker' };
+    const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
+
+    const complexity = Math.max(20, averagePerformance);
+    const developmentTime = complexity <= 40 ? 1 : 2;
+
+    const newModel: ComputerModel = {
+      id: Date.now().toString(),
+      name: modelName.trim(),
+      cpu: cpu?.name || '',
+      gpu: gpu?.name || '',
+      ram: memory?.name || '',
+      sound: sound.name,
+      accessories: accessories.map(a => a.name),
+      case: selectedCase,
+      price: Math.round(totalCost * 1.8),
+      developmentCost: totalCost,
+      performance: averagePerformance,
+      unitsSold: 0,
+      status: 'development',
+      releaseQuarter: Math.floor(Math.random() * 4) + 1,
+      releaseYear: 1985 + Math.floor(Math.random() * 5),
+      complexity: complexity,
+      developmentTime: developmentTime,
+      developmentProgress: 0
+    };
+
+    onModelComplete(newModel);
+  };
+
+  const canProceedToCase = selectedComponents.some(c => c.type === 'cpu') && 
+                          selectedComponents.some(c => c.type === 'gpu') && 
+                          selectedComponents.some(c => c.type === 'memory');
+
+  const canFinish = canProceedToCase && selectedCase && modelName.trim();
 
   const getComponentIcon = (type: Component['type']) => {
     switch (type) {
@@ -147,50 +254,6 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
     }
   };
 
-  const startDevelopment = () => {
-    if (!modelName.trim()) {
-      setShowNameInput(true);
-      return;
-    }
-
-    // Erstelle Computer direkt ohne setInterval - das Game-System übernimmt die Entwicklung
-    const cpu = selectedComponents.find(c => c.type === 'cpu');
-    const gpu = selectedComponents.find(c => c.type === 'gpu');
-    const memory = selectedComponents.find(c => c.type === 'memory');
-    const sound = selectedComponents.find(c => c.type === 'sound') || { name: 'PC Speaker' };
-    const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
-
-    const complexity = Math.max(20, averagePerformance); // Mindestens 20 Komplexität
-    const developmentTime = complexity <= 30 ? 1 : complexity <= 60 ? 2 : 3;
-
-    const newModel: ComputerModel = {
-      id: Date.now().toString(),
-      name: modelName.trim(),
-      cpu: cpu?.name || '',
-      gpu: gpu?.name || '',
-      ram: memory?.name || '',
-      sound: sound.name,
-      accessories: accessories.map(a => a.name),
-      price: Math.round(totalCost * 1.8), // Reduziert von 2.5x auf 1.8x für realistischere Preise
-      developmentCost: totalCost,
-      performance: averagePerformance,
-      unitsSold: 0,
-      status: 'development', // Startet in Entwicklung
-      releaseQuarter: Math.floor(Math.random() * 4) + 1,
-      releaseYear: 1985 + Math.floor(Math.random() * 5),
-      complexity: complexity,
-      developmentTime: developmentTime,
-      developmentProgress: 0 // Startet bei 0% - wird durch GameMechanics entwickelt
-    };
-
-    // Zur Case-Auswahl weiterleiten
-    onCaseSelection(newModel);
-  };
-
-  const canDevelop = selectedComponents.some(c => c.type === 'cpu') && 
-                    selectedComponents.some(c => c.type === 'gpu') && 
-                    selectedComponents.some(c => c.type === 'memory');
-
   return (
     <div className="min-h-screen bg-gradient-crt p-6">
       <div className="crt-screen">
@@ -214,86 +277,243 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
             </div>
           </div>
 
+          {/* Step Progress */}
+          <div className="flex items-center justify-center mb-8">
+            <div className="flex items-center space-x-4">
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
+                currentStep === 'components' ? 'bg-neon-green/20 text-neon-green' : 
+                canProceedToCase ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
+              }`}>
+                <Cpu className="w-4 h-4" />
+                <span className="font-mono">1. Komponenten</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
+                currentStep === 'case' ? 'bg-neon-green/20 text-neon-green' : 
+                selectedCase ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
+              }`}>
+                <Package className="w-4 h-4" />
+                <span className="font-mono">2. Gehäuse</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
+                currentStep === 'name' ? 'bg-neon-green/20 text-neon-green' : 
+                modelName ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
+              }`}>
+                <Zap className="w-4 h-4" />
+                <span className="font-mono">3. Name</span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Komponenten-Auswahl */}
+            {/* Hauptbereich */}
             <div className="lg:col-span-2 space-y-6">
-              {['cpu', 'gpu', 'memory', 'sound', 'storage', 'display'].map(type => (
-                <Card key={type} className="retro-border bg-card/20 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-neon-cyan flex items-center space-x-2">
-                      {(() => {
-                        const IconComponent = getComponentIcon(type as Component['type']);
-                        return <IconComponent className="w-5 h-5" />;
-                      })()}
-                      <span>
-                        {type === 'cpu' && 'Prozessor (CPU) *'}
-                        {type === 'gpu' && 'Grafik (GPU) *'}
-                        {type === 'memory' && 'Arbeitsspeicher *'}
-                        {type === 'sound' && 'Soundchip (Optional)'}
-                        {type === 'storage' && 'Speicher-Laufwerk (Optional)'}
-                        {type === 'display' && 'Bildschirm (Optional)'}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {components
-                        .filter(comp => comp.type === type)
-                        .map(component => {
-                          const isSelected = selectedComponents.some(c => c.id === component.id);
-                          const IconComponent = getComponentIcon(component.type);
-                          
-                          return (
-                            <div
-                              key={component.id}
-                              onClick={() => toggleComponent(component)}
-                              className={`
-                                p-3 rounded-lg border cursor-pointer transition-all hover:scale-105
-                                ${isSelected 
-                                  ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20' 
-                                  : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50'
-                                }
-                              `}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-center space-x-2">
-                                  <IconComponent className="w-4 h-4 text-terminal-green" />
-                                  <div>
-                                    <h4 className="font-semibold text-terminal-green">
-                                      {component.name}
-                                    </h4>
-                                    <p className="text-xs text-muted-foreground">
-                                      {component.description}
-                                    </p>
+              
+              {/* SCHRITT 1: Komponenten-Auswahl */}
+              {currentStep === 'components' && (
+                <>
+                  {['cpu', 'gpu', 'memory', 'sound', 'storage', 'display'].map(type => (
+                    <Card key={type} className="retro-border bg-card/20 backdrop-blur-sm">
+                      <CardHeader>
+                        <CardTitle className="text-neon-cyan flex items-center space-x-2">
+                          {(() => {
+                            const IconComponent = getComponentIcon(type as Component['type']);
+                            return <IconComponent className="w-5 h-5" />;
+                          })()}
+                          <span>
+                            {type === 'cpu' && 'Prozessor (CPU) *'}
+                            {type === 'gpu' && 'Grafik (GPU) *'}
+                            {type === 'memory' && 'Arbeitsspeicher *'}
+                            {type === 'sound' && 'Soundchip (Optional)'}
+                            {type === 'storage' && 'Speicher-Laufwerk (Optional)'}
+                            {type === 'display' && 'Bildschirm (Optional)'}
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {components
+                            .filter(comp => comp.type === type)
+                            .map(component => {
+                              const isSelected = selectedComponents.some(c => c.id === component.id);
+                              const IconComponent = getComponentIcon(component.type);
+                              
+                              return (
+                                <div
+                                  key={component.id}
+                                  onClick={() => toggleComponent(component)}
+                                  className={`
+                                    p-3 rounded-lg border cursor-pointer transition-all hover:scale-105
+                                    ${isSelected 
+                                      ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20' 
+                                      : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50'
+                                    }
+                                  `}
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <IconComponent className="w-4 h-4 text-terminal-green" />
+                                      <div>
+                                        <h4 className="font-semibold text-terminal-green">
+                                          {component.name}
+                                        </h4>
+                                        <p className="text-xs text-muted-foreground">
+                                          {component.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <Badge className={getTypeColor(component.type)}>
+                                        {component.performance}/100
+                                      </Badge>
+                                      <p className="text-xs text-terminal-green mt-1">
+                                        ${component.cost.toLocaleString()}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="text-right">
-                                  <Badge className={getTypeColor(component.type)}>
-                                    {component.performance}/100
-                                  </Badge>
-                                  <p className="text-xs text-terminal-green mt-1">
-                                    ${component.cost.toLocaleString()}
-                                  </p>
-                                </div>
+                              );
+                            })
+                          }
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              )}
+
+              {/* SCHRITT 2: Case-Auswahl */}
+              {currentStep === 'case' && (
+                <>
+                  {/* Gaming Cases */}
+                  <Card className="retro-border bg-card/20 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="text-neon-cyan flex items-center space-x-2">
+                        <Gamepad2 className="w-5 h-5" />
+                        <span>Gaming Gehäuse</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {computerCases.filter(c => c.type === 'gamer').map(computerCase => (
+                          <div
+                            key={computerCase.id}
+                            onClick={() => setSelectedCase(computerCase)}
+                            className={`
+                              p-4 rounded-lg border cursor-pointer transition-all hover:scale-105
+                              ${selectedCase?.id === computerCase.id 
+                                ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20' 
+                                : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50'
+                              }
+                            `}
+                          >
+                            <h4 className="font-semibold text-neon-cyan mb-2">{computerCase.name}</h4>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Qualität:</span>
+                                <span className="text-neon-green">{computerCase.quality}/100</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Design:</span>
+                                <span className="text-purple-400">{computerCase.design}/100</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Preis:</span>
+                                <span className="text-yellow-400">${computerCase.price}</span>
                               </div>
                             </div>
-                          );
-                        })
-                      }
-                    </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {computerCase.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Office Cases */}
+                  <Card className="retro-border bg-card/20 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="text-gray-400 flex items-center space-x-2">
+                        <Briefcase className="w-5 h-5" />
+                        <span>Büro Gehäuse</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {computerCases.filter(c => c.type === 'office').map(computerCase => (
+                          <div
+                            key={computerCase.id}
+                            onClick={() => setSelectedCase(computerCase)}
+                            className={`
+                              p-4 rounded-lg border cursor-pointer transition-all hover:scale-105
+                              ${selectedCase?.id === computerCase.id 
+                                ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20' 
+                                : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50'
+                              }
+                            `}
+                          >
+                            <h4 className="font-semibold text-gray-300 mb-2">{computerCase.name}</h4>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Qualität:</span>
+                                <span className="text-neon-green">{computerCase.quality}/100</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Design:</span>
+                                <span className="text-blue-400">{computerCase.design}/100</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Preis:</span>
+                                <span className="text-yellow-400">${computerCase.price}</span>
+                              </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {computerCase.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+
+              {/* SCHRITT 3: Name eingeben */}
+              {currentStep === 'name' && (
+                <Card className="retro-border bg-card/20 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-neon-cyan">Computer benennen</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Label htmlFor="model-name" className="text-muted-foreground">
+                      Geben Sie Ihrem Computer einen Namen:
+                    </Label>
+                    <Input
+                      id="model-name"
+                      value={modelName}
+                      onChange={(e) => setModelName(e.target.value)}
+                      placeholder="z.B. HomeComputer Pro 1985"
+                      className="bg-background border-terminal-green/30 focus:border-terminal-green"
+                      autoFocus
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Die Entwicklung dauert {averagePerformance <= 40 ? '1 Quartal' : '2 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
+                    </p>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
 
-            {/* Entwicklungs-Panel */}
+            {/* Seitenleiste - Konfiguration */}
             <div className="space-y-6">
               <Card className="retro-border bg-card/20 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="text-neon-cyan">Computer-Konfiguration</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {selectedComponents.length === 0 ? (
+                  {selectedComponents.length === 0 && !selectedCase ? (
                     <p className="text-muted-foreground text-center py-8">
                       Wählen Sie Komponenten aus
                     </p>
@@ -308,16 +528,25 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
                             </Badge>
                           </div>
                         ))}
+                        
+                        {selectedCase && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-terminal-green">{selectedCase.name}</span>
+                            <Badge className="bg-gray-500/20 text-gray-300">
+                              Case
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                       
-                       <div className="border-t border-terminal-green/30 pt-4 space-y-2">
+                      <div className="border-t border-terminal-green/30 pt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Durchschnittliche Leistung:</span>
                           <span className="text-neon-green font-bold">{averagePerformance}/100</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Komplexität:</span>
-                           <span className="text-neon-cyan font-bold">
+                          <span className="text-neon-cyan font-bold">
                             {averagePerformance <= 40 ? 'Einfach (1 Quartal)' : 'Mittel (2 Quartale)'}
                           </span>
                         </div>
@@ -325,47 +554,70 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
                           <span className="text-muted-foreground">Entwicklungskosten:</span>
                           <span className="text-neon-cyan font-bold">${totalCost.toLocaleString()}</span>
                         </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Verkaufspreis:</span>
+                          <span className="text-yellow-400 font-bold">
+                            ${Math.round(totalCost * 1.8).toLocaleString()}
+                          </span>
+                        </div>
                       </div>
 
-                      {showNameInput && (
-                        <div className="space-y-2 mb-4">
-                          <label className="text-sm text-muted-foreground">Modellname:</label>
-                          <input
-                            type="text"
-                            value={modelName}
-                            onChange={(e) => setModelName(e.target.value)}
-                            placeholder="z.B. HomeComputer Pro 1985"
-                            className="w-full px-3 py-2 bg-background border border-terminal-green/30 rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-terminal-green"
-                            autoFocus
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Die Entwicklung dauert {averagePerformance <= 40 ? '1 Quartal' : '2 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        {!showNameInput && !modelName && (
+                      {/* Navigation */}
+                      <div className="pt-4 space-y-2">
+                        {currentStep === 'components' && (
                           <Button
-                            onClick={() => setShowNameInput(true)}
-                            disabled={!canDevelop}
+                            onClick={() => setCurrentStep('case')}
+                            disabled={!canProceedToCase}
                             className="w-full glow-button"
                           >
-                            Computer entwickeln
+                            <ChevronRight className="w-4 h-4 mr-2" />
+                            Weiter zu Gehäuse
                           </Button>
                         )}
                         
-                        {(showNameInput || modelName) && (
-                          <Button
-                            onClick={startDevelopment}
-                            disabled={!canDevelop || !modelName.trim()}
-                            className="w-full glow-button"
-                          >
-                            Weiter zu Case-Auswahl
-                          </Button>
+                        {currentStep === 'case' && (
+                          <div className="space-y-2">
+                            <Button
+                              onClick={() => setCurrentStep('components')}
+                              variant="outline"
+                              className="w-full retro-border bg-card/20"
+                            >
+                              <ChevronLeft className="w-4 h-4 mr-2" />
+                              Zurück zu Komponenten
+                            </Button>
+                            <Button
+                              onClick={() => setCurrentStep('name')}
+                              disabled={!selectedCase}
+                              className="w-full glow-button"
+                            >
+                              <ChevronRight className="w-4 h-4 mr-2" />
+                              Weiter zu Name
+                            </Button>
+                          </div>
                         )}
                         
-                        {!canDevelop && (
+                        {currentStep === 'name' && (
+                          <div className="space-y-2">
+                            <Button
+                              onClick={() => setCurrentStep('case')}
+                              variant="outline"
+                              className="w-full retro-border bg-card/20"
+                            >
+                              <ChevronLeft className="w-4 h-4 mr-2" />
+                              Zurück zu Gehäuse
+                            </Button>
+                            <Button
+                              onClick={startDevelopment}
+                              disabled={!canFinish}
+                              className="w-full glow-button"
+                            >
+                              <Zap className="w-4 h-4 mr-2" />
+                              Entwicklung starten
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {!canProceedToCase && currentStep === 'components' && (
                           <p className="text-xs text-red-400 text-center">
                             CPU, GPU und Arbeitsspeicher sind erforderlich
                           </p>

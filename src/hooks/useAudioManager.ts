@@ -1,25 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
+import { Audio80sGenerator } from '@/utils/audioGenerator';
 
 interface Track {
-  name: string;
-  src: string;
+  name: 'scifi' | 'jungle' | 'monkey';
   title: string;
 }
 
 const tracks: Track[] = [
   {
     name: 'scifi',
-    src: '/audio/scifi-80s.mp3',
     title: 'Scifi'
   },
   {
-    name: 'jungle',
-    src: '/audio/jungle-80s.mp3', 
+    name: 'jungle', 
     title: 'Jungle'
   },
   {
     name: 'monkey',
-    src: '/audio/monkey-80s.mp3',
     title: 'Monkey'
   }
 ];
@@ -28,23 +25,61 @@ export const useAudioManager = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isEnabled, setIsEnabled] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioGeneratorRef = useRef<Audio80sGenerator | null>(null);
+  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
+  // Initialize audio generator
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.3; // Background music volume
-      audioRef.current.loop = false;
+    try {
+      audioGeneratorRef.current = new Audio80sGenerator();
+      audioGeneratorRef.current.setVolume(0.3);
+    } catch (error) {
+      console.error('Web Audio API not supported:', error);
     }
+
+    return () => {
+      if (currentSourceRef.current) {
+        try {
+          currentSourceRef.current.stop();
+        } catch (e) {
+          // Source might already be stopped
+        }
+      }
+    };
   }, []);
 
-  const playTrack = (index: number) => {
-    if (!isEnabled || !audioRef.current) return;
+  const playTrack = async (index: number) => {
+    if (!isEnabled || !audioGeneratorRef.current) return;
 
-    const track = tracks[index];
-    audioRef.current.src = track.src;
-    audioRef.current.play().catch(console.error);
-    setIsPlaying(true);
-    setCurrentTrackIndex(index);
+    // Stop current track
+    if (currentSourceRef.current) {
+      try {
+        currentSourceRef.current.stop();
+      } catch (e) {
+        // Source might already be stopped
+      }
+    }
+
+    try {
+      const track = tracks[index];
+      const source = await audioGeneratorRef.current.playTrack(track.name);
+      currentSourceRef.current = source;
+      
+      // Set up ended listener for auto-next
+      source.onended = () => {
+        setIsPlaying(false);
+        // Auto-play next track after 1 second
+        setTimeout(() => {
+          nextTrack();
+        }, 1000);
+      };
+
+      setIsPlaying(true);
+      setCurrentTrackIndex(index);
+    } catch (error) {
+      console.error('Error playing track:', error);
+      setIsPlaying(false);
+    }
   };
 
   const nextTrack = () => {
@@ -53,63 +88,52 @@ export const useAudioManager = () => {
   };
 
   const toggleMusic = () => {
-    if (!audioRef.current) return;
-
     if (isPlaying) {
-      audioRef.current.pause();
+      // Stop current track
+      if (currentSourceRef.current) {
+        try {
+          currentSourceRef.current.stop();
+          currentSourceRef.current = null;
+        } catch (e) {
+          // Source might already be stopped
+        }
+      }
       setIsPlaying(false);
     } else if (isEnabled) {
-      audioRef.current.play().catch(console.error);
-      setIsPlaying(true);
+      // Start playing current track
+      playTrack(currentTrackIndex);
     }
   };
 
   const setEnabled = (enabled: boolean) => {
     setIsEnabled(enabled);
-    if (!enabled && audioRef.current) {
-      audioRef.current.pause();
+    if (!enabled) {
+      // Stop current track
+      if (currentSourceRef.current) {
+        try {
+          currentSourceRef.current.stop();
+          currentSourceRef.current = null;
+        } catch (e) {
+          // Source might already be stopped
+        }
+      }
       setIsPlaying(false);
-    } else if (enabled && !isPlaying) {
+    } else if (!isPlaying) {
+      // Start playing when enabling
       playTrack(currentTrackIndex);
     }
   };
 
+  // Auto-start music when component mounts
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => {
-      nextTrack();
-    };
-
-    const handleCanPlay = () => {
-      if (isEnabled && !isPlaying) {
-        audio.play().catch(console.error);
-        setIsPlaying(true);
+    const timer = setTimeout(() => {
+      if (isEnabled && audioGeneratorRef.current) {
+        playTrack(0);
       }
-    };
+    }, 1000); // Wait 1 second before auto-starting
 
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('canplay', handleCanPlay);
-
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('canplay', handleCanPlay);
-    };
-  }, [currentTrackIndex, isEnabled, isPlaying]);
-
-  // Initialize audio element
-  useEffect(() => {
-    audioRef.current = new Audio();
-    playTrack(0);
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [isEnabled]);
 
   return {
     isPlaying,

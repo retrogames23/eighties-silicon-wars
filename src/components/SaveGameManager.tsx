@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Save, Upload, Trash2, Calendar } from 'lucide-react';
-import { supabase, SaveGame } from '@/lib/supabase';
+import { supabase, SaveGame, isSupabaseConfigured } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface ComputerModel {
@@ -81,13 +81,21 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
   const [saveName, setSaveName] = useState('');
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
+  // Check if Supabase is properly configured
+  const supabaseReady = isSupabaseConfigured() && supabase;
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && supabaseReady) {
       loadSaves();
     }
-  }, [isOpen]);
+  }, [isOpen, supabaseReady]);
 
   const loadSaves = async () => {
+    if (!supabaseReady) {
+      toast.error('Supabase ist nicht konfiguriert');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -113,6 +121,11 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
   };
 
   const saveGame = async (slotNumber: number, name: string) => {
+    if (!supabaseReady) {
+      toast.error('Supabase ist nicht konfiguriert');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -161,6 +174,11 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
   };
 
   const deleteSave = async (save: SaveGame) => {
+    if (!supabaseReady) {
+      toast.error('Supabase ist nicht konfiguriert');
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase
@@ -211,6 +229,18 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Supabase Status Check */}
+          {!supabaseReady && (
+            <Card className="p-4 border border-destructive/50 bg-destructive/10">
+              <div className="text-center text-sm font-mono">
+                <p className="text-destructive mb-2">SUPABASE NICHT KONFIGURIERT</p>
+                <p className="text-muted-foreground text-xs">
+                  Bitte konfiguriere deine Supabase-Verbindung, um Spielstände zu speichern.
+                </p>
+              </div>
+            </Card>
+          )}
+
           {/* Vorhandene Spielstände */}
           <div className="space-y-2">
             <h3 className="font-mono text-sm text-muted-foreground">

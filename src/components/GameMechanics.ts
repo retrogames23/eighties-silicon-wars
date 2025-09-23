@@ -367,61 +367,145 @@ export class GameMechanics {
     return ramMap[ram as keyof typeof ramMap] || 4;
   }
 
+  static calculateGamerAppeal(model: any): number {
+    // Gamer wollen: Gute Grafik, Sound, und spieletaugliche CPU
+    let appeal = 0;
+    
+    // Grafik ist sehr wichtig für Gamer (40% des Appeals)
+    const gpuScores = {
+      'MOS VIC': 20, 'TI TMS9918': 50, 'Atari GTIA': 70, 'Commodore VIC-II': 85
+    };
+    appeal += (gpuScores[model.gpu as keyof typeof gpuScores] || 10) * 0.4;
+    
+    // Sound ist wichtig (25% des Appeals) 
+    const soundScores = {
+      'PC Speaker': 10, 'AY-3-8910': 60, 'SID 6581': 90, 'Yamaha YM2149': 70
+    };
+    appeal += (soundScores[model.sound as keyof typeof soundScores] || 10) * 0.25;
+    
+    // CPU für Spiele (20% des Appeals)
+    const cpuGamingScores = {
+      'MOS 6502': 40, 'Zilog Z80': 50, 'Intel 8086': 30, 'Motorola 68000': 80, 'Intel 80286': 35
+    };
+    appeal += (cpuGamingScores[model.cpu as keyof typeof cpuGamingScores] || 20) * 0.2;
+    
+    // RGB Monitor Bonus (15% des Appeals)
+    const hasColorMonitor = model.accessories?.includes('RGB Monitor');
+    appeal += (hasColorMonitor ? 80 : 20) * 0.15;
+    
+    return Math.min(100, appeal);
+  }
+
+  static calculateBusinessAppeal(model: any): number {
+    // Büro will: Schnelle CPU, viel RAM, Speicher. Grafik/Sound egal
+    let appeal = 0;
+    
+    // CPU-Geschwindigkeit ist kritisch (50% des Appeals)
+    const cpuBusinessScores = {
+      'MOS 6502': 20, 'Zilog Z80': 30, 'Intel 8086': 70, 'Motorola 68000': 85, 'Intel 80286': 95
+    };
+    appeal += (cpuBusinessScores[model.cpu as keyof typeof cpuBusinessScores] || 20) * 0.5;
+    
+    // RAM-Menge ist sehr wichtig (35% des Appeals)
+    const ramAmount = this.getRAMAmount(model.ram);
+    const ramScore = Math.min(100, (ramAmount / 256) * 100); // 256KB = 100%
+    appeal += ramScore * 0.35;
+    
+    // Speicher-Laufwerk wichtig (15% des Appeals)  
+    const hasStorage = model.accessories?.some((acc: string) => 
+      acc.includes('Diskette') || acc.includes('Festplatte')
+    );
+    appeal += (hasStorage ? 80 : 20) * 0.15;
+    
+    return Math.min(100, appeal);
+  }
+
   static calculateModelSales(
     model: any,
     marketingBudget: number,
     playerReputation: number,
     marketSize: number,
     competitorModels: CompetitorModel[] = []
-  ): { unitsSold: number; revenue: number; additionalRevenue: { 
-    softwareLicenses: { games: number; office: number }; 
-    supportService: { b2c: number; b2b: number } 
-  } } {
+  ): { 
+    unitsSold: number; 
+    revenue: number; 
+    additionalRevenue: { 
+      softwareLicenses: { games: number; office: number }; 
+      supportService: { b2c: number; b2b: number } 
+    };
+    segmentBreakdown: {
+      gamer: { units: number; revenue: number };
+      business: { units: number; revenue: number };
+    }
+  } {
     if (model.status !== 'released') return { 
       unitsSold: 0, 
       revenue: 0, 
       additionalRevenue: { 
         softwareLicenses: { games: 0, office: 0 }, 
         supportService: { b2c: 0, b2b: 0 } 
-      } 
+      },
+      segmentBreakdown: {
+        gamer: { units: 0, revenue: 0 },
+        business: { units: 0, revenue: 0 }
+      }
     };
 
-    const performanceScore = this.calculateModelPerformance(model);
     const marketingMultiplier = Math.max(1, Math.sqrt(marketingBudget / 25000));
     const reputationBonus = Math.max(0.5, playerReputation / 100);
     
-    // Basis-Verkaufszahl abhängig von Preis-Leistung
-    const pricePerformanceRatio = performanceScore / (model.price / 100);
-    const baseAppeal = Math.max(50, pricePerformanceRatio * 20);
+    // === GAMER-MARKT ===
+    const gamerAppeal = this.calculateGamerAppeal(model);
+    const gamerMarketSize = Math.floor(marketSize * 0.75); // 75% des Marktes sind Gamer
+    const gamerMaxPrice = 1200; // Gamer haben weniger Geld
+    const gamerPriceSensitivity = model.price > gamerMaxPrice ? 
+      Math.max(0.1, 1 - (model.price - gamerMaxPrice) / gamerMaxPrice) : 1.0;
     
-    // Konkurrenzanalyse
-    const avgCompetitorPrice = competitorModels.length > 0 
-      ? competitorModels.reduce((sum, comp) => sum + comp.price, 0) / competitorModels.length
-      : 1500;
-    
-    const priceAdvantage = model.price < avgCompetitorPrice ? 1.2 : 
-                          model.price > avgCompetitorPrice * 1.5 ? 0.7 : 1.0;
-    
-    // Finale Verkaufszahl
-    const baseSales = Math.floor(
-      baseAppeal * marketingMultiplier * reputationBonus * priceAdvantage * 
-      (marketSize / 1000000) * (0.5 + Math.random() * 0.5)
+    const gamerSales = Math.floor(
+      (gamerAppeal / 100) * 
+      marketingMultiplier * 
+      reputationBonus * 
+      gamerPriceSensitivity *
+      (gamerMarketSize / 500000) * 
+      (0.6 + Math.random() * 0.4)
     );
+
+    // === BUSINESS-MARKT ===
+    const businessAppeal = this.calculateBusinessAppeal(model);
+    const businessMarketSize = Math.floor(marketSize * 0.25); // 25% des Marktes sind Business
+    const businessMaxPrice = 5000; // Business zahlt mehr
+    const businessPriceSensitivity = model.price > businessMaxPrice ? 
+      Math.max(0.2, 1 - (model.price - businessMaxPrice) / (businessMaxPrice * 2)) : 
+      Math.min(1.2, 1 + (businessMaxPrice - model.price) / (businessMaxPrice * 3)); // Teurere Computer = mehr Vertrauen
     
-    const unitsSold = Math.max(0, baseSales);
-    const hardwareRevenue = unitsSold * model.price;
+    const businessSales = Math.floor(
+      (businessAppeal / 100) * 
+      marketingMultiplier * 
+      reputationBonus * 
+      businessPriceSensitivity *
+      (businessMarketSize / 200000) * 
+      (0.4 + Math.random() * 0.6)
+    );
+
+    // Gesamtverkäufe
+    const totalUnitsSold = Math.max(0, gamerSales + businessSales);
+    const totalHardwareRevenue = totalUnitsSold * model.price;
     
     // Zusätzliche Einnahmequellen berechnen
-    const softwareLicenses = this.calculateSoftwareLicenseRevenue(model, unitsSold);
-    const supportService = this.calculateSupportServiceRevenue(model, unitsSold);
+    const softwareLicenses = this.calculateSoftwareLicenseRevenue(model, totalUnitsSold);
+    const supportService = this.calculateSupportServiceRevenue(model, totalUnitsSold);
     
     const totalAdditionalRevenue = softwareLicenses.games + softwareLicenses.office + 
                                   supportService.b2c + supportService.b2b;
     
     return { 
-      unitsSold, 
-      revenue: hardwareRevenue + totalAdditionalRevenue,
-      additionalRevenue: { softwareLicenses, supportService }
+      unitsSold: totalUnitsSold, 
+      revenue: totalHardwareRevenue + totalAdditionalRevenue,
+      additionalRevenue: { softwareLicenses, supportService },
+      segmentBreakdown: {
+        gamer: { units: gamerSales, revenue: gamerSales * model.price },
+        business: { units: businessSales, revenue: businessSales * model.price }
+      }
     };
   }
 
@@ -491,6 +575,7 @@ export class GameMechanics {
           revenue: sales.revenue,
           hardwareRevenue: sales.unitsSold * model.price,
           additionalRevenue: sales.additionalRevenue,
+          segmentBreakdown: sales.segmentBreakdown,
           price: model.price
         };
       }

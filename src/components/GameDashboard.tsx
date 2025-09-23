@@ -108,7 +108,7 @@ export const GameDashboard = ({
               </div>
             </div>
             
-            <div className="flex gap-4">
+            <div className="flex gap-4 mr-16">
               <Button 
                 variant="outline"
                 onClick={() => setShowTutorial(true)}

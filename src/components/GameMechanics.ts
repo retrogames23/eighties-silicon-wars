@@ -827,37 +827,60 @@ export class GameMechanics {
       }
     };
 
-    // Realistische Verkaufsberechnung
-    const gamerAppeal = this.calculateGamerAppeal(model); // Entferne 0.8 Reduktion
-    const businessAppeal = this.calculateBusinessAppeal(model); // Entferne 0.8 Reduktion
-    
-    const marketingMultiplier = Math.max(1.0, Math.sqrt(marketingBudget / 25000)); // Minimum 1.0
-    const reputationBonus = Math.max(0.8, playerReputation / 100); // Minimum 0.8
-    
-    // Preis-Akzeptanz
-    const gamerPriceAcceptance = model.price > economicFactors.marketSegments.gamer.maxPrice ? 
-      Math.max(0.1, 1 - (model.price - economicFactors.marketSegments.gamer.maxPrice) / economicFactors.marketSegments.gamer.maxPrice) : 1.0;
-    const businessPriceAcceptance = model.price > economicFactors.marketSegments.business.maxPrice ? 
-      Math.max(0.2, 1 - (model.price - economicFactors.marketSegments.business.maxPrice) / (economicFactors.marketSegments.business.maxPrice * 2)) : 
-      Math.min(1.2, 1 + (economicFactors.marketSegments.business.maxPrice - model.price) / (economicFactors.marketSegments.business.maxPrice * 3));
+    // Realistische Verkaufsberechnung (skalierte Basis mit Segmentgröße)
+    const gamerAppeal = this.calculateGamerAppeal(model);
+    const businessAppeal = this.calculateBusinessAppeal(model);
 
-    // Verkäufe berechnen
+    // Marketing- und Reputationswirkung
+    const marketingEffectiveness = Math.max(0.8, Math.min(3.0, Math.sqrt(marketingBudget / 25000)));
+    const reputationEffect = 0.8 + (playerReputation / 100) * 0.4; // 0.8 – 1.2
+
+    // Preisakzeptanz je Segment
+    const gamerPriceAcceptance = model.price > economicFactors.marketSegments.gamer.maxPrice 
+      ? Math.max(0.1, 1 - (model.price - economicFactors.marketSegments.gamer.maxPrice) / economicFactors.marketSegments.gamer.maxPrice)
+      : 1.0;
+    const businessPriceAcceptance = model.price > economicFactors.marketSegments.business.maxPrice 
+      ? Math.max(0.2, 1 - (model.price - economicFactors.marketSegments.business.maxPrice) / (economicFactors.marketSegments.business.maxPrice * 2))
+      : Math.min(1.2, 1 + (economicFactors.marketSegments.business.maxPrice - model.price) / (economicFactors.marketSegments.business.maxPrice * 3));
+
+    // Einfache Saisonalität
+    const seasonality = (seg: 'gamer'|'business') => {
+      const map = {
+        gamer: { 1: 0.9, 2: 1.0, 3: 1.1, 4: 1.35 },
+        business: { 1: 0.95, 2: 1.0, 3: 1.0, 4: 1.15 }
+      } as const;
+      return map[seg][currentQuarter as 1|2|3|4];
+    };
+
+    // Konkurrenzfaktor: ähnliche Preisklasse reduziert etwas
+    const competitorsInRange = (targetPrice: number) => (competitorModels || []).filter(m => Math.abs(m.price - targetPrice) <= targetPrice * 0.4).length;
+    const competitionFactorGamer = Math.max(0.6, 1 - competitorsInRange(model.price) * 0.04);
+    const competitionFactorBusiness = Math.max(0.6, 1 - competitorsInRange(model.price) * 0.03);
+
+    // Skalierte Basis pro Segment (liefert realistische Tausenderstücke)
+    const gamerBaseUnits = economicFactors.marketSegments.gamer.size * 0.6;     // 60% der Segmentgröße als Basis
+    const businessBaseUnits = economicFactors.marketSegments.business.size * 0.4; // 40% der Segmentgröße als Basis
+
     const gamerSales = Math.floor(
-      (gamerAppeal / 100) * 
-      marketingMultiplier * 
-      reputationBonus * 
+      gamerBaseUnits *
+      (gamerAppeal / 100) *
       gamerPriceAcceptance *
-      (economicFactors.marketSegments.gamer.size / 30000) * // Realistische Basis
-      (0.8 + Math.random() * 0.4) // 80-120% des theoretischen Potentials
+      marketingEffectiveness *
+      reputationEffect *
+      seasonality('gamer') *
+      competitionFactorGamer *
+      (0.9 + Math.random() * 0.3) // 90% – 120%
     );
 
     const businessSales = Math.floor(
-      (businessAppeal / 100) * 
-      marketingMultiplier * 
-      reputationBonus * 
+      businessBaseUnits *
+      (businessAppeal / 100) *
       businessPriceAcceptance *
-      (economicFactors.marketSegments.business.size / 50000) * // Business kauft weniger Einheiten
-      (0.6 + Math.random() * 0.6) // 60-120% des theoretischen Potentials
+      marketingEffectiveness *
+      reputationEffect *
+      seasonality('business') *
+      competitionFactorBusiness *
+      (0.8 + Math.random() * 0.4) // 80% – 120%
     );
 
     const totalUnitsSold = Math.max(0, gamerSales + businessSales);

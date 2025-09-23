@@ -1,4 +1,5 @@
 // Game mechanics and AI competition logic
+import { getNewsForQuarter } from '@/data/NewsEvents';
 
 export interface Competitor {
   id: string;
@@ -1200,8 +1201,7 @@ export class GameMechanics {
   static generateNewsEvents(quarter: number, year: number, gameState: any, competitors: Competitor[]): any[] {
     const events = [];
     
-    // Import news events from data
-    const { getNewsForQuarter } = require('@/data/NewsEvents');
+    // Get news events from data
     const historicalNews = getNewsForQuarter(quarter, year);
     events.push(...historicalNews);
     

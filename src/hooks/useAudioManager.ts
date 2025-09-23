@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Audio80sGenerator } from '@/utils/audioGenerator';
+import { AIMusicGenerator } from '@/utils/aiMusicGenerator';
 
 interface Track {
   name: 'scifi' | 'jungle' | 'monkey';
@@ -25,13 +25,13 @@ export const useAudioManager = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isEnabled, setIsEnabled] = useState(true);
-  const audioGeneratorRef = useRef<Audio80sGenerator | null>(null);
+  const audioGeneratorRef = useRef<AIMusicGenerator | null>(null);
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   // Initialize audio generator
   useEffect(() => {
     try {
-      audioGeneratorRef.current = new Audio80sGenerator();
+      audioGeneratorRef.current = new AIMusicGenerator();
       audioGeneratorRef.current.setVolume(0.3);
     } catch (error) {
       console.error('Web Audio API not supported:', error);

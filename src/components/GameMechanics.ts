@@ -262,14 +262,19 @@ export class GameMechanics {
   }
 
   static updateModelDevelopment(models: any[], developmentBudget: number): any[] {
-    const budgetSpeedMultiplier = Math.max(0.5, Math.min(2.0, developmentBudget / 50000)); // 0.5x - 2x Geschwindigkeit
+    const budgetSpeedMultiplier = Math.max(0.5, Math.min(2.0, developmentBudget / 30000)); // Angepasst: 30k = 1x Speed
+    
+    console.log(`Development Budget: $${developmentBudget}, Speed Multiplier: ${budgetSpeedMultiplier.toFixed(2)}`);
     
     return models.map(model => {
       if (model.status === 'development') {
         const progressIncrement = (100 / model.developmentTime) * budgetSpeedMultiplier;
         const newProgress = Math.min(100, model.developmentProgress + progressIncrement);
         
+        console.log(`Model: ${model.name}, Progress: ${model.developmentProgress}% → ${newProgress.toFixed(1)}% (+${progressIncrement.toFixed(1)}%)`);
+        
         if (newProgress >= 100) {
+          console.log(`🎉 Model ${model.name} is now RELEASED!`);
           return {
             ...model,
             status: 'released',
@@ -688,9 +693,18 @@ export class GameMechanics {
       marketingMultiplier * 
       reputationBonus * 
       gamerPriceSensitivity *
-      (gamerMarketSize / 500000) * 
-      (0.6 + Math.random() * 0.4)
+      (gamerMarketSize / 100000) * // Mehr realistische Basis: 100k statt 500k
+      (2 + Math.random() * 3) // Basis-Verkaufsfaktor: 2-5 statt 0.6-1.0
     );
+
+    console.log(`Gamer Sales Calculation for ${model.name}:`, {
+      appeal: gamerAppeal,
+      marketingMult: marketingMultiplier.toFixed(2), 
+      reputationBonus: reputationBonus.toFixed(2),
+      priceSensitivity: gamerPriceSensitivity.toFixed(2),
+      marketFactor: (gamerMarketSize / 100000).toFixed(2),
+      result: gamerSales
+    });
 
     // === BUSINESS-MARKT ===
     const businessAppeal = this.calculateBusinessAppeal(model);
@@ -705,9 +719,18 @@ export class GameMechanics {
       marketingMultiplier * 
       reputationBonus * 
       businessPriceSensitivity *
-      (businessMarketSize / 200000) * 
-      (0.4 + Math.random() * 0.6)
+      (businessMarketSize / 50000) * // Angepasst: 50k statt 200k
+      (1.5 + Math.random() * 2.5) // Basis-Verkaufsfaktor: 1.5-4.0
     );
+
+    console.log(`Business Sales Calculation for ${model.name}:`, {
+      appeal: businessAppeal,
+      marketingMult: marketingMultiplier.toFixed(2),
+      reputationBonus: reputationBonus.toFixed(2), 
+      priceSensitivity: businessPriceSensitivity.toFixed(2),
+      marketFactor: (businessMarketSize / 50000).toFixed(2),
+      result: businessSales
+    });
 
     // Gesamtverkäufe
     const totalUnitsSold = Math.max(0, gamerSales + businessSales);
@@ -868,6 +891,7 @@ export class GameMechanics {
     // 4. Berechne Verkäufe nur für veröffentlichte Modelle
     const modelSales = updatedModels.map((model: any) => {
       if (model.status === 'released') {
+        console.log(`Calculating sales for RELEASED model: ${model.name}`);
         const competitorModels = competitors.flatMap(comp => comp.models);
         const sales = this.calculateModelSales(
           model, 
@@ -876,6 +900,12 @@ export class GameMechanics {
           1000000,
           competitorModels
         );
+        
+        console.log(`Model ${model.name} sales:`, {
+          unitsSold: sales.unitsSold,
+          revenue: sales.revenue,
+          price: model.price
+        });
         
         return {
           modelName: model.name,
@@ -886,6 +916,8 @@ export class GameMechanics {
           segmentBreakdown: sales.segmentBreakdown,
           price: model.price
         };
+      } else {
+        console.log(`Skipping model ${model.name} - status: ${model.status}`);
       }
       return null;
     }).filter(Boolean);

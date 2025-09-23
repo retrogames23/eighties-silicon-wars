@@ -203,22 +203,41 @@ export class GameMechanics {
     return Math.min(100, score);
   }
 
-  static calculateRevenue(
+  static calculateModelSales(
     model: any,
-    marketShare: number,
     marketingBudget: number,
-    marketSize: number
-  ): number {
-    if (model.status !== 'released') return 0;
+    playerReputation: number,
+    marketSize: number,
+    competitorModels: CompetitorModel[] = []
+  ): { unitsSold: number; revenue: number } {
+    if (model.status !== 'released') return { unitsSold: 0, revenue: 0 };
 
     const performanceScore = this.calculateModelPerformance(model);
-    const marketingMultiplier = Math.sqrt(marketingBudget / 10000);
-    const priceCompetitiveness = Math.max(0.1, (3000 - model.price) / 3000);
+    const marketingMultiplier = Math.max(1, Math.sqrt(marketingBudget / 25000));
+    const reputationBonus = Math.max(0.5, playerReputation / 100);
     
-    const baseSales = (marketShare / 100) * marketSize * 0.1;
-    const adjustedSales = baseSales * (performanceScore / 100) * marketingMultiplier * priceCompetitiveness;
+    // Basis-Verkaufszahl abhängig von Preis-Leistung
+    const pricePerformanceRatio = performanceScore / (model.price / 100);
+    const baseAppeal = Math.max(50, pricePerformanceRatio * 20);
     
-    return Math.floor(adjustedSales * model.price);
+    // Konkurrenzanalyse
+    const avgCompetitorPrice = competitorModels.length > 0 
+      ? competitorModels.reduce((sum, comp) => sum + comp.price, 0) / competitorModels.length
+      : 1500;
+    
+    const priceAdvantage = model.price < avgCompetitorPrice ? 1.2 : 
+                          model.price > avgCompetitorPrice * 1.5 ? 0.7 : 1.0;
+    
+    // Finale Verkaufszahl
+    const baseSales = Math.floor(
+      baseAppeal * marketingMultiplier * reputationBonus * priceAdvantage * 
+      (marketSize / 1000000) * (0.5 + Math.random() * 0.5)
+    );
+    
+    const unitsSold = Math.max(0, baseSales);
+    const revenue = unitsSold * model.price;
+    
+    return { unitsSold, revenue };
   }
 
   static updateCompetitors(competitors: Competitor[], quarter: number, year: number): Competitor[] {
@@ -259,30 +278,130 @@ export class GameMechanics {
     return null;
   }
 
-  static applyBudgetEffects(gameState: any, budget: any): any {
-    const newState = { ...gameState };
-
-    // Marketing budget affects sales multiplier
-    const marketingMultiplier = Math.sqrt(budget.marketing / 10000);
+  static processQuarterTurn(gameState: any, competitors: Competitor[]): {
+    updatedGameState: any;
+    quarterResults: any;
+    updatedCompetitors: Competitor[];
+  } {
+    const { budget, models, company } = gameState;
     
-    // Development budget affects model development time and quality
-    const developmentMultiplier = budget.development / 25000;
-    
-    // Research budget unlocks new technologies over time
-    const researchPoints = budget.research / 1000;
-
-    // Apply effects to released models
-    newState.models = newState.models.map((model: any) => {
+    // Berechne Verkäufe für jedes Modell
+    const modelSales = models.map((model: any) => {
       if (model.status === 'released') {
-        const baseRevenue = this.calculateRevenue(model, newState.company.marketShare, budget.marketing, 1000000);
+        const competitorModels = competitors.flatMap(comp => comp.models);
+        const sales = this.calculateModelSales(
+          model, 
+          budget.marketing, 
+          company.reputation, 
+          1000000,
+          competitorModels
+        );
+        
         return {
-          ...model,
-          unitsSold: model.unitsSold + Math.floor(baseRevenue / model.price)
+          modelName: model.name,
+          unitsSold: sales.unitsSold,
+          revenue: sales.revenue,
+          price: model.price
         };
       }
-      return model;
+      return null;
+    }).filter(Boolean);
+
+    // Gesamteinnahmen und Verkäufe
+    const totalRevenue = modelSales.reduce((sum, sale) => sum + sale.revenue, 0);
+    const totalUnitsSold = modelSales.reduce((sum, sale) => sum + sale.unitsSold, 0);
+
+    // Ausgaben berechnen
+    const quarterlyExpenses = {
+      marketing: budget.marketing,
+      development: budget.development,  
+      research: budget.research,
+      operations: Math.max(10000, company.employees * 2000) // Grundkosten
+    };
+
+    const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
+    const netProfit = totalRevenue - totalExpenses;
+
+    // Marktanteil und Reputation aktualisieren
+    const oldMarketShare = company.marketShare || 5;
+    const salesImpact = Math.min(10, totalUnitsSold / 1000);
+    const marketShareChange = (salesImpact - 2) + (Math.random() - 0.5) * 2;
+    const newMarketShare = Math.max(0.1, Math.min(50, oldMarketShare + marketShareChange));
+
+    const oldReputation = company.reputation || 50;
+    const reputationChange = (totalUnitsSold > 0 ? 2 : -1) + 
+                           (budget.research > 50000 ? 1 : 0) +
+                           (Math.random() - 0.5) * 3;
+    const newReputation = Math.max(10, Math.min(100, oldReputation + reputationChange));
+
+    // Konkurrenz-Aktionen
+    const competitorActions: string[] = [];
+    
+    // Aktualisierte Konkurrenten
+    const updatedCompetitors = this.updateCompetitors(
+      competitors, 
+      gameState.quarter, 
+      gameState.year
+    );
+
+    // Aktionen der Konkurrenten dokumentieren  
+    updatedCompetitors.forEach(comp => {
+      const newModels = comp.models.filter(model => 
+        model.releaseQuarter === gameState.quarter && 
+        model.releaseYear === gameState.year
+      );
+      
+      if (newModels.length > 0) {
+        competitorActions.push(`${comp.name} hat ${newModels[0].name} veröffentlicht`);
+      }
     });
 
-    return newState;
+    // Marktereignis
+    const marketEvent = this.getRandomMarketEvent();
+    if (marketEvent) {
+      competitorActions.push(`Marktereignis: ${marketEvent.title}`);
+    }
+
+    // Aktualisierter Spielzustand
+    const updatedGameState = {
+      ...gameState,
+      company: {
+        ...company,
+        cash: company.cash + netProfit,
+        marketShare: newMarketShare,
+        reputation: newReputation
+      },
+      models: models.map((model: any) => {
+        const modelSale = modelSales.find(sale => sale.modelName === model.name);
+        if (modelSale) {
+          return {
+            ...model,
+            unitsSold: (model.unitsSold || 0) + modelSale.unitsSold,
+            quarterlyRevenue: modelSale.revenue
+          };
+        }
+        return model;
+      })
+    };
+
+    const quarterResults = {
+      modelSales,
+      totalRevenue,
+      totalUnitsSold,
+      marketShare: newMarketShare,
+      marketShareChange,
+      reputation: newReputation,
+      reputationChange,
+      expenses: quarterlyExpenses,
+      netProfit,
+      competitorActions,
+      marketEvent
+    };
+
+    return {
+      updatedGameState,
+      quarterResults,
+      updatedCompetitors
+    };
   }
 }

@@ -3,6 +3,7 @@ import { GameIntro } from "@/components/GameIntro";
 import { CompanySetup, CompanySetupData } from "@/components/CompanySetup";
 import { GameDashboard } from "@/components/GameDashboard";
 import { ComputerDevelopment } from "@/components/ComputerDevelopment";
+import { QuarterResults } from "@/components/QuarterResults";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent } from "@/components/GameMechanics";
 import { toast } from "sonner";
 
@@ -20,6 +21,9 @@ interface ComputerModel {
   name: string;
   cpu: string;
   ram: string;
+  gpu?: string;
+  soundchip?: string;
+  accessories?: string[];
   price: number;
   unitsSold: number;
   developmentCost: number;
@@ -54,10 +58,11 @@ interface GameState {
   totalMarketSize: number;
 }
 
-type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'market' | 'team';
+type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'quarter-results';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
+  const [quarterResults, setQuarterResults] = useState<any>(null);
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',
@@ -118,69 +123,37 @@ const Index = () => {
         cash: prev.company.cash - model.developmentCost
       }
     }));
+    setCurrentScreen('dashboard');
   };
 
   const handleNextTurn = () => {
-    setGameState(prev => {
-      const newQuarter = prev.quarter === 4 ? 1 : prev.quarter + 1;
-      const newYear = prev.quarter === 4 ? prev.year + 1 : prev.year;
-      
-      // Calculate quarterly revenue from released models
-      const quarterlyRevenue = prev.models.reduce((total, model) => {
-        if (model.status === 'released') {
-          return total + GameMechanics.calculateRevenue(
-            model, 
-            prev.company.marketShare, 
-            prev.budget.marketing, 
-            prev.totalMarketSize
-          );
-        }
-        return total;
-      }, 0);
-      
-      // Update market share based on performance
-      const newMarketShare = GameMechanics.calculateMarketShare(
-        prev.models,
-        prev.budget.marketing,
-        prev.company.reputation,
-        prev.competitors,
-        prev.totalMarketSize
-      );
-      
-      // Update competitors
-      const updatedCompetitors = GameMechanics.updateCompetitors(prev.competitors, newQuarter, newYear);
-      
-      // Check for market events
-      const marketEvent = GameMechanics.getRandomMarketEvent();
-      const newMarketEvents = marketEvent ? [...prev.marketEvents, marketEvent] : prev.marketEvents;
-      
-      // Show notifications
-      if (quarterlyRevenue > 0) {
-        toast.success(`Quartalsumsatz: $${quarterlyRevenue.toLocaleString()}`);
-      }
-      if (marketEvent) {
-        toast.info(`Marktereignis: ${marketEvent.title}`);
-      }
-      
-      // Budget expenses per quarter
-      const quarterlyBudgetCosts = (prev.budget.marketing + prev.budget.development + prev.budget.research) * 3;
-      
-      return {
-        ...prev,
-        quarter: newQuarter,
-        year: newYear,
-        competitors: updatedCompetitors,
-        marketEvents: newMarketEvents,
-        totalMarketSize: prev.totalMarketSize * (1 + (newYear - 1983) * 0.1), // Market grows 10% per year
-        company: {
-          ...prev.company,
-          cash: prev.company.cash + quarterlyRevenue - prev.company.monthlyExpenses * 3 - quarterlyBudgetCosts,
-          monthlyIncome: quarterlyRevenue / 3, // Show monthly equivalent
-          reputation: Math.min(100, Math.max(0, prev.company.reputation + (quarterlyRevenue > 0 ? 2 : -1))),
-          marketShare: newMarketShare
-        }
-      };
+    // Verarbeite das Quartal mit der neuen GameMechanics Logik
+    const result = GameMechanics.processQuarterTurn(gameState, gameState.competitors);
+    
+    // Zeige Quartalsresultate
+    setQuarterResults({
+      quarter: gameState.quarter,
+      year: gameState.year,
+      results: result.quarterResults
     });
+    
+    // Aktualisiere den Spielzustand für das nächste Quartal
+    const nextQuarter = gameState.quarter === 4 ? 1 : gameState.quarter + 1;
+    const nextYear = gameState.quarter === 4 ? gameState.year + 1 : gameState.year;
+    
+    setGameState({
+      ...result.updatedGameState,
+      quarter: nextQuarter,
+      year: nextYear,
+      competitors: result.updatedCompetitors
+    });
+    
+    setCurrentScreen('quarter-results');
+  };
+
+  const handleContinueFromResults = () => {
+    setCurrentScreen('dashboard');
+    setQuarterResults(null);
   };
 
   const renderCurrentScreen = () => {
@@ -208,6 +181,16 @@ const Index = () => {
             onModelComplete={handleModelComplete}
           />
         );
+      
+      case 'quarter-results':
+        return quarterResults ? (
+          <QuarterResults 
+            quarter={quarterResults.quarter}
+            year={quarterResults.year}
+            results={quarterResults.results}
+            onContinue={handleContinueFromResults}
+          />
+        ) : null;
       
       default:
         return <GameIntro onComplete={handleIntroComplete} />;

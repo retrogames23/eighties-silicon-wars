@@ -710,65 +710,65 @@ export class GameMechanics {
   }
 
   static calculateGamerAppeal(model: any): number {
-    // Gamer wollen: Gute Grafik, Sound, und spieletaugliche CPU
-    let appeal = 0;
+    // Vereinfachte und großzügigere Berechnung für Gamer
+    let appeal = 35; // Höherer Basis-Appeal
     
-    // Grafik ist sehr wichtig für Gamer (30% des Appeals)
-    const gpuScores = {
-      'MOS VIC': 20, 'TI TMS9918': 50, 'Atari GTIA': 70, 'Commodore VIC-II': 85
-    };
-    appeal += (gpuScores[model.gpu as keyof typeof gpuScores] || 10) * 0.3;
-    
-    // Sound ist wichtig (20% des Appeals) 
-    const soundScores = {
-      'PC Speaker': 10, 'AY-3-8910': 60, 'SID 6581': 90, 'Yamaha YM2149': 70
-    };
-    appeal += (soundScores[model.sound as keyof typeof soundScores] || 10) * 0.2;
-    
-    // CPU für Spiele (15% des Appeals)
+    // CPU wichtig für Performance (20%)
     const cpuGamingScores = {
-      'MOS 6502': 40, 'Zilog Z80': 50, 'Intel 8086': 30, 'Motorola 68000': 80, 'Intel 80286': 35
+      'MOS 6502': 50, 'Zilog Z80': 60, 'Intel 8086': 45, 'Motorola 68000': 85, 'Intel 80286': 50
     };
-    appeal += (cpuGamingScores[model.cpu as keyof typeof cpuGamingScores] || 20) * 0.15;
+    appeal += (cpuGamingScores[model.cpu as keyof typeof cpuGamingScores] || 50) * 0.20;
     
-    // RGB Monitor Bonus (15% des Appeals)
+    // Grafik sehr wichtig (25%)
+    const gpuScores = {
+      'MOS VIC': 40, 'TI TMS9918': 65, 'Atari GTIA': 80, 'Commodore VIC-II': 90
+    };
+    appeal += (gpuScores[model.gpu as keyof typeof gpuScores] || 40) * 0.25;
+    
+    // Sound wichtig für Gaming (20%)
+    const soundScores = {
+      'PC Speaker': 25, 'AY-3-8910': 70, 'SID 6581': 95, 'Yamaha YM2149': 80
+    };
+    appeal += (soundScores[model.sound as keyof typeof soundScores] || 25) * 0.20;
+    
+    // RGB Monitor Bonus (15%)
     const hasColorMonitor = model.accessories?.includes('RGB Monitor');
-    appeal += (hasColorMonitor ? 80 : 20) * 0.15;
+    appeal += (hasColorMonitor ? 85 : 40) * 0.15;
     
-    // Case Design sehr wichtig für Gamer (20% des Appeals)
-    const caseDesignScore = model.case?.type === 'gamer' ? model.case.design : 20;
-    appeal += (caseDesignScore || 20) * 0.2;
+    // Case Design (20%)
+    const caseDesignScore = model.case?.type === 'gamer' ? (model.case.design || 60) : 40;
+    appeal += caseDesignScore * 0.20;
     
-    return Math.min(100, appeal);
+    return Math.min(100, Math.max(60, appeal)); // Minimum 60%, Maximum 100%
   }
 
   static calculateBusinessAppeal(model: any): number {
-    // Büro will: Schnelle CPU, viel RAM, Speicher. Grafik/Sound egal
-    let appeal = 0;
+    // Vereinfachte und großzügigere Berechnung für Business
+    let appeal = 40; // Höherer Basis-Appeal
     
-    // CPU-Geschwindigkeit ist kritisch (40% des Appeals)
+    // CPU-Geschwindigkeit ist kritisch (35%)
     const cpuBusinessScores = {
-      'MOS 6502': 20, 'Zilog Z80': 30, 'Intel 8086': 70, 'Motorola 68000': 85, 'Intel 80286': 95
+      'MOS 6502': 35, 'Zilog Z80': 45, 'Intel 8086': 80, 'Motorola 68000': 90, 'Intel 80286': 100
     };
-    appeal += (cpuBusinessScores[model.cpu as keyof typeof cpuBusinessScores] || 20) * 0.4;
+    appeal += (cpuBusinessScores[model.cpu as keyof typeof cpuBusinessScores] || 35) * 0.35;
     
-    // RAM-Menge ist sehr wichtig (30% des Appeals)
+    // RAM-Menge ist sehr wichtig (25%)
     const ramAmount = this.getRAMAmount(model.ram);
-    const ramScore = Math.min(100, (ramAmount / 256) * 100); // 256KB = 100%
-    appeal += ramScore * 0.3;
+    const ramScore = Math.min(100, Math.max(40, (ramAmount / 128) * 80)); // Großzügiger
+    appeal += ramScore * 0.25;
     
-    // Speicher-Laufwerk wichtig (15% des Appeals)  
+    // Speicher-Laufwerk wichtig (20%)  
     const hasStorage = model.accessories?.some((acc: string) => 
       acc.includes('Diskette') || acc.includes('Festplatte')
     );
-    appeal += (hasStorage ? 80 : 20) * 0.15;
+    appeal += (hasStorage ? 85 : 35) * 0.20;
     
-    // Case Qualität wichtig für Business (15% des Appeals)
-    const caseQualityScore = model.case?.type === 'office' ? model.case.quality : 
-                            model.case?.quality || 30; // Gamer-Cases haben weniger Business-Appeal
-    appeal += (caseQualityScore || 30) * 0.15;
+    // Case Qualität wichtig für Business (20%)
+    const caseQualityScore = model.case?.type === 'office' ? (model.case.quality || 60) : 
+                            (model.case?.quality || 40);
+    appeal += caseQualityScore * 0.20;
     
-    return Math.min(100, appeal);
+    return Math.min(100, Math.max(55, appeal)); // Minimum 55%, Maximum 100%
   }
 
   // Aktualisiere GameMechanics für realistische Sales

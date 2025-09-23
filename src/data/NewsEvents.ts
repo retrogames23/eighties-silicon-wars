@@ -174,21 +174,59 @@ export const NEWS_EVENTS: NewsEvent[] = [
   }
 ];
 
+const usedNewsEvents = new Set<string>();
+
 export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] => {
-  const quarterNews = NEWS_EVENTS.filter(event => 
+  // Filtere Events für das spezifische Quartal
+  let quarterNews = NEWS_EVENTS.filter(event => 
     event.quarter === quarter && event.year === year
   );
   
-  // Add random world events if no specific events exist
+  // Entferne bereits verwendete Events
+  quarterNews = quarterNews.filter(event => !usedNewsEvents.has(event.id));
+  
+  // Markiere Events als verwendet
+  quarterNews.forEach(event => usedNewsEvents.add(event.id));
+  
+  // Falls keine spezifischen Events vorhanden sind, füge ein generelles Event hinzu
   if (quarterNews.length === 0) {
-    return [{
-      id: `${year}q${quarter}_random`,
-      quarter,
-      year,
-      category: 'market',
-      headline: 'Computermarkt wächst weiter',
-      content: 'Der Heimcomputermarkt zeigt weiterhin starkes Wachstum. Neue Technologien kündigen sich an.'
-    }];
+    const randomEvents = [
+      {
+        id: `${year}q${quarter}_market_growth`,
+        quarter,
+        year,
+        category: 'market' as const,
+        headline: 'Computermarkt erreicht neue Höchststände',
+        content: 'Der Heimcomputermarkt zeigt weiterhin beeindruckendes Wachstum. Analysten prognostizieren eine Verdopplung des Marktes in den nächsten zwei Jahren.',
+        impact: { marketGrowth: 0.1 }
+      },
+      {
+        id: `${year}q${quarter}_tech_innovation`,
+        quarter,
+        year,
+        category: 'tech' as const,
+        headline: 'Neue Prozessortechnologie kündigt sich an',
+        content: 'Chip-Hersteller arbeiten an leistungsfähigeren Prozessoren. Experten erwarten deutliche Verbesserungen in der Rechenleistung.',
+        impact: { marketGrowth: 0.05 }
+      },
+      {
+        id: `${year}q${quarter}_consumer_demand`,
+        quarter,
+        year,
+        category: 'market' as const,
+        headline: 'Verbraucher zeigen hohes Interesse an Heimcomputern',
+        content: 'Umfragen zeigen steigendes Interesse der Verbraucher an Heimcomputern für Büro und Freizeit.',
+        impact: { marketGrowth: 0.08 }
+      }
+    ];
+    
+    // Wähle ein zufälliges Event aus, das nicht bereits verwendet wurde
+    const availableEvents = randomEvents.filter(event => !usedNewsEvents.has(event.id));
+    if (availableEvents.length > 0) {
+      const selectedEvent = availableEvents[Math.floor(Math.random() * availableEvents.length)];
+      usedNewsEvents.add(selectedEvent.id);
+      return [selectedEvent];
+    }
   }
   
   return quarterNews;

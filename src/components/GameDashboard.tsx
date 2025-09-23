@@ -14,6 +14,8 @@ import {
   Zap
 } from "lucide-react";
 
+import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
+
 interface ComputerModel {
   id: string;
   name: string;
@@ -48,6 +50,9 @@ interface GameState {
   year: number;
   models: ComputerModel[];
   budget: Budget;
+  competitors: Competitor[];
+  marketEvents: MarketEvent[];
+  totalMarketSize: number;
 }
 
 interface GameDashboardProps {
@@ -136,7 +141,12 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="market" className="space-y-6">
-              <MarketTab />
+              <MarketTab 
+                competitors={gameState.competitors}
+                marketEvents={gameState.marketEvents}
+                totalMarketSize={gameState.totalMarketSize}
+                playerMarketShare={gameState.company.marketShare}
+              />
             </TabsContent>
 
             <TabsContent value="management" className="space-y-6">

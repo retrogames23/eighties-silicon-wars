@@ -3,6 +3,8 @@ import { GameIntro } from "@/components/GameIntro";
 import { CompanySetup, CompanySetupData } from "@/components/CompanySetup";
 import { GameDashboard } from "@/components/GameDashboard";
 import { ComputerDevelopment } from "@/components/ComputerDevelopment";
+import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent } from "@/components/GameMechanics";
+import { toast } from "sonner";
 
 interface Company {
   id: string;
@@ -47,6 +49,9 @@ interface GameState {
   year: number;
   models: ComputerModel[];
   budget: Budget;
+  competitors: Competitor[];
+  marketEvents: MarketEvent[];
+  totalMarketSize: number;
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'market' | 'team';
@@ -59,7 +64,7 @@ const Index = () => {
       logo: '',
       cash: 3000000, // Startkapital: 3 Millionen $
       employees: 8, // Kleines Team
-      reputation: 0, // Noch unbekannt
+      reputation: 50, // Startwert für Reputation
       marketShare: 0, // Kein Marktanteil
       monthlyIncome: 0, // Noch keine Einnahmen
       monthlyExpenses: 45000 // Laufende Kosten für 8 Mitarbeiter
@@ -71,7 +76,10 @@ const Index = () => {
       marketing: 15000,
       development: 25000, 
       research: 5000
-    }
+    },
+    competitors: INITIAL_COMPETITORS,
+    marketEvents: [],
+    totalMarketSize: 1000000 // 1 Million $ Gesamtmarkt 1983
   });
 
   const handleIntroComplete = () => {
@@ -117,16 +125,59 @@ const Index = () => {
       const newQuarter = prev.quarter === 4 ? 1 : prev.quarter + 1;
       const newYear = prev.quarter === 4 ? prev.year + 1 : prev.year;
       
+      // Calculate quarterly revenue from released models
+      const quarterlyRevenue = prev.models.reduce((total, model) => {
+        if (model.status === 'released') {
+          return total + GameMechanics.calculateRevenue(
+            model, 
+            prev.company.marketShare, 
+            prev.budget.marketing, 
+            prev.totalMarketSize
+          );
+        }
+        return total;
+      }, 0);
+      
+      // Update market share based on performance
+      const newMarketShare = GameMechanics.calculateMarketShare(
+        prev.models,
+        prev.budget.marketing,
+        prev.company.reputation,
+        prev.competitors,
+        prev.totalMarketSize
+      );
+      
+      // Update competitors
+      const updatedCompetitors = GameMechanics.updateCompetitors(prev.competitors, newQuarter, newYear);
+      
+      // Check for market events
+      const marketEvent = GameMechanics.getRandomMarketEvent();
+      const newMarketEvents = marketEvent ? [...prev.marketEvents, marketEvent] : prev.marketEvents;
+      
+      // Show notifications
+      if (quarterlyRevenue > 0) {
+        toast.success(`Quartalsumsatz: $${quarterlyRevenue.toLocaleString()}`);
+      }
+      if (marketEvent) {
+        toast.info(`Marktereignis: ${marketEvent.title}`);
+      }
+      
+      // Budget expenses per quarter
+      const quarterlyBudgetCosts = (prev.budget.marketing + prev.budget.development + prev.budget.research) * 3;
+      
       return {
         ...prev,
         quarter: newQuarter,
         year: newYear,
+        competitors: updatedCompetitors,
+        marketEvents: newMarketEvents,
+        totalMarketSize: prev.totalMarketSize * (1 + (newYear - 1983) * 0.1), // Market grows 10% per year
         company: {
           ...prev.company,
-          // Realistic quarterly changes - subtract expenses, no income initially
-          cash: prev.company.cash + prev.company.monthlyIncome * 3 - prev.company.monthlyExpenses * 3,
-          reputation: Math.min(100, Math.max(0, prev.company.reputation + Math.random() * 3 - 1)),
-          marketShare: Math.min(100, Math.max(0, prev.company.marketShare + Math.random() * 1 - 0.5))
+          cash: prev.company.cash + quarterlyRevenue - prev.company.monthlyExpenses * 3 - quarterlyBudgetCosts,
+          monthlyIncome: quarterlyRevenue / 3, // Show monthly equivalent
+          reputation: Math.min(100, Math.max(0, prev.company.reputation + (quarterlyRevenue > 0 ? 2 : -1))),
+          marketShare: newMarketShare
         }
       };
     });

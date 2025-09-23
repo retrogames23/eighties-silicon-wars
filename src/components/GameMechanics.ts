@@ -518,16 +518,39 @@ export class GameMechanics {
     };
   }
 
-  static updateCompetitors(competitors: Competitor[], quarter: number, year: number): Competitor[] {
+  static updateCompetitors(competitors: Competitor[], quarter: number, year: number, playerMarketShare: number = 0): Competitor[] {
+    // Historische Marktanteile basierend auf realen Daten der 80er Jahre
+    const historicalMarketShares = {
+      1983: { 'Apple Computer': 25, 'Commodore': 30, 'IBM': 20, 'Atari': 15 },
+      1984: { 'Apple Computer': 22, 'Commodore': 35, 'IBM': 25, 'Atari': 12 },
+      1985: { 'Apple Computer': 20, 'Commodore': 32, 'IBM': 30, 'Atari': 10 },
+      1986: { 'Apple Computer': 18, 'Commodore': 28, 'IBM': 35, 'Atari': 8 },
+      1987: { 'Apple Computer': 16, 'Commodore': 25, 'IBM': 40, 'Atari': 6 }
+    };
+
+    const currentYearData = historicalMarketShares[year as keyof typeof historicalMarketShares] || 
+                          historicalMarketShares[1987]; // Fallback zu 1987
+
     return competitors.map(comp => {
-      // AI decision making - competitors respond to market conditions
-      const shouldRelease = Math.random() < 0.3 && quarter === 1; // 30% chance to release new model each year
+      // Berechne Ziel-Marktanteil basierend auf historischen Daten
+      const targetShare = currentYearData[comp.name as keyof typeof currentYearData] || comp.marketShare;
+      
+      // Reduziere alle Konkurrenten-Anteile proportional basierend auf Player-Marktanteil  
+      const adjustedTargetShare = targetShare * (100 - playerMarketShare) / 100;
+      
+      // Langsame Anpassung in Richtung Zielwert (max 2% Änderung pro Quartal)
+      const maxChange = 2;
+      const shareChange = Math.max(-maxChange, Math.min(maxChange, adjustedTargetShare - comp.marketShare));
+      const newMarketShare = Math.max(0.1, comp.marketShare + shareChange);
+
+      // AI Entscheidungen für neue Modelle basierend auf Jahr
+      const shouldRelease = Math.random() < this.getCompetitorReleaseChance(comp.name, quarter, year);
       
       if (shouldRelease) {
         const newModel: CompetitorModel = {
-          name: `${comp.name} Model ${year}`,
-          price: 800 + Math.random() * 2000,
-          performance: 40 + Math.random() * 40,
+          name: `${comp.name} ${year} Model`,
+          price: this.getCompetitorPrice(comp.name, year),
+          performance: this.getCompetitorPerformance(comp.name, year),
           unitsSold: 0,
           releaseQuarter: quarter,
           releaseYear: year
@@ -535,18 +558,57 @@ export class GameMechanics {
         comp.models.push(newModel);
       }
 
-      // Update sales for existing models
+      // Update sales for existing models - realistischere Verkaufszahlen
       comp.models = comp.models.map(model => ({
         ...model,
-        unitsSold: model.unitsSold + Math.floor(Math.random() * 5000 + 1000)
+        unitsSold: model.unitsSold + Math.floor(
+          (newMarketShare / 100) * 10000 * (0.8 + Math.random() * 0.4)
+        )
       }));
 
-      // Update market share based on performance
-      const totalSales = comp.models.reduce((sum, model) => sum + model.unitsSold, 0);
-      comp.marketShare = Math.min(40, Math.max(5, comp.marketShare + (Math.random() - 0.5) * 3));
-
-      return comp;
+      return {
+        ...comp,
+        marketShare: newMarketShare
+      };
     });
+  }
+
+  // Hilfsfunktionen für realistischere KI-Konkurrenz
+  static getCompetitorReleaseChance(companyName: string, quarter: number, year: number): number {
+    const baseChance = quarter === 1 ? 0.4 : 0.15; // Höhere Chance zu Jahresbeginn
+    
+    // Firmen-spezifische Modifikationen
+    switch (companyName) {
+      case 'Apple Computer': return baseChance * 0.8; // Seltener, aber hochwertigere Releases
+      case 'Commodore': return baseChance * 1.2; // Aggressive Releasezyklen
+      case 'IBM': return baseChance * 0.9; // Konservativ aber regelmäßig
+      case 'Atari': return baseChance * 1.1; // Viele Versuche, den Markt zurückzugewinnen
+      default: return baseChance;
+    }
+  }
+
+  static getCompetitorPrice(companyName: string, year: number): number {
+    const basePrice = 800 + (year - 1983) * 200; // Preise steigen mit der Zeit
+    
+    switch (companyName) {
+      case 'Apple Computer': return basePrice * 1.8; // Premium-Preise
+      case 'Commodore': return basePrice * 0.7; // Günstige Massenware
+      case 'IBM': return basePrice * 2.2; // Sehr teure Business-Systeme
+      case 'Atari': return basePrice * 0.8; // Konkurrenzfähige Preise
+      default: return basePrice;
+    }
+  }
+
+  static getCompetitorPerformance(companyName: string, year: number): number {
+    const basePerformance = 40 + (year - 1983) * 8; // Performance steigt mit der Zeit
+    
+    switch (companyName) {
+      case 'Apple Computer': return basePerformance + 10; // Innovative Technik
+      case 'Commodore': return basePerformance - 5; // Solide aber nicht führend
+      case 'IBM': return basePerformance + 15; // Technologieführer
+      case 'Atari': return basePerformance - 10; // Veraltete Technik
+      default: return basePerformance;
+    }
   }
 
   static getRandomMarketEvent(): MarketEvent | null {
@@ -650,11 +712,12 @@ export class GameMechanics {
       competitorActions.push(`${completedModels.length} Modell(e) entwicklungsfertig!`);
     }
     
-    // Aktualisierte Konkurrenten
+    // Aktualisierte Konkurrenten mit Player-Marktanteil berücksichtigen
     const updatedCompetitors = this.updateCompetitors(
       competitors, 
       gameState.quarter, 
-      gameState.year
+      gameState.year,
+      newMarketShare
     );
 
     // Aktionen der Konkurrenten dokumentieren  

@@ -285,14 +285,106 @@ export class GameMechanics {
     return Math.min(100, score);
   }
 
+  static calculateSoftwareLicenseRevenue(model: any, unitsSold: number): {
+    games: number;
+    office: number;
+  } {
+    if (model.status !== 'released' || unitsSold === 0) return { games: 0, office: 0 };
+
+    // Spiele-Software: Abhängig von Grafik, Sound, Farbmonitor
+    const hasColorMonitor = model.accessories?.includes('RGB Monitor') || false;
+    const hasGoodSound = model.sound && !model.sound.includes('PC Speaker');
+    const hasGoodGraphics = model.gpu && (model.gpu.includes('VIC-II') || model.gpu.includes('GTIA') || model.gpu.includes('TMS9918'));
+    
+    const gamesMultiplier = (hasColorMonitor ? 1.8 : 1.0) * 
+                           (hasGoodSound ? 1.5 : 1.0) * 
+                           (hasGoodGraphics ? 1.3 : 1.0);
+    
+    const gamesRevenuePerUnit = Math.round(15 * gamesMultiplier); // $15-45 pro verkauftem Computer
+    
+    // Büro-Software: Abhängig von CPU-Leistung und RAM
+    const cpuPower = this.getCPUPower(model.cpu);
+    const ramAmount = this.getRAMAmount(model.ram);
+    
+    const officeMultiplier = (cpuPower / 30) * (ramAmount / 32); // Normiert auf typische 80er Werte
+    const officeRevenuePerUnit = Math.round(25 * Math.max(0.5, officeMultiplier)); // $12-100+ pro Computer
+    
+    return {
+      games: gamesRevenuePerUnit * unitsSold,
+      office: officeRevenuePerUnit * unitsSold
+    };
+  }
+
+  static calculateSupportServiceRevenue(model: any, unitsSold: number): {
+    b2c: number;
+    b2b: number;
+  } {
+    if (model.status !== 'released' || unitsSold === 0) return { b2c: 0, b2b: 0 };
+
+    // B2C Support: Abhängig von Consumer-Features (Grafik, Sound, Einfachheit)
+    const hasColorMonitor = model.accessories?.includes('RGB Monitor') || false;
+    const hasGoodSound = model.sound && !model.sound.includes('PC Speaker');
+    const complexity = this.calculateModelComplexity(model);
+    
+    const b2cMultiplier = (hasColorMonitor ? 1.4 : 1.0) * 
+                         (hasGoodSound ? 1.2 : 1.0) * 
+                         (complexity > 50 ? 0.8 : 1.2); // Einfachere Computer = mehr Consumer-Support
+    
+    const b2cRevenuePerUnit = Math.round(8 * b2cMultiplier); // $6-16 pro Computer
+    
+    // B2B Support: Abhängig von Business-Features (CPU, RAM, Speicher)
+    const cpuPower = this.getCPUPower(model.cpu);
+    const ramAmount = this.getRAMAmount(model.ram);
+    const hasStorage = model.accessories?.some(acc => acc.includes('Festplatte') || acc.includes('Diskette')) || false;
+    
+    const b2bMultiplier = (cpuPower / 25) * (ramAmount / 32) * (hasStorage ? 1.5 : 1.0);
+    const b2bRevenuePerUnit = Math.round(20 * Math.max(0.3, b2bMultiplier)); // $6-60+ pro Computer
+    
+    return {
+      b2c: b2cRevenuePerUnit * unitsSold,
+      b2b: b2bRevenuePerUnit * unitsSold
+    };
+  }
+
+  static getCPUPower(cpu: string): number {
+    const cpuPowerMap = {
+      'MOS 6502': 10,
+      'Zilog Z80': 15, 
+      'Intel 8086': 25,
+      'Motorola 68000': 35,
+      'Intel 80286': 50
+    };
+    return cpuPowerMap[cpu as keyof typeof cpuPowerMap] || 10;
+  }
+
+  static getRAMAmount(ram: string): number {
+    const ramMap = {
+      '4KB RAM': 4,
+      '16KB RAM': 16,
+      '64KB RAM': 64,
+      '256KB RAM': 256
+    };
+    return ramMap[ram as keyof typeof ramMap] || 4;
+  }
+
   static calculateModelSales(
     model: any,
     marketingBudget: number,
     playerReputation: number,
     marketSize: number,
     competitorModels: CompetitorModel[] = []
-  ): { unitsSold: number; revenue: number } {
-    if (model.status !== 'released') return { unitsSold: 0, revenue: 0 };
+  ): { unitsSold: number; revenue: number; additionalRevenue: { 
+    softwareLicenses: { games: number; office: number }; 
+    supportService: { b2c: number; b2b: number } 
+  } } {
+    if (model.status !== 'released') return { 
+      unitsSold: 0, 
+      revenue: 0, 
+      additionalRevenue: { 
+        softwareLicenses: { games: 0, office: 0 }, 
+        supportService: { b2c: 0, b2b: 0 } 
+      } 
+    };
 
     const performanceScore = this.calculateModelPerformance(model);
     const marketingMultiplier = Math.max(1, Math.sqrt(marketingBudget / 25000));
@@ -317,9 +409,20 @@ export class GameMechanics {
     );
     
     const unitsSold = Math.max(0, baseSales);
-    const revenue = unitsSold * model.price;
+    const hardwareRevenue = unitsSold * model.price;
     
-    return { unitsSold, revenue };
+    // Zusätzliche Einnahmequellen berechnen
+    const softwareLicenses = this.calculateSoftwareLicenseRevenue(model, unitsSold);
+    const supportService = this.calculateSupportServiceRevenue(model, unitsSold);
+    
+    const totalAdditionalRevenue = softwareLicenses.games + softwareLicenses.office + 
+                                  supportService.b2c + supportService.b2b;
+    
+    return { 
+      unitsSold, 
+      revenue: hardwareRevenue + totalAdditionalRevenue,
+      additionalRevenue: { softwareLicenses, supportService }
+    };
   }
 
   static updateCompetitors(competitors: Competitor[], quarter: number, year: number): Competitor[] {
@@ -386,6 +489,8 @@ export class GameMechanics {
           modelName: model.name,
           unitsSold: sales.unitsSold,
           revenue: sales.revenue,
+          hardwareRevenue: sales.unitsSold * model.price,
+          additionalRevenue: sales.additionalRevenue,
           price: model.price
         };
       }
@@ -394,7 +499,25 @@ export class GameMechanics {
 
     // Gesamteinnahmen und Verkäufe
     const totalRevenue = modelSales.reduce((sum, sale) => sum + sale.revenue, 0);
+    const totalHardwareRevenue = modelSales.reduce((sum, sale) => sum + sale.hardwareRevenue, 0);
     const totalUnitsSold = modelSales.reduce((sum, sale) => sum + sale.unitsSold, 0);
+    
+    // Aggregiere zusätzliche Einnahmen
+    const aggregatedAdditionalRevenue = modelSales.reduce((acc, sale) => {
+      return {
+        softwareLicenses: {
+          games: acc.softwareLicenses.games + sale.additionalRevenue.softwareLicenses.games,
+          office: acc.softwareLicenses.office + sale.additionalRevenue.softwareLicenses.office
+        },
+        supportService: {
+          b2c: acc.supportService.b2c + sale.additionalRevenue.supportService.b2c,
+          b2b: acc.supportService.b2b + sale.additionalRevenue.supportService.b2b
+        }
+      };
+    }, {
+      softwareLicenses: { games: 0, office: 0 },
+      supportService: { b2c: 0, b2b: 0 }
+    });
 
     // Ausgaben berechnen - nur die drei Budgets
     const quarterlyExpenses = {
@@ -467,7 +590,9 @@ export class GameMechanics {
         marketShare: newMarketShare,
         reputation: newReputation,
         monthlyIncome: Math.round(totalRevenue / 3), // Quartalseinnahmen auf Monat runterbrechen
-        monthlyExpenses: Math.round(totalExpenses / 3) // Quartalsausgaben auf Monat runterbrechen
+        hardwareIncome: Math.round(totalHardwareRevenue / 3), // Hardware-spezifische Einnahmen
+        monthlyExpenses: Math.round(totalExpenses / 3), // Quartalsausgaben auf Monat runterbrechen
+        additionalRevenue: aggregatedAdditionalRevenue // Zusätzliche Einnahmen für DetailView
       },
       models: updatedModels.map((model: any) => {
         const modelSale = modelSales.find(sale => sale.modelName === model.name);

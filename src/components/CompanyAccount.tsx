@@ -8,6 +8,11 @@ interface CompanyAccountProps {
       cash: number;
       monthlyIncome: number;
       monthlyExpenses: number;
+      hardwareIncome?: number;
+      additionalRevenue?: {
+        softwareLicenses: { games: number; office: number };
+        supportService: { b2c: number; b2b: number };
+      };
     };
     budget: {
       marketing: number;
@@ -32,10 +37,22 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
     { name: "Forschungsbudget", amount: monthlyResearch, category: "F&E" },
   ];
 
+  // Berechne zusätzliche Einnahmen aus den Komponenten (falls vorhanden)
+  const additionalRevenue = gameState.company.additionalRevenue || {
+    softwareLicenses: { games: 0, office: 0 },
+    supportService: { b2c: 0, b2b: 0 }
+  };
+
+  const hardwareIncome = gameState.company.hardwareIncome || gameState.company.monthlyIncome;
+  const softwareIncome = (additionalRevenue.softwareLicenses.games + additionalRevenue.softwareLicenses.office) / 3; // Quartalseinnahmen auf Monat
+  const serviceIncome = (additionalRevenue.supportService.b2c + additionalRevenue.supportService.b2b) / 3;
+
   const income = [
-    { name: "Computer-Verkäufe", amount: gameState.company.monthlyIncome, category: "Hardware" },
-    { name: "Software-Lizenzen", amount: 0, category: "Software" },
-    { name: "Support & Service", amount: 0, category: "Service" },
+    { name: "Computer-Verkäufe", amount: hardwareIncome, category: "Hardware" },
+    { name: "Spiele-Software", amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: "Software" },
+    { name: "Büro-Software", amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: "Software" },
+    { name: "B2C Support", amount: Math.round(additionalRevenue.supportService.b2c / 3), category: "Service" },
+    { name: "B2B Support", amount: Math.round(additionalRevenue.supportService.b2b / 3), category: "Service" },
   ];
 
   return (

@@ -311,12 +311,11 @@ export class GameMechanics {
     const totalRevenue = modelSales.reduce((sum, sale) => sum + sale.revenue, 0);
     const totalUnitsSold = modelSales.reduce((sum, sale) => sum + sale.unitsSold, 0);
 
-    // Ausgaben berechnen
+    // Ausgaben berechnen - nur die drei Budgets
     const quarterlyExpenses = {
       marketing: budget.marketing,
       development: budget.development,  
-      research: budget.research,
-      operations: Math.max(10000, company.employees * 2000) // Grundkosten
+      research: budget.research
     };
 
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);

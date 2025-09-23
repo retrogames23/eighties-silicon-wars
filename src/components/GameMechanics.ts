@@ -369,7 +369,9 @@ export class GameMechanics {
         ...company,
         cash: company.cash + netProfit,
         marketShare: newMarketShare,
-        reputation: newReputation
+        reputation: newReputation,
+        monthlyIncome: Math.round(totalRevenue / 3), // Quartalseinnahmen auf Monat runterbrechen
+        monthlyExpenses: Math.round(totalExpenses / 3) // Quartalsausgaben auf Monat runterbrechen
       },
       models: models.map((model: any) => {
         const modelSale = modelSales.find(sale => sale.modelName === model.name);

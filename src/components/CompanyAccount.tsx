@@ -25,7 +25,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
   ];
 
   const income = [
-    { name: "Computer-Verkäufe", amount: 0, category: "Hardware" },
+    { name: "Computer-Verkäufe", amount: gameState.company.monthlyIncome, category: "Hardware" },
     { name: "Software-Lizenzen", amount: 0, category: "Software" },
     { name: "Support & Service", amount: 0, category: "Service" },
   ];

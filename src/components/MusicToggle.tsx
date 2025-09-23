@@ -59,25 +59,6 @@ export const MusicToggle = () => {
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setEnabled(!isEnabled)}
-                className="h-8 w-8"
-              >
-                {isEnabled ? (
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                ) : (
-                  <div className="w-2 h-2 bg-red-500 rounded-full" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{isEnabled ? 'Musik deaktivieren' : 'Musik aktivieren'}</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
       </TooltipProvider>
     </div>

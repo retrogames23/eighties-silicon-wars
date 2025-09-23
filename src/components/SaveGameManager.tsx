@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Save, Upload, Trash2, Calendar } from 'lucide-react';
-import { supabase, SaveGame, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
 interface ComputerModel {
@@ -75,6 +76,8 @@ interface SaveGameManagerProps {
   onClose: () => void;
 }
 
+type SaveGame = Database['public']['Tables']['save_games']['Row'];
+
 export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: SaveGameManagerProps) => {
   const [saves, setSaves] = useState<SaveGame[]>([]);
   const [loading, setLoading] = useState(false);
@@ -82,7 +85,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
   // Check if Supabase is properly configured
-  const supabaseReady = isSupabaseConfigured() && supabase;
+  const supabaseReady = !!supabase;
 
   useEffect(() => {
     if (isOpen && supabaseReady) {
@@ -138,7 +141,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
         user_id: user.id,
         slot_number: slotNumber,
         save_name: name || `Spielstand ${slotNumber}`,
-        game_state: gameState,
+        game_state: gameState as any,
         updated_at: new Date().toISOString()
       };
 
@@ -164,7 +167,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
 
   const loadGame = async (save: SaveGame) => {
     try {
-      onLoadGame(save.game_state);
+      onLoadGame(save.game_state as unknown as GameState);
       toast.success('Spielstand geladen!');
       onClose();
     } catch (error) {
@@ -266,9 +269,9 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose }: Save
                       </div>
                       
                       <div className="flex items-center gap-4 text-xs text-muted-familyname font-mono">
-                        <span>Firma: {save.game_state.company?.name}</span>
-                        <span>Runde: Q{save.game_state.quarter}/{save.game_state.year}</span>
-                        <span>Geld: ${save.game_state.company?.cash?.toLocaleString()}</span>
+                        <span>Firma: {(save.game_state as unknown as GameState).company?.name}</span>
+                        <span>Runde: Q{(save.game_state as unknown as GameState).quarter}/{(save.game_state as unknown as GameState).year}</span>
+                        <span>Geld: ${(save.game_state as unknown as GameState).company?.cash?.toLocaleString()}</span>
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(save.updated_at)}

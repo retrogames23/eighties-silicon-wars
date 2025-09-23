@@ -144,43 +144,38 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
       return;
     }
 
-    const interval = setInterval(() => {
-      setDevelopmentProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          // Create the finished model
-          const cpu = selectedComponents.find(c => c.type === 'cpu');
-          const gpu = selectedComponents.find(c => c.type === 'gpu');
-          const memory = selectedComponents.find(c => c.type === 'memory');
-          const sound = selectedComponents.find(c => c.type === 'sound') || { name: 'PC Speaker' };
-          const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
+    // Erstelle Computer direkt ohne setInterval - das Game-System übernimmt die Entwicklung
+    const cpu = selectedComponents.find(c => c.type === 'cpu');
+    const gpu = selectedComponents.find(c => c.type === 'gpu');
+    const memory = selectedComponents.find(c => c.type === 'memory');
+    const sound = selectedComponents.find(c => c.type === 'sound') || { name: 'PC Speaker' };
+    const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
 
-          const newModel: ComputerModel = {
-            id: Date.now().toString(),
-            name: modelName.trim(),
-            cpu: cpu?.name || '',
-            gpu: gpu?.name || '',
-            ram: memory?.name || '',
-            sound: sound.name,
-            accessories: accessories.map(a => a.name),
-            price: Math.round(totalCost * 2.5),
-            developmentCost: totalCost,
-            performance: averagePerformance,
-            unitsSold: 0,
-            status: 'development', // Startet in Entwicklung
-            releaseQuarter: Math.floor(Math.random() * 4) + 1,
-            releaseYear: 1985 + Math.floor(Math.random() * 5),
-            complexity: averagePerformance, // Verwende Performance als Komplexität
-            developmentTime: averagePerformance <= 30 ? 1 : averagePerformance <= 60 ? 2 : 3, // 1-3 Quartale
-            developmentProgress: 0 // Startet bei 0%
-          };
+    const complexity = Math.max(20, averagePerformance); // Mindestens 20 Komplexität
+    const developmentTime = complexity <= 30 ? 1 : complexity <= 60 ? 2 : 3;
 
-          onModelComplete(newModel);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    const newModel: ComputerModel = {
+      id: Date.now().toString(),
+      name: modelName.trim(),
+      cpu: cpu?.name || '',
+      gpu: gpu?.name || '',
+      ram: memory?.name || '',
+      sound: sound.name,
+      accessories: accessories.map(a => a.name),
+      price: Math.round(totalCost * 2.5),
+      developmentCost: totalCost,
+      performance: averagePerformance,
+      unitsSold: 0,
+      status: 'development', // Startet in Entwicklung
+      releaseQuarter: Math.floor(Math.random() * 4) + 1,
+      releaseYear: 1985 + Math.floor(Math.random() * 5),
+      complexity: complexity,
+      developmentTime: developmentTime,
+      developmentProgress: 0 // Startet bei 0% - wird durch GameMechanics entwickelt
+    };
+
+    // Direkt fertig - kein setState während render
+    onModelComplete(newModel);
   };
 
   const canDevelop = selectedComponents.some(c => c.type === 'cpu') && 
@@ -336,16 +331,9 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                             className="w-full px-3 py-2 bg-background border border-terminal-green/30 rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-terminal-green"
                             autoFocus
                           />
-                        </div>
-                      )}
-
-                      {developmentProgress > 0 && (
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Entwicklungsfortschritt:</span>
-                            <span className="text-neon-green">{developmentProgress}%</span>
-                          </div>
-                          <Progress value={developmentProgress} className="w-full" />
+                          <p className="text-xs text-muted-foreground">
+                            Die Entwicklung dauert {averagePerformance <= 30 ? '1 Quartal' : averagePerformance <= 60 ? '2 Quartale' : '3 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
+                          </p>
                         </div>
                       )}
 
@@ -363,22 +351,10 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                         {(showNameInput || modelName) && (
                           <Button
                             onClick={startDevelopment}
-                            disabled={!canDevelop || developmentProgress > 0 || !modelName.trim()}
+                            disabled={!canDevelop || !modelName.trim()}
                             className="w-full glow-button"
                           >
-                            {developmentProgress === 100 ? 'Entwicklung gestartet!' : 
-                             developmentProgress > 0 ? 'Entwicklung wird gestartet...' : 
-                             'Entwicklung beginnen'}
-                          </Button>
-                        )}
-                        
-                        {developmentProgress === 100 && (
-                          <Button
-                            onClick={onBack}
-                            className="w-full"
-                            variant="outline"
-                          >
-                            Zurück zum Dashboard
+                            Entwicklung starten
                           </Button>
                         )}
                         

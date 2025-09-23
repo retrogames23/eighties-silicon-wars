@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,13 +6,15 @@ import { CompanyAccount } from "@/components/CompanyAccount";
 import { DevelopmentTab } from "@/components/DevelopmentTab";
 import { MarketTab } from "@/components/MarketTab";
 import { CompanyManagement } from "@/components/CompanyManagement";
+import { GameTutorial } from "@/components/GameTutorial";
 import { 
   Calendar,
   ChevronRight,
   Building2,
   Cpu,
   Monitor,
-  Zap
+  Zap,
+  HelpCircle
 } from "lucide-react";
 
 import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
@@ -68,6 +71,8 @@ export const GameDashboard = ({
   onBudgetChange,
   onDevelopNewModel
 }: GameDashboardProps) => {
+  const [showTutorial, setShowTutorial] = useState(false);
+  
   const getCompanyIcon = () => {
     switch (gameState.company.logo) {
       case 'building': return Building2;
@@ -101,15 +106,26 @@ export const GameDashboard = ({
               </div>
             </div>
             
-            <Button 
-              onClick={onNextTurn}
-              className="glow-button px-8 py-3 text-lg"
-              variant="default"
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              Nächste Runde
-              <ChevronRight className="w-5 h-5 ml-2" />
-            </Button>
+            <div className="flex gap-4">
+              <Button 
+                variant="outline"
+                onClick={() => setShowTutorial(true)}
+                className="retro-border bg-card/20 hover:bg-card/40"
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Hilfe
+              </Button>
+              
+              <Button 
+                onClick={onNextTurn}
+                className="glow-button px-8 py-3 text-lg"
+                variant="default"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Nächste Runde
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -152,7 +168,7 @@ export const GameDashboard = ({
             <TabsContent value="management" className="space-y-6">
               <CompanyManagement 
                 budget={gameState.budget}
-                totalBudget={150000}
+                totalBudget={200000}
                 onBudgetChange={onBudgetChange}
               />
             </TabsContent>
@@ -171,6 +187,8 @@ export const GameDashboard = ({
           </div>
         </div>
       </div>
+      
+      {showTutorial && <GameTutorial onClose={() => setShowTutorial(false)} />}
     </div>
   );
 };

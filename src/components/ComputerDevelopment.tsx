@@ -171,7 +171,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
       ram: memory?.name || '',
       sound: sound.name,
       accessories: accessories.map(a => a.name),
-      price: Math.round(totalCost * 2.5),
+      price: Math.round(totalCost * 1.8), // Reduziert von 2.5x auf 1.8x für realistischere Preise
       developmentCost: totalCost,
       performance: averagePerformance,
       unitsSold: 0,
@@ -317,10 +317,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Komplexität:</span>
-                          <span className="text-neon-cyan font-bold">
-                            {averagePerformance <= 30 ? 'Einfach (1 Quartal)' : 
-                             averagePerformance <= 60 ? 'Mittel (2 Quartale)' : 
-                             'Komplex (3 Quartale)'}
+                           <span className="text-neon-cyan font-bold">
+                            {averagePerformance <= 40 ? 'Einfach (1 Quartal)' : 'Mittel (2 Quartale)'}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -341,7 +339,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }
                             autoFocus
                           />
                           <p className="text-xs text-muted-foreground">
-                            Die Entwicklung dauert {averagePerformance <= 30 ? '1 Quartal' : averagePerformance <= 60 ? '2 Quartale' : '3 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
+                            Die Entwicklung dauert {averagePerformance <= 40 ? '1 Quartal' : '2 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
                           </p>
                         </div>
                       )}

@@ -90,19 +90,19 @@ const Index = () => {
     company: {
       name: '',
       logo: '',
-      cash: 3000000, // Startkapital: 3 Millionen $
-      employees: 8, // Kleines Team
-      reputation: 50, // Startwert für Reputation
-      marketShare: 0, // Kein Marktanteil
-      monthlyIncome: 0, // Noch keine Einnahmen
-      monthlyExpenses: 45000 // Laufende Kosten für 8 Mitarbeiter
+    cash: 5000000, // Erhöht auf 5M für bessere Balance
+    employees: 8, // Kleines Team
+    reputation: 50, // Startwert für Reputation
+    marketShare: 0, // Kein Marktanteil
+    monthlyIncome: 0, // Noch keine Einnahmen
+    monthlyExpenses: 30000 // Reduziert auf 30k für bessere Überlebenschancen
     },
     quarter: 1,
     year: 1983,
     models: [],
     budget: {
-      marketing: 15000,
-      development: 25000, 
+      marketing: 20000, // Leicht erhöht für bessere Verkäufe
+      development: 30000, // Leicht erhöht für schnellere Entwicklung
       research: 5000
     },
     competitors: INITIAL_COMPETITORS,
@@ -237,21 +237,21 @@ const Index = () => {
       company: {
         name: '',
         logo: '',
-        cash: 3000000,
-        employees: 8,
-        reputation: 50,
-        marketShare: 0,
-        monthlyIncome: 0,
-        monthlyExpenses: 45000
+      cash: 5000000, // Erhöht auf 5M für bessere Balance
+      employees: 8,
+      reputation: 50,
+      marketShare: 0,
+      monthlyIncome: 0,
+      monthlyExpenses: 30000 // Reduziert auf 30k für bessere Überlebenschancen
       },
       quarter: 1,
       year: 1983,
       models: [],
-      budget: {
-        marketing: 15000,
-        development: 25000, 
-        research: 5000
-      },
+    budget: {
+      marketing: 20000, // Leicht erhöht für bessere Verkäufe
+      development: 30000, // Leicht erhöht für schnellere Entwicklung
+      research: 5000
+    },
       competitors: INITIAL_COMPETITORS,
       marketEvents: [],
       totalMarketSize: 1000000,

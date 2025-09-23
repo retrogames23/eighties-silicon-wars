@@ -256,10 +256,9 @@ export class GameMechanics {
   }
 
   static calculateDevelopmentTime(complexity: number): number {
-    // 1-3 Quartale basierend auf Komplexität
-    if (complexity <= 30) return 1;
-    if (complexity <= 60) return 2;
-    return 3;
+    // Schnellere Entwicklung: 1-2 Quartale statt 1-3
+    if (complexity <= 40) return 1; // Erhöht von 30 auf 40
+    return 2; // Maximal 2 Quartale statt 3
   }
 
   static updateModelDevelopment(models: any[], developmentBudget: number): any[] {

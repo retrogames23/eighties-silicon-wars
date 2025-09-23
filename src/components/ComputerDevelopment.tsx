@@ -636,14 +636,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                  </Card>
                )}
                
-               {/* SCHRITT 5: Testbericht */}
-               {currentStep === 'testreport' && developedModel && (
-                 <TestReport
-                   model={developedModel}
-                   testResult={TestReportGenerator.generateTestReport(developedModel, 1985)}
-                   onContinue={finalizeModel}
-                 />
-               )}
+                {/* SCHRITT 5: Testbericht */}
+                {currentStep === 'testreport' && developedModel && (
+                  <TestReport
+                    model={developedModel}
+                    testResult={TestReportGenerator.generateTestReport(developedModel, 1985)}
+                    onContinue={finalizeModel}
+                    onRevise={() => setCurrentStep('pricing')}
+                  />
+                )}
             </div>
 
             {/* Seitenleiste - nur wenn nicht im Testbericht */}

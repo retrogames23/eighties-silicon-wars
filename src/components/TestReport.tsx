@@ -54,9 +54,10 @@ interface TestReportProps {
   model: any;
   testResult: TestResult;
   onContinue: () => void;
+  onRevise: () => void;
 }
 
-export const TestReport = ({ model, testResult, onContinue }: TestReportProps) => {
+export const TestReport = ({ model, testResult, onContinue, onRevise }: TestReportProps) => {
   const getRatingColor = (rating: string) => {
     switch (rating.toLowerCase()) {
       case 'exzellent': case 'hervorragend': return 'text-green-400';
@@ -422,7 +423,15 @@ export const TestReport = ({ model, testResult, onContinue }: TestReportProps) =
                 {testResult.finalVerdict}
               </p>
               
-              <div className="flex justify-center mt-6">
+              <div className="flex justify-center gap-4 mt-6">
+                <Button
+                  onClick={onRevise}
+                  variant="outline"
+                  className="text-lg px-8 py-3"
+                >
+                  <Cpu className="w-5 h-5 mr-2" />
+                  Computer überarbeiten
+                </Button>
                 <Button
                   onClick={onContinue}
                   className="glow-button text-lg px-8 py-3"

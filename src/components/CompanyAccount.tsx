@@ -8,6 +8,12 @@ interface CompanyAccountProps {
       cash: number;
       monthlyIncome: number;
       monthlyExpenses: number;
+      employees: number;
+    };
+    budget: {
+      marketing: number;
+      development: number;
+      research: number;
     };
   };
 }
@@ -16,12 +22,19 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
   const monthlyProfit = gameState.company.monthlyIncome - gameState.company.monthlyExpenses;
 
+  // Berechne echte Ausgaben basierend auf Spiellogik
+  const monthlyEmployeeSalaries = Math.round((gameState.company.employees * 2000) / 3); // Quartal auf Monat
+  const monthlyMarketing = Math.round(gameState.budget.marketing / 3);
+  const monthlyDevelopment = Math.round(gameState.budget.development / 3);
+  const monthlyResearch = Math.round(gameState.budget.research / 3);
+  const monthlyOperations = Math.round(Math.max(10000, gameState.company.employees * 500) / 3); // Büro, etc.
+
   const expenses = [
-    { name: "Mitarbeitergehälter", amount: 45000, category: "Personal" },
-    { name: "Büro & Facilities", amount: 12000, category: "Betrieb" },
-    { name: "Entwicklungskosten", amount: 25000, category: "F&E" },
-    { name: "Marketing", amount: 15000, category: "Marketing" },
-    { name: "Material & Produktion", amount: 18000, category: "Produktion" },
+    { name: "Mitarbeitergehälter", amount: monthlyEmployeeSalaries, category: "Personal" },
+    { name: "Marketing Budget", amount: monthlyMarketing, category: "Marketing" },
+    { name: "Entwicklungskosten", amount: monthlyDevelopment, category: "F&E" },
+    { name: "Forschung", amount: monthlyResearch, category: "F&E" },
+    { name: "Büro & Betrieb", amount: monthlyOperations, category: "Betrieb" },
   ];
 
   const income = [

@@ -1,35 +1,37 @@
 import { useState, useRef, useEffect } from 'react';
-import { RetroMusicGenerator } from '@/utils/retroMusicGenerator';
 
 export const useAudioManager = () => {
   const [isEnabled, setIsEnabled] = useState(true); // Standardmäßig an
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioGeneratorRef = useRef<RetroMusicGenerator | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Audio Generator initialisieren
+  // Audio Element initialisieren
   useEffect(() => {
     try {
-      audioGeneratorRef.current = new RetroMusicGenerator();
-      console.log('RetroMusicGenerator initialized');
+      audioRef.current = new Audio('/audio/Neon_Dreams.mp3');
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.3;
+      console.log('Audio player initialized with Neon Dreams');
     } catch (error) {
       console.error('Audio initialization failed:', error);
     }
 
     return () => {
-      if (audioGeneratorRef.current) {
-        audioGeneratorRef.current.stop();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
   }, []);
 
   // Musik automatisch starten wenn enabled
   useEffect(() => {
-    if (isEnabled && audioGeneratorRef.current && !isPlaying) {
+    if (isEnabled && audioRef.current && !isPlaying) {
       const startMusic = async () => {
         try {
-          await audioGeneratorRef.current!.play();
+          await audioRef.current!.play();
           setIsPlaying(true);
-          console.log('Music started automatically');
+          console.log('Neon Dreams started automatically');
         } catch (error) {
           console.error('Failed to start music:', error);
         }
@@ -39,21 +41,21 @@ export const useAudioManager = () => {
       const timer = setTimeout(startMusic, 500);
       return () => clearTimeout(timer);
     }
-  }, [isEnabled, audioGeneratorRef.current]);
+  }, [isEnabled, audioRef.current]);
 
   const toggleMusic = async () => {
-    if (!audioGeneratorRef.current) return;
+    if (!audioRef.current) return;
 
     try {
       if (isEnabled && isPlaying) {
         // Musik aus
-        audioGeneratorRef.current.stop();
+        audioRef.current.pause();
         setIsPlaying(false);
         setIsEnabled(false);
         console.log('Music stopped');
       } else {
         // Musik an
-        await audioGeneratorRef.current.play();
+        await audioRef.current.play();
         setIsPlaying(true);
         setIsEnabled(true);
         console.log('Music started');

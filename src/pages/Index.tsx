@@ -6,6 +6,7 @@ import { ComputerDevelopment } from "@/components/ComputerDevelopment";
 import { CaseSelection } from "@/components/CaseSelection";
 import { QuarterResults } from "@/components/QuarterResults";
 import { GameEnd } from "@/components/GameEnd";
+import { MusicToggle } from "@/components/MusicToggle";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
 import { toast } from "sonner";
 
@@ -320,7 +321,12 @@ const Index = () => {
     }
   };
 
-  return renderCurrentScreen();
+  return (
+    <>
+      <MusicToggle />
+      {renderCurrentScreen()}
+    </>
+  );
 };
 
 export default Index;

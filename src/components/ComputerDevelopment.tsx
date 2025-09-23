@@ -18,7 +18,8 @@ import {
   Gamepad2,
   Briefcase,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  DollarSign
 } from "lucide-react";
 
 interface Component {
@@ -164,12 +165,20 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
   const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
-  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name'>('components');
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing'>('components');
 
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
+    
+  // Preisvorschlag berechnen (80% Aufschlag wie bisher)
+  const suggestedPrice = Math.round(totalCost * 1.8);
+  
+  // Mindest- und Maximalpreis
+  const minPrice = Math.round(totalCost * 1.1); // 10% Mindestmarge
+  const maxPrice = Math.round(totalCost * 4.0); // 300% Maximalmarge
 
   const toggleComponent = (component: Component) => {
     const isSelected = selectedComponents.some(c => c.id === component.id);
@@ -189,7 +198,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
   };
 
   const startDevelopment = () => {
-    if (!modelName.trim() || !selectedCase) return;
+    if (!modelName.trim() || !selectedCase || sellingPrice === 0) return;
 
     const cpu = selectedComponents.find(c => c.type === 'cpu');
     const gpu = selectedComponents.find(c => c.type === 'gpu');
@@ -209,7 +218,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
       sound: sound.name,
       accessories: accessories.map(a => a.name),
       case: selectedCase,
-      price: Math.round(totalCost * 1.8),
+      price: sellingPrice, // Vom User gesetzter Preis
       developmentCost: totalCost,
       performance: averagePerformance,
       unitsSold: 0,
@@ -227,8 +236,10 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
   const canProceedToCase = selectedComponents.some(c => c.type === 'cpu') && 
                           selectedComponents.some(c => c.type === 'gpu') && 
                           selectedComponents.some(c => c.type === 'memory');
-
-  const canFinish = canProceedToCase && selectedCase && modelName.trim();
+                          
+  const canProceedToName = canProceedToCase && selectedCase;
+  const canProceedToPricing = canProceedToName && modelName.trim();
+  const canFinish = canProceedToPricing && sellingPrice > 0;
 
   const getComponentIcon = (type: Component['type']) => {
     switch (type) {
@@ -302,6 +313,14 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
               }`}>
                 <Zap className="w-4 h-4" />
                 <span className="font-mono">3. Name</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
+                currentStep === 'pricing' ? 'bg-neon-green/20 text-neon-green' : 
+                sellingPrice > 0 ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
+              }`}>
+                <DollarSign className="w-4 h-4" />
+                <span className="font-mono">4. Preis</span>
               </div>
             </div>
           </div>
@@ -504,6 +523,107 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                   </CardContent>
                 </Card>
               )}
+
+              {/* SCHRITT 4: Preissetzung */}
+              {currentStep === 'pricing' && (
+                <Card className="retro-border bg-card/20 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-neon-cyan flex items-center gap-2">
+                      <DollarSign className="w-5 h-5" />
+                      Verkaufspreis festlegen
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card className="p-4 border border-terminal-green/30">
+                        <h4 className="font-semibold text-red-400 mb-2">Mindestpreis</h4>
+                        <p className="text-2xl font-mono text-red-400">${minPrice.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">10% Marge</p>
+                      </Card>
+                      
+                      <Card className="p-4 border border-neon-green">
+                        <h4 className="font-semibold text-neon-green mb-2">Empfohlen</h4>
+                        <p className="text-2xl font-mono text-neon-green">${suggestedPrice.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">80% Marge (Standard)</p>
+                      </Card>
+                      
+                      <Card className="p-4 border border-terminal-green/30">
+                        <h4 className="font-semibold text-yellow-400 mb-2">Maximaler Preis</h4>
+                        <p className="text-2xl font-mono text-yellow-400">${maxPrice.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">300% Marge</p>
+                      </Card>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Button 
+                          onClick={() => setSellingPrice(suggestedPrice)}
+                          className="glow-button"
+                          variant={sellingPrice === suggestedPrice ? "default" : "outline"}
+                        >
+                          Empfohlenen Preis übernehmen
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="custom-price" className="text-muted-foreground">
+                          Oder eigenen Preis festlegen:
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-terminal-green font-mono">$</span>
+                          <Input
+                            id="custom-price"
+                            type="number"
+                            value={sellingPrice || ''}
+                            onChange={(e) => setSellingPrice(parseInt(e.target.value) || 0)}
+                            placeholder={suggestedPrice.toString()}
+                            className="bg-background border-terminal-green/30 focus:border-terminal-green font-mono"
+                            min={minPrice}
+                            max={maxPrice}
+                          />
+                        </div>
+                        
+                        {sellingPrice > 0 && (
+                          <div className="mt-4 p-4 border rounded-lg">
+                            <h4 className="font-semibold text-neon-cyan mb-3">Preisanalyse</h4>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Gewinn pro Einheit:</span>
+                                <p className="font-mono text-neon-green">
+                                  ${(sellingPrice - totalCost).toLocaleString()}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Gewinnmarge:</span>
+                                <p className="font-mono text-neon-green">
+                                  {Math.round(((sellingPrice - totalCost) / totalCost) * 100)}%
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-3 pt-3 border-t">
+                              <div className="text-xs text-muted-foreground">
+                                {sellingPrice < minPrice && (
+                                  <p className="text-red-400">⚠️ Preis unter Mindestmarge - Verlustrisiko!</p>
+                                )}
+                                {sellingPrice >= minPrice && sellingPrice <= suggestedPrice && (
+                                  <p className="text-yellow-400">💡 Aggressiver Preis - Mehr Verkäufe, weniger Gewinn</p>
+                                )}
+                                {sellingPrice > suggestedPrice && sellingPrice <= maxPrice && (
+                                  <p className="text-neon-green">🎯 Premium-Preis - Weniger Verkäufe, höhere Marge</p>
+                                )}
+                                {sellingPrice > maxPrice && (
+                                  <p className="text-red-400">⚠️ Sehr hoher Preis - Verkaufsrisiko!</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Seitenleiste - Konfiguration */}
@@ -557,7 +677,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Verkaufspreis:</span>
                           <span className="text-yellow-400 font-bold">
-                            ${Math.round(totalCost * 1.8).toLocaleString()}
+                            {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Vorschlag)`}
                           </span>
                         </div>
                       </div>
@@ -605,6 +725,27 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                             >
                               <ChevronLeft className="w-4 h-4 mr-2" />
                               Zurück zu Gehäuse
+                            </Button>
+                            <Button
+                              onClick={() => setCurrentStep('pricing')}
+                              disabled={!canProceedToPricing}
+                              className="w-full glow-button"
+                            >
+                              <ChevronRight className="w-4 h-4 mr-2" />
+                              Weiter zu Preissetzung
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {currentStep === 'pricing' && (
+                          <div className="space-y-2">
+                            <Button
+                              onClick={() => setCurrentStep('name')}
+                              variant="outline"
+                              className="w-full retro-border bg-card/20"
+                            >
+                              <ChevronLeft className="w-4 h-4 mr-2" />
+                              Zurück zu Name
                             </Button>
                             <Button
                               onClick={startDevelopment}

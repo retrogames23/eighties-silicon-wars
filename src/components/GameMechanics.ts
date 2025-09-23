@@ -770,6 +770,7 @@ export class GameMechanics {
     return Math.min(100, appeal);
   }
 
+  // Aktualisiere GameMechanics für realistische Sales
   static calculateModelSales(
     model: any,
     marketingBudget: number,
@@ -803,66 +804,65 @@ export class GameMechanics {
       }
     };
 
-    // Hardware-Lifecycle: Attraktivität sinkt über Zeit
-    const quartersSinceRelease = (currentYear - model.releaseYear) * 4 + 
-                                (currentQuarter - model.releaseQuarter);
-    const ageDecayFactor = Math.max(0.1, 1 - (quartersSinceRelease * 0.08)); // 8% Verlust pro Quartal
+    // Verwende neues Wirtschaftsmodell
+    const economicFactors = {
+      marketSegments: {
+        gamer: { 
+          size: 70000 + (currentYear - 1983) * 15000,
+          priceElasticity: 0.7,
+          maxPrice: 800 + (currentYear - 1983) * 100
+        },
+        business: { 
+          size: 30000 + (currentYear - 1983) * 8000,
+          priceElasticity: 0.3,
+          maxPrice: 2000 + (currentYear - 1983) * 500
+        }
+      },
+      techTrends: {
+        cpuDemand: 0.8 + (currentYear - 1983) * 0.05,
+        graphicsDemand: currentYear >= 1985 ? 1.2 : 0.9,
+        soundDemand: currentYear >= 1984 ? 1.1 : 0.8,
+        storageDemand: currentYear >= 1986 ? 1.3 : 1.0
+      }
+    };
 
-    const marketingMultiplier = Math.max(1, Math.sqrt(marketingBudget / 25000));
+    // Realistische Verkaufsberechnung
+    const gamerAppeal = this.calculateGamerAppeal(model) * 0.8; // Reduziert für Realismus
+    const businessAppeal = this.calculateBusinessAppeal(model) * 0.8;
+    
+    const marketingMultiplier = Math.sqrt(marketingBudget / 25000);
     const reputationBonus = Math.max(0.5, playerReputation / 100);
     
-    // === GAMER-MARKT ===
-    const gamerAppeal = this.calculateGamerAppeal(model) * ageDecayFactor;
-    const gamerMarketSize = Math.floor(marketSize * 0.7); // 70% des Marktes sind Gamer
-    const gamerMaxPrice = 1200; // Gamer haben weniger Geld
-    const gamerPriceSensitivity = model.price > gamerMaxPrice ? 
-      Math.max(0.1, 1 - (model.price - gamerMaxPrice) / gamerMaxPrice) : 1.0;
-    
-    // Realistische 80er-Jahre-Verkaufszahlen für Gamer-Segment
+    // Preis-Akzeptanz
+    const gamerPriceAcceptance = model.price > economicFactors.marketSegments.gamer.maxPrice ? 
+      Math.max(0.1, 1 - (model.price - economicFactors.marketSegments.gamer.maxPrice) / economicFactors.marketSegments.gamer.maxPrice) : 1.0;
+    const businessPriceAcceptance = model.price > economicFactors.marketSegments.business.maxPrice ? 
+      Math.max(0.2, 1 - (model.price - economicFactors.marketSegments.business.maxPrice) / (economicFactors.marketSegments.business.maxPrice * 2)) : 
+      Math.min(1.2, 1 + (economicFactors.marketSegments.business.maxPrice - model.price) / (economicFactors.marketSegments.business.maxPrice * 3));
+
+    // Verkäufe berechnen
     const gamerSales = Math.floor(
       (gamerAppeal / 100) * 
       marketingMultiplier * 
       reputationBonus * 
-      gamerPriceSensitivity *
-      (gamerMarketSize / 20000) * // Basis: 20k für realistische Zahlen
-      (0.8 + Math.random() * 1.4) // Basis-Verkaufsfaktor: 0.8-2.2 für 16k-44k Einheiten bei gutem Appeal
+      gamerPriceAcceptance *
+      (economicFactors.marketSegments.gamer.size / 30000) * // Realistische Basis
+      (0.3 + Math.random() * 0.4) // 30-70% des theoretischen Potentials
     );
 
-    console.log(`Gamer Sales for ${model.name} (Age: ${quartersSinceRelease}Q):`, {
-      appeal: gamerAppeal.toFixed(1),
-      ageDecay: ageDecayFactor.toFixed(2),
-      result: gamerSales
-    });
-
-    // === BUSINESS-MARKT ===
-    const businessAppeal = this.calculateBusinessAppeal(model) * ageDecayFactor;
-    const businessMarketSize = Math.floor(marketSize * 0.3); // 30% des Marktes sind Business
-    const businessMaxPrice = 5000; // Business zahlt mehr
-    const businessPriceSensitivity = model.price > businessMaxPrice ? 
-      Math.max(0.2, 1 - (model.price - businessMaxPrice) / (businessMaxPrice * 2)) : 
-      Math.min(1.2, 1 + (businessMaxPrice - model.price) / (businessMaxPrice * 3)); // Teurere Computer = mehr Vertrauen
-    
-    // Business kauft weniger Einheiten, aber zu höheren Preisen
     const businessSales = Math.floor(
       (businessAppeal / 100) * 
       marketingMultiplier * 
       reputationBonus * 
-      businessPriceSensitivity *
-      (businessMarketSize / 40000) * // Basis: 40k für Business-Markt
-      (0.5 + Math.random() * 1.0) // Basis-Verkaufsfaktor: 0.5-1.5 für 12.5k-37.5k Einheiten
+      businessPriceAcceptance *
+      (economicFactors.marketSegments.business.size / 50000) * // Business kauft weniger Einheiten
+      (0.2 + Math.random() * 0.3) // 20-50% des theoretischen Potentials
     );
 
-    console.log(`Business Sales for ${model.name}:`, {
-      appeal: businessAppeal.toFixed(1),
-      ageDecay: ageDecayFactor.toFixed(2),
-      result: businessSales
-    });
-
-    // Gesamtverkäufe
     const totalUnitsSold = Math.max(0, gamerSales + businessSales);
     const totalHardwareRevenue = totalUnitsSold * model.price;
     
-    // Zusätzliche Einnahmequellen berechnen
+    // Zusätzliche Einnahmequellen
     const softwareLicenses = this.calculateSoftwareLicenseRevenue(model, totalUnitsSold);
     const supportService = this.calculateSupportServiceRevenue(model, totalUnitsSold);
     

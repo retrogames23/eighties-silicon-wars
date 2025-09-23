@@ -1,125 +1,84 @@
-import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Volume2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface GameIntroProps {
   onComplete: () => void;
 }
 
 export const GameIntro = ({ onComplete }: GameIntroProps) => {
-  const [currentScene, setCurrentScene] = useState(0);
-  const [audioPlaying, setAudioPlaying] = useState(false);
-
-  const scenes = [
-    {
-      title: "DAS JAHR 1983",
-      text: "Die Heimcomputer-Revolution beginnt...",
-      subtitle: "Personal Computer erobern die Wohnzimmer"
-    },
-    {
-      title: "DER KRIEG DER CHIPS",
-      text: "Commodore 64, Atari 8-bit, Apple II...",
-      subtitle: "Wer wird den Markt dominieren?"
-    },
-    {
-      title: "IHRE MISSION",
-      text: "Gründe dein eigenes Computer-Imperium",
-      subtitle: "Entwickle die Computer der Zukunft"
-    }
-  ];
-
-  useEffect(() => {
-    if (currentScene < scenes.length - 1) {
-      const timer = setTimeout(() => {
-        setCurrentScene(currentScene + 1);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentScene, scenes.length]);
-
-  const playSound = () => {
-    // Create 80s-style beep sound using Web Audio API
-    if (!audioPlaying) {
-      setAudioPlaying(true);
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
-      
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.3);
-      
-      setTimeout(() => setAudioPlaying(false), 300);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
       <div className="crt-screen">
         <div className="scanline" />
         
-        <div className="max-w-4xl mx-auto text-center">
-          {/* CRT Monitor Frame */}
-          <div className="retro-border bg-card/90 backdrop-blur-sm p-12 rounded-lg">
-            {/* Scene Display */}
-            <div className="mb-12 min-h-[200px] flex flex-col justify-center">
-              <div className="space-y-6 animate-pulse">
-                <h1 className="text-6xl font-bold neon-text text-primary mb-4">
-                  {scenes[currentScene].title}
+        <div className="flex items-center justify-center">
+          <Card className="w-96 bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
+            <div className="p-8 text-center space-y-4">
+              {/* Titel */}
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold neon-text text-primary font-mono mb-2">
+                  COMPUTER TYCOON
                 </h1>
-                <p className="text-2xl text-accent font-mono">
-                  {scenes[currentScene].text}
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+              </div>
+
+              {/* Stimmungsvoller Intro-Text */}
+              <div className="space-y-3 text-sm text-muted-foreground font-mono leading-relaxed">
+                <p>
+                  Das Jahr ist 1983. MTV läuft rund um die Uhr, 
+                  der DeLorean fährt durch die Straßen und 
+                  Pac-Man erobert die Spielhallen.
                 </p>
-                <p className="text-lg text-muted-foreground font-mono">
-                  {scenes[currentScene].subtitle}
+                
+                <p>
+                  Während Knight Rider über die Highways rast
+                  und Dallas die Fernsehbildschirme beherrscht,
+                  beginnt eine stille Revolution in den 
+                  Garagen und Kellern Amerikas.
+                </p>
+                
+                <p>
+                  Steve Jobs hat gerade den Apple IIe vorgestellt,
+                  Commodore kämpft mit dem legendären C64 
+                  um jeden Hobbyisten, und irgendwo bastelt 
+                  ein gewisser Bill Gates an MS-DOS.
+                </p>
+                
+                <p className="text-accent">
+                  Die Zukunft wartet darauf, erfunden zu werden.
+                  Wirst du Teil dieser digitalen Revolution?
                 </p>
               </div>
-            </div>
 
-            {/* Progress Dots */}
-            <div className="flex justify-center space-x-3 mb-8">
-              {scenes.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-3 h-3 rounded-full border-2 ${
-                    index <= currentScene 
-                      ? 'bg-primary border-primary shadow-glow-green' 
-                      : 'border-muted-foreground'
-                  }`}
-                />
-              ))}
-            </div>
+              {/* Terminal-Style Eingabeaufforderung */}
+              <div className="mt-8 p-3 bg-black/80 rounded border border-primary/30 font-mono text-xs">
+                <div className="text-terminal-green">
+                  C:\GAMES\TYCOON&gt; RUN GAME.EXE
+                </div>
+                <div className="text-terminal-green opacity-75 animate-pulse">
+                  _
+                </div>
+              </div>
 
-            {/* Controls */}
-            <div className="space-y-4">
-              <Button 
-                onClick={onComplete}
-                className="glow-button w-full"
-                variant="default"
-              >
-                <ChevronRight className="w-5 h-5 mr-2" />
-                Spiel starten
-              </Button>
-            </div>
+              {/* Start Button */}
+              <div className="pt-4">
+                <Button 
+                  onClick={onComplete}
+                  className="glow-button w-full bg-primary hover:bg-primary/80 text-primary-foreground font-mono"
+                  variant="default"
+                >
+                  <ChevronRight className="w-4 h-4 mr-2" />
+                  ENTER THE 80s
+                </Button>
+              </div>
 
-            {/* Terminal Footer */}
-            <div className="mt-12 text-center">
-              <div className="inline-block p-3 bg-card/50 backdrop-blur-sm rounded border border-border/50">
-              <p className="text-sm text-terminal-green font-mono">
-                {">>> WILLKOMMEN IN DEN 80ER JAHREN <<<"}
-              </p>
+              {/* Copyright Footer */}
+              <div className="pt-4 text-xs text-muted-foreground/70 font-mono">
+                © 1983 RETRO GAMES CORP.
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

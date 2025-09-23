@@ -182,6 +182,11 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
   // Mindest- und Maximalpreis
   const minPrice = Math.round(totalCost * 1.1); // 10% Mindestmarge
   const maxPrice = Math.round(totalCost * 4.0); // 300% Maximalmarge
+  
+  // Setze Verkaufspreis automatisch auf empfohlenen Preis wenn noch nicht gesetzt
+  if (sellingPrice === 0 && suggestedPrice > 0) {
+    setSellingPrice(suggestedPrice);
+  }
 
   const toggleComponent = (component: Component) => {
     const isSelected = selectedComponents.some(c => c.id === component.id);

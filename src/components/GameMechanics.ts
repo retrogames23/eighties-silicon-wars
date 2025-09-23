@@ -440,6 +440,56 @@ export class GameMechanics {
     
     return availableComponents;
   }
+
+  static checkForNewHardware(
+    previousResearchBudget: number,
+    currentResearchBudget: number,
+    announcedHardware: string[] = []
+  ): { name: string; type: string; description: string; performance?: number }[] {
+    const previousLevel = Math.floor(previousResearchBudget / 25000);
+    const currentLevel = Math.floor(currentResearchBudget / 25000);
+    
+    const hardwareDetails = {
+      'Intel 8086': { type: 'cpu', description: '16-bit Prozessor, 5 MHz - Perfekt für Business-Anwendungen', performance: 35 },
+      'TI TMS9918': { type: 'gpu', description: '256x192 Pixel, 16 Farben - Exzellent für Spiele', performance: 25 },
+      '64KB RAM': { type: 'ram', description: 'Erweiterte Speicherkapazität für komplexere Programme', performance: 30 },
+      'AY-3-8910': { type: 'sound', description: '3-Kanal Sound-Chip für beeindruckende Audioeffekte', performance: 20 },
+      'Motorola 68000': { type: 'cpu', description: '16/32-bit Prozessor, 8 MHz - Premium-Performance', performance: 45 },
+      'Atari GTIA': { type: 'gpu', description: 'Fortschrittliche Grafik mit 256 Farben', performance: 30 },
+      '256KB RAM': { type: 'ram', description: 'Viel Arbeitsspeicher für professionelle Anwendungen', performance: 50 },
+      'SID 6581': { type: 'sound', description: 'Legendärer Sound-Synthesizer mit 3 Stimmen', performance: 35 },
+      'Intel 80286': { type: 'cpu', description: '16-bit Prozessor, 12 MHz - Top-Performance der 80er', performance: 65 },
+      'Commodore VIC-II': { type: 'gpu', description: 'Der berühmte C64-Grafikchip mit Sprites', performance: 40 },
+      'Yamaha YM2149': { type: 'sound', description: 'Professioneller Sound-Chip für hochwertige Musik', performance: 25 }
+    };
+
+    const researchUnlocks = [
+      ['Intel 8086', 'TI TMS9918', '64KB RAM', 'AY-3-8910'],
+      ['Motorola 68000', 'Atari GTIA', '256KB RAM', 'SID 6581'],
+      ['Intel 80286', 'Commodore VIC-II', 'Yamaha YM2149']
+    ];
+
+    const newHardware: { name: string; type: string; description: string; performance?: number }[] = [];
+    
+    for (let level = previousLevel; level < Math.min(currentLevel, researchUnlocks.length); level++) {
+      const unlockedComponents = researchUnlocks[level];
+      for (const component of unlockedComponents) {
+        if (!announcedHardware.includes(component)) {
+          const details = hardwareDetails[component as keyof typeof hardwareDetails];
+          if (details) {
+            newHardware.push({
+              name: component,
+              type: details.type,
+              description: details.description,
+              performance: details.performance
+            });
+          }
+        }
+      }
+    }
+    
+    return newHardware;
+  }
   static calculateMarketShare(
     playerModels: any[],
     playerMarketingBudget: number,

@@ -7,6 +7,7 @@ import { CaseSelection } from "@/components/CaseSelection";
 import { QuarterResults } from "@/components/QuarterResults";
 import { GameEnd } from "@/components/GameEnd";
 import { MusicToggle } from "@/components/MusicToggle";
+import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
 import { toast } from "@/hooks/use-toast";
 
@@ -86,6 +87,16 @@ const Index = () => {
   const [quarterResults, setQuarterResults] = useState<any>(null);
   const [tempModel, setTempModel] = useState<ComputerModel | null>(null);
   const [gameEndCondition, setGameEndCondition] = useState<GameEndCondition | null>(null);
+  
+  // Hardware announcement state
+  const [hardwareAnnouncement, setHardwareAnnouncement] = useState<{
+    isOpen: boolean;
+    newHardware: any[];
+  }>({ isOpen: false, newHardware: [] });
+  
+  // Track announced hardware to avoid duplicates
+  const [announcedHardware, setAnnouncedHardware] = useState<string[]>([]);
+  
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',
@@ -190,8 +201,18 @@ const Index = () => {
   };
 
   const handleNextTurn = () => {
+    // Check for new hardware before processing turn
+    const previousResearchBudget = gameState.budget.research;
+    
     // Verarbeite das Quartal mit der neuen GameMechanics Logik
     const result = GameMechanics.processQuarterTurn(gameState, gameState.competitors);
+    
+    // Check for newly unlocked hardware
+    const newHardware = GameMechanics.checkForNewHardware(
+      previousResearchBudget,
+      result.updatedGameState.budget.research,
+      announcedHardware
+    );
     
     // Prüfe auf Spielende
     if (result.gameEndCondition?.isGameEnded) {
@@ -240,6 +261,15 @@ const Index = () => {
       totalRevenue: (result.updatedGameState.totalRevenue || 0) + (result.quarterResults?.totalRevenue || 0)
     });
     
+    // Show hardware announcement if there's new hardware
+    if (newHardware.length > 0) {
+      setHardwareAnnouncement({
+        isOpen: true,
+        newHardware: newHardware
+      });
+      setAnnouncedHardware(prev => [...prev, ...newHardware.map(hw => hw.name)]);
+    }
+    
     setCurrentScreen('quarter-results');
   };
 
@@ -254,6 +284,8 @@ const Index = () => {
     setGameEndCondition(null);
     setQuarterResults(null);
     setTempModel(null);
+    setHardwareAnnouncement({ isOpen: false, newHardware: [] });
+    setAnnouncedHardware([]);
     setGameState({
       company: {
         name: '',
@@ -346,6 +378,15 @@ const Index = () => {
     <>
       <MusicToggle />
       {renderCurrentScreen()}
+      
+      {/* Hardware Announcement Dialog */}
+      <HardwareAnnouncement
+        isOpen={hardwareAnnouncement.isOpen}
+        onClose={() => setHardwareAnnouncement({ isOpen: false, newHardware: [] })}
+        newHardware={hardwareAnnouncement.newHardware}
+        currentYear={gameState.year}
+        currentQuarter={gameState.quarter}
+      />
     </>
   );
 };

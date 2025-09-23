@@ -30,6 +30,9 @@ interface ComputerModel {
   releaseQuarter: number;
   releaseYear: number;
   status: 'development' | 'released' | 'discontinued';
+  developmentTime: number; // Quartale bis Fertigstellung
+  developmentProgress: number; // Aktueller Fortschritt 0-100%
+  complexity: number; // Technische Komplexität (bestimmt Entwicklungszeit)
 }
 
 interface Budget {

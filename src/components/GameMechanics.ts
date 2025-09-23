@@ -140,6 +140,88 @@ export const MARKET_EVENTS: MarketEvent[] = [
 ];
 
 export class GameMechanics {
+  static calculateModelComplexity(model: any): number {
+    // Basis-Komplexität abhängig von Komponenten
+    let complexity = 20; // Basis
+    
+    // CPU-Komplexität
+    const cpuComplexity = {
+      'MOS 6502': 10, 'Zilog Z80': 15, 'Motorola 68000': 40, 
+      'Intel 8086': 30, 'Intel 80286': 50
+    };
+    complexity += cpuComplexity[model.cpu] || 20;
+    
+    // RAM-Komplexität
+    const ramAmount = parseInt(model.ram) || 0;
+    complexity += Math.min(30, ramAmount / 4);
+    
+    // GPU-Komplexität
+    const gpuComplexity = {
+      'MOS VIC': 10, 'TI TMS9918': 20, 'Atari GTIA': 25, 'Commodore VIC-II': 30
+    };
+    complexity += gpuComplexity[model.gpu] || 15;
+    
+    // Zusätzliche Komponenten erhöhen Komplexität
+    if (model.soundchip && model.soundchip !== 'PC Speaker') complexity += 15;
+    if (model.accessories && model.accessories.length > 0) {
+      complexity += model.accessories.length * 10;
+    }
+    
+    return Math.min(100, complexity);
+  }
+
+  static calculateDevelopmentTime(complexity: number): number {
+    // 1-3 Quartale basierend auf Komplexität
+    if (complexity <= 30) return 1;
+    if (complexity <= 60) return 2;
+    return 3;
+  }
+
+  static updateModelDevelopment(models: any[], developmentBudget: number): any[] {
+    const budgetSpeedMultiplier = Math.max(0.5, Math.min(2.0, developmentBudget / 50000)); // 0.5x - 2x Geschwindigkeit
+    
+    return models.map(model => {
+      if (model.status === 'development') {
+        const progressIncrement = (100 / model.developmentTime) * budgetSpeedMultiplier;
+        const newProgress = Math.min(100, model.developmentProgress + progressIncrement);
+        
+        if (newProgress >= 100) {
+          return {
+            ...model,
+            status: 'released',
+            developmentProgress: 100
+          };
+        }
+        
+        return {
+          ...model,
+          developmentProgress: newProgress
+        };
+      }
+      return model;
+    });
+  }
+
+  static getAvailableComponents(researchBudget: number, currentYear: number): any[] {
+    // Forschungsbudget schaltet neue Technologien frei
+    const researchLevel = Math.floor(researchBudget / 25000); // Alle 25k$ eine Stufe höher
+    
+    // Basis-Komponenten + durch Forschung freigeschaltete
+    const baseComponents = ['MOS 6502', 'Zilog Z80', 'MOS VIC', '4KB RAM', '16KB RAM'];
+    
+    const researchUnlocks = [
+      ['Intel 8086', 'TI TMS9918', '64KB RAM', 'AY-3-8910'], // Level 1 (25k+)
+      ['Motorola 68000', 'Atari GTIA', '256KB RAM', 'SID 6581'], // Level 2 (50k+)
+      ['Intel 80286', 'Commodore VIC-II', 'Yamaha YM2149'], // Level 3 (75k+)
+    ];
+    
+    let availableComponents = [...baseComponents];
+    for (let i = 0; i < Math.min(researchLevel, researchUnlocks.length); i++) {
+      availableComponents.push(...researchUnlocks[i]);
+    }
+    
+    return availableComponents;
+  }
   static calculateMarketShare(
     playerModels: any[],
     playerMarketingBudget: number,
@@ -285,8 +367,11 @@ export class GameMechanics {
   } {
     const { budget, models, company } = gameState;
     
-    // Berechne Verkäufe für jedes Modell
-    const modelSales = models.map((model: any) => {
+    // 1. Entwicklungsfortschritt aktualisieren
+    const updatedModels = this.updateModelDevelopment(models, budget.development);
+    
+    // 2. Berechne Verkäufe nur für veröffentlichte Modelle
+    const modelSales = updatedModels.map((model: any) => {
       if (model.status === 'released') {
         const competitorModels = competitors.flatMap(comp => comp.models);
         const sales = this.calculateModelSales(
@@ -328,13 +413,25 @@ export class GameMechanics {
     const newMarketShare = Math.max(0.1, Math.min(50, oldMarketShare + marketShareChange));
 
     const oldReputation = company.reputation || 50;
+    // Forschungsbudget beeinflusst Reputation stärker
+    const researchBonus = budget.research > 50000 ? 3 : budget.research > 25000 ? 1 : 0;
     const reputationChange = (totalUnitsSold > 0 ? 2 : -1) + 
-                           (budget.research > 50000 ? 1 : 0) +
-                           (Math.random() - 0.5) * 3;
+                           researchBonus +
+                           (Math.random() - 0.5) * 2;
     const newReputation = Math.max(10, Math.min(100, oldReputation + reputationChange));
 
     // Konkurrenz-Aktionen
     const competitorActions: string[] = [];
+    
+    // Entwicklungsfortschritte dokumentieren
+    const completedModels = updatedModels.filter((model: any) => 
+      model.status === 'released' && 
+      models.find((oldModel: any) => oldModel.id === model.id)?.status === 'development'
+    );
+    
+    if (completedModels.length > 0) {
+      competitorActions.push(`${completedModels.length} Modell(e) entwicklungsfertig!`);
+    }
     
     // Aktualisierte Konkurrenten
     const updatedCompetitors = this.updateCompetitors(
@@ -372,7 +469,7 @@ export class GameMechanics {
         monthlyIncome: Math.round(totalRevenue / 3), // Quartalseinnahmen auf Monat runterbrechen
         monthlyExpenses: Math.round(totalExpenses / 3) // Quartalsausgaben auf Monat runterbrechen
       },
-      models: models.map((model: any) => {
+      models: updatedModels.map((model: any) => {
         const modelSale = modelSales.find(sale => sale.modelName === model.name);
         if (modelSale) {
           return {
@@ -396,7 +493,11 @@ export class GameMechanics {
       expenses: quarterlyExpenses,
       netProfit,
       competitorActions,
-      marketEvent
+      marketEvent,
+      developmentUpdates: {
+        completedModels: completedModels.length,
+        modelsInDevelopment: updatedModels.filter((m: any) => m.status === 'development').length
+      }
     };
 
     return {

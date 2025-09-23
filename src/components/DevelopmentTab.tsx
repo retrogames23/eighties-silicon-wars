@@ -15,6 +15,9 @@ interface ComputerModel {
   releaseQuarter: number;
   releaseYear: number;
   status: 'development' | 'released' | 'discontinued';
+  developmentTime?: number; // Quartale bis Fertigstellung
+  developmentProgress?: number; // Aktueller Fortschritt 0-100%
+  complexity?: number; // Technische Komplexität
 }
 
 interface DevelopmentTabProps {
@@ -90,12 +93,12 @@ export const DevelopmentTab = ({ models, onDevelopNewModel }: DevelopmentTabProp
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Entwicklung</p>
-              <p className="text-2xl font-bold text-red-400 font-mono">
-                {formatCurrency(totalDevelopmentCosts)}
+              <p className="text-sm text-muted-foreground">In Entwicklung</p>
+              <p className="text-2xl font-bold text-amber-400 neon-text font-mono">
+                {models.filter(m => m.status === 'development').length}
               </p>
             </div>
-            <Cpu className="w-6 h-6 text-red-400" />
+            <Cpu className="w-6 h-6 text-amber-400" />
           </div>
         </Card>
       </div>
@@ -185,6 +188,26 @@ export const DevelopmentTab = ({ models, onDevelopNewModel }: DevelopmentTabProp
                   </p>
                 </div>
               </div>
+
+              {model.status === 'development' && (
+                <div className="mt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-muted-foreground">
+                      Entwicklungsfortschritt ({model.developmentTime} Quartale)
+                    </span>
+                    <span className="text-sm font-mono text-amber-400">
+                      {Math.round(model.developmentProgress || 0)}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={model.developmentProgress || 0} 
+                    className="h-3" 
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Erhöhe dein Entwicklungsbudget für schnellere Fortschritte
+                  </p>
+                </div>
+              )}
 
               {model.status === 'released' && (
                 <div className="mt-4">

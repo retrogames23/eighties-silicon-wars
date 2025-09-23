@@ -76,6 +76,9 @@ interface ComputerModel {
   status: 'development' | 'released';
   releaseQuarter: number;
   releaseYear: number;
+  developmentTime: number; // Quartale bis Fertigstellung
+  developmentProgress: number; // Aktueller Fortschritt 0-100%
+  complexity: number; // Technische Komplexität (bestimmt Entwicklungszeit)
 }
 
 interface ComputerDevelopmentProps {
@@ -164,9 +167,12 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
             developmentCost: totalCost,
             performance: averagePerformance,
             unitsSold: 0,
-            status: 'released',
+            status: 'development', // Startet in Entwicklung
             releaseQuarter: Math.floor(Math.random() * 4) + 1,
-            releaseYear: 1985 + Math.floor(Math.random() * 5)
+            releaseYear: 1985 + Math.floor(Math.random() * 5),
+            complexity: averagePerformance, // Verwende Performance als Komplexität
+            developmentTime: averagePerformance <= 30 ? 1 : averagePerformance <= 60 ? 2 : 3, // 1-3 Quartale
+            developmentProgress: 0 // Startet bei 0%
           };
 
           onModelComplete(newModel);
@@ -300,10 +306,18 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                         ))}
                       </div>
                       
-                      <div className="border-t border-terminal-green/30 pt-4 space-y-2">
+                       <div className="border-t border-terminal-green/30 pt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Durchschnittliche Leistung:</span>
                           <span className="text-neon-green font-bold">{averagePerformance}/100</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Komplexität:</span>
+                          <span className="text-neon-cyan font-bold">
+                            {averagePerformance <= 30 ? 'Einfach (1 Quartal)' : 
+                             averagePerformance <= 60 ? 'Mittel (2 Quartale)' : 
+                             'Komplex (3 Quartale)'}
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Entwicklungskosten:</span>
@@ -342,7 +356,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                             disabled={!canDevelop}
                             className="w-full glow-button"
                           >
-                            Modellname festlegen
+                            Computer entwickeln
                           </Button>
                         )}
                         
@@ -352,9 +366,9 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                             disabled={!canDevelop || developmentProgress > 0 || !modelName.trim()}
                             className="w-full glow-button"
                           >
-                            {developmentProgress === 100 ? 'Entwicklung abgeschlossen!' : 
-                             developmentProgress > 0 ? 'Entwicklung läuft...' : 
-                             'Entwicklung starten'}
+                            {developmentProgress === 100 ? 'Entwicklung gestartet!' : 
+                             developmentProgress > 0 ? 'Entwicklung wird gestartet...' : 
+                             'Entwicklung beginnen'}
                           </Button>
                         )}
                         

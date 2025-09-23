@@ -5,7 +5,8 @@ import { GameDashboard } from "@/components/GameDashboard";
 import { ComputerDevelopment } from "@/components/ComputerDevelopment";
 import { CaseSelection } from "@/components/CaseSelection";
 import { QuarterResults } from "@/components/QuarterResults";
-import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent } from "@/components/GameMechanics";
+import { GameEnd } from "@/components/GameEnd";
+import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
 import { toast } from "sonner";
 
 interface Company {
@@ -60,6 +61,11 @@ interface GameState {
     marketShare: number;
     monthlyIncome: number;
     monthlyExpenses: number;
+    hardwareIncome?: number;
+    additionalRevenue?: {
+      softwareLicenses: { games: number; office: number };
+      supportService: { b2c: number; b2b: number };
+    };
   };
   quarter: number;
   year: number;
@@ -68,14 +74,17 @@ interface GameState {
   competitors: Competitor[];
   marketEvents: MarketEvent[];
   totalMarketSize: number;
+  customChips: CustomChip[];
+  totalRevenue: number;
 }
 
-type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results';
+type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
   const [quarterResults, setQuarterResults] = useState<any>(null);
   const [tempModel, setTempModel] = useState<ComputerModel | null>(null);
+  const [gameEndCondition, setGameEndCondition] = useState<GameEndCondition | null>(null);
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',
@@ -97,7 +106,9 @@ const Index = () => {
     },
     competitors: INITIAL_COMPETITORS,
     marketEvents: [],
-    totalMarketSize: 1000000 // 1 Million $ Gesamtmarkt 1983
+    totalMarketSize: 1000000, // 1 Million $ Gesamtmarkt 1983
+    customChips: [],
+    totalRevenue: 0
   });
 
   const handleIntroComplete = () => {
@@ -174,6 +185,20 @@ const Index = () => {
     // Verarbeite das Quartal mit der neuen GameMechanics Logik
     const result = GameMechanics.processQuarterTurn(gameState, gameState.competitors);
     
+    // Prüfe auf Spielende
+    if (result.gameEndCondition?.isGameEnded) {
+      setGameEndCondition(result.gameEndCondition);
+      setCurrentScreen('game-end');
+      return;
+    }
+    
+    // Custom Chip Benachrichtigung
+    if (result.newCustomChip) {
+      toast.success(`🎉 Custom Hardware entwickelt: ${result.newCustomChip.name}!`, {
+        description: result.newCustomChip.description
+      });
+    }
+    
     // Zeige Quartalsresultate
     setQuarterResults({
       quarter: gameState.quarter,
@@ -189,7 +214,8 @@ const Index = () => {
       ...result.updatedGameState,
       quarter: nextQuarter,
       year: nextYear,
-      competitors: result.updatedCompetitors
+      competitors: result.updatedCompetitors,
+      totalRevenue: (result.updatedGameState.totalRevenue || 0) + (result.quarterResults?.totalRevenue || 0)
     });
     
     setCurrentScreen('quarter-results');
@@ -198,6 +224,39 @@ const Index = () => {
   const handleContinueFromResults = () => {
     setCurrentScreen('dashboard');
     setQuarterResults(null);
+  };
+
+  const handleGameRestart = () => {
+    // Reset alles zurück auf Anfangswerte
+    setCurrentScreen('intro');
+    setGameEndCondition(null);
+    setQuarterResults(null);
+    setTempModel(null);
+    setGameState({
+      company: {
+        name: '',
+        logo: '',
+        cash: 3000000,
+        employees: 8,
+        reputation: 50,
+        marketShare: 0,
+        monthlyIncome: 0,
+        monthlyExpenses: 45000
+      },
+      quarter: 1,
+      year: 1983,
+      models: [],
+      budget: {
+        marketing: 15000,
+        development: 25000, 
+        research: 5000
+      },
+      competitors: INITIAL_COMPETITORS,
+      marketEvents: [],
+      totalMarketSize: 1000000,
+      customChips: [],
+      totalRevenue: 0
+    });
   };
 
   const renderCurrentScreen = () => {
@@ -243,6 +302,16 @@ const Index = () => {
             year={quarterResults.year}
             results={quarterResults.results}
             onContinue={handleContinueFromResults}
+          />
+        ) : null;
+      
+      case 'game-end':
+        return gameEndCondition ? (
+          <GameEnd
+            gameEndCondition={gameEndCondition}
+            gameState={gameState}
+            competitors={gameState.competitors}
+            onRestart={handleGameRestart}
           />
         ) : null;
       

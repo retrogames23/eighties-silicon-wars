@@ -31,7 +31,92 @@ export interface MarketEvent {
   };
 }
 
-// Initial competitors for 1983
+export interface CustomChip {
+  id: string;
+  name: string;
+  type: 'cpu' | 'gpu' | 'sound' | 'case';
+  performance: number;
+  cost: number;
+  description: string;
+  developedYear: number;
+  developedQuarter: number;
+  exclusiveToPlayer: boolean;
+}
+
+export interface GameEndCondition {
+  isGameEnded: boolean;
+  winner?: string;
+  finalResults?: {
+    playerRank: number;
+    finalMarketShare: number;
+    totalRevenue: number;
+    customChipsCount: number;
+  };
+}
+
+// Zeitbasierte Hardware-Verfügbarkeit (historisch korrekt)
+export const HARDWARE_TIMELINE = {
+  1983: {
+    1: ['MOS 6502', 'Zilog Z80', 'MOS VIC', '4KB RAM', '16KB RAM', 'PC Speaker'],
+    2: ['TI TMS9918', 'Kassettenlaufwerk'],
+    3: ['Diskettenlaufwerk 5.25"', 'RF Modulator'],
+    4: ['AY-3-8910', 'Composite Monitor']
+  },
+  1984: {
+    1: ['Intel 8086', 'Atari GTIA', '64KB RAM'],
+    2: ['Motorola 68000'],
+    3: ['Commodore VIC-II', 'SID 6581'],
+    4: ['RGB Monitor']
+  },
+  1985: {
+    1: ['Intel 80286', '256KB RAM'],
+    2: ['Yamaha YM2149', 'Festplatte 5MB'],
+    3: ['Diskettenlaufwerk 3.5"'],
+    4: ['EGA Graphics']
+  },
+  1986: {
+    1: ['Intel 80386', '512KB RAM'],
+    2: ['VGA Graphics', 'AdLib Sound'],
+    3: ['1MB RAM', 'Festplatte 10MB'],
+    4: ['CD-ROM Drive (experimentell)']
+  },
+  1987: {
+    1: ['Sound Blaster', '2MB RAM'],
+    2: ['Super VGA', 'Festplatte 20MB'],
+    3: ['Intel 80387 Coprozessor'],
+    4: ['MIDI Interface']
+  },
+  1988: {
+    1: ['Intel 80486', '4MB RAM'],
+    2: ['Festplatte 40MB', 'VGA Plus'],
+    3: ['CD-ROM Standard'],
+    4: ['Netzwerkkarte']
+  },
+  1989: {
+    1: ['8MB RAM', 'Super VGA 1MB'],
+    2: ['Festplatte 80MB'],
+    3: ['Sound Blaster Pro'],
+    4: ['Local Bus Graphics']
+  },
+  1990: {
+    1: ['Intel 80486DX', '16MB RAM'],
+    2: ['Festplatte 120MB', 'SCSI Interface'],
+    3: ['Multimedia Extensions'],
+    4: ['High-End Workstation Components']
+  },
+  1991: {
+    1: ['32MB RAM', 'Festplatte 200MB'],
+    2: ['SVGA High-Res', 'Advanced Sound Cards'],
+    3: ['CD-ROM 2x Speed'],
+    4: ['Early Pentium Prototypes']
+  },
+  1992: {
+    1: ['64MB RAM', 'Festplatte 500MB'],
+    2: ['VESA Local Bus'],
+    3: ['Final Generation Components'],
+    4: ['Game Ende - PC-Ära beginnt']
+  }
+};
 export const INITIAL_COMPETITORS: Competitor[] = [
   {
     id: 'apple',
@@ -202,7 +287,136 @@ export class GameMechanics {
     });
   }
 
-  static getAvailableComponents(researchBudget: number, currentYear: number): any[] {
+  // Custom Hardware Development durch Forschung & Entwicklung
+  static attemptCustomHardwareDevelopment(
+    researchBudget: number, 
+    developmentBudget: number, 
+    year: number, 
+    quarter: number,
+    existingCustomChips: CustomChip[] = []
+  ): CustomChip | null {
+    const totalBudget = researchBudget + developmentBudget;
+    
+    // Basis-Chance: 5%, +1% pro 10k Budget, max 25%
+    const baseChance = Math.min(0.25, 0.05 + (totalBudget / 10000) * 0.01);
+    
+    if (Math.random() > baseChance) return null;
+    
+    // Bestimme Art des Custom Chips basierend auf Budget-Verteilung
+    const researchRatio = researchBudget / totalBudget;
+    let chipType: 'cpu' | 'gpu' | 'sound' | 'case';
+    
+    if (researchRatio > 0.7) chipType = 'cpu'; // Forschungslastig = CPU
+    else if (researchRatio < 0.3) chipType = 'case'; // Entwicklungslastig = Case
+    else chipType = Math.random() > 0.5 ? 'gpu' : 'sound';
+    
+    // Verhindere zu viele Custom Chips des gleichen Typs
+    const sameTypeCount = existingCustomChips.filter(c => c.type === chipType).length;
+    if (sameTypeCount >= 2) return null;
+    
+    const customChip: CustomChip = {
+      id: `custom-${chipType}-${year}-${quarter}`,
+      name: this.generateCustomChipName(chipType, year),
+      type: chipType,
+      performance: this.calculateCustomChipPerformance(chipType, totalBudget, year),
+      cost: this.calculateCustomChipCost(chipType, totalBudget),
+      description: this.generateCustomChipDescription(chipType, year),
+      developedYear: year,
+      developedQuarter: quarter,
+      exclusiveToPlayer: true
+    };
+    
+    return customChip;
+  }
+
+  static generateCustomChipName(type: string, year: number): string {
+    const prefixes = {
+      cpu: ['Phoenix', 'Quantum', 'Nova', 'Apex', 'Vector'],
+      gpu: ['Vision', 'Pixel', 'Render', 'Crystal', 'Spectrum'],  
+      sound: ['Audio', 'Sonic', 'Wave', 'Echo', 'Harmony'],
+      case: ['Elite', 'Professional', 'Master', 'Premium', 'Custom']
+    };
+    
+    const prefix = prefixes[type as keyof typeof prefixes];
+    const randomPrefix = prefix[Math.floor(Math.random() * prefix.length)];
+    
+    return `${randomPrefix} ${type.toUpperCase()}-${year}`;
+  }
+
+  static calculateCustomChipPerformance(type: string, budget: number, year: number): number {
+    const basePerfByType = { cpu: 50, gpu: 45, sound: 60, case: 40 };
+    const basePerf = basePerfByType[type as keyof typeof basePerfByType] || 50;
+    
+    // Budget-Bonus: +20% bei 100k Budget
+    const budgetBonus = Math.min(0.4, budget / 250000);
+    
+    // Jahr-Bonus: Technologie wird besser über Zeit
+    const yearBonus = (year - 1983) * 0.05;
+    
+    return Math.round(basePerf * (1 + budgetBonus + yearBonus));
+  }
+
+  static calculateCustomChipCost(type: string, budget: number): number {
+    const baseCostByType = { cpu: 80, gpu: 60, sound: 40, case: 30 };
+    const baseCost = baseCostByType[type as keyof typeof baseCostByType] || 50;
+    
+    // Custom Chips sind etwa 30% günstiger als Markt-Äquivalente
+    return Math.round(baseCost * 0.7);
+  }
+
+  static generateCustomChipDescription(type: string, year: number): string {
+    const descriptions = {
+      cpu: `Proprietärer ${year} Prozessor mit optimierter Architektur`,
+      gpu: `Exklusiver Grafikchip mit erweiterten ${year} Features`,
+      sound: `Custom Audio-Chip mit proprietären ${year} Sound-Algorithmen`, 
+      case: `Maßgeschneidertes ${year} Gehäuse-Design mit optimierter Kühlung`
+    };
+    
+    return descriptions[type as keyof typeof descriptions] || 'Custom Hardware-Komponente';
+  }
+
+  // Game End Detection
+  static checkGameEnd(year: number, quarter: number): GameEndCondition {
+    if (year > 1992 || (year === 1992 && quarter >= 4)) {
+      return {
+        isGameEnded: true,
+        winner: 'Zeit abgelaufen - Die PC-Ära beginnt!'
+      };
+    }
+    
+    return { isGameEnded: false };
+  }
+
+  static calculateFinalResults(gameState: any, competitors: Competitor[]): GameEndCondition {
+    const playerMarketShare = gameState.company.marketShare || 0;
+    
+    // Bestimme Spieler-Rang
+    const competitorsAbove = competitors.filter(c => c.marketShare > playerMarketShare).length;
+    const playerRank = competitorsAbove + 1;
+    
+    // Bestimme Gewinner
+    let winner = '';
+    if (playerRank === 1) {
+      winner = `🏆 Du hast gewonnen! Mit ${playerMarketShare.toFixed(1)}% Marktanteil bist du der König der Heimcomputer-Ära!`;
+    } else if (playerRank <= 3) {
+      winner = `🥈 Starke Leistung! Platz ${playerRank} in der Heimcomputer-Ära. Ein respektables Ergebnis!`;
+    } else {
+      winner = `📊 Platz ${playerRank} erreicht. Die Heimcomputer-Ära ist vorbei, aber du hast Erfahrungen gesammelt!`;
+    }
+    
+    return {
+      isGameEnded: true,
+      winner,
+      finalResults: {
+        playerRank,
+        finalMarketShare: playerMarketShare,
+        totalRevenue: gameState.totalRevenue || 0,
+        customChipsCount: gameState.customChips?.length || 0
+      }
+    };
+  }
+
+  static getAvailableComponents(researchBudget: number, currentYear: number, currentQuarter: number, customChips: CustomChip[] = []): any[] {
     // Forschungsbudget schaltet neue Technologien frei
     const researchLevel = Math.floor(researchBudget / 25000); // Alle 25k$ eine Stufe höher
     
@@ -622,13 +836,37 @@ export class GameMechanics {
     updatedGameState: any;
     quarterResults: any;
     updatedCompetitors: Competitor[];
+    gameEndCondition?: GameEndCondition;
+    newCustomChip?: CustomChip;
   } {
     const { budget, models, company } = gameState;
     
-    // 1. Entwicklungsfortschritt aktualisieren
+    // 1. Prüfe auf Spielende
+    const gameEndCondition = this.checkGameEnd(gameState.year, gameState.quarter);
+    if (gameEndCondition.isGameEnded) {
+      const finalResults = this.calculateFinalResults(gameState, competitors);
+      return {
+        updatedGameState: gameState,
+        quarterResults: null,
+        updatedCompetitors: competitors,
+        gameEndCondition: finalResults
+      };
+    }
+    
+    // 2. Custom Hardware Development Chance
+    const customChips = gameState.customChips || [];
+    const newCustomChip = this.attemptCustomHardwareDevelopment(
+      budget.research,
+      budget.development, 
+      gameState.year,
+      gameState.quarter,
+      customChips
+    );
+    
+    // 3. Entwicklungsfortschritt aktualisieren
     const updatedModels = this.updateModelDevelopment(models, budget.development);
     
-    // 2. Berechne Verkäufe nur für veröffentlichte Modelle
+    // 4. Berechne Verkäufe nur für veröffentlichte Modelle
     const modelSales = updatedModels.map((model: any) => {
       if (model.status === 'released') {
         const competitorModels = competitors.flatMap(comp => comp.models);
@@ -751,6 +989,7 @@ export class GameMechanics {
         monthlyExpenses: Math.round(totalExpenses / 3), // Quartalsausgaben auf Monat runterbrechen
         additionalRevenue: aggregatedAdditionalRevenue // Zusätzliche Einnahmen für DetailView
       },
+      customChips: newCustomChip ? [...customChips, newCustomChip] : customChips,
       models: updatedModels.map((model: any) => {
         const modelSale = modelSales.find(sale => sale.modelName === model.name);
         if (modelSale) {
@@ -776,6 +1015,7 @@ export class GameMechanics {
       netProfit,
       competitorActions,
       marketEvent,
+      newCustomChip, // Neuer Custom Chip falls entwickelt
       developmentUpdates: {
         completedModels: completedModels.length,
         modelsInDevelopment: updatedModels.filter((m: any) => m.status === 'development').length
@@ -785,7 +1025,8 @@ export class GameMechanics {
     return {
       updatedGameState,
       quarterResults,
-      updatedCompetitors
+      updatedCompetitors,
+      newCustomChip
     };
   }
 }

@@ -1,285 +1,274 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Monitor, Users, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, Building2, Cpu, Users, DollarSign } from "lucide-react";
+import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
 
-interface CompetitorModel {
-  name: string;
-  company: string;
-  price: number;
-  unitsSold: number;
-  marketShare: number;
-  releaseYear: number;
-  cpu: string;
-  ram: string;
-}
-
-interface MarketData {
+interface MarketTabProps {
+  competitors: Competitor[];
+  marketEvents: MarketEvent[];
   totalMarketSize: number;
-  quarterlyGrowth: number;
-  competitors: CompetitorModel[];
+  playerMarketShare: number;
 }
 
-export const MarketTab = () => {
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
-  
-  const marketData: MarketData = {
-    totalMarketSize: 2500000,
-    quarterlyGrowth: 12.5,
-    competitors: [
-      {
-        name: "Commodore 64",
-        company: "Commodore",
-        price: 595,
-        unitsSold: 890000,
-        marketShare: 35.6,
-        releaseYear: 1982,
-        cpu: "MOS 6510",
-        ram: "64KB"
-      },
-      {
-        name: "Atari 800XL",
-        company: "Atari",
-        price: 899,
-        unitsSold: 425000,
-        marketShare: 17.0,
-        releaseYear: 1983,
-        cpu: "MOS 6502C",
-        ram: "64KB"
-      },
-      {
-        name: "Apple IIc",
-        company: "Apple",
-        price: 1295,
-        unitsSold: 350000,
-        marketShare: 14.0,
-        releaseYear: 1984,
-        cpu: "65C02",
-        ram: "128KB"
-      },
-      {
-        name: "Amstrad CPC 464",
-        company: "Amstrad",
-        price: 399,
-        unitsSold: 275000,
-        marketShare: 11.0,
-        releaseYear: 1984,
-        cpu: "Z80A",
-        ram: "64KB"
-      },
-      {
-        name: "MSX",
-        company: "Various",
-        price: 699,
-        unitsSold: 185000,
-        marketShare: 7.4,
-        releaseYear: 1983,
-        cpu: "Z80A",
-        ram: "8KB-64KB"
-      },
-      {
-        name: "IBM PCjr",
-        company: "IBM",
-        price: 1269,
-        unitsSold: 125000,
-        marketShare: 5.0,
-        releaseYear: 1984,
-        cpu: "8088",
-        ram: "64KB"
-      }
-    ]
+export const MarketTab = ({ competitors, marketEvents, totalMarketSize, playerMarketShare }: MarketTabProps) => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
-  const getCompanyColor = (company: string) => {
-    switch (company.toLowerCase()) {
-      case 'commodore': return 'text-neon-cyan';
-      case 'atari': return 'text-neon-magenta';
-      case 'apple': return 'text-amber';
-      case 'amstrad': return 'text-neon-green';
-      case 'ibm': return 'text-blue-400';
-      default: return 'text-muted-foreground';
+  const getCompanyColor = (companyName: string) => {
+    switch (companyName) {
+      case 'Apple Computer': return 'text-blue-400';
+      case 'Commodore': return 'text-red-400';
+      case 'IBM': return 'text-green-400';
+      case 'Atari': return 'text-yellow-400';
+      default: return 'text-gray-400';
     }
   };
 
+  // Calculate market data
+  const averagePrice = competitors.length > 0 ? competitors.reduce((sum, comp) => {
+    const compPrice = comp.models.length > 0 ? comp.models.reduce((compSum, model) => compSum + model.price, 0) / comp.models.length : 0;
+    return sum + compPrice;
+  }, 0) / competitors.length : 1000;
+
+  const quarterlyGrowth = 8.5; // Fixed for now, could be dynamic
+  
+  // Sort competitors by market share
+  const sortedCompetitors = [...competitors].sort((a, b) => b.marketShare - a.marketShare);
+
   return (
     <div className="space-y-6">
-      {/* Marktübersicht */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Marktgröße</p>
-              <p className="text-2xl font-bold text-neon-green neon-text font-mono">
-                {(marketData.totalMarketSize / 1000000).toFixed(1)}M
-              </p>
-              <p className="text-xs text-muted-foreground">Einheiten</p>
-            </div>
-            <Users className="w-6 h-6 text-neon-green" />
-          </div>
-        </Card>
-
-        <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Marktwachstum</p>
-              <p className="text-2xl font-bold text-neon-cyan neon-text font-mono flex items-center">
-                +{marketData.quarterlyGrowth}%
-                <TrendingUp className="w-4 h-4 ml-1" />
-              </p>
-              <p className="text-xs text-muted-foreground">pro Quartal</p>
-            </div>
-            <TrendingUp className="w-6 h-6 text-neon-cyan" />
-          </div>
-        </Card>
-
-        <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Durchschnittspreis</p>
-              <p className="text-2xl font-bold text-amber neon-text font-mono">
-                {formatCurrency(
-                  marketData.competitors.reduce((sum, comp) => sum + comp.price, 0) / marketData.competitors.length
-                )}
-              </p>
-            </div>
-            <DollarSign className="w-6 h-6 text-amber" />
-          </div>
-        </Card>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold neon-text text-neon-green">Marktanalyse</h2>
+          <p className="text-neon-cyan font-mono">Aktuelle Marktlage und Konkurrenz</p>
+        </div>
       </div>
 
-      {/* Marktanteile */}
-      <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <h3 className="text-xl font-bold text-primary neon-text mb-4 flex items-center">
-          <Monitor className="w-5 h-5 mr-2" />
-          Marktanteile der Konkurrenten
-        </h3>
-        
-        <div className="space-y-4">
-          {marketData.competitors
-            .sort((a, b) => b.marketShare - a.marketShare)
-            .map((competitor, index) => (
-              <div key={competitor.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-3">
-                    <Badge variant="outline" className="text-xs">
-                      #{index + 1}
-                    </Badge>
-                    <div>
-                      <p className="font-semibold text-primary">{competitor.name}</p>
-                      <p className={`text-sm font-mono ${getCompanyColor(competitor.company)}`}>
-                        {competitor.company}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-neon-green neon-text font-mono">
-                      {competitor.marketShare}%
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {competitor.unitsSold.toLocaleString()} Einheiten
-                    </p>
+      <div className="grid grid-cols-1 gap-6">
+        {/* Market Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="retro-border bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-neon-green flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                Gesamtmarkt
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-mono text-neon-cyan">
+                {formatCurrency(totalMarketSize)}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Geschätztes Marktvolumen
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="retro-border bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-neon-green flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Wachstum
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-mono text-neon-cyan">
+                +{quarterlyGrowth}%
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Quartalswachstum
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="retro-border bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-neon-green flex items-center gap-2">
+                <Cpu className="w-5 h-5" />
+                Ø Preis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold font-mono text-neon-cyan">
+                {formatCurrency(averagePrice)}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Durchschnittspreis
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Market Share Overview */}
+        <Card className="retro-border bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-xl text-neon-green flex items-center gap-2">
+              <Users className="w-6 h-6" />
+              Marktanteile
+            </CardTitle>
+            <CardDescription>
+              Aktuelle Marktverteilung der größten Anbieter
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Player market share */}
+              <div className="flex items-center justify-between p-3 bg-accent/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-5 h-5 text-neon-green" />
+                  <div>
+                    <div className="font-semibold text-neon-green">Deine Firma</div>
                   </div>
                 </div>
-                <Progress value={competitor.marketShare} className="h-2" />
+                <div className="flex items-center gap-3">
+                  <Badge variant="default" className="font-mono">
+                    {playerMarketShare.toFixed(1)}%
+                  </Badge>
+                  <div className="w-24">
+                    <Progress value={playerMarketShare} className="h-2" />
+                  </div>
+                </div>
               </div>
-            ))}
-        </div>
-      </Card>
-
-      {/* Detaillierte Konkurrenzanalyse */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {marketData.competitors.map((competitor) => (
-          <Card key={competitor.name} className="retro-border bg-card/50 backdrop-blur-sm p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h4 className="font-bold text-primary neon-text">{competitor.name}</h4>
-                <p className={`text-sm font-mono ${getCompanyColor(competitor.company)}`}>
-                  {competitor.company} • {competitor.releaseYear}
-                </p>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {competitor.marketShare}%
-              </Badge>
+              
+              {/* Competitors */}
+              {sortedCompetitors.map((competitor, index) => (
+                <div key={competitor.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">#{index + 2}</div>
+                    <div>
+                      <div className={`font-semibold ${getCompanyColor(competitor.name)}`}>
+                        {competitor.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {competitor.models.length} Modell{competitor.models.length !== 1 ? 'e' : ''}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="font-mono">
+                      {competitor.marketShare.toFixed(1)}%
+                    </Badge>
+                    <div className="w-24">
+                      <Progress value={competitor.marketShare} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-              <div>
-                <p className="text-muted-foreground">CPU</p>
-                <p className="font-mono text-neon-cyan">{competitor.cpu}</p>
+        {/* Market Events */}
+        {marketEvents.length > 0 && (
+          <Card className="retro-border bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-xl text-neon-green">Marktereignisse</CardTitle>
+              <CardDescription>Aktuelle Entwicklungen die den Markt beeinflussen</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {marketEvents.slice(-3).map((event, index) => (
+                  <div key={event.id} className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-neon-cyan">{event.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                    <Badge variant="outline" className="mt-2">
+                      {event.effect}
+                    </Badge>
+                  </div>
+                ))}
               </div>
-              <div>
-                <p className="text-muted-foreground">RAM</p>
-                <p className="font-mono text-neon-cyan">{competitor.ram}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Preis</p>
-                <p className="font-mono text-amber">{formatCurrency(competitor.price)}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Verkäufe</p>
-                <p className="font-mono text-neon-green">
-                  {(competitor.unitsSold / 1000).toFixed(0)}K
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Marktposition</span>
-                <span className="font-mono">{competitor.marketShare}%</span>
-              </div>
-              <Progress value={competitor.marketShare} className="h-1" />
-            </div>
+            </CardContent>
           </Card>
-        ))}
-      </div>
+        )}
 
-      {/* Markttrends */}
-      <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <h3 className="text-xl font-bold text-primary neon-text mb-4">Markttrends</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-semibold text-neon-green mb-2 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Wachsende Segmente
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex justify-between">
-                <span>16-Bit Systeme</span>
-                <span className="text-neon-green font-mono">+23%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Gaming-orientierte Computer</span>
-                <span className="text-neon-green font-mono">+18%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Farbmonitore</span>
-                <span className="text-neon-green font-mono">+31%</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-red-400 mb-2 flex items-center">
-              <TrendingDown className="w-4 h-4 mr-2" />
-              Schrumpfende Segmente
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex justify-between">
-                <span>8-Bit nur-Text Systeme</span>
-                <span className="text-red-400 font-mono">-15%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Kassettenlaufwerke</span>
-                <span className="text-red-400 font-mono">-28%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Monochrome Displays</span>
-                <span className="text-red-400 font-mono">-12%</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </Card>
+        {/* Competitor Analysis */}
+        <Card className="retro-border bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-xl text-neon-green">Konkurrenz-Analyse</CardTitle>
+            <CardDescription>Detaillierte Übersicht der wichtigsten Wettbewerber</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {sortedCompetitors.slice(0, 4).map((competitor) => (
+                <div key={competitor.id} className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className={`font-semibold ${getCompanyColor(competitor.name)}`}>
+                      {competitor.name}
+                    </h4>
+                    <Badge variant="secondary">
+                      Reputation: {competitor.reputation}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {competitor.models.map((model, idx) => (
+                      <div key={idx} className="text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{model.name}</span>
+                          <span className="text-muted-foreground">{formatCurrency(model.price)}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {model.unitsSold.toLocaleString()} Einheiten verkauft
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="flex justify-between text-sm">
+                      <span>Marktanteil:</span>
+                      <span className="font-mono">{competitor.marketShare.toFixed(1)}%</span>
+                    </div>
+                    <Progress value={competitor.marketShare} className="h-1 mt-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Market Trends */}
+        <Card className="retro-border bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-xl text-neon-green">Markttrends</CardTitle>
+            <CardDescription>Aufkommende Entwicklungen im Computer-Markt</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                  <span className="font-semibold text-green-400">Wachsende Segmente</span>
+                </div>
+                <ul className="space-y-1 text-sm">
+                  <li>• Heimcomputer (+25%)</li>
+                  <li>• Spiele-Software (+40%)</li>
+                  <li>• Bildungsmarkt (+18%)</li>
+                </ul>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingDown className="w-4 h-4 text-red-400" />
+                  <span className="font-semibold text-red-400">Schrumpfende Segmente</span>
+                </div>
+                <ul className="space-y-1 text-sm">
+                  <li>• Videospielkonsolen (-15%)</li>
+                  <li>• Taschenrechner (-8%)</li>
+                  <li>• Arcade-Automaten (-22%)</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

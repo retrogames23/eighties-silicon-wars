@@ -77,136 +77,175 @@ export const Newspaper = ({
     return units.toString();
   };
 
+  const getMonthName = (quarter: number) => {
+    const months = ['Januar', 'April', 'Juli', 'Oktober'];
+    return months[quarter - 1];
+  };
+
+  const mainNews = newsEvents.slice(0, 1);
+  const sideNews = newsEvents.slice(1, 4);
+  const techNews = newsEvents.filter(event => event.category === 'tech');
+  const marketNews = newsEvents.filter(event => event.category === 'market');
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto retro-border bg-card">
-        <DialogHeader>
-          <DialogTitle className="text-3xl text-neon-green font-mono flex items-center gap-3">
-            <NewspaperIcon className="w-8 h-8" />
-            Computer Gazette
-          </DialogTitle>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Q{quarter} {year}
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-white text-black border-8 border-black">
+        {/* Newspaper Header */}
+        <div className="border-b-4 border-black pb-4 mb-6">
+          <div className="text-center">
+            <h1 className="text-6xl font-bold font-serif tracking-wider mb-2">
+              COMPUTER GAZETTE
+            </h1>
+            <div className="flex justify-between items-center text-sm font-mono border-t-2 border-b-2 border-black py-1">
+              <span>Ausgabe #{(year - 1983) * 4 + quarter}</span>
+              <span className="font-bold text-lg">{getMonthName(quarter)} {year}</span>
+              <span>Preis: $0.50</span>
             </div>
-            <Badge variant="outline" className="font-mono">
-              Ausgabe #{(year - 1983) * 4 + quarter}
-            </Badge>
+            <div className="text-xs text-center mt-1">
+              "Die führende Zeitung für Computertechnologie und Elektronik"
+            </div>
           </div>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Market Overview */}
-          <Card className="border-neon-blue/20">
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-400" />
-                Marktübersicht Q{quarter} {year}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {marketData ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Gesamtmarkt:</span>
-                      <span className="font-mono text-green-400">
-                        {formatCurrency(marketData.totalMarketSize)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Wachstum:</span>
-                      <Badge variant={marketData.marketGrowth > 0 ? "default" : "destructive"}>
-                        {marketData.marketGrowth > 0 ? '+' : ''}{(marketData.marketGrowth * 100).toFixed(1)}%
-                      </Badge>
+        </div>
+
+        <div className="grid grid-cols-12 gap-6">
+          {/* Main Story */}
+          {mainNews.length > 0 && (
+            <div className="col-span-12 md:col-span-8 border-r-2 border-black pr-6">
+              <div className="border-b-2 border-black pb-2 mb-4">
+                <Badge variant="outline" className="text-xs mb-2 bg-black text-white">
+                  {getCategoryLabel(mainNews[0].category).toUpperCase()}
+                </Badge>
+                <h2 className="text-4xl font-bold font-serif leading-tight mb-3">
+                  {mainNews[0].headline}
+                </h2>
+                <div className="text-xs text-gray-600 mb-3">
+                  Von der Redaktion • Computer Gazette
+                </div>
+              </div>
+              <div className="columns-2 gap-6 text-justify text-sm leading-relaxed">
+                <p className="mb-4 first-letter:text-4xl first-letter:font-bold first-letter:float-left first-letter:mr-1 first-letter:mt-1">
+                  {mainNews[0].content}
+                </p>
+                {mainNews[0].impact && (
+                  <div className="border-2 border-black p-3 bg-gray-100 break-inside-avoid mb-4">
+                    <h4 className="font-bold text-xs mb-2">MARKTAUSWIRKUNG:</h4>
+                    <div className="text-xs">
+                      {mainNews[0].impact.marketGrowth && (
+                        <div>• Marktwachstum: +{(mainNews[0].impact.marketGrowth * 100).toFixed(0)}%</div>
+                      )}
+                      {mainNews[0].impact.priceChange && (
+                        <div>• Preisdruck: {(mainNews[0].impact.priceChange * 100).toFixed(0)}%</div>
+                      )}
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Top Computer dieser Periode:</h4>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Sidebar */}
+          <div className="col-span-12 md:col-span-4 space-y-6">
+            {/* Market Overview Box */}
+            <div className="border-4 border-black bg-gray-50 p-4">
+              <h3 className="text-lg font-bold font-serif mb-3 text-center border-b border-black pb-1">
+                MARKT-ÜBERBLICK
+              </h3>
+              {marketData ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between border-b border-gray-300 pb-1">
+                    <span className="font-semibold">Gesamtmarkt:</span>
+                    <span className="font-mono">{formatCurrency(marketData.totalMarketSize)}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-gray-300 pb-1">
+                    <span className="font-semibold">Wachstum:</span>
+                    <span className={`font-mono ${marketData.marketGrowth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {marketData.marketGrowth > 0 ? '+' : ''}{(marketData.marketGrowth * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <h4 className="font-semibold text-xs mb-2">TOP COMPUTER:</h4>
                     {marketData.topComputers.slice(0, 3).map((computer, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span className="truncate">{computer.name}</span>
-                        <span className="font-mono text-xs">
-                          {formatUnits(computer.unitsSold)}
-                        </span>
+                      <div key={index} className="flex justify-between text-xs py-1 border-b border-gray-200">
+                        <span>{index + 1}. {computer.name}</span>
+                        <span className="font-mono">{formatUnits(computer.unitsSold)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="text-center text-muted-foreground">
-                  Marktdaten werden geladen...
-                </div>
+                <div className="text-center text-gray-500 text-sm">Laden...</div>
               )}
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* News Articles */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold flex items-center gap-2">
-              <NewspaperIcon className="w-5 h-5" />
-              Schlagzeilen
-            </h3>
-            
-            <div className="grid gap-4">
-              {newsEvents.map((event, index) => {
-                const IconComponent = getCategoryIcon(event.category);
-                return (
-                  <Card key={event.id} className="border-l-4 border-l-neon-blue">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <IconComponent className={`w-5 h-5 mt-1 ${getCategoryColor(event.category)}`} />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs">
-                              {getCategoryLabel(event.category)}
-                            </Badge>
-                          </div>
-                          <h4 className="font-semibold text-neon-green mb-2">
-                            {event.headline}
-                          </h4>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {event.content}
-                          </p>
-                          {event.impact && (
-                            <div className="mt-3 p-2 bg-muted/50 rounded text-xs">
-                              <span className="font-semibold">Marktauswirkung:</span>
-                              {event.impact.marketGrowth && (
-                                <span className="ml-2 text-green-400">
-                                  +{(event.impact.marketGrowth * 100).toFixed(0)}% Wachstum
-                                </span>
-                              )}
-                              {event.impact.priceChange && (
-                                <span className="ml-2 text-red-400">
-                                  {(event.impact.priceChange * 100).toFixed(0)}% Preisdruck
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
+            {/* Side News */}
+            {sideNews.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold font-serif border-b-2 border-black pb-1">
+                  WEITERE MELDUNGEN
+                </h3>
+                {sideNews.map((event, index) => {
+                  const IconComponent = getCategoryIcon(event.category);
+                  return (
+                    <div key={event.id} className="border-b border-gray-300 pb-3">
+                      <div className="flex items-start gap-2 mb-1">
+                        <IconComponent className={`w-4 h-4 mt-0.5 ${getCategoryColor(event.category)}`} />
+                        <Badge variant="outline" className="text-xs bg-gray-200">
+                          {getCategoryLabel(event.category)}
+                        </Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      <h4 className="font-bold text-sm mb-1 leading-tight">
+                        {event.headline}
+                      </h4>
+                      <p className="text-xs leading-relaxed text-gray-700">
+                        {event.content.substring(0, 120)}...
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Technology Section */}
+        {techNews.length > 0 && (
+          <div className="mt-8 border-t-4 border-black pt-6">
+            <h3 className="text-2xl font-bold font-serif mb-4 text-center bg-black text-white py-2">
+              TECHNOLOGIE-SEKTION
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              {techNews.map((event, index) => (
+                <div key={event.id} className="border-2 border-black p-4">
+                  <h4 className="font-bold text-lg mb-2 font-serif">
+                    {event.headline}
+                  </h4>
+                  <p className="text-sm leading-relaxed text-justify">
+                    {event.content}
+                  </p>
+                  {event.impact && (
+                    <div className="mt-3 text-xs border-t border-gray-300 pt-2">
+                      <span className="font-semibold">Auswirkung: </span>
+                      {event.impact.marketGrowth && `+${(event.impact.marketGrowth * 100).toFixed(0)}% Wachstum`}
+                      {event.impact.priceChange && ` ${(event.impact.priceChange * 100).toFixed(0)}% Preisdruck`}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
+        )}
 
-          {/* Footer */}
-          <Separator />
-          <div className="text-center space-y-4">
-            <p className="text-xs text-muted-foreground font-mono">
-              "Die Zukunft liegt in der Mikroelektronik" - Computer Gazette, seit 1983
-            </p>
-            <Button 
-              onClick={onClose}
-              className="px-8 font-mono retro-border bg-neon-green text-black hover:bg-neon-green/80"
-            >
-              Zeitung schließen
-            </Button>
+        {/* Footer */}
+        <div className="mt-8 border-t-4 border-black pt-4 text-center space-y-3">
+          <div className="text-xs font-mono border border-black inline-block px-4 py-1">
+            Computer Gazette • Gegründet 1983 • "Innovation durch Information"
           </div>
+          <Button 
+            onClick={onClose}
+            className="px-8 py-2 bg-black text-white hover:bg-gray-800 font-mono border-2 border-black"
+          >
+            Zeitung schließen
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

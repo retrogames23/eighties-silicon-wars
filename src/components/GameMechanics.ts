@@ -371,27 +371,31 @@ export class GameMechanics {
     // Gamer wollen: Gute Grafik, Sound, und spieletaugliche CPU
     let appeal = 0;
     
-    // Grafik ist sehr wichtig für Gamer (40% des Appeals)
+    // Grafik ist sehr wichtig für Gamer (30% des Appeals)
     const gpuScores = {
       'MOS VIC': 20, 'TI TMS9918': 50, 'Atari GTIA': 70, 'Commodore VIC-II': 85
     };
-    appeal += (gpuScores[model.gpu as keyof typeof gpuScores] || 10) * 0.4;
+    appeal += (gpuScores[model.gpu as keyof typeof gpuScores] || 10) * 0.3;
     
-    // Sound ist wichtig (25% des Appeals) 
+    // Sound ist wichtig (20% des Appeals) 
     const soundScores = {
       'PC Speaker': 10, 'AY-3-8910': 60, 'SID 6581': 90, 'Yamaha YM2149': 70
     };
-    appeal += (soundScores[model.sound as keyof typeof soundScores] || 10) * 0.25;
+    appeal += (soundScores[model.sound as keyof typeof soundScores] || 10) * 0.2;
     
-    // CPU für Spiele (20% des Appeals)
+    // CPU für Spiele (15% des Appeals)
     const cpuGamingScores = {
       'MOS 6502': 40, 'Zilog Z80': 50, 'Intel 8086': 30, 'Motorola 68000': 80, 'Intel 80286': 35
     };
-    appeal += (cpuGamingScores[model.cpu as keyof typeof cpuGamingScores] || 20) * 0.2;
+    appeal += (cpuGamingScores[model.cpu as keyof typeof cpuGamingScores] || 20) * 0.15;
     
     // RGB Monitor Bonus (15% des Appeals)
     const hasColorMonitor = model.accessories?.includes('RGB Monitor');
     appeal += (hasColorMonitor ? 80 : 20) * 0.15;
+    
+    // Case Design sehr wichtig für Gamer (20% des Appeals)
+    const caseDesignScore = model.case?.type === 'gamer' ? model.case.design : 20;
+    appeal += (caseDesignScore || 20) * 0.2;
     
     return Math.min(100, appeal);
   }
@@ -400,22 +404,27 @@ export class GameMechanics {
     // Büro will: Schnelle CPU, viel RAM, Speicher. Grafik/Sound egal
     let appeal = 0;
     
-    // CPU-Geschwindigkeit ist kritisch (50% des Appeals)
+    // CPU-Geschwindigkeit ist kritisch (40% des Appeals)
     const cpuBusinessScores = {
       'MOS 6502': 20, 'Zilog Z80': 30, 'Intel 8086': 70, 'Motorola 68000': 85, 'Intel 80286': 95
     };
-    appeal += (cpuBusinessScores[model.cpu as keyof typeof cpuBusinessScores] || 20) * 0.5;
+    appeal += (cpuBusinessScores[model.cpu as keyof typeof cpuBusinessScores] || 20) * 0.4;
     
-    // RAM-Menge ist sehr wichtig (35% des Appeals)
+    // RAM-Menge ist sehr wichtig (30% des Appeals)
     const ramAmount = this.getRAMAmount(model.ram);
     const ramScore = Math.min(100, (ramAmount / 256) * 100); // 256KB = 100%
-    appeal += ramScore * 0.35;
+    appeal += ramScore * 0.3;
     
     // Speicher-Laufwerk wichtig (15% des Appeals)  
     const hasStorage = model.accessories?.some((acc: string) => 
       acc.includes('Diskette') || acc.includes('Festplatte')
     );
     appeal += (hasStorage ? 80 : 20) * 0.15;
+    
+    // Case Qualität wichtig für Business (15% des Appeals)
+    const caseQualityScore = model.case?.type === 'office' ? model.case.quality : 
+                            model.case?.quality || 30; // Gamer-Cases haben weniger Business-Appeal
+    appeal += (caseQualityScore || 30) * 0.15;
     
     return Math.min(100, appeal);
   }

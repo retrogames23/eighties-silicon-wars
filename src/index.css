@@ -131,6 +131,50 @@ All colors MUST be HSL.
     text-shadow: 0 0 10px currentColor;
   }
   
+  .border-rainbow {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, 
+      hsl(0, 100%, 60%), 
+      hsl(60, 100%, 60%), 
+      hsl(120, 100%, 60%), 
+      hsl(180, 100%, 60%), 
+      hsl(240, 100%, 60%), 
+      hsl(300, 100%, 60%), 
+      hsl(0, 100%, 60%)
+    ) 1;
+    animation: rainbow-border 2s linear infinite;
+  }
+  
+  @keyframes rainbow-border {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+  
+  .shadow-rainbow {
+    box-shadow: 0 0 15px hsl(0 100% 60% / 0.5);
+    animation: rainbow-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes rainbow-glow {
+    0% { box-shadow: 0 0 15px hsl(0 100% 60% / 0.5); }
+    16% { box-shadow: 0 0 15px hsl(60 100% 60% / 0.5); }
+    33% { box-shadow: 0 0 15px hsl(120 100% 60% / 0.5); }
+    50% { box-shadow: 0 0 15px hsl(180 100% 60% / 0.5); }
+    66% { box-shadow: 0 0 15px hsl(240 100% 60% / 0.5); }
+    83% { box-shadow: 0 0 15px hsl(300 100% 60% / 0.5); }
+    100% { box-shadow: 0 0 15px hsl(0 100% 60% / 0.5); }
+  }
+  
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+  }
+  
+  @keyframes scanline {
+    0% { transform: translateY(-100vh); }
+    100% { transform: translateY(100vh); }
+  }
+  
   /* Retro tab styling */
   .retro-tab {
     @apply bg-transparent border border-border/50 text-muted-foreground font-mono

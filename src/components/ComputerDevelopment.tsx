@@ -69,6 +69,14 @@ interface ComputerModel {
   ram: string;
   sound: string;
   accessories: string[];
+  case?: {
+    id: string;
+    name: string;
+    type: 'gamer' | 'office';
+    quality: number;
+    design: number;
+    price: number;
+  };
   price: number;
   developmentCost: number;
   performance: number;
@@ -76,17 +84,18 @@ interface ComputerModel {
   status: 'development' | 'released';
   releaseQuarter: number;
   releaseYear: number;
-  developmentTime: number; // Quartale bis Fertigstellung
-  developmentProgress: number; // Aktueller Fortschritt 0-100%
-  complexity: number; // Technische Komplexität (bestimmt Entwicklungszeit)
+  developmentTime: number;
+  developmentProgress: number;
+  complexity: number;
 }
 
 interface ComputerDevelopmentProps {
   onBack: () => void;
   onModelComplete: (model: ComputerModel) => void;
+  onCaseSelection: (model: ComputerModel) => void;
 }
 
-export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelopmentProps) => {
+export const ComputerDevelopment = ({ onBack, onModelComplete, onCaseSelection }: ComputerDevelopmentProps) => {
   const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
   const [developmentProgress, setDevelopmentProgress] = useState(0);
   const [modelName, setModelName] = useState('');
@@ -174,8 +183,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
       developmentProgress: 0 // Startet bei 0% - wird durch GameMechanics entwickelt
     };
 
-    // Direkt fertig - kein setState während render
-    onModelComplete(newModel);
+    // Zur Case-Auswahl weiterleiten
+    onCaseSelection(newModel);
   };
 
   const canDevelop = selectedComponents.some(c => c.type === 'cpu') && 
@@ -354,7 +363,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                             disabled={!canDevelop || !modelName.trim()}
                             className="w-full glow-button"
                           >
-                            Entwicklung starten
+                            Weiter zu Case-Auswahl
                           </Button>
                         )}
                         

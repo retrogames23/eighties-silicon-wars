@@ -3,6 +3,7 @@ import { GameIntro } from "@/components/GameIntro";
 import { CompanySetup, CompanySetupData } from "@/components/CompanySetup";
 import { GameDashboard } from "@/components/GameDashboard";
 import { ComputerDevelopment } from "@/components/ComputerDevelopment";
+import { CaseSelection } from "@/components/CaseSelection";
 import { QuarterResults } from "@/components/QuarterResults";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent } from "@/components/GameMechanics";
 import { toast } from "sonner";
@@ -24,15 +25,23 @@ interface ComputerModel {
   gpu?: string;
   soundchip?: string;
   accessories?: string[];
+  case?: {
+    id: string;
+    name: string;
+    type: 'gamer' | 'office';
+    quality: number;
+    design: number;
+    price: number;
+  };
   price: number;
   unitsSold: number;
   developmentCost: number;
   releaseQuarter: number;
   releaseYear: number;
   status: 'development' | 'released' | 'discontinued';
-  developmentTime: number; // Quartale bis Fertigstellung
-  developmentProgress: number; // Aktueller Fortschritt 0-100%
-  complexity: number; // Technische Komplexität (bestimmt Entwicklungszeit)
+  developmentTime: number;
+  developmentProgress: number;
+  complexity: number;
 }
 
 interface Budget {
@@ -61,11 +70,12 @@ interface GameState {
   totalMarketSize: number;
 }
 
-type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'quarter-results';
+type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results';
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
   const [quarterResults, setQuarterResults] = useState<any>(null);
+  const [tempModel, setTempModel] = useState<ComputerModel | null>(null);
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',
@@ -117,7 +127,38 @@ const Index = () => {
     setCurrentScreen('development');
   };
 
+  const handleCaseSelection = (model: ComputerModel) => {
+    setTempModel(model);
+    setCurrentScreen('case-selection');
+  };
+
+  const handleCaseSelected = (computerCase: any) => {
+    if (tempModel) {
+      const finalModel: ComputerModel = {
+        ...tempModel,
+        case: computerCase,
+        price: tempModel.price + computerCase.price, // Add case price to total
+        developmentCost: tempModel.developmentCost + computerCase.price
+      };
+      
+      setGameState(prev => ({
+        ...prev,
+        models: [...prev.models, finalModel],
+        company: {
+          ...prev.company,
+          cash: prev.company.cash - finalModel.developmentCost
+        }
+      }));
+      
+      setTempModel(null);
+      setCurrentScreen('dashboard');
+      
+      toast.success(`${finalModel.name} mit ${computerCase.name} Case entwickelt!`);
+    }
+  };
+
   const handleModelComplete = (model: ComputerModel) => {
+    // This is now just for legacy - should not be called
     setGameState(prev => ({
       ...prev,
       models: [...prev.models, model],
@@ -182,8 +223,18 @@ const Index = () => {
           <ComputerDevelopment 
             onBack={() => setCurrentScreen('dashboard')}
             onModelComplete={handleModelComplete}
+            onCaseSelection={handleCaseSelection}
           />
         );
+      
+      case 'case-selection':
+        return tempModel ? (
+          <CaseSelection
+            onBack={() => setCurrentScreen('development')}
+            onCaseSelected={handleCaseSelected}
+            computerSpecs={tempModel}
+          />
+        ) : null;
       
       case 'quarter-results':
         return quarterResults ? (

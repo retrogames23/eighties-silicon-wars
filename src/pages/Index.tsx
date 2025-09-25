@@ -418,6 +418,9 @@ const Index = () => {
             onBack={() => setCurrentScreen('dashboard')}
             onModelComplete={handleModelComplete}
             onCaseSelection={handleCaseSelection}
+            currentYear={gameState.year}
+            currentQuarter={gameState.quarter}
+            researchBudget={gameState.budget.research}
           />
         );
       

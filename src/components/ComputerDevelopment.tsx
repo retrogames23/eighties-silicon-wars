@@ -19,10 +19,12 @@ import {
   Briefcase,
   ChevronRight,
   ChevronLeft,
-  DollarSign
+  DollarSign,
+  Lock
 } from "lucide-react";
 import { TestReport } from "./TestReport";
 import { TestReportGenerator } from "./TestReportGenerator";
+import { GameMechanics, HARDWARE_TIMELINE } from "./GameMechanics";
 
 interface Component {
   id: string;
@@ -32,44 +34,107 @@ interface Component {
   cost: number;
   description: string;
   year: number;
+  quarter?: number;
+  available: boolean;
+  researchRequired?: number;
 }
 
-const components: Component[] = [
-  // CPUs
-  { id: 'cpu1', name: 'MOS 6502', type: 'cpu', performance: 15, cost: 25, description: '8-bit Prozessor, 1 MHz', year: 1975 },
-  { id: 'cpu2', name: 'Zilog Z80', type: 'cpu', performance: 20, cost: 35, description: '8-bit Prozessor, 2,5 MHz', year: 1976 },
-  { id: 'cpu3', name: 'Motorola 68000', type: 'cpu', performance: 45, cost: 120, description: '16/32-bit Prozessor, 8 MHz', year: 1979 },
-  { id: 'cpu4', name: 'Intel 8086', type: 'cpu', performance: 35, cost: 85, description: '16-bit Prozessor, 5 MHz', year: 1978 },
-  { id: 'cpu5', name: 'Intel 80286', type: 'cpu', performance: 65, cost: 200, description: '16-bit Prozessor, 12 MHz', year: 1982 },
+// Erweiterte Hardware-Datenbank mit historisch korrekten Daten
+const getAllComponents = (currentYear: number, currentQuarter: number, researchBudget: number = 0): Component[] => {
+  const components: Component[] = [];
   
-  // GPUs
-  { id: 'gpu1', name: 'MOS VIC', type: 'gpu', performance: 10, cost: 15, description: '160x200 Pixel, 16 Farben', year: 1977 },
-  { id: 'gpu2', name: 'TI TMS9918', type: 'gpu', performance: 25, cost: 45, description: '256x192 Pixel, 16 Farben', year: 1979 },
-  { id: 'gpu3', name: 'Atari GTIA', type: 'gpu', performance: 30, cost: 60, description: '320x192 Pixel, 256 Farben', year: 1979 },
-  { id: 'gpu4', name: 'Commodore VIC-II', type: 'gpu', performance: 35, cost: 70, description: '320x200 Pixel, Sprites', year: 1981 },
-  
-  // Speicher
-  { id: 'mem1', name: '4KB RAM', type: 'memory', performance: 5, cost: 20, description: '4096 Byte Arbeitsspeicher', year: 1975 },
-  { id: 'mem2', name: '16KB RAM', type: 'memory', performance: 15, cost: 60, description: '16384 Byte Arbeitsspeicher', year: 1977 },
-  { id: 'mem3', name: '64KB RAM', type: 'memory', performance: 35, cost: 150, description: '65536 Byte Arbeitsspeicher', year: 1980 },
-  { id: 'mem4', name: '256KB RAM', type: 'memory', performance: 55, cost: 300, description: '262144 Byte Arbeitsspeicher', year: 1983 },
-  
-  // Sound (optional)
-  { id: 'sound1', name: 'PC Speaker', type: 'sound', performance: 5, cost: 5, description: 'Einfache Pieptöne', year: 1975 },
-  { id: 'sound2', name: 'AY-3-8910', type: 'sound', performance: 25, cost: 35, description: '3-Kanal Synthesizer', year: 1978 },
-  { id: 'sound3', name: 'SID 6581', type: 'sound', performance: 45, cost: 80, description: '3-Kanal Synthesizer + Filter', year: 1982 },
-  { id: 'sound4', name: 'Yamaha YM2149', type: 'sound', performance: 35, cost: 50, description: '3-Kanal PSG Synthesizer', year: 1983 },
-  
-  // Zubehör (optional)
-  { id: 'storage1', name: 'Kassettenlaufwerk', type: 'storage', performance: 10, cost: 40, description: 'Datenspeicherung auf Kassette', year: 1977 },
-  { id: 'storage2', name: 'Diskettenlaufwerk 5.25"', type: 'storage', performance: 35, cost: 150, description: '160KB Disketten', year: 1976 },
-  { id: 'storage3', name: 'Festplatte 5MB', type: 'storage', performance: 60, cost: 1500, description: '5 Megabyte Festplatte', year: 1980 },
-  { id: 'storage4', name: 'Diskettenlaufwerk 3.5"', type: 'storage', performance: 50, cost: 120, description: '720KB Disketten', year: 1982 },
-  
-  { id: 'display1', name: 'RF Modulator', type: 'display', performance: 15, cost: 25, description: 'Anschluss an TV-Gerät', year: 1975 },
-  { id: 'display2', name: 'Composite Monitor', type: 'display', performance: 35, cost: 200, description: 'Monochrom Monitor', year: 1978 },
-  { id: 'display3', name: 'RGB Monitor', type: 'display', performance: 65, cost: 500, description: 'Farb-Monitor RGB', year: 1981 },
-];
+  // CPU-Komponenten
+  const cpuComponents = [
+    { name: 'MOS 6502', type: 'cpu', performance: 15, cost: 25, description: '8-bit Prozessor, 1 MHz - Der Klassiker', year: 1983, quarter: 1 },
+    { name: 'Zilog Z80', type: 'cpu', performance: 20, cost: 35, description: '8-bit Prozessor, 2,5 MHz - Zuverlässig und bewährt', year: 1983, quarter: 1 },
+    { name: 'Intel 8086', type: 'cpu', performance: 35, cost: 85, description: '16-bit Prozessor, 5 MHz - Moderne Business-Power', year: 1984, quarter: 1 },
+    { name: 'Motorola 68000', type: 'cpu', performance: 45, cost: 120, description: '16/32-bit Prozessor, 8 MHz - Premium Performance', year: 1984, quarter: 2 },
+    { name: 'Intel 80286', type: 'cpu', performance: 65, cost: 200, description: '16-bit Prozessor, 12 MHz - High-End Computing', year: 1985, quarter: 1 },
+    { name: 'Intel 80386', type: 'cpu', performance: 85, cost: 350, description: '32-bit Prozessor, 16 MHz - Zukunftstechnologie', year: 1986, quarter: 1, researchRequired: 75000 },
+    { name: 'Intel 80486', type: 'cpu', performance: 100, cost: 500, description: '32-bit Prozessor, 25 MHz - Spitzentechnologie', year: 1988, quarter: 1, researchRequired: 100000 }
+  ];
+
+  // GPU-Komponenten
+  const gpuComponents = [
+    { name: 'MOS VIC', type: 'gpu', performance: 10, cost: 15, description: '160x200 Pixel, 16 Farben - Einfache Grafik', year: 1983, quarter: 1 },
+    { name: 'TI TMS9918', type: 'gpu', performance: 25, cost: 45, description: '256x192 Pixel, 16 Farben - Solide Gaming-Grafik', year: 1983, quarter: 2 },
+    { name: 'Atari GTIA', type: 'gpu', performance: 30, cost: 60, description: '320x192 Pixel, 256 Farben - Atari-Technologie', year: 1984, quarter: 1 },
+    { name: 'Commodore VIC-II', type: 'gpu', performance: 35, cost: 70, description: '320x200 Pixel, Sprites - Der C64-Chip', year: 1984, quarter: 3 },
+    { name: 'EGA Graphics', type: 'gpu', performance: 45, cost: 120, description: '640x350 Pixel, 16 Farben - Enhanced Graphics', year: 1985, quarter: 4 },
+    { name: 'VGA Graphics', type: 'gpu', performance: 55, cost: 180, description: '640x480 Pixel, 256 Farben - VGA-Standard', year: 1986, quarter: 2, researchRequired: 50000 },
+    { name: 'Super VGA', type: 'gpu', performance: 70, cost: 250, description: '800x600 Pixel, High-Res Gaming', year: 1987, quarter: 2, researchRequired: 75000 }
+  ];
+
+  // Speicher-Komponenten
+  const memoryComponents = [
+    { name: '4KB RAM', type: 'memory', performance: 5, cost: 20, description: '4096 Byte Arbeitsspeicher - Basis-Ausstattung', year: 1983, quarter: 1 },
+    { name: '16KB RAM', type: 'memory', performance: 15, cost: 60, description: '16384 Byte Arbeitsspeicher - Erweitert', year: 1983, quarter: 1 },
+    { name: '64KB RAM', type: 'memory', performance: 35, cost: 150, description: '65536 Byte Arbeitsspeicher - Komfortabel', year: 1984, quarter: 1 },
+    { name: '256KB RAM', type: 'memory', performance: 55, cost: 300, description: '262144 Byte Arbeitsspeicher - Professionell', year: 1985, quarter: 1 },
+    { name: '512KB RAM', type: 'memory', performance: 70, cost: 500, description: '512KB Arbeitsspeicher - High-End', year: 1986, quarter: 1, researchRequired: 25000 },
+    { name: '1MB RAM', type: 'memory', performance: 85, cost: 800, description: '1 Megabyte Arbeitsspeicher - Workstation-Niveau', year: 1987, quarter: 1, researchRequired: 50000 },
+    { name: '2MB RAM', type: 'memory', performance: 95, cost: 1200, description: '2 Megabyte Arbeitsspeicher - Extrem viel Speicher', year: 1988, quarter: 1, researchRequired: 75000 }
+  ];
+
+  // Sound-Komponenten
+  const soundComponents = [
+    { name: 'PC Speaker', type: 'sound', performance: 5, cost: 5, description: 'Einfache Pieptöne - Basis-Sound', year: 1983, quarter: 1 },
+    { name: 'AY-3-8910', type: 'sound', performance: 25, cost: 35, description: '3-Kanal Synthesizer - Klassischer Arcade-Sound', year: 1983, quarter: 4 },
+    { name: 'SID 6581', type: 'sound', performance: 45, cost: 80, description: '3-Kanal Synthesizer + Filter - Legendärer C64-Sound', year: 1984, quarter: 3 },
+    { name: 'Yamaha YM2149', type: 'sound', performance: 35, cost: 50, description: '3-Kanal PSG Synthesizer - Atari ST Sound', year: 1985, quarter: 3 },
+    { name: 'AdLib Sound', type: 'sound', performance: 60, cost: 120, description: 'FM-Synthesizer - PC-Gaming Audio', year: 1986, quarter: 2, researchRequired: 25000 },
+    { name: 'Sound Blaster', type: 'sound', performance: 75, cost: 150, description: 'Digitale Samples + FM - Premium PC-Audio', year: 1987, quarter: 1, researchRequired: 40000 },
+    { name: 'Sound Blaster Pro', type: 'sound', performance: 90, cost: 200, description: 'Stereo Digital Audio - Professioneller Sound', year: 1989, quarter: 3, researchRequired: 60000 }
+  ];
+
+  // Storage-Komponenten
+  const storageComponents = [
+    { name: 'Kassettenlaufwerk', type: 'storage', performance: 10, cost: 40, description: 'Datenspeicherung auf Kassette - Günstig aber langsam', year: 1983, quarter: 2 },
+    { name: 'Diskettenlaufwerk 5.25"', type: 'storage', performance: 35, cost: 150, description: '160KB Disketten - Standard-Speicher', year: 1983, quarter: 3 },
+    { name: 'Diskettenlaufwerk 3.5"', type: 'storage', performance: 50, cost: 120, description: '720KB Disketten - Moderne Disketten', year: 1985, quarter: 3 },
+    { name: 'Festplatte 5MB', type: 'storage', performance: 60, cost: 1500, description: '5 Megabyte Festplatte - Permanenter Speicher', year: 1985, quarter: 2, researchRequired: 30000 },
+    { name: 'Festplatte 10MB', type: 'storage', performance: 65, cost: 1200, description: '10 Megabyte Festplatte - Mehr Kapazität', year: 1986, quarter: 3, researchRequired: 25000 },
+    { name: 'Festplatte 20MB', type: 'storage', performance: 70, cost: 1000, description: '20 Megabyte Festplatte - Viel Speicherplatz', year: 1987, quarter: 2, researchRequired: 40000 },
+    { name: 'CD-ROM Drive', type: 'storage', performance: 55, cost: 800, description: 'CD-ROM Laufwerk - Multimedia-Zukunft', year: 1986, quarter: 4, researchRequired: 60000 }
+  ];
+
+  // Display-Komponenten
+  const displayComponents = [
+    { name: 'RF Modulator', type: 'display', performance: 15, cost: 25, description: 'Anschluss an TV-Gerät - Budget-Option', year: 1983, quarter: 3 },
+    { name: 'Composite Monitor', type: 'display', performance: 35, cost: 200, description: 'Monochrom Monitor - Scharf und klar', year: 1983, quarter: 4 },
+    { name: 'RGB Monitor', type: 'display', performance: 65, cost: 500, description: 'Farb-Monitor RGB - Brillante Farben', year: 1984, quarter: 4 },
+    { name: 'EGA Monitor', type: 'display', performance: 75, cost: 600, description: 'Enhanced Graphics Monitor - Professionell', year: 1985, quarter: 4, researchRequired: 20000 },
+    { name: 'VGA Monitor', type: 'display', performance: 85, cost: 750, description: 'VGA High-Resolution Monitor - Beste Bildqualität', year: 1987, quarter: 1, researchRequired: 40000 },
+    { name: 'Multisync Monitor', type: 'display', performance: 95, cost: 1200, description: 'Multi-Standard Monitor - Workstation-Klasse', year: 1988, quarter: 2, researchRequired: 60000 }
+  ];
+
+  const allHardware = [
+    ...cpuComponents, ...gpuComponents, ...memoryComponents, 
+    ...soundComponents, ...storageComponents, ...displayComponents
+  ];
+
+  allHardware.forEach((hw, index) => {
+    const isTimeAvailable = (currentYear > hw.year) || 
+                           (currentYear === hw.year && currentQuarter >= (hw.quarter || 1));
+    
+    const isResearchUnlocked = !hw.researchRequired || researchBudget >= hw.researchRequired;
+    
+    components.push({
+      id: `hw-${index}`,
+      name: hw.name,
+      type: hw.type as Component['type'],
+      performance: hw.performance,
+      cost: hw.cost,
+      description: hw.description,
+      year: hw.year,
+      quarter: hw.quarter,
+      available: isTimeAvailable && isResearchUnlocked,
+      researchRequired: hw.researchRequired
+    });
+  });
+
+  return components;
+};
 
 // Case-Daten
 const computerCases = [
@@ -161,15 +226,21 @@ interface ComputerDevelopmentProps {
   onBack: () => void;
   onModelComplete: (model: ComputerModel) => void;
   onCaseSelection: (model: ComputerModel) => void;
+  currentYear: number;
+  currentQuarter: number;
+  researchBudget: number;
 }
 
-export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelopmentProps) => {
+export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, researchBudget }: ComputerDevelopmentProps) => {
   const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
   const [sellingPrice, setSellingPrice] = useState(0);
   const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing' | 'testreport'>('components');
   const [developedModel, setDevelopedModel] = useState<ComputerModel | null>(null);
+
+  // Lade verfügbare Komponenten basierend auf Jahr, Quartal und Forschungsbudget
+  const availableComponents = getAllComponents(currentYear, currentQuarter, researchBudget);
 
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
@@ -368,41 +439,59 @@ export const ComputerDevelopment = ({ onBack, onModelComplete }: ComputerDevelop
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {components
+                          {availableComponents
                             .filter(comp => comp.type === type)
                             .map(component => {
                               const isSelected = selectedComponents.some(c => c.id === component.id);
                               const IconComponent = getComponentIcon(component.type);
+                              const isAvailable = component.available;
                               
                               return (
                                 <div
                                   key={component.id}
-                                  onClick={() => toggleComponent(component)}
+                                  onClick={() => isAvailable && toggleComponent(component)}
                                   className={`
-                                    p-3 rounded-lg border cursor-pointer transition-all hover:scale-105
-                                    ${isSelected 
-                                      ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20' 
-                                      : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50'
+                                    p-3 rounded-lg border transition-all relative
+                                    ${!isAvailable 
+                                      ? 'border-gray-600/30 bg-gray-800/10 cursor-not-allowed opacity-50' 
+                                      : isSelected 
+                                        ? 'border-neon-green bg-neon-green/10 shadow-lg shadow-neon-green/20 cursor-pointer hover:scale-105' 
+                                        : 'border-terminal-green/30 bg-card/10 hover:border-terminal-green/50 cursor-pointer hover:scale-105'
                                     }
                                   `}
                                 >
+                                  {!isAvailable && (
+                                    <div className="absolute top-2 right-2">
+                                      <Lock className="w-4 h-4 text-red-400" />
+                                    </div>
+                                  )}
                                   <div className="flex items-start justify-between">
                                     <div className="flex items-center space-x-2">
-                                      <IconComponent className="w-4 h-4 text-terminal-green" />
+                                      <IconComponent className={`w-4 h-4 ${isAvailable ? 'text-terminal-green' : 'text-gray-500'}`} />
                                       <div>
-                                        <h4 className="font-semibold text-terminal-green">
+                                        <h4 className={`font-semibold ${isAvailable ? 'text-terminal-green' : 'text-gray-500'}`}>
                                           {component.name}
                                         </h4>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className={`text-xs ${isAvailable ? 'text-muted-foreground' : 'text-gray-600'}`}>
                                           {component.description}
                                         </p>
+                                        {!isAvailable && component.researchRequired && (
+                                          <p className="text-xs text-red-400 mt-1">
+                                            Forschung: ${component.researchRequired.toLocaleString()}
+                                          </p>
+                                        )}
+                                        {!isAvailable && !component.researchRequired && (
+                                          <p className="text-xs text-yellow-400 mt-1">
+                                            Verfügbar: {component.year} Q{component.quarter || 1}
+                                          </p>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="text-right">
-                                      <Badge className={getTypeColor(component.type)}>
+                                      <Badge className={isAvailable ? getTypeColor(component.type) : 'bg-gray-500/20 text-gray-500 border-gray-500/30'}>
                                         {component.performance}/100
                                       </Badge>
-                                      <p className="text-xs text-terminal-green mt-1">
+                                      <p className={`text-xs mt-1 ${isAvailable ? 'text-terminal-green' : 'text-gray-500'}`}>
                                         ${component.cost.toLocaleString()}
                                       </p>
                                     </div>

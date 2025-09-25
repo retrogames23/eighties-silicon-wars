@@ -193,7 +193,7 @@ export const INITIAL_COMPETITORS: Competitor[] = [
   }
 ];
 
-// Market events that can occur
+  // Market events that can occur with enhanced dynamics
 export const MARKET_EVENTS: MarketEvent[] = [
   {
     id: 'crash_1983',
@@ -202,7 +202,7 @@ export const MARKET_EVENTS: MarketEvent[] = [
     effect: '+20% Nachfrage nach Heimcomputern',
     impact: {
       marketGrowth: 0.2,
-      demandShift: [{ segment: 'home', change: 0.25 }]
+      demandShift: [{ segment: 'gamer', change: 0.25 }]
     }
   },
   {
@@ -219,6 +219,70 @@ export const MARKET_EVENTS: MarketEvent[] = [
     title: 'Technologischer Durchbruch',
     description: 'Neue Chip-Technologie wird verfügbar.',
     effect: '+10% Leistung für neue Modelle',
+    impact: {
+      marketGrowth: 0.1
+    }
+  },
+  {
+    id: 'business_boom',
+    title: 'Business-Computer Boom',
+    description: 'Unternehmen investieren massiv in Computer-Technologie!',
+    effect: '+30% Business-Nachfrage',
+    impact: {
+      demandShift: [{ segment: 'business', change: 0.3 }]
+    }
+  },
+  {
+    id: 'graphics_revolution',
+    title: 'Grafik-Revolution',
+    description: 'Neue Spiele fordern bessere Grafik-Hardware!',
+    effect: 'Grafik wird wichtiger für Verkäufe',
+    impact: {
+      demandShift: [{ segment: 'gamer', change: 0.2 }]
+    }
+  },
+  {
+    id: 'sound_trend',
+    title: 'Sound wird wichtig',
+    description: 'Musikspiele und Audio-Software treiben Sound-Chip Nachfrage.',
+    effect: '+25% Sound-Chip Nachfrage',
+    impact: {
+      demandShift: [{ segment: 'gamer', change: 0.15 }]
+    }
+  },
+  {
+    id: 'recession_quarter',
+    title: 'Wirtschaftsflaute',
+    description: 'Die Wirtschaft schwächelt - Kunden sind preisbewusster.',
+    effect: '-20% Gesamtmarkt, Preissensitivität steigt',
+    impact: {
+      marketGrowth: -0.2,
+      priceChange: -0.1
+    }
+  },
+  {
+    id: 'ram_shortage',
+    title: 'RAM-Knappheit',
+    description: 'Weltweiter Speicher-Chip Mangel treibt RAM-Preise hoch.',
+    effect: '+50% RAM-Kosten',
+    impact: {
+      priceChange: 0.1
+    }
+  },
+  {
+    id: 'magazine_review_boost',
+    title: 'Positive Presse',
+    description: 'Computer-Magazine loben innovative Designs!',
+    effect: '+15% Reputation für innovative Modelle',
+    impact: {
+      marketGrowth: 0.15
+    }
+  },
+  {
+    id: 'trade_show_success',
+    title: 'CeBIT Erfolg',
+    description: 'Erfolgreiche Messe steigert allgemeine Computer-Nachfrage.',
+    effect: '+10% Marktgröße für 2 Quartale',
     impact: {
       marketGrowth: 0.1
     }
@@ -1219,6 +1283,45 @@ export class GameMechanics {
       newsEvents,
       marketData
     };
+  }
+
+  // Neue Hilfsfunktionen für dynamische Märkte
+  static getMarketTrendFactor(year: number, quarter: number): number {
+    // Langfristige Trends basierend auf historischen Daten
+    const baseTrend = 1.0;
+    
+    // 1984-1985: Golden Age der Heimcomputer
+    if (year >= 1984 && year <= 1985) {
+      return baseTrend * (1.1 + Math.random() * 0.2); // 110%-130%
+    }
+    
+    // 1986-1987: Marktkonsolidierung
+    if (year >= 1986 && year <= 1987) {
+      return baseTrend * (0.9 + Math.random() * 0.2); // 90%-110%
+    }
+    
+    // 1988+: PC-Ära beginnt, Heimcomputer-Markt schrumpft
+    if (year >= 1988) {
+      return baseTrend * (0.8 + Math.random() * 0.15); // 80%-95%
+    }
+    
+    // Saisonale Trends
+    const seasonalFactor = quarter === 4 ? 1.2 : // Q4 Weihnachtsgeschäft
+                          quarter === 1 ? 0.8 : // Q1 schwach nach Weihnachten
+                          1.0; // Q2-Q3 normal
+    
+    return baseTrend * seasonalFactor * (0.9 + Math.random() * 0.2);
+  }
+
+  static getQualityFactor(model: any): number {
+    // Zufällige Qualitätsprobleme basierend auf Modell-Komplexität
+    const complexity = model.complexity || 50;
+    const baseQuality = Math.max(0.7, 1.1 - (complexity / 100)); // Höhere Komplexität = mehr Risiko
+    
+    // Zufällige Variation
+    const randomFactor = 0.9 + Math.random() * 0.2; // 90%-110%
+    
+    return Math.min(1.0, baseQuality * randomFactor);
   }
 
   static generateNewsEvents(quarter: number, year: number, gameState: any, competitors: Competitor[]): any[] {

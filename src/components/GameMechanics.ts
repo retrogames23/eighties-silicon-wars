@@ -356,46 +356,75 @@ export class GameMechanics {
     });
   }
 
-  // Custom Hardware Development durch Forschung & Entwicklung
+  // Custom Hardware Development durch kumulative Forschungsausgaben
   static attemptCustomHardwareDevelopment(
     researchBudget: number, 
     developmentBudget: number, 
     year: number, 
     quarter: number,
-    existingCustomChips: CustomChip[] = []
+    existingCustomChips: CustomChip[] = [],
+    totalResearchSpent: number = 0 // Neue kumulative Forschungsausgaben
   ): CustomChip | null {
     const totalBudget = researchBudget + developmentBudget;
     
-    // Basis-Chance: 5%, +1% pro 10k Budget, max 25%
-    const baseChance = Math.min(0.25, 0.05 + (totalBudget / 10000) * 0.01);
+    // Basis-Chance basiert auf kumulativen Forschungsausgaben: 2% pro 50k$ investiert
+    const cumulativeThresholds = [100000, 250000, 500000, 750000, 1000000]; // Schwellen für Custom Chips
+    const baseChance = Math.min(0.25, (totalResearchSpent / 50000) * 0.02);
     
     if (Math.random() > baseChance) return null;
     
-    // Bestimme Art des Custom Chips basierend auf Budget-Verteilung
-    const researchRatio = researchBudget / totalBudget;
-    let chipType: 'cpu' | 'gpu' | 'sound' | 'case';
-    
-    if (researchRatio > 0.7) chipType = 'cpu'; // Forschungslastig = CPU
-    else if (researchRatio < 0.3) chipType = 'case'; // Entwicklungslastig = Case
-    else chipType = Math.random() > 0.5 ? 'gpu' : 'sound';
+    // Nur GPU und Sound Custom Chips (besseres Preis/Leistungsverhältnis)
+    const chipType = Math.random() > 0.5 ? 'gpu' : 'sound';
     
     // Verhindere zu viele Custom Chips des gleichen Typs
     const sameTypeCount = existingCustomChips.filter(c => c.type === chipType).length;
-    if (sameTypeCount >= 2) return null;
+    if (sameTypeCount >= 3) return null; // Max 3 pro Typ
+    
+    // Custom Chips sind deutlich besser im Preis/Leistungsverhältnis
+    const marketEquivalent = this.getBestMarketHardware(chipType, year);
+    const customPerformance = Math.round(marketEquivalent.performance * (1.2 + (totalResearchSpent / 1000000) * 0.3)); // 20-50% bessere Performance
+    const customCost = Math.round(marketEquivalent.cost * (0.7 - (totalResearchSpent / 1000000) * 0.1)); // 30-40% günstiger
     
     const customChip: CustomChip = {
       id: `custom-${chipType}-${year}-${quarter}`,
       name: this.generateCustomChipName(chipType, year),
       type: chipType,
-      performance: this.calculateCustomChipPerformance(chipType, totalBudget, year),
-      cost: this.calculateCustomChipCost(chipType, totalBudget),
-      description: this.generateCustomChipDescription(chipType, year),
+      performance: customPerformance,
+      cost: customCost,
+      description: `${this.generateCustomChipDescription(chipType, year)} - ${Math.round(((customPerformance/customCost) / (marketEquivalent.performance/marketEquivalent.cost) - 1) * 100)}% besseres Preis/Leistung`,
       developedYear: year,
       developedQuarter: quarter,
       exclusiveToPlayer: true
     };
     
     return customChip;
+  }
+
+  static getBestMarketHardware(type: string, year: number): { performance: number; cost: number } {
+    // Beste verfügbare Markt-Hardware für Vergleich
+    const hardwareData = {
+      gpu: {
+        1983: { performance: 25, cost: 45 },
+        1984: { performance: 35, cost: 70 },
+        1985: { performance: 45, cost: 120 },
+        1986: { performance: 55, cost: 180 },
+        1987: { performance: 70, cost: 250 },
+        1988: { performance: 80, cost: 300 }
+      },
+      sound: {
+        1983: { performance: 25, cost: 35 },
+        1984: { performance: 45, cost: 80 },
+        1985: { performance: 35, cost: 50 },
+        1986: { performance: 60, cost: 120 },
+        1987: { performance: 75, cost: 150 },
+        1988: { performance: 85, cost: 180 }
+      }
+    };
+
+    const typeData = hardwareData[type as keyof typeof hardwareData];
+    const yearData = typeData?.[year as keyof typeof typeData] || typeData?.[1988] || { performance: 50, cost: 100 };
+    
+    return yearData;
   }
 
   static generateCustomChipName(type: string, year: number): string {

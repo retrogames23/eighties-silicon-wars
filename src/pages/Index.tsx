@@ -420,7 +420,7 @@ const Index = () => {
             onCaseSelection={handleCaseSelection}
             currentYear={gameState.year}
             currentQuarter={gameState.quarter}
-            researchBudget={gameState.budget.research}
+            customChips={gameState.customChips || []}
           />
         );
       

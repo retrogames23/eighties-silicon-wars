@@ -27,6 +27,7 @@ import { TestReport } from "./TestReport";
 import { TestReportGenerator } from "./TestReportGenerator";
 import { GameMechanics } from "./GameMechanics";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
+import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 
 // Use HardwareComponent from HardwareManager instead of local Component interface
 
@@ -149,8 +150,21 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
     
-  // Preisvorschlag berechnen (konsistent mit EconomicModel: 80% Aufschlag)
-  const suggestedPrice = Math.round(totalCost * 1.8);
+  // Preisvorschlag: Prüfe zuerst auf bestehende Testempfehlung
+  const modelId = editingModel?.id || `temp_${Date.now()}`;
+  const existingRecommendation = PriceRecommendationManager.getPriceRecommendation(modelId);
+  
+  let suggestedPrice: number;
+  let priceRecommendationSource: 'test' | 'cost' = 'cost';
+  
+  if (existingRecommendation && !existingRecommendation.adopted) {
+    // Verwende bestehende Testempfehlung
+    suggestedPrice = existingRecommendation.recommendedPrice;
+    priceRecommendationSource = 'test';
+  } else {
+    // Fallback auf kostenbasierte Berechnung (konsistent mit EconomicModel: 80% Aufschlag)
+    suggestedPrice = Math.round(totalCost * 1.8);
+  }
   
   // Mindest- und Maximalpreis (konsistent mit EconomicModel)
   const minPrice = Math.round(totalCost * 1.1); // 10% Mindestmarge
@@ -309,9 +323,25 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   };
 
   const finalizeModel = () => {
-    if (developedModel) {
-      onModelComplete(developedModel);
+    if (!developedModel) return;
+
+    // Prüfe ob Preisempfehlung adoptiert werden soll
+    const recommendation = PriceRecommendationManager.getPriceRecommendation(modelId);
+    let finalPrice = sellingPrice;
+    
+    if (recommendation && !recommendation.adopted && sellingPrice === recommendation.recommendedPrice) {
+      // User hat Empfehlung übernommen - markiere als adoptiert
+      PriceRecommendationManager.adoptPriceRecommendation(modelId);
+      finalPrice = recommendation.recommendedPrice;
     }
+
+    const finalModel = {
+      ...developedModel,
+      price: finalPrice,
+      id: modelId
+    };
+
+    onModelComplete(finalModel);
   };
 
   const canProceedToCase = selectedComponents.some(c => c.type === 'cpu') && 
@@ -661,8 +691,13 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           className="glow-button"
                           variant={sellingPrice === suggestedPrice ? "default" : "outline"}
                         >
-                          Empfohlenen Preis übernehmen
+                          {priceRecommendationSource === 'test' ? 'Testempfehlung übernehmen' : 'Empfohlenen Preis übernehmen'}
                         </Button>
+                        {priceRecommendationSource === 'test' && (
+                          <Badge variant="outline" className="text-xs text-neon-cyan">
+                            Basiert auf Testergebnis
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="space-y-2">
@@ -728,8 +763,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 {/* SCHRITT 5: Testbericht */}
                 {currentStep === 'testreport' && developedModel && (
                   <TestReport
-                    model={developedModel}
-                    testResult={TestReportGenerator.generateTestReport(developedModel, 1985)}
+                    model={{...developedModel, id: modelId}}
+                    testResult={TestReportGenerator.generateTestReport({...developedModel, id: modelId}, 1985)}
                     onContinue={finalizeModel}
                     onRevise={() => setCurrentStep('pricing')}
                   />
@@ -788,7 +823,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Verkaufspreis:</span>
                             <span className="text-yellow-400 font-bold">
-                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Vorschlag)`}
+                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : 
+                               `$${suggestedPrice.toLocaleString()} (${priceRecommendationSource === 'test' ? 'Testempfehlung' : 'Vorschlag'})`}
                             </span>
                           </div>
                         </div>

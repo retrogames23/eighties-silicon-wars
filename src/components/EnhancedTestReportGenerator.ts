@@ -1,6 +1,5 @@
 import { type TestResult } from "./TestReport";
 import { TestScoringMatrix } from "@/services/TestScoringMatrix";
-import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 
 export class EnhancedTestReportGenerator {
   
@@ -87,15 +86,6 @@ export class EnhancedTestReportGenerator {
     const workstationPriceValue = hasWorkstation ? 
       this.calculatePriceValue(model.price, 3000 + (year - 1987) * 1000) : 0;
 
-    // Safe price recommendation management
-    const priceRecommendationData = PriceRecommendationManager.generateSafePriceRecommendation(
-      model.id || `model_${Date.now()}`,
-      model.price,
-      gamingPriceValue,
-      businessPriceValue,
-      workstationPriceValue
-    );
-
     // Market impact calculation
     const marketImpact = this.calculateMarketImpact(overallScore, gamingScore, businessScore, workstationScore, model);
 
@@ -137,12 +127,7 @@ export class EnhancedTestReportGenerator {
         caseMatch: this.evaluateCaseMatch(model)
       },
       marketImpact,
-      finalVerdict,
-      priceRecommendation: priceRecommendationData.hasRecommendation ? {
-        currentPrice: priceRecommendationData.currentPrice,
-        recommendedPrice: priceRecommendationData.recommendedPrice,
-        reasoning: priceRecommendationData.reasoning
-      } : undefined
+      finalVerdict
     };
   }
 

@@ -150,20 +150,41 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
     
-  // Preisvorschlag: Prüfe zuerst auf bestehende Testempfehlung
-  const modelId = editingModel?.id || `temp_${Date.now()}`;
+  // Preisempfehlung auf Basis der Test-Logik (ohne Testlauf)
+  const modelId = editingModel?.id || `temp_${currentYear}_${currentQuarter}`;
   const existingRecommendation = PriceRecommendationManager.getPriceRecommendation(modelId);
   
   let suggestedPrice: number;
-  let priceRecommendationSource: 'test' | 'cost' = 'cost';
-  
   if (existingRecommendation && !existingRecommendation.adopted) {
-    // Verwende bestehende Testempfehlung
     suggestedPrice = existingRecommendation.recommendedPrice;
-    priceRecommendationSource = 'test';
   } else {
-    // Fallback auf kostenbasierte Berechnung (konsistent mit EconomicModel: 80% Aufschlag)
-    suggestedPrice = Math.round(totalCost * 1.8);
+    // 1) Erwartete Preise gemäß Test-Logik
+    const expectedGamerPrice = 600 + (currentYear - 1983) * 150;
+    const expectedBusinessPrice = 1200 + (currentYear - 1983) * 300;
+    const expectedWorkstationPrice = currentYear >= 1987 ? 3000 + (currentYear - 1987) * 1000 : undefined;
+    
+    // 2) Basiskandidat als gewichteter Mix (Business stärker gewichtet)
+    const candidatePrice = Math.round(
+      expectedBusinessPrice * 0.6 + expectedGamerPrice * 0.4
+    );
+    
+    // 3) Preiswert-Score wie im Test
+    const priceValue = (expected: number, price: number) => {
+      return Math.max(0, Math.min(100, 100 - Math.abs(price - expected) / expected * 100));
+    };
+    const gamingPriceValue = priceValue(expectedGamerPrice, candidatePrice);
+    const businessPriceValue = priceValue(expectedBusinessPrice, candidatePrice);
+    const workstationPriceValue = expectedWorkstationPrice ? priceValue(expectedWorkstationPrice, candidatePrice) : 0;
+    
+    // 4) Empfehlung generieren und speichern (einzige Quelle)
+    const rec = PriceRecommendationManager.generateSafePriceRecommendation(
+      modelId,
+      candidatePrice,
+      gamingPriceValue,
+      businessPriceValue,
+      workstationPriceValue
+    );
+    suggestedPrice = rec.recommendedPrice;
   }
   
   // Mindest- und Maximalpreis (konsistent mit EconomicModel)
@@ -691,13 +712,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           className="glow-button"
                           variant={sellingPrice === suggestedPrice ? "default" : "outline"}
                         >
-                          {priceRecommendationSource === 'test' ? 'Testempfehlung übernehmen' : 'Empfohlenen Preis übernehmen'}
+                          Empfohlenen Preis übernehmen
                         </Button>
-                        {priceRecommendationSource === 'test' && (
-                          <Badge variant="outline" className="text-xs text-neon-cyan">
-                            Basiert auf Testergebnis
-                          </Badge>
-                        )}
                       </div>
                       
                       <div className="space-y-2">
@@ -760,15 +776,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                  </Card>
                )}
                
-                 {/* SCHRITT 5: Testbericht */}
-                 {currentStep === 'testreport' && developedModel && (
-                   <TestReport
-                     model={{...developedModel, id: modelId}}
-                     testResult={EnhancedTestReportGenerator.generateTestReport({...developedModel, id: modelId}, 1985)}
-                     onContinue={finalizeModel}
-                     onRevise={() => setCurrentStep('pricing')}
-                   />
-                 )}
+                {/* SCHRITT 5: Testbericht */}
+                {currentStep === 'testreport' && developedModel && (
+                  <TestReport
+                    model={{...developedModel, id: modelId}}
+                    testResult={EnhancedTestReportGenerator.generateTestReport({...developedModel, id: modelId}, currentYear)}
+                    onContinue={finalizeModel}
+                    onRevise={() => setCurrentStep('pricing')}
+                  />
+                )}
             </div>
 
             {/* Seitenleiste - nur wenn nicht im Testbericht */}
@@ -823,8 +839,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Verkaufspreis:</span>
                             <span className="text-yellow-400 font-bold">
-                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : 
-                               `$${suggestedPrice.toLocaleString()} (${priceRecommendationSource === 'test' ? 'Testempfehlung' : 'Vorschlag'})`}
+                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Empfehlung)`}
                             </span>
                           </div>
                         </div>

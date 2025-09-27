@@ -61,7 +61,8 @@
       "monthlyExpenses": "Ausgaben (monatlich)",
       "monthlyProfit": "Gewinn (monatlich)",
       "totalIncome": "Gesamteinnahmen",
-      "totalExpenses": "Gesamtausgaben"
+      "totalExpenses": "Gesamtausgaben",
+      "total": "Gesamt"
     },
     "sections": {
       "income": "Einnahmen",
@@ -92,12 +93,42 @@
       "totalRevenue": "Gesamtumsatz",
       "models": "Modelle",
       "unitsSold": "Verkaufte Einheiten", 
-      "inDevelopment": "In Entwicklung"
+      "inDevelopment": "In Entwicklung",
+      "price": "Preis",
+      "revenue": "Umsatz",
+      "developmentCost": "Entwicklungskosten",
+      "profit": "Gewinn",
+      "components": "Komponenten",
+      "developmentProgress": "Entwicklungsfortschritt",
+      "sales": "Verkäufe",
+      "release": "Release"
     },
     "status": {
       "development": "In Entwicklung",
       "released": "Verfügbar",
       "discontinued": "Eingestellt"
+    },
+    "sections": {
+      "newModels": "Neue Modelle",
+      "currentModels": "Deine Computer-Modelle",
+      "newModelDevelopment": "Neues Computer-Modell entwickeln"
+    },
+    "actions": {
+      "developNewModel": "Neues Modell entwickeln",
+      "discontinue": "Einstellen",
+      "startDevelopment": "Entwicklung starten"
+    },
+    "descriptions": {
+      "developNewModel": "Entwickeln Sie neue Computer-Modelle um auf dem Markt zu konkurrieren.",
+      "newModelDevelopment": "Entwickle innovative Computer für verschiedene Zielgruppen",
+      "noModels": "Noch keine Modelle entwickelt",
+      "noModelsHint": "Klicke auf \"Entwicklung starten\", um dein erstes Computer-Modell zu entwickeln."
+    },
+    "components": {
+      "cpu": "CPU",
+      "memory": "RAM",
+      "graphics": "Grafik",
+      "sound": "Sound"
     }
   }
 }

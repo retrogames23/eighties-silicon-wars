@@ -61,7 +61,8 @@
       "monthlyExpenses": "Monthly Expenses",
       "monthlyProfit": "Monthly Profit",
       "totalIncome": "Total Income",
-      "totalExpenses": "Total Expenses"
+      "totalExpenses": "Total Expenses",
+      "total": "Total"
     },
     "sections": {
       "income": "Income",
@@ -92,12 +93,42 @@
       "totalRevenue": "Total Revenue",
       "models": "Models",
       "unitsSold": "Units Sold",
-      "inDevelopment": "In Development"
+      "inDevelopment": "In Development",
+      "price": "Price",
+      "revenue": "Revenue",
+      "developmentCost": "Development Cost",
+      "profit": "Profit",
+      "components": "Components",
+      "developmentProgress": "Development Progress",
+      "sales": "Sales",
+      "release": "Release"
     },
     "status": {
       "development": "In Development",
-      "released": "Available",
+      "released": "Available",  
       "discontinued": "Discontinued"
+    },
+    "sections": {
+      "newModels": "New Models",
+      "currentModels": "Your Computer Models",
+      "newModelDevelopment": "Develop New Computer Model"
+    },
+    "actions": {
+      "developNewModel": "Develop New Model",
+      "discontinue": "Discontinue",
+      "startDevelopment": "Start Development"
+    },
+    "descriptions": {
+      "developNewModel": "Develop new computer models to compete in the market.",
+      "newModelDevelopment": "Develop innovative computers for different target groups",
+      "noModels": "No models developed yet",
+      "noModelsHint": "Click \"Start Development\" to develop your first computer model."
+    },
+    "components": {
+      "cpu": "CPU", 
+      "memory": "RAM",
+      "graphics": "Graphics",
+      "sound": "Sound"
     }
   }
 }

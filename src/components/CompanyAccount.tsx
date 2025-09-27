@@ -139,7 +139,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
             ))}
             <div className="border-t border-border pt-4">
               <div className="flex justify-between items-center font-bold">
-                <span className="text-primary">Gesamt</span>
+                <span className="text-primary">{t('ui.account.labels.total')}</span>
                 <span className="font-mono text-neon-cyan neon-text">
                   {formatCurrency(totalIncome)}
                 </span>
@@ -168,7 +168,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
             ))}
             <div className="border-t border-border pt-4">
               <div className="flex justify-between items-center font-bold">
-                <span className="text-primary">Gesamt</span>
+                <span className="text-primary">{t('ui.account.labels.total')}</span>
                 <span className="font-mono text-red-400">
                   -{formatCurrency(totalExpenses)}
                 </span>

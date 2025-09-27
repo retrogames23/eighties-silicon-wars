@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Cpu, Monitor, Zap, TrendingUp, Plus } from "lucide-react";
 import type { ComputerModel } from '@/types/ComputerModel';
 import { ModelStatusGuard } from '@/services/ModelStatusGuard';
+import { useTranslation } from 'react-i18next';
+import { useEconomyTranslation } from '@/utils/i18nHelpers';
 
 interface DevelopmentTabProps {
   models: ComputerModel[];
@@ -13,7 +15,8 @@ interface DevelopmentTabProps {
 }
 
 export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }: DevelopmentTabProps) => {
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
+  const { t } = useTranslation(['ui', 'common']);
+  const { formatCurrency } = useEconomyTranslation();
   
   // Use ModelStatusGuard to exclude development models from statistics
   const totalRevenue = ModelStatusGuard.calculateTotalRevenue(models);
@@ -31,9 +34,9 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'development': return 'In Entwicklung';
-      case 'released': return 'Verfügbar';
-      case 'discontinued': return 'Eingestellt';
+      case 'development': return t('ui.development.status.development');
+      case 'released': return t('ui.development.status.released');  
+      case 'discontinued': return t('ui.development.status.discontinued');
       default: return status;
     }
   };
@@ -45,7 +48,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Gesamtumsatz</p>
+              <p className="text-sm text-muted-foreground">{t('ui.development.labels.totalRevenue')}</p>
               <p className="text-2xl font-bold text-neon-green neon-text font-mono">
                 {formatCurrency(totalRevenue)}
               </p>
@@ -57,7 +60,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Modelle</p>
+              <p className="text-sm text-muted-foreground">{t('ui.development.labels.models')}</p>
               <p className="text-2xl font-bold text-neon-green neon-text font-mono">
                 {models.length}
               </p>
@@ -69,7 +72,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Verkaufte Einheiten</p>
+              <p className="text-sm text-muted-foreground">{t('ui.development.labels.unitsSold')}</p>
               <p className="text-2xl font-bold text-neon-cyan neon-text font-mono">
                 {totalUnitsSold.toLocaleString()}
               </p>
@@ -81,7 +84,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">In Entwicklung</p>
+                <p className="text-sm text-muted-foreground">{t('ui.development.labels.inDevelopment')}</p>
                 <p className="text-2xl font-bold text-amber-400 neon-text font-mono">
                   {ModelStatusGuard.getDevelopmentModels(models).length}
                 </p>
@@ -95,9 +98,9 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
       <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-primary neon-text">Neues Computer-Modell entwickeln</h3>
+            <h3 className="text-xl font-bold text-primary neon-text">{t('ui.development.sections.newModelDevelopment')}</h3>
             <p className="text-muted-foreground mt-1">
-              Entwickle innovative Computer für verschiedene Zielgruppen
+              {t('ui.development.descriptions.newModelDevelopment')}
             </p>
           </div>
           <Button 
@@ -106,21 +109,21 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
             size="lg"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Entwicklung starten
+            {t('ui.development.actions.startDevelopment')}
           </Button>
         </div>
       </Card>
 
       {/* Modell-Liste */}
       <div className="space-y-4">
-        <h3 className="text-xl font-bold text-primary neon-text">Deine Computer-Modelle</h3>
+        <h3 className="text-xl font-bold text-primary neon-text">{t('ui.development.sections.currentModels')}</h3>
         
         {models.length === 0 ? (
           <Card className="retro-border bg-card/50 backdrop-blur-sm p-8 text-center">
             <Monitor className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Noch keine Modelle entwickelt</p>
+            <p className="text-muted-foreground">{t('ui.development.descriptions.noModels')}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Klicke auf "Entwicklung starten", um dein erstes Computer-Modell zu entwickeln.
+              {t('ui.development.descriptions.noModelsHint')}
             </p>
           </Card>
         ) : (
@@ -142,21 +145,21 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                     <div>
-                      <span className="text-muted-foreground">CPU:</span>
+                      <span className="text-muted-foreground">{t('ui.development.components.cpu')}:</span>
                       <span className="ml-2 text-primary font-medium">{model.cpu}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">RAM:</span>
+                      <span className="text-muted-foreground">{t('ui.development.components.memory')}:</span>
                       <span className="ml-2 text-primary font-medium">{model.ram}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Preis:</span>
+                      <span className="text-muted-foreground">{t('ui.development.labels.price')}:</span>
                       <span className="ml-2 text-neon-cyan font-mono font-bold">
                         {formatCurrency(model.price)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Verkäufe:</span>
+                      <span className="text-muted-foreground">{t('ui.development.labels.sales')}:</span>
                       <span className="ml-2 text-neon-green font-mono font-bold">
                         {model.unitsSold.toLocaleString()}
                       </span>
@@ -166,7 +169,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                   {model.status === 'development' && model.developmentProgress !== undefined && (
                     <div className="mb-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-muted-foreground">Entwicklungsfortschritt</span>
+                        <span className="text-sm text-muted-foreground">{t('ui.development.labels.developmentProgress')}</span>
                         <span className="text-sm font-mono text-amber-400">
                           {model.developmentProgress.toFixed(1)}%
                         </span>
@@ -187,7 +190,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                       onClick={() => onDiscontinueModel(model.id)}
                       className="text-red-400 border-red-400/50 hover:bg-red-400/10"
                     >
-                      Einstellen
+                      {t('ui.development.actions.discontinue')}
                     </Button>
                   )}
                 </div>
@@ -198,19 +201,19 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                 <div className="border-t border-border pt-4 mt-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Entwicklungskosten:</span>
+                      <span className="text-muted-foreground">{t('ui.development.labels.developmentCost')}:</span>
                       <span className="ml-2 font-mono text-red-400">
                         {formatCurrency(model.developmentCost)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Umsatz:</span>
+                      <span className="text-muted-foreground">{t('ui.development.labels.revenue')}:</span>
                       <span className="ml-2 font-mono text-neon-cyan">
                         {formatCurrency(model.unitsSold * model.price)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Release:</span>
+                      <span className="text-muted-foreground">{t('ui.development.labels.release')}:</span>
                       <span className="ml-2 font-medium">
                         Q{model.releaseQuarter}/{model.releaseYear}
                       </span>

@@ -13,22 +13,22 @@ export interface NewsEvent {
 }
 
 export const NEWS_EVENTS: NewsEvent[] = [
-  // 1983
+  // 1983 - Enhanced with complete sentences (12-24 words)
   {
     id: '1983q1_world1',
     quarter: 1,
     year: 1983,
     category: 'world',
     headline: 'Ronald Reagan kündigt "Strategic Defense Initiative" an',
-    content: 'Präsident Reagan startet das Raumabwehrprogramm. Erhöhte Investitionen in Hochtechnologie erwartet.'
+    content: 'Präsident Reagan startet das ehrgeizige Raumabwehrprogramm und verspricht massive Investitionen in Hochtechnologie, die auch der Computerindustrie zugute kommen werden.'
   },
   {
     id: '1983q1_tech1',
     quarter: 1,
     year: 1983,
     category: 'tech',
-    headline: 'IBM PC XT mit Festplatte vorgestellt',
-    content: 'IBM revolutioniert den Markt mit dem ersten PC mit integrierter 10MB Festplatte. Preis: $4.995.',
+    headline: 'IBM PC XT mit revolutionärer Festplatte vorgestellt',
+    content: 'IBM revolutioniert den Computermarkt mit dem ersten PC, der eine integrierte 10MB Festplatte besitzt und für 4.995 Dollar verkauft wird.',
     impact: { marketGrowth: 0.15 }
   },
   {
@@ -37,15 +37,15 @@ export const NEWS_EVENTS: NewsEvent[] = [
     year: 1983,
     category: 'competitor',
     headline: 'Apple Lisa Computer für $9.995 angekündigt',
-    content: 'Apple stellt revolutionären Computer mit grafischer Benutzeroberfläche vor. Experten zweifeln am hohen Preis.'
+    content: 'Apple stellt einen revolutionären Computer mit grafischer Benutzeroberfläche vor, doch Experten bezweifeln den Erfolg bei diesem extrem hohen Verkaufspreis.'
   },
   {
     id: '1983q3_market1',
     quarter: 3,
     year: 1983,
     category: 'market',
-    headline: 'Heimcomputer-Boom erreicht Europa',
-    content: 'Commodore 64 wird europaweit zum Bestseller. Über 200.000 Einheiten in Q3 verkauft.',
+    headline: 'Heimcomputer-Boom erreicht Europa mit Rekordverkäufen',
+    content: 'Der Commodore 64 entwickelt sich europaweit zum absoluten Bestseller und erreicht allein im dritten Quartal Verkaufszahlen von über 200.000 Einheiten.',
     impact: { demandShift: [{ segment: 'home', change: 0.2 }] }
   },
   {
@@ -53,8 +53,8 @@ export const NEWS_EVENTS: NewsEvent[] = [
     quarter: 4,
     year: 1983,
     category: 'world',
-    headline: 'US-Invasion in Grenada',
-    content: 'Militäreinsatz der USA verstärkt Interesse an Kommunikationstechnologie und Computer.'
+    headline: 'US-Militäreinsatz in Grenada verstärkt Technologie-Interesse',
+    content: 'Der Militäreinsatz der USA demonstriert die strategische Bedeutung moderner Kommunikationstechnologie und steigert das Interesse an Computersystemen erheblich.'
   },
 
   // 1984
@@ -216,45 +216,10 @@ export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] =>
   // Markiere Events als verwendet
   quarterNews.forEach(event => usedNewsEvents.add(event.id));
   
-  // Falls keine spezifischen Events vorhanden sind, füge ein generelles Event hinzu
+  // Falls keine spezifischen Events vorhanden sind, generiere intelligente Fallback-News
   if (quarterNews.length === 0) {
-    const randomEvents = [
-      {
-        id: `${year}q${quarter}_market_growth`,
-        quarter,
-        year,
-        category: 'market' as const,
-        headline: 'Computermarkt erreicht neue Höchststände',
-        content: 'Der Heimcomputermarkt zeigt weiterhin beeindruckendes Wachstum. Analysten prognostizieren eine Verdopplung des Marktes in den nächsten zwei Jahren.',
-        impact: { marketGrowth: 0.1 }
-      },
-      {
-        id: `${year}q${quarter}_tech_innovation`,
-        quarter,
-        year,
-        category: 'tech' as const,
-        headline: 'Neue Prozessortechnologie kündigt sich an',
-        content: 'Chip-Hersteller arbeiten an leistungsfähigeren Prozessoren. Experten erwarten deutliche Verbesserungen in der Rechenleistung.',
-        impact: { marketGrowth: 0.05 }
-      },
-      {
-        id: `${year}q${quarter}_consumer_demand`,
-        quarter,
-        year,
-        category: 'market' as const,
-        headline: 'Verbraucher zeigen hohes Interesse an Heimcomputern',
-        content: 'Umfragen zeigen steigendes Interesse der Verbraucher an Heimcomputern für Büro und Freizeit.',
-        impact: { marketGrowth: 0.08 }
-      }
-    ];
-    
-    // Wähle ein zufälliges Event aus, das nicht bereits verwendet wurde
-    const availableEvents = randomEvents.filter(event => !usedNewsEvents.has(event.id));
-    if (availableEvents.length > 0) {
-      const selectedEvent = availableEvents[Math.floor(Math.random() * availableEvents.length)];
-      usedNewsEvents.add(selectedEvent.id);
-      return [selectedEvent];
-    }
+    const fallbackNews = NewsContentGenerator.generateFallbackNews(quarter, year);
+    return fallbackNews;
   }
   
   return quarterNews;

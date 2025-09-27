@@ -1,24 +1,40 @@
 import { type TestResult } from "./TestReport";
+import { TestScoringMatrix } from "@/services/TestScoringMatrix";
+import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 
 export class TestReportGenerator {
   static generateTestReport(model: any, year: number): TestResult {
-    // Berechne verschiedene Bewertungskategorien
-    const gamingResult = this.evaluateGaming(model, year);
+    // Use enhanced scoring matrix for more accurate results
+    const cpuScore = TestScoringMatrix.evaluateCPU(model.cpu, 'business');
+    const gpuScore = TestScoringMatrix.evaluateGPU(model.gpu, 'gaming');
+    const ramScore = TestScoringMatrix.evaluateRAM(model.ram, 'business');
+    const soundScore = TestScoringMatrix.evaluateSound(model.sound, 'gaming');
+
+    // Calculate category scores using new matrix
+    const gamingResult = this.evaluateGamingEnhanced(model, year, cpuScore, gpuScore, ramScore, soundScore);
     const businessResult = this.evaluateBusiness(model, year);
     const workstationResult = this.evaluateWorkstation(model, year);
-    const compatibilityResult = this.evaluateCompatibility(model);
-    const buildQualityResult = this.evaluateBuildQuality(model);
     
-    // Berechne Gesamtscore
+    // Enhanced compatibility evaluation
+    const compatibilityResult = TestScoringMatrix.evaluateCompatibility({
+      cpu: cpuScore, gpu: gpuScore, ram: ramScore, sound: soundScore
+    });
+    
+    // Enhanced build quality
+    const buildQualityResult = TestScoringMatrix.evaluateBuildQuality({
+      cpu: cpuScore, gpu: gpuScore, ram: ramScore, sound: soundScore
+    }, model.case?.quality || 70);
+    
+    // Calculate weighted overall score
     const overallScore = Math.round(
       (gamingResult.score * 0.3 + 
-       businessResult.score * 0.3 + 
-       workstationResult.score * 0.2 + 
+       businessResult.score * 0.35 + 
+       workstationResult.score * 0.15 + 
        compatibilityResult.score * 0.1 + 
        buildQualityResult.score * 0.1)
     );
     
-    // Berechne Marktauswirkungen
+    // Market impact calculation
     const marketImpact = this.calculateMarketImpact(
       overallScore, 
       gamingResult.score, 
@@ -27,15 +43,22 @@ export class TestReportGenerator {
       model
     );
     
-    // Preisempfehlung
-    const priceRecommendation = this.generatePriceRecommendation(
-      model, 
+    // Safe price recommendation that doesn't auto-apply
+    const priceRecommendationData = PriceRecommendationManager.generateSafePriceRecommendation(
+      model.id || 'unknown',
+      model.price, 
       gamingResult.priceValue, 
       businessResult.priceValue, 
       workstationResult.priceValue
     );
     
-    // Finales Fazit
+    const priceRecommendation = priceRecommendationData.hasRecommendation ? {
+      currentPrice: priceRecommendationData.currentPrice,
+      recommendedPrice: priceRecommendationData.recommendedPrice,
+      reasoning: priceRecommendationData.reasoning
+    } : undefined;
+    
+    // Final verdict
     const finalVerdict = this.generateFinalVerdict(
       overallScore, 
       model,
@@ -51,14 +74,73 @@ export class TestReportGenerator {
         business: businessResult,
         workstation: workstationResult
       },
-      compatibility: compatibilityResult,
-      buildQuality: buildQualityResult,
+      compatibility: {
+        score: compatibilityResult.score,
+        rating: TestScoringMatrix.getQualityRating(compatibilityResult.score),
+        bottlenecks: compatibilityResult.bottlenecks,
+        synergies: compatibilityResult.synergies
+      },
+      buildQuality: {
+        score: buildQualityResult.score,
+        rating: buildQualityResult.rating,
+        components: buildQualityResult.components,
+        caseMatch: model.case?.type ? this.evaluateCaseMatch(model) : true
+      },
       marketImpact,
       finalVerdict,
       priceRecommendation
     };
   }
   
+  private static evaluateGamingEnhanced(model: any, year: number, cpuScore: any, gpuScore: any, ramScore: any, soundScore: any): {
+    score: number;
+    rating: string;
+    comments: string[];
+    priceValue: number;
+  } {
+    // Use enhanced scoring matrix
+    const score = TestScoringMatrix.calculateCategoryScore(cpuScore, gpuScore, ramScore, soundScore, 'gaming');
+    const comments: string[] = [];
+    
+    // Enhanced comments based on component scores
+    if (gpuScore.score >= 90) {
+      comments.push("Exzellente Grafikleistung ermöglicht beste Gaming-Erfahrung der 80er Jahre");
+    } else if (gpuScore.score >= 70) {
+      comments.push("Sehr gute Grafikdarstellung für anspruchsvolle Spiele geeignet");
+    } else if (gpuScore.score >= 50) {
+      comments.push("Solide Grafik für die meisten aktuellen Spiele ausreichend");
+    } else {
+      comments.push("Grafikleistung limitiert das Gaming-Erlebnis erheblich");
+    }
+
+    if (soundScore.score >= 80) {
+      comments.push("Hervorragender Sound-Chip sorgt für beeindruckende Audio-Effekte");
+    } else if (soundScore.score >= 50) {
+      comments.push("Gute Sound-Qualität verbessert das Spielerlebnis spürbar");
+    } else {
+      comments.push("Basic Sound-Ausgabe mindert das Gaming-Erlebnis");
+    }
+
+    if (cpuScore.score >= 80) {
+      comments.push("Leistungsstarke CPU sorgt für flüssige Spiele-Performance");
+    } else if (cpuScore.score < 50) {
+      comments.push("CPU-Leistung könnte bei anspruchsvollen Spielen limitieren");
+    }
+
+    // Enhanced price-value calculation
+    const expectedGamerPrice = 600 + (year - 1983) * 150;
+    const priceValue = Math.max(0, Math.min(100, 
+      100 - Math.abs(model.price - expectedGamerPrice) / expectedGamerPrice * 100
+    ));
+    
+    return {
+      score,
+      rating: this.getScoreRating(score),
+      comments,
+      priceValue: Math.round(priceValue)
+    };
+  }
+
   private static evaluateGaming(model: any, year: number): {
     score: number;
     rating: string;

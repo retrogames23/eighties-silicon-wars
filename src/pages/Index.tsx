@@ -65,6 +65,11 @@ type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'cas
 const Index = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  
+  // Debug logging
+  console.log("Index component is rendering");
+  console.log("useLanguage hook result:", { t: typeof t });
+  
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
@@ -471,6 +476,11 @@ const Index = () => {
     <>
       <MusicToggle />
       {renderCurrentScreen()}
+      
+      {/* Debug info */}
+      <div style={{ position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '5px', fontSize: '12px', zIndex: 9999 }}>
+        Screen: {currentScreen}
+      </div>
       
       {/* Hardware Announcement Dialog */}
       <HardwareAnnouncement

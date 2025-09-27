@@ -7,13 +7,15 @@ interface QuarterResultsProps {
   quarter: number;
   year: number;
   results: {
-    modelSales: {
+    modelSales?: {
       modelName: string;
       unitsSold: number;
       revenue: number;
       price: number;
     }[];
+    modelResults?: any[]; // NEW: Support new structure from GameMechanics
     totalRevenue: number;
+    totalProfit?: number; // NEW: Support profit tracking
     totalUnitsSold: number;
     marketShare: number;
     marketShareChange: number;
@@ -25,7 +27,7 @@ interface QuarterResultsProps {
       research: number;
     };
     netProfit: number;
-    competitorActions: string[];
+    competitorActions?: string[]; // Make optional
     marketEvent?: {
       title: string;
       description: string;
@@ -37,6 +39,11 @@ interface QuarterResultsProps {
 
 export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterResultsProps) => {
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
+
+  // Handle both old and new data structures from GameMechanics
+  const modelSales = results.modelSales || results.modelResults || [];
+  const competitorActions = results.competitorActions || [];
+  const totalProfit = results.totalProfit ?? results.netProfit;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -57,14 +64,14 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               <Package className="w-5 h-5" />
               Verkaufte Computer-Modelle
             </h3>
-            {results.modelSales.length > 0 ? (
+            {modelSales && modelSales.length > 0 ? (
               <div className="grid gap-3">
-                {results.modelSales.map((model, index) => (
+                {modelSales.map((model, index) => (
                   <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
                     <div>
                       <div className="font-mono font-medium">{model.modelName}</div>
                       <div className="text-sm text-muted-foreground">
-                        {model.unitsSold} Einheiten × {formatCurrency(model.price)}
+                        {model.unitsSold} Einheiten × {formatCurrency(model.price || 0)}
                       </div>
                     </div>
                     <Badge variant="outline" className="font-mono">
@@ -138,7 +145,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
                   variant={results.netProfit >= 0 ? "default" : "destructive"} 
                   className="text-lg px-4 py-2 font-mono"
                 >
-                  {results.netProfit >= 0 ? '+' : ''}{formatCurrency(results.netProfit)}
+                  {totalProfit >= 0 ? '+' : ''}{formatCurrency(totalProfit)}
                 </Badge>
               </div>
             </CardContent>
@@ -196,7 +203,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           )}
 
           {/* Konkurrenz-Aktivitäten */}
-          {results.competitorActions.length > 0 && (
+          {competitorActions && competitorActions.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -206,7 +213,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  {results.competitorActions.map((action, index) => (
+                  {competitorActions.map((action, index) => (
                     <p key={index} className="text-sm font-mono">• {action}</p>
                   ))}
                 </div>

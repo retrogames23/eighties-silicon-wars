@@ -24,7 +24,7 @@ import {
   Lock
 } from "lucide-react";
 import { TestReport } from "./TestReport";
-import { TestReportGenerator } from "./TestReportGenerator";
+import { EnhancedTestReportGenerator } from "./EnhancedTestReportGenerator";
 import { GameMechanics } from "./GameMechanics";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
@@ -760,15 +760,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                  </Card>
                )}
                
-                {/* SCHRITT 5: Testbericht */}
-                {currentStep === 'testreport' && developedModel && (
-                  <TestReport
-                    model={{...developedModel, id: modelId}}
-                    testResult={TestReportGenerator.generateTestReport({...developedModel, id: modelId}, 1985)}
-                    onContinue={finalizeModel}
-                    onRevise={() => setCurrentStep('pricing')}
-                  />
-                )}
+                 {/* SCHRITT 5: Testbericht */}
+                 {currentStep === 'testreport' && developedModel && (
+                   <TestReport
+                     model={{...developedModel, id: modelId}}
+                     testResult={EnhancedTestReportGenerator.generateTestReport({...developedModel, id: modelId}, 1985)}
+                     onContinue={finalizeModel}
+                     onRevise={() => setCurrentStep('pricing')}
+                   />
+                 )}
             </div>
 
             {/* Seitenleiste - nur wenn nicht im Testbericht */}

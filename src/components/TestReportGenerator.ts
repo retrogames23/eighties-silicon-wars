@@ -615,39 +615,6 @@ export class TestReportGenerator {
     };
   }
   
-  private static generatePriceRecommendation(
-    model: any,
-    gamingPriceValue: number,
-    businessPriceValue: number,
-    workstationPriceValue: number
-  ): {
-    currentPrice: number;
-    recommendedPrice: number;
-    reasoning: string;
-  } | undefined {
-    const avgPriceValue = (gamingPriceValue + businessPriceValue + workstationPriceValue) / 3;
-    
-    if (avgPriceValue < 60) {
-      const priceAdjustment = model.price * (avgPriceValue < 40 ? -0.2 : -0.1);
-      return {
-        currentPrice: model.price,
-        recommendedPrice: Math.round(model.price + priceAdjustment),
-        reasoning: avgPriceValue < 40 ? 
-          'Der Preis ist deutlich zu hoch für die gebotene Leistung. Eine Preissenkung um 20% würde die Marktchancen erheblich verbessern.' :
-          'Der Preis liegt über dem optimalen Punkt. Eine moderate Preissenkung um 10% wäre empfehlenswert.'
-      };
-    } else if (avgPriceValue > 85) {
-      const priceAdjustment = model.price * 0.15;
-      return {
-        currentPrice: model.price,
-        recommendedPrice: Math.round(model.price + priceAdjustment),
-        reasoning: 'Exzellentes Preis-Leistungs-Verhältnis ermöglicht eine Preiserhöhung um 15% ohne Verkaufseinbußen.'
-      };
-    }
-    
-    return undefined; // Preis ist im optimalen Bereich
-  }
-  
   private static generateFinalVerdict(
     overallScore: number,
     model: any,

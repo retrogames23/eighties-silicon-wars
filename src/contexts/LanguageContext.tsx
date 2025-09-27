@@ -18,7 +18,7 @@ const translations = {
     'intro.description': 'Erleben Sie die Goldene Ära der Computertechnik. Entwickeln Sie bahnbrechende Hardware, treffen Sie strategische Entscheidungen und führen Sie Ihr Unternehmen zum Erfolg in einer Zeit, als Computer noch echte Innovationen waren.',
     'intro.prompt': '> Bereit für das ultimative Tech-Abenteuer?',
     'intro.button': 'ENTER DIE 80er',
-    'intro.languageSelect': 'Sprache wählen',
+    'intro.switchToEnglish': 'Switch to English',
 
     // Language Selection
     'language.title': 'Sprache auswählen',
@@ -104,7 +104,7 @@ const translations = {
     'intro.description': 'Experience the Golden Age of computer technology. Develop groundbreaking hardware, make strategic decisions and lead your company to success in an era when computers were true innovations.',
     'intro.prompt': '> Ready for the ultimate tech adventure?',
     'intro.button': 'ENTER THE 80s',
-    'intro.languageSelect': 'Choose Language',
+    'intro.switchToGerman': 'Wechsel zu Deutsch',
 
     // Language Selection
     'language.title': 'Select Language',

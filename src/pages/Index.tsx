@@ -59,7 +59,7 @@ interface GameState {
   totalRevenue: number;
 }
 
-type GameScreen = 'intro' | 'language-selection' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
+type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
 
 const Index = () => {
   const { toast } = useToast();
@@ -119,13 +119,6 @@ const Index = () => {
     setCurrentScreen('company-setup');
   };
 
-  const handleLanguageSelect = () => {
-    setCurrentScreen('language-selection');
-  };
-
-  const handleLanguageSelected = () => {
-    setCurrentScreen('intro');
-  };
 
   const handleCompanySetup = (setup: CompanySetupData) => {
     setGameState(prev => ({
@@ -409,10 +402,7 @@ const Index = () => {
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
-        return <GameIntro onComplete={handleIntroComplete} onLanguageSelect={handleLanguageSelect} />;
-      
-      case 'language-selection':
-        return <LanguageSelection onLanguageSelected={handleLanguageSelected} />;
+        return <GameIntro onComplete={handleIntroComplete} />;
       
       case 'company-setup':
         return <CompanySetup onSetupComplete={handleCompanySetup} />;
@@ -471,7 +461,7 @@ const Index = () => {
         ) : null;
       
       default:
-        return <GameIntro onComplete={handleIntroComplete} onLanguageSelect={handleLanguageSelect} />;
+        return <GameIntro onComplete={handleIntroComplete} />;
     }
   };
 

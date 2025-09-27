@@ -5,11 +5,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GameIntroProps {
   onComplete: () => void;
-  onLanguageSelect: () => void;
 }
 
-export const GameIntro = ({ onComplete, onLanguageSelect }: GameIntroProps) => {
-  const { t } = useLanguage();
+export const GameIntro = ({ onComplete }: GameIntroProps) => {
+  const { language, setLanguage, t } = useLanguage();
+
+  const handleLanguageToggle = () => {
+    const newLanguage = language === 'de' ? 'en' : 'de';
+    setLanguage(newLanguage);
+  };
   return (
     <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
       <div className="crt-screen">
@@ -23,11 +27,11 @@ export const GameIntro = ({ onComplete, onLanguageSelect }: GameIntroProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onLanguageSelect}
+                  onClick={handleLanguageToggle}
                   className="text-muted-foreground hover:text-primary"
                 >
                   <Globe className="w-4 h-4 mr-2" />
-                  {t('intro.languageSelect')}
+                  {language === 'de' ? t('intro.switchToEnglish') : t('intro.switchToGerman')}
                 </Button>
               </div>
 

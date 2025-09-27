@@ -1,3 +1,5 @@
+import { NewsContentGenerator } from "@/services/NewsContentGenerator";
+
 export interface NewsEvent {
   id: string;
   quarter: number;
@@ -219,7 +221,13 @@ export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] =>
   // Falls keine spezifischen Events vorhanden sind, generiere intelligente Fallback-News
   if (quarterNews.length === 0) {
     const fallbackNews = NewsContentGenerator.generateFallbackNews(quarter, year);
-    return fallbackNews;
+    // Convert GeneratedNewsContent to NewsEvent format
+    const convertedNews: NewsEvent[] = fallbackNews.map(news => ({
+      ...news,
+      quarter,
+      year
+    }));
+    return convertedNews;
   }
   
   return quarterNews;

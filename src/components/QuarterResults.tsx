@@ -137,12 +137,12 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           </div>
 
           {/* Nettogewinn */}
-          <Card className={results.netProfit >= 0 ? "border-green-500/20" : "border-red-500/20"}>
+          <Card className={totalProfit >= 0 ? "border-green-500/20" : "border-red-500/20"}>
             <CardContent className="pt-4">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">Nettogewinn:</span>
                 <Badge 
-                  variant={results.netProfit >= 0 ? "default" : "destructive"} 
+                  variant={totalProfit >= 0 ? "default" : "destructive"} 
                   className="text-lg px-4 py-2 font-mono"
                 >
                   {totalProfit >= 0 ? '+' : ''}{formatCurrency(totalProfit)}

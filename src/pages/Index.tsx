@@ -217,12 +217,12 @@ const Index = () => {
     });
   };
 
-  const handleNextTurn = () => {
+  const handleNextTurn = async () => {
     // Check for new hardware before processing turn
     const previousResearchBudget = gameState.budget.research;
     
-    // Verarbeite das Quartal mit der neuen GameMechanics Logik
-    const result = GameMechanics.processQuarterTurn(gameState, gameState.competitors);
+    // Verarbeite das Quartal mit der neuen GameMechanics Logik (async)
+    const result = await GameMechanics.processQuarterTurn(gameState, gameState.competitors);
     
     // Check for newly unlocked hardware
     const newHardware = GameMechanics.checkForNewHardware(

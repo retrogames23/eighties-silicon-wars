@@ -1,12 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GameIntroProps {
   onComplete: () => void;
+  onLanguageSelect: () => void;
 }
 
-export const GameIntro = ({ onComplete }: GameIntroProps) => {
+export const GameIntro = ({ onComplete, onLanguageSelect }: GameIntroProps) => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
       <div className="crt-screen">
@@ -15,40 +18,38 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
         <div className="flex items-center justify-center">
           <Card className="w-96 bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
             <div className="p-8 text-center space-y-4">
+              {/* Language Selection Button */}
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onLanguageSelect}
+                  className="text-muted-foreground hover:text-primary"
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  {t('intro.languageSelect')}
+                </Button>
+              </div>
+
               {/* Titel */}
               <div className="mb-6">
                 <h1 className="text-2xl font-bold neon-text text-primary font-mono mb-2">
-                  COMPUTER TYCOON
+                  {t('intro.title')}
                 </h1>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
               </div>
 
               {/* Stimmungsvoller Intro-Text */}
               <div className="space-y-3 text-sm text-muted-foreground font-mono leading-relaxed">
-                <p>
-                  1983: Während Knight Rider über die Highways rast 
-                  und Dallas die Fernsehbildschirme beherrscht, 
-                  beginnt eine stille Revolution in den 
-                  Garagen und Kellern Amerikas.
-                </p>
-                
-                <p>
-                  Steve Jobs hat gerade den Apple IIe vorgestellt,
-                  Commodore kämpft mit dem legendären C64 
-                  um jeden Hobbyisten, und irgendwo bastelt 
-                  ein gewisser Bill Gates an MS-DOS.
-                </p>
-                
                 <p className="text-accent">
-                  Die Zukunft wartet darauf, erfunden zu werden.
-                  Wirst du Teil dieser digitalen Revolution?
+                  {t('intro.description')}
                 </p>
               </div>
 
               {/* Terminal-Style Eingabeaufforderung */}
               <div className="mt-8 p-3 bg-black/80 rounded border border-primary/30 font-mono text-xs">
                 <div className="text-terminal-green">
-                  C:\GAMES\TYCOON&gt; RUN GAME.EXE
+                  {t('intro.prompt')}
                 </div>
                 <div className="text-terminal-green opacity-75 animate-pulse">
                   _
@@ -63,7 +64,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
                   variant="default"
                 >
                   <ChevronRight className="w-4 h-4 mr-2" />
-                  ENTER THE 80s
+                  {t('intro.button')}
                 </Button>
               </div>
 

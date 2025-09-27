@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { ComputerModel } from '@/types/ComputerModel';
 import { GameIntro } from "@/components/GameIntro";
+import { LanguageSelection } from "@/components/LanguageSelection";
 import { CompanySetup, CompanySetupData } from "@/components/CompanySetup";
 import { GameDashboard } from "@/components/GameDashboard";
 import { ComputerDevelopment } from "@/components/ComputerDevelopment";
@@ -58,7 +59,7 @@ interface GameState {
   totalRevenue: number;
 }
 
-type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
+type GameScreen = 'intro' | 'language-selection' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
 
 const Index = () => {
   const { toast } = useToast();
@@ -116,6 +117,14 @@ const Index = () => {
 
   const handleIntroComplete = () => {
     setCurrentScreen('company-setup');
+  };
+
+  const handleLanguageSelect = () => {
+    setCurrentScreen('language-selection');
+  };
+
+  const handleLanguageSelected = () => {
+    setCurrentScreen('intro');
   };
 
   const handleCompanySetup = (setup: CompanySetupData) => {
@@ -400,7 +409,10 @@ const Index = () => {
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
-        return <GameIntro onComplete={handleIntroComplete} />;
+        return <GameIntro onComplete={handleIntroComplete} onLanguageSelect={handleLanguageSelect} />;
+      
+      case 'language-selection':
+        return <LanguageSelection onLanguageSelected={handleLanguageSelected} />;
       
       case 'company-setup':
         return <CompanySetup onSetupComplete={handleCompanySetup} />;
@@ -459,7 +471,7 @@ const Index = () => {
         ) : null;
       
       default:
-        return <GameIntro onComplete={handleIntroComplete} />;
+        return <GameIntro onComplete={handleIntroComplete} onLanguageSelect={handleLanguageSelect} />;
     }
   };
 

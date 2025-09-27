@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, Zap, Cpu, Monitor, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CompanySetupProps {
   onSetupComplete: (setup: CompanySetupData) => void;
@@ -14,16 +15,17 @@ export interface CompanySetupData {
   logo: string;
 }
 
-const logos = [
-  { id: 'building', icon: Building2, name: 'Corporate' },
-  { id: 'cpu', icon: Cpu, name: 'Tech' },
-  { id: 'monitor', icon: Monitor, name: 'Computer' },
-  { id: 'zap', icon: Zap, name: 'Innovation' },
-];
-
 export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
+  const { t } = useLanguage();
   const [companyName, setCompanyName] = useState("");
   const [selectedLogo, setSelectedLogo] = useState("cpu");
+
+  const logos = [
+    { id: 'building', icon: Building2, name: t('logo.computer') },
+    { id: 'cpu', icon: Cpu, name: t('logo.cpu') },
+    { id: 'monitor', icon: Monitor, name: t('logo.computer') },
+    { id: 'zap', icon: Zap, name: t('logo.circuit') },
+  ];
 
   const handleSubmit = () => {
     if (companyName.trim()) {
@@ -31,6 +33,8 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
         name: companyName.trim(),
         logo: selectedLogo
       });
+    } else {
+      alert(t('company.nameRequired'));
     }
   };
 
@@ -42,30 +46,30 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
         <Card className="retro-border bg-card/80 backdrop-blur-sm p-8 max-w-2xl w-full">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold neon-text text-neon-green mb-4">
-              FIRMEN-SETUP
+              {t('company.title')}
             </h1>
             <p className="text-neon-cyan font-mono">
-              Gründe dein Heimcomputer-Imperium
+              {t('company.subtitle')}
             </p>
           </div>
 
           <div className="space-y-8">
             <div>
               <Label htmlFor="company-name" className="text-lg font-semibold text-primary mb-4 block">
-                Firmenname
+                {t('company.nameLabel')}
               </Label>
               <Input
                 id="company-name"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="z.B. MegaTech Systems"
+                placeholder={t('company.namePlaceholder')}
                 className="text-lg p-4 retro-border bg-background/50"
               />
             </div>
 
             <div>
               <Label className="text-lg font-semibold text-primary mb-4 block">
-                Logo auswählen
+                {t('company.logoLabel')}
               </Label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {logos.map((logo) => {
@@ -102,7 +106,7 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
                 size="lg"
               >
                 <ChevronRight className="w-5 h-5 mr-2" />
-                Firma gründen
+                {t('company.submit')}
               </Button>
             </div>
           </div>

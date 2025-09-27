@@ -87,6 +87,8 @@ export const useAudioManager = () => {
         
         nextAudio.play().then(() => {
           fadeAudio(currentAudio, nextAudio, () => {
+            // Prüfung ob noch aktiv vor State-Update
+            if (!isEnabled || !isPlaying) return;
             setCurrentTrack(nextTrackIndex);
             // Tausche die Referenzen
             const temp = audioRef.current;
@@ -103,10 +105,14 @@ export const useAudioManager = () => {
 
   // Musik automatisch starten wenn enabled
   useEffect(() => {
-    if (isEnabled && audioRef.current && !isPlaying) {
+    if (isEnabled && audioRef.current && !isPlaying && audioRef.current.paused) {
       const startMusic = async () => {
         try {
-          await audioRef.current!.play();
+          // Zusätzliche Prüfung vor dem Abspielen
+          if (!audioRef.current || !audioRef.current.paused || !isEnabled) {
+            return;
+          }
+          await audioRef.current.play();
           setIsPlaying(true);
           console.log(`Started track: ${PLAYLIST[currentTrack]}`);
         } catch (error) {
@@ -124,7 +130,7 @@ export const useAudioManager = () => {
 
     try {
       if (isEnabled && isPlaying) {
-        // Musik aus
+        // Musik aus - erst stoppen, dann State setzen
         audioRef.current.pause();
         if (nextAudioRef.current) {
           nextAudioRef.current.pause();
@@ -136,11 +142,10 @@ export const useAudioManager = () => {
         setIsEnabled(false);
         console.log('Music stopped');
       } else {
-        // Musik an
-        await audioRef.current.play();
-        setIsPlaying(true);
+        // Musik an - erst State setzen, dann abspielen über useEffect
         setIsEnabled(true);
-        console.log(`Music started: ${PLAYLIST[currentTrack]}`);
+        // setIsPlaying wird automatisch im useEffect gesetzt
+        console.log(`Music will start: ${PLAYLIST[currentTrack]}`);
       }
     } catch (error) {
       console.error('Failed to toggle music:', error);

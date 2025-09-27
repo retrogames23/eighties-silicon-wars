@@ -11,6 +11,7 @@ import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSwipeable } from "react-swipeable";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Calendar,
   ChevronRight,
@@ -73,6 +74,7 @@ export const GameDashboard = ({
   onOpenSaveManager,
   user
 }: GameDashboardProps) => {
+  const { t } = useLanguage();
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -145,7 +147,7 @@ export const GameDashboard = ({
                   className="retro-border bg-card/20 hover:bg-card/40"
                 >
                   <HelpCircle className="w-4 h-4 mr-2" />
-                  Hilfe
+                  {t('common.help')}
                 </Button>
                 
                 {onOpenSaveManager && (
@@ -156,7 +158,7 @@ export const GameDashboard = ({
                       className="retro-border bg-card/20 hover:bg-card/40"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      Speichern
+                      {t('dashboard.saveGame')}
                     </Button>
                     
                     <UserProfile user={user} />
@@ -169,7 +171,7 @@ export const GameDashboard = ({
                   variant="default"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
-                  Nächste Runde
+                  {t('dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -199,7 +201,7 @@ export const GameDashboard = ({
                 className="w-full retro-border bg-card/20 hover:bg-card/40 mobile-touch-button justify-start"
               >
                 <HelpCircle className="w-4 h-4 mr-2" />
-                Hilfe
+                {t('common.help')}
               </Button>
               
               {onOpenSaveManager && (
@@ -212,7 +214,7 @@ export const GameDashboard = ({
                   className="w-full retro-border bg-card/20 hover:bg-card/40 mobile-touch-button justify-start"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Speichern
+                  {t('dashboard.saveGame')}
                 </Button>
               )}
 
@@ -232,25 +234,25 @@ export const GameDashboard = ({
                   value="account" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? 'Konto' : 'Firmenkonto'}
+                  {isMobile ? t('tabs.overview').slice(0,4) : t('tabs.overview')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="development" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? 'Dev' : 'Entwicklung'}
+                  {isMobile ? 'Dev' : t('tabs.development')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  Markt
+                  {t('tabs.market')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="management" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? 'Mgmt' : 'Unternehmen'}
+                  {isMobile ? 'Mgmt' : t('dashboard.budget')}
                 </TabsTrigger>
               </TabsList>
             </div>

@@ -21,10 +21,10 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
   const [selectedLogo, setSelectedLogo] = useState("cpu");
 
   const logos = [
-    { id: 'building', icon: Building2, name: t('logo.computer') },
+    { id: 'building', icon: Building2, name: t('logo.corporate') },
     { id: 'cpu', icon: Cpu, name: t('logo.cpu') },
     { id: 'monitor', icon: Monitor, name: t('logo.computer') },
-    { id: 'zap', icon: Zap, name: t('logo.circuit') },
+    { id: 'zap', icon: Zap, name: t('logo.innovation') },
   ];
 
   const handleSubmit = () => {

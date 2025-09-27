@@ -16,6 +16,7 @@ import { Newspaper } from "@/components/Newspaper";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Company {
   id: string;
@@ -63,6 +64,7 @@ type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'cas
 
 const Index = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');
@@ -170,8 +172,8 @@ const Index = () => {
       setCurrentScreen('dashboard');
       
       toast({
-        title: "🔧 Entwicklung gestartet",
-        description: `${finalModel.name} mit ${computerCase.name} Case wird entwickelt!`
+        title: "🔧 " + t('notification.developmentStarted'),
+        description: `${finalModel.name} ${t('case.subtitle')}`
       });
     }
   };

@@ -168,27 +168,6 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
           </div>
         </Card>
       </div>
-
-      {/* Cashflow-Trend */}
-      <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <h3 className="text-xl font-bold text-primary neon-text mb-4">
-          Cashflow-Entwicklung
-        </h3>
-        <div className="flex items-center space-x-4">
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-muted-foreground">Liquidität</span>
-              <span className="text-sm font-mono">
-                {Math.round((gameState.company.cash / 500000) * 100)}%
-              </span>
-            </div>
-            <Progress 
-              value={Math.min(100, (gameState.company.cash / 500000) * 100)} 
-              className="h-3" 
-            />
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };

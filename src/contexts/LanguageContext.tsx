@@ -248,27 +248,27 @@ const translations = {
     'intro.prompt': '> Ready for the ultimate tech adventure?',
     'intro.question': 'Will you become part of this digital revolution?',
     'intro.button': 'ENTER THE 80s',
-    'intro.switchToGerman': 'Wechsel zu Deutsch',
+    'intro.switchToGerman': 'Switch to German',
 
     // Language Selection
     'language.title': 'Select Language',
     'language.description': 'Choose your preferred game language',
-    'language.german': 'Deutsch',
+    'language.german': 'German',
     'language.english': 'English',
     'language.continue': 'Continue',
 
     // Company Setup
-    'company.title': 'Company Foundation',
+    'company.title': 'Company Setup',
     'company.subtitle': 'Start Your Tech Empire',
     'company.nameLabel': 'Company Name',
     'company.namePlaceholder': 'Enter your company name',
     'company.logoLabel': 'Select Company Logo',
-    'company.submit': 'Found Company',
+    'company.submit': 'Create Company',
     'company.nameRequired': 'Please enter a company name',
 
     // Logo names
     'logo.microchip': 'Microchip',
-    'logo.cpu': 'Processor',
+    'logo.cpu': 'CPU',
     'logo.circuit': 'Circuit',
     'logo.computer': 'Computer',
     'logo.corporate': 'Corporate',
@@ -311,12 +311,12 @@ const translations = {
     'development.estimatedProfit': 'Estimated Profit',
     'development.startDevelopment': 'Start Development',
     'development.back': 'Back',
-    'development.cpu': 'Processor',
-    'development.ram': 'Memory',
+    'development.cpu': 'CPU',
+    'development.ram': 'RAM',
     'development.storage': 'Storage',
     'development.graphics': 'Graphics',
     'development.sound': 'Sound',
-    'development.networking': 'Networking',
+    'development.networking': 'Network',
     'development.expansion': 'Expansion',
 
     // Case Selection
@@ -339,8 +339,8 @@ const translations = {
     'results.marketEvents': 'Market Events',
 
     // Hardware & Technology
-    'hardware.processor': 'Processor',
-    'hardware.memory': 'Memory',
+    'hardware.processor': 'CPU',
+    'hardware.memory': 'RAM',
     'hardware.storage': 'Storage',
     'hardware.graphics': 'Graphics Card',
     'hardware.sound': 'Sound Card',

@@ -44,7 +44,13 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
   const modelSales = results.modelSales || results.modelResults || [];
   const competitorActions = results.competitorActions || [];
   const expensesTotal = (results?.expenses?.marketing ?? 0) + (results?.expenses?.development ?? 0) + (results?.expenses?.research ?? 0);
-  const totalProfit = (results.totalProfit ?? results.netProfit ?? (results.totalRevenue - expensesTotal));
+  const revenue = results.totalRevenue ?? 0;
+  const hasRevenue = typeof results.totalRevenue === 'number';
+  const hasExpenses = !!results?.expenses;
+  const computedProfit = revenue - expensesTotal;
+  const totalProfit = (hasRevenue || hasExpenses)
+    ? computedProfit
+    : (results.totalProfit ?? results.netProfit ?? 0);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

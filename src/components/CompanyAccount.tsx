@@ -24,8 +24,7 @@ interface CompanyAccountProps {
 
 export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
-  const monthlyProfit = gameState.company.monthlyIncome - gameState.company.monthlyExpenses;
-
+  
   // Nur die drei Budgets als monatliche Ausgaben
   const monthlyMarketing = Math.round(gameState.budget.marketing / 3);
   const monthlyDevelopment = Math.round(gameState.budget.development / 3);
@@ -55,6 +54,11 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
     { name: "B2B-Support", amount: Math.round(additionalRevenue.supportService.b2b / 3), category: "Service" },
   ];
 
+  // Korrekte Gewinnberechnung: Gesamteinnahmen minus Gesamtausgaben
+  const totalIncome = income.reduce((sum, item) => sum + item.amount, 0);
+  const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+  const monthlyProfit = totalIncome - totalExpenses;
+
   return (
     <div className="space-y-6">
       {/* Übersicht */}
@@ -76,7 +80,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
             <div>
               <p className="text-sm text-muted-foreground">Monatl. Einnahmen</p>
               <p className="text-xl font-bold text-neon-cyan neon-text font-mono">
-                {formatCurrency(gameState.company.monthlyIncome)}
+                {formatCurrency(totalIncome)}
               </p>
             </div>
             <TrendingUp className="w-6 h-6 text-neon-cyan" />
@@ -88,7 +92,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
             <div>
               <p className="text-sm text-muted-foreground">Monatl. Ausgaben</p>
               <p className="text-xl font-bold text-red-400 font-mono">
-                {formatCurrency(gameState.company.monthlyExpenses)}
+                {formatCurrency(totalExpenses)}
               </p>
             </div>
             <TrendingDown className="w-6 h-6 text-red-400" />
@@ -132,7 +136,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
               <div className="flex justify-between items-center font-bold">
                 <span className="text-primary">Gesamt</span>
                 <span className="font-mono text-neon-cyan neon-text">
-                  {formatCurrency(gameState.company.monthlyIncome)}
+                  {formatCurrency(totalIncome)}
                 </span>
               </div>
             </div>
@@ -161,7 +165,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
               <div className="flex justify-between items-center font-bold">
                 <span className="text-primary">Gesamt</span>
                 <span className="font-mono text-red-400">
-                  -{formatCurrency(gameState.company.monthlyExpenses)}
+                  -{formatCurrency(totalExpenses)}
                 </span>
               </div>
             </div>

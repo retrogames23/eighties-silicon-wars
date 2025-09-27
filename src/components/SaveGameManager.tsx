@@ -8,34 +8,8 @@ import { Save, Upload, Trash2, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import type { User } from '@supabase/supabase-js';
+import { ComputerModel } from '@/types/ComputerModel';
 import { toast } from 'sonner';
-
-interface ComputerModel {
-  id: string;
-  name: string;
-  cpu: string;
-  ram: string;
-  gpu?: string;
-  soundchip?: string;
-  accessories?: string[];
-  case?: {
-    id: string;
-    name: string;
-    type: 'gamer' | 'office';
-    quality: number;
-    design: number;
-    price: number;
-  };
-  price: number;
-  unitsSold: number;
-  developmentCost: number;
-  releaseQuarter: number;
-  releaseYear: number;
-  status: 'development' | 'released' | 'discontinued';
-  developmentTime: number;
-  developmentProgress: number;
-  complexity: number;
-}
 
 interface Budget {
   marketing: number;

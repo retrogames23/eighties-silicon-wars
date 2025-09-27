@@ -62,7 +62,7 @@ export class ResearchService {
       ...project,
       project_type: project.project_type as ResearchProject['project_type'],
       status: project.status as ResearchProject['status'],
-      component_specs: project.component_specs as any
+      component_specs: project.component_specs as ResearchProject['component_specs']
     }));
   }
 
@@ -106,7 +106,12 @@ export class ResearchService {
       return { success: false, error: error.message };
     }
 
-    return { success: true, project: { ...data, project_type: data.project_type as ResearchProject['project_type'], status: data.status as ResearchProject['status'] } };
+    return { success: true, project: { 
+      ...data, 
+      project_type: data.project_type as ResearchProject['project_type'], 
+      status: data.status as ResearchProject['status'],
+      component_specs: data.component_specs as ResearchProject['component_specs']
+    } };
   }
 
   /**
@@ -158,7 +163,12 @@ export class ResearchService {
       await this.createExclusiveComponent({ ...data, project_type: data.project_type as any, status: data.status as any, component_specs: data.component_specs as any });
     }
 
-    return { success: true, project: { ...data, project_type: data.project_type as any, status: data.status as any, component_specs: data.component_specs as any }, completed: isCompleted };
+    return { success: true, project: { 
+      ...data, 
+      project_type: data.project_type as ResearchProject['project_type'], 
+      status: data.status as ResearchProject['status'],
+      component_specs: data.component_specs as ResearchProject['component_specs']
+    }, completed: isCompleted };
   }
 
   /**
@@ -308,7 +318,14 @@ export class ResearchService {
     estimatedTime: string;
     benefits: string[];
   }> {
-    const paths = [
+    const paths: Array<{
+      type: ResearchProject['project_type'];
+      name: string;
+      description: string;
+      estimatedCost: string;
+      estimatedTime: string;
+      benefits: string[];
+    }> = [
       {
         type: 'exclusive_gpu' as const,
         name: 'Exklusiver Grafik-Chip',

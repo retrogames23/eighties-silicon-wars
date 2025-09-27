@@ -134,6 +134,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing' | 'testreport'>('components');
   const [developedModel, setDevelopedModel] = useState<ComputerModel | null>(null);
 
+  // Debug logging
+  console.log('ComputerDevelopment State:', {
+    currentStep,
+    selectedCase: selectedCase?.name || 'none',
+    selectedComponents: selectedComponents.map(c => c.name),
+    canProceedToCase: selectedComponents.some(c => c.type === 'cpu') && 
+                      selectedComponents.some(c => c.type === 'gpu') && 
+                      selectedComponents.some(c => c.type === 'memory')
+  });
+
   // Lade verfügbare Komponenten über zentralen HardwareManager
   const allComponents = HardwareManager.getAvailableComponents(currentYear, currentQuarter, customChips);
 
@@ -153,6 +163,11 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   if (sellingPrice === 0 && suggestedPrice > 0) {
     setSellingPrice(suggestedPrice);
   }
+
+  const handleCaseSelection = (computerCase: any) => {
+    console.log('Selecting case:', computerCase.name);
+    setSelectedCase(computerCase);
+  };
 
   const toggleComponent = (component: HardwareComponent) => {
     const isSelected = selectedComponents.some(c => c.id === component.id);
@@ -419,7 +434,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                         {computerCases.filter(c => c.type === 'gamer').map(computerCase => (
                           <div
                             key={computerCase.id}
-                            onClick={() => setSelectedCase(computerCase)}
+                            onClick={() => handleCaseSelection(computerCase)}
                             className={`
                               p-4 rounded-lg border cursor-pointer transition-all hover:scale-105
                               ${selectedCase?.id === computerCase.id 
@@ -465,7 +480,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                         {computerCases.filter(c => c.type === 'office').map(computerCase => (
                           <div
                             key={computerCase.id}
-                            onClick={() => setSelectedCase(computerCase)}
+                            onClick={() => handleCaseSelection(computerCase)}
                             className={`
                               p-4 rounded-lg border cursor-pointer transition-all hover:scale-105
                               ${selectedCase?.id === computerCase.id 

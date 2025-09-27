@@ -43,7 +43,8 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
   // Handle both old and new data structures from GameMechanics
   const modelSales = results.modelSales || results.modelResults || [];
   const competitorActions = results.competitorActions || [];
-  const totalProfit = results.totalProfit ?? results.netProfit;
+  const expensesTotal = (results?.expenses?.marketing ?? 0) + (results?.expenses?.development ?? 0) + (results?.expenses?.research ?? 0);
+  const totalProfit = (results.totalProfit ?? results.netProfit ?? (results.totalRevenue - expensesTotal));
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

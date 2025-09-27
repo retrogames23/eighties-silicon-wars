@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star, DollarSign } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ComputerCase {
   id: string;
@@ -15,88 +16,89 @@ interface ComputerCase {
   pixelArt: string; // CSS for pixel art representation
 }
 
+// Case data with i18n keys  
 const computerCases: ComputerCase[] = [
   // Gamer Cases
   {
     id: 'gamer-basic',
-    name: 'Standard Tower',
+    name: 'gamerBasic', // i18n key
     type: 'gamer',
     quality: 40,
     design: 30,
     price: 50,
-    description: 'Einfacher beiger Kasten',
+    description: 'gamerBasic', // i18n key
     pixelArt: 'bg-gradient-to-b from-yellow-100 to-yellow-200 border-2 border-yellow-600'
   },
   {
     id: 'gamer-colorful',
-    name: 'Color Tower',
+    name: 'gamerColorful', // i18n key
     type: 'gamer', 
     quality: 55,
     design: 70,
     price: 120,
-    description: 'Bunte Plastik-Front mit LED-Akzenten',
+    description: 'gamerColorful', // i18n key
     pixelArt: 'bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 border-2 border-blue-800 shadow-lg shadow-blue-500/50'
   },
   {
     id: 'gamer-premium',
-    name: 'Neon Master',
+    name: 'gamerPremium', // i18n key
     type: 'gamer',
     quality: 75,
     design: 95,
     price: 280,
-    description: 'Schwarzes Gehäuse mit Neon-Streifen',
+    description: 'gamerPremium', // i18n key
     pixelArt: 'bg-gradient-to-b from-gray-900 to-black border-2 border-cyan-400 shadow-lg shadow-cyan-400/70'
   },
   {
     id: 'gamer-ultimate',
-    name: 'Crystal Beast',
+    name: 'gamerUltimate', // i18n key
     type: 'gamer',
     quality: 90,
     design: 100,
     price: 450,
-    description: 'Durchsichtiges Gehäuse mit RGB-Beleuchtung',
+    description: 'gamerUltimate', // i18n key
     pixelArt: 'bg-gradient-to-br from-purple-900/30 via-blue-800/40 to-pink-900/30 border-4 border-rainbow shadow-2xl shadow-rainbow/80'
   },
 
   // Office Cases  
   {
     id: 'office-basic',
-    name: 'Economy Box',
+    name: 'officeBasic', // i18n key
     type: 'office',
     quality: 35,
     design: 20,
     price: 30,
-    description: 'Günstigstes graues Gehäuse',
+    description: 'officeBasic', // i18n key
     pixelArt: 'bg-gradient-to-b from-gray-300 to-gray-400 border-2 border-gray-600'
   },
   {
     id: 'office-standard',
-    name: 'Professional',
+    name: 'officeStandard', // i18n key
     type: 'office',
     quality: 60,
     design: 35,
     price: 80,
-    description: 'Solides graues Metallgehäuse',
+    description: 'officeStandard', // i18n key
     pixelArt: 'bg-gradient-to-b from-gray-400 to-gray-500 border-2 border-gray-700 shadow-md'
   },
   {
     id: 'office-premium',
-    name: 'Corporate Elite',
+    name: 'officePremium', // i18n key
     type: 'office', 
     quality: 85,
     design: 50,
     price: 180,
-    description: 'Hochwertiges Gehäuse mit Edelstahl',
+    description: 'officePremium', // i18n key
     pixelArt: 'bg-gradient-to-b from-gray-200 via-gray-300 to-gray-400 border-2 border-gray-800 shadow-xl'
   },
   {
     id: 'office-ultimate',
-    name: 'Executive Tower',
+    name: 'officeUltimate', // i18n key
     type: 'office',
     quality: 95,
     design: 65,
     price: 320,
-    description: 'Premium Aluminium-Gehäuse',
+    description: 'officeUltimate', // i18n key
     pixelArt: 'bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 border-3 border-gray-900 shadow-2xl'
   }
 ];
@@ -108,6 +110,7 @@ interface CaseSelectionProps {
 }
 
 export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSelectionProps) => {
+  const { t } = useTranslation();
   const [selectedCase, setSelectedCase] = useState<ComputerCase | null>(null);
 
   const handleCaseSelect = (computerCase: ComputerCase) => {
@@ -149,10 +152,10 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                 className="retro-border bg-card/20 hover:bg-card/40"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Zurück
+                {t('common.back')}
               </Button>
               <h1 className="text-4xl font-bold neon-text text-neon-green">
-                Case Auswahl
+                {t('ui.caseSelection.title')}
               </h1>
             </div>
           </div>
@@ -161,7 +164,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
             <Card className="retro-border bg-card/20 backdrop-blur-sm mb-6">
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  Wählen Sie ein Gehäuse für: <span className="text-neon-cyan font-bold">{computerSpecs.name}</span>
+                  {t('ui.caseSelection.description', { modelName: computerSpecs.name })}
                 </p>
               </CardContent>
             </Card>
@@ -171,7 +174,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-neon-cyan mb-4 flex items-center">
               <Star className="w-6 h-6 mr-2" />
-              Gaming Gehäuse
+              {t('ui.caseSelection.gamerCases')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {computerCases.filter(c => c.type === 'gamer').map(computerCase => (
@@ -185,7 +188,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                   onClick={() => handleCaseSelect(computerCase)}
                 >
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg text-neon-cyan">{computerCase.name}</CardTitle>
+                    <CardTitle className="text-lg text-neon-cyan">{t(`ui.caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Pixel Art Case */}
@@ -204,36 +207,36 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Qualität:</span>
-                        <span className={`font-bold ${getQualityColor(computerCase.quality)}`}>
-                          {computerCase.quality}/100
-                        </span>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t('common.quality')}:</span>
+                          <span className={`font-bold ${getQualityColor(computerCase.quality)}`}>
+                            {computerCase.quality}/100
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t('common.design')}:</span>
+                          <span className={`font-bold ${getDesignColor(computerCase.design)}`}>
+                            {computerCase.design}/100
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t('common.price')}:</span>
+                          <span className="font-bold text-yellow-400">
+                            ${computerCase.price}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Design:</span>
-                        <span className={`font-bold ${getDesignColor(computerCase.design)}`}>
-                          {computerCase.design}/100
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Preis:</span>
-                        <span className="font-bold text-yellow-400">
-                          ${computerCase.price}
-                        </span>
-                      </div>
-                    </div>
 
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {computerCase.description}
-                    </p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {t(`ui.caseSelection.cases.${computerCase.description}.description`)}
+                      </p>
 
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">
-                        Design wichtig
-                      </Badge>
-                    </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="secondary" className="text-xs">
+                          {t('ui.caseSelection.designImportant')}
+                        </Badge>
+                      </div>
                   </CardContent>
                 </Card>
               ))}
@@ -244,7 +247,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-400 mb-4 flex items-center">
               <DollarSign className="w-6 h-6 mr-2" />
-              Büro Gehäuse
+              {t('ui.caseSelection.officeCases')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {computerCases.filter(c => c.type === 'office').map(computerCase => (
@@ -258,7 +261,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                   onClick={() => handleCaseSelect(computerCase)}
                 >
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg text-gray-300">{computerCase.name}</CardTitle>
+                    <CardTitle className="text-lg text-gray-300">{t(`ui.caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Pixel Art Case */}
@@ -279,19 +282,19 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
 
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Qualität:</span>
+                        <span className="text-muted-foreground">{t('common.quality')}:</span>
                         <span className={`font-bold ${getQualityColor(computerCase.quality)}`}>
                           {computerCase.quality}/100
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Design:</span>
+                        <span className="text-muted-foreground">{t('common.design')}:</span>
                         <span className={`font-bold ${getDesignColor(computerCase.design)}`}>
                           {computerCase.design}/100
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Preis:</span>
+                        <span className="text-muted-foreground">{t('common.price')}:</span>
                         <span className="font-bold text-yellow-400">
                           ${computerCase.price}
                         </span>
@@ -299,12 +302,12 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                     </div>
 
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      {computerCase.description}
+                      {t(`ui.caseSelection.cases.${computerCase.description}.description`)}
                     </p>
 
                     <div className="flex flex-wrap gap-1">
                       <Badge variant="secondary" className="text-xs">
-                        Qualität wichtig
+                        {t('ui.caseSelection.qualityImportant')}
                       </Badge>
                     </div>
                   </CardContent>
@@ -320,17 +323,17 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold text-neon-green">
-                      {selectedCase.name} ausgewählt
+                      {t('ui.caseSelection.selected', { caseName: t(`ui.caseSelection.cases.${selectedCase.name}.name`) })}
                     </h3>
                     <p className="text-muted-foreground">
-                      Qualität: {selectedCase.quality}/100 | Design: {selectedCase.design}/100 | Preis: ${selectedCase.price}
+                      {t('common.quality')}: {selectedCase.quality}/100 | {t('common.design')}: {selectedCase.design}/100 | {t('common.price')}: ${selectedCase.price}
                     </p>
                   </div>
                   <Button
                     onClick={confirmSelection}
                     className="glow-button"
                   >
-                    Case bestätigen
+                    {t('ui.caseSelection.confirmCase')}
                   </Button>
                 </div>
               </CardContent>

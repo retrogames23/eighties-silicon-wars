@@ -93,7 +93,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
       setSaves(data || []);
     } catch (error) {
       console.error('Fehler beim Laden der Spielstände:', error);
-      toast.error('Fehler beim Laden der Spielstände');
+      toast.error(t('toast.saveGame.loadListError'));
     } finally {
       setLoading(false);
     }
@@ -128,13 +128,13 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
       if (error) throw error;
       
-      toast.success('Spielstand gespeichert!');
+      toast.success(t('toast.saveGame.saved'));
       loadSaves();
       setSaveName('');
       setSelectedSlot(null);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      toast.error('Fehler beim Speichern des Spielstands');
+      toast.error(t('toast.saveGame.saveError'));
     } finally {
       setLoading(false);
     }
@@ -143,11 +143,11 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
   const loadGame = async (save: SaveGame) => {
     try {
       onLoadGame(save.game_state as unknown as GameState);
-      toast.success('Spielstand geladen!');
+      toast.success(t('toast.saveGame.loaded'));
       onClose();
     } catch (error) {
       console.error('Fehler beim Laden:', error);
-      toast.error('Fehler beim Laden des Spielstands');
+      toast.error(t('toast.saveGame.loadError'));
     }
   };
 
@@ -166,11 +166,11 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
       if (error) throw error;
       
-      toast.success('Spielstand gelöscht!');
+      toast.success(t('toast.saveGame.deleted'));
       loadSaves();
     } catch (error) {
       console.error('Fehler beim Löschen:', error);
-      toast.error('Fehler beim Löschen des Spielstands');
+      toast.error(t('toast.saveGame.deleteError'));
     } finally {
       setLoading(false);
     }

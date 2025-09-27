@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, Zap, Cpu, Monitor, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface CompanySetupProps {
   onSetupComplete: (setup: CompanySetupData) => void;
@@ -17,6 +19,8 @@ export interface CompanySetupData {
 
 export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const { t: t18n } = useTranslation();
   const [companyName, setCompanyName] = useState("");
   const [selectedLogo, setSelectedLogo] = useState("cpu");
 
@@ -34,7 +38,11 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
         logo: selectedLogo
       });
     } else {
-      alert(t('company.nameRequired'));
+      toast({
+        title: t18n('common.error'),
+        description: t('company.nameRequired'),
+        variant: "destructive"
+      });
     }
   };
 

@@ -290,7 +290,7 @@ export const GameDashboard = ({
             {isMobile && (
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground font-mono">
-                  ← Wischen für Navigation →
+                  {t('ui.dashboard.mobileNavHint')}
                 </p>
               </div>
             )}
@@ -305,7 +305,7 @@ export const GameDashboard = ({
                 variant="default"
               >
                 <Calendar className="w-5 h-5 mr-2" />
-                Nächste Runde
+                {t('ui.dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

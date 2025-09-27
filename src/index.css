@@ -59,6 +59,17 @@ All colors MUST be HSL.
     
     /* Animations */
     --transition-glow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+    /* Mobile-first responsive breakpoints */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+
+    /* Mobile-optimized touch targets */
+    --touch-target-min: 44px;
+    --mobile-padding: 1rem;
+    --mobile-margin: 0.75rem;
   }
 }
 
@@ -181,6 +192,56 @@ All colors MUST be HSL.
            data-[state=active]:bg-neon-green/20 data-[state=active]:text-neon-green 
            data-[state=active]:border-neon-green/50 data-[state=active]:shadow-[0_0_10px_hsl(var(--neon-green)/0.3)]
            hover:bg-card/30 transition-all duration-300;
+    min-height: var(--touch-target-min);
+  }
+
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    .mobile-overflow-x-hidden {
+      overflow-x: hidden;
+    }
+    
+    .mobile-touch-button {
+      min-height: var(--touch-target-min);
+      min-width: var(--touch-target-min);
+      padding: 0.75rem 1rem;
+    }
+    
+    .mobile-header {
+      flex-direction: column;
+      gap: var(--mobile-margin);
+    }
+    
+    .mobile-tabs {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    
+    .mobile-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .mobile-tab-list {
+      width: max-content;
+      min-width: 100%;
+    }
+
+    /* Prevent text from being too small on mobile */
+    .retro-tab {
+      font-size: 0.875rem;
+    }
+
+    /* Improve mobile card spacing */
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+
+    /* Mobile-friendly slider styling */
+    [role="slider"] {
+      width: 24px !important;
+      height: 24px !important;
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useRenderTracking } from "@/lib/dev-tools";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   TrendingUp, 
   Cpu, 
@@ -33,6 +34,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
   totalBudget, 
   onBudgetChange 
 }) => {
+  const isMobile = useIsMobile();
   
   // Development-only render tracking
   useRenderTracking('CompanyManagement');
@@ -87,16 +89,16 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
   return (
     <div className="space-y-6">
       {/* Budget-Übersicht */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 md:grid-cols-4 gap-4'}`}>
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Gesamtbudget</p>
-              <p className="text-2xl font-bold text-neon-green neon-text font-mono">
+              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-neon-green neon-text font-mono`}>
                 {formatCurrency(totalBudget)}
               </p>
             </div>
-            <DollarSign className="w-6 h-6 text-neon-green" />
+            <DollarSign className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-neon-green`} />
           </div>
         </Card>
 
@@ -104,11 +106,11 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Verwendet</p>
-              <p className="text-2xl font-bold text-neon-cyan neon-text font-mono">
+              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-neon-cyan neon-text font-mono`}>
                 {formatCurrency(usedBudget)}
               </p>
             </div>
-            <TrendingUp className="w-6 h-6 text-neon-cyan" />
+            <TrendingUp className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-neon-cyan`} />
           </div>
         </Card>
 
@@ -116,13 +118,13 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Verfügbar</p>
-              <p className={`text-2xl font-bold font-mono ${
+              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold font-mono ${
                 remainingBudget >= 0 ? 'text-neon-green neon-text' : 'text-red-400'
               }`}>
                 {formatCurrency(remainingBudget)}
               </p>
             </div>
-            <Target className="w-6 h-6 text-muted-foreground" />
+            <Target className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-muted-foreground`} />
           </div>
         </Card>
 
@@ -130,11 +132,11 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Auslastung</p>
-              <p className="text-2xl font-bold text-amber neon-text font-mono">
+              <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-amber neon-text font-mono`}>
                 {Math.round((usedBudget / totalBudget) * 100)}%
               </p>
             </div>
-            <Users className="w-6 h-6 text-amber" />
+            <Users className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-amber`} />
           </div>
         </Card>
       </div>
@@ -244,25 +246,25 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
       </Card>
 
       {/* Aktionen */}
-      <div className="flex gap-4">
+      <div className={`${isMobile ? 'space-y-2' : 'flex gap-4'}`}>
         <Button 
           onClick={() => onBudgetChange({ marketing: 50000, development: 75000, research: 25000 })}
           variant="secondary"
-          className="flex-1"
+          className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
           Ausgewogene Verteilung
         </Button>
         <Button 
           onClick={() => onBudgetChange({ marketing: 25000, development: 100000, research: 25000 })}
           variant="secondary"
-          className="flex-1"
+          className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
           Fokus Entwicklung
         </Button>
         <Button 
           onClick={() => onBudgetChange({ marketing: 75000, development: 50000, research: 25000 })}
           variant="secondary"
-          className="flex-1"
+          className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
           Fokus Marketing
         </Button>

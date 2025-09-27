@@ -28,7 +28,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
                   variant="ghost"
                   size="sm"
                   onClick={handleLanguageToggle}
-                  className="text-muted-foreground hover:text-primary border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ring-0 ring-offset-0"
+                  className="text-muted-foreground hover:text-primary border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none ring-0 ring-offset-0 outline-none"
                 >
                   <Globe className="w-4 h-4 mr-2" />
                   {language === 'de' ? t('intro.switchToEnglish') : t('intro.switchToGerman')}

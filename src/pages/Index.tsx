@@ -477,11 +477,6 @@ const Index = () => {
       <MusicToggle />
       {renderCurrentScreen()}
       
-      {/* Debug info */}
-      <div style={{ position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '5px', fontSize: '12px', zIndex: 9999 }}>
-        Screen: {currentScreen}
-      </div>
-      
       {/* Hardware Announcement Dialog */}
       <HardwareAnnouncement
         isOpen={hardwareAnnouncement.isOpen}

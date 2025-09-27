@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -89,14 +90,9 @@ const computerCases = [
   }
 ];
 
-interface ComputerModel {
-  id: string;
-  name: string;
-  cpu: string;
-  gpu: string;
-  ram: string;
-  sound: string;
-  accessories: string[];
+import { ComputerModel, ComponentsSnapshot, ModelRevisionManager } from '@/types/ComputerModel';
+
+interface LocalComputerModel extends ComputerModel {
   case?: {
     id: string;
     name: string;
@@ -120,13 +116,14 @@ interface ComputerModel {
 interface ComputerDevelopmentProps {
   onBack: () => void;
   onModelComplete: (model: ComputerModel) => void;
-  onCaseSelection: (model: ComputerModel) => void;
+  existingModels?: ComputerModel[]; // For revision checking
+  editingModel?: ComputerModel; // Model being edited for revision
   currentYear: number;
   currentQuarter: number;
   customChips: any[];
 }
 
-export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips }: ComputerDevelopmentProps) => {
+export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips, existingModels = [], editingModel }: ComputerDevelopmentProps) => {
   const [selectedComponents, setSelectedComponents] = useState<HardwareComponent[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
@@ -164,6 +161,36 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     setSellingPrice(suggestedPrice);
   }
 
+  // Initialize state from editing model if provided
+  React.useEffect(() => {
+    if (editingModel) {
+      setCurrentStep('components');
+      setModelName(editingModel.baseName);
+      setSellingPrice(editingModel.price);
+      
+      // Load components from snapshot
+      const snapshot = editingModel.componentsSnapshot;
+      const loadedComponents: HardwareComponent[] = [];
+      
+      // Find components by name from available components
+      const cpu = allComponents.find(c => c.name === snapshot.cpu);
+      const gpu = allComponents.find(c => c.name === snapshot.gpu);
+      const memory = allComponents.find(c => c.name === snapshot.memory);
+      const sound = allComponents.find(c => c.name === snapshot.sound);
+      
+      if (cpu) loadedComponents.push(cpu);
+      if (gpu) loadedComponents.push(gpu);
+      if (memory) loadedComponents.push(memory);
+      if (sound) loadedComponents.push(sound);
+      
+      setSelectedComponents(loadedComponents);
+      
+      // Load case
+      const caseItem = computerCases.find(c => c.name === snapshot.case);
+      if (caseItem) setSelectedCase(caseItem);
+    }
+  }, [editingModel, allComponents]);
+
   const handleCaseSelection = (computerCase: any) => {
     console.log('Selecting case:', computerCase.name);
     setSelectedCase(computerCase);
@@ -196,31 +223,88 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     const accessories = selectedComponents.filter(c => ['storage', 'display'].includes(c.type));
 
     const complexity = Math.max(20, averagePerformance);
-    const developmentTime = complexity <= 40 ? 1 : 2;
+    
+    // Create components snapshot
+    const newComponentsSnapshot: ComponentsSnapshot = {
+      cpu: cpu?.name || 'Unknown',
+      gpu: gpu?.name || 'Unknown', 
+      memory: memory?.name || 'Unknown',
+      sound: sound?.name || 'PC Speaker',
+      accessories: accessories.map(a => a.name),
+      case: selectedCase.name
+    };
 
+    // Check if this is a revision (editing existing model with changed components)
+    if (editingModel && ModelRevisionManager.shouldCreateRevision(editingModel.componentsSnapshot, newComponentsSnapshot)) {
+      console.log(`🔄 Creating revision for ${editingModel.baseName} due to component changes`);
+      
+      const newRevision = ModelRevisionManager.createRevision(
+        editingModel,
+        newComponentsSnapshot,
+        currentQuarter,
+        currentYear
+      );
+      
+      // Update with new components and calculated values
+      const completedRevision: ComputerModel = {
+        ...newRevision,
+        cpu: cpu?.name || 'Unknown',
+        gpu: gpu?.name,
+        ram: memory?.name || 'Unknown',
+        sound: sound?.name,
+        accessories: accessories.map(a => a.name),
+        case: selectedCase,
+        price: sellingPrice,
+        performance: averagePerformance,
+        complexity,
+        developmentCost: totalCost,
+        developmentTime: GameMechanics.calculateDevelopmentTime(complexity)
+      };
+      
+      console.log(`✅ ASSERTION: Revision ${completedRevision.revision} created with name "${completedRevision.displayName}"`);
+      onModelComplete(completedRevision);
+      return;
+    }
+
+    const developmentTime = GameMechanics.calculateDevelopmentTime(complexity);
+
+    // Create new model (first revision)
     const newModel: ComputerModel = {
-      id: Date.now().toString(),
-      name: modelName.trim(),
-      cpu: cpu?.name || '',
-      gpu: gpu?.name || '',
-      ram: memory?.name || '',
-      sound: sound.name,
+      id: `model-${Date.now()}`,
+      name: modelName,
+      displayName: modelName,
+      baseName: modelName,
+      revision: 1,
+      revisedAtQuarter: currentQuarter,
+      revisedAtYear: currentYear,
+      componentsSnapshot: newComponentsSnapshot,
+      cpu: cpu?.name || 'Unknown',
+      gpu: gpu?.name,
+      ram: memory?.name || 'Unknown',
+      sound: sound?.name,
       accessories: accessories.map(a => a.name),
       case: selectedCase,
-      price: sellingPrice, // Vom User gesetzter Preis
-      developmentCost: totalCost,
-      performance: averagePerformance,
-      unitsSold: 0,
       status: 'development',
-      releaseQuarter: Math.floor(Math.random() * 4) + 1,
-      releaseYear: 1985 + Math.floor(Math.random() * 5),
-      complexity: complexity,
-      developmentTime: developmentTime,
-      developmentProgress: 0
+      price: sellingPrice,
+      performance: averagePerformance,
+      developmentCost: totalCost,
+      developmentTime,
+      developmentProgress: 0,
+      complexity,
+      unitsSold: 0,
+      releaseQuarter: currentQuarter,
+      releaseYear: currentYear,
+      hasMouseSupport: accessories.some(a => a.name.toLowerCase().includes('mouse')),
+      hasNetworkSupport: accessories.some(a => a.name.toLowerCase().includes('network')),
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
+    
+    console.log(`✅ ASSERTION: New model "${newModel.displayName}" created as Revision 1`);
 
     // Zeige Testbericht vor dem finalen Abschluss
     setCurrentStep('testreport');
+    setDevelopedModel(newModel);
     setDevelopedModel(newModel);
   };
 

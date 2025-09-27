@@ -24,33 +24,6 @@ interface Company {
   icon: React.ReactNode;
 }
 
-interface ComputerModel {
-  id: string;
-  name: string;
-  cpu: string;
-  ram: string;
-  gpu?: string;
-  soundchip?: string;
-  accessories?: string[];
-  case?: {
-    id: string;
-    name: string;
-    type: 'gamer' | 'office';
-    quality: number;
-    design: number;
-    price: number;
-  };
-  price: number;
-  unitsSold: number;
-  developmentCost: number;
-  releaseQuarter: number;
-  releaseYear: number;
-  status: 'development' | 'released' | 'discontinued';
-  developmentTime: number;
-  developmentProgress: number;
-  complexity: number;
-}
-
 interface Budget {
   marketing: number;
   development: number;
@@ -376,6 +349,36 @@ const Index = () => {
 
   // Auth state management
   useEffect(() => {
+    // Use ModelRevisionManager to migrate existing models on first load
+    if (gameState.models.length > 0 && !gameState.models[0].revision) {
+      console.log('🔄 Migrating existing models to revision system...');
+      const migrateModels = async () => {
+        const { ModelRevisionManager } = await import('@/types/ComputerModel');
+        setGameState(prev => ({
+          ...prev,
+          models: ModelRevisionManager.migrateExistingModels(prev.models)
+        }));
+      };
+      migrateModels();
+    }
+
+    // Sync with SaveGameManager if authenticated
+    if (user && gameState.company) {
+      try {
+        const autoSave = async () => {
+          const { SaveGameManager } = await import('@/components/SaveGameManager');
+          // Note: SaveGameManager doesn't have autoSave method, skipping for now
+          console.log('Auto-save functionality needs implementation');
+        };
+        autoSave();
+      } catch (error) {
+        console.log('Auto-save failed:', error);
+      }
+    }
+  }, [gameState, user]);
+
+  // Authentication state management
+  useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -418,10 +421,10 @@ const Index = () => {
           <ComputerDevelopment 
             onBack={() => setCurrentScreen('dashboard')}
             onModelComplete={handleModelComplete}
-            onCaseSelection={handleCaseSelection}
             currentYear={gameState.year}
             currentQuarter={gameState.quarter}
             customChips={gameState.customChips || []}
+            existingModels={gameState.models}
           />
         );
       

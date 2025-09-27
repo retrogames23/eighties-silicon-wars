@@ -21,18 +21,7 @@ import {
 
 import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
 
-interface ComputerModel {
-  id: string;
-  name: string;
-  cpu: string;
-  ram: string;
-  price: number;
-  unitsSold: number;
-  developmentCost: number;
-  releaseQuarter: number;
-  releaseYear: number;
-  status: 'development' | 'released' | 'discontinued';
-}
+import type { ComputerModel } from '@/types/ComputerModel';
 
 interface Budget {
   marketing: number;

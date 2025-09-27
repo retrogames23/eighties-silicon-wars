@@ -48,6 +48,9 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
                 <p className="text-accent">
                   {t('intro.description')}
                 </p>
+                <p className="text-accent mt-4">
+                  {t('intro.question')}
+                </p>
               </div>
 
               {/* Terminal-Style Eingabeaufforderung */}

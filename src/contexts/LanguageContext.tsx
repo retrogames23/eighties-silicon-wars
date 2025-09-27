@@ -15,8 +15,9 @@ const translations = {
     // Game Intro
     'intro.title': 'COMPUTER TYCOON',
     'intro.subtitle': 'Die 80er erwarten Sie...',
-    'intro.description': 'Erleben Sie die Goldene Ära der Computertechnik. Entwickeln Sie bahnbrechende Hardware, treffen Sie strategische Entscheidungen und führen Sie Ihr Unternehmen zum Erfolg in einer Zeit, als Computer noch echte Innovationen waren.',
+    'intro.description': '1983: Während Knight Rider über die Highways rast und Dallas die Fernsehbildschirme beherrscht, beginnt eine stille Revolution in den Garagen und Kellern Amerikas. Steve Jobs hat gerade den Apple IIe vorgestellt, Commodore kämpft mit dem legendären C64 um jeden Hobbyisten, und irgendwo bastelt ein gewisser Bill Gates an MS-DOS. Die Zukunft wartet darauf, erfunden zu werden.',
     'intro.prompt': '> Bereit für das ultimative Tech-Abenteuer?',
+    'intro.question': 'Wirst du Teil dieser digitalen Revolution?',
     'intro.button': 'ENTER DIE 80er',
     'intro.switchToEnglish': 'Switch to English',
 
@@ -101,8 +102,9 @@ const translations = {
     // Game Intro
     'intro.title': 'COMPUTER TYCOON',
     'intro.subtitle': 'The 80s await you...',
-    'intro.description': 'Experience the Golden Age of computer technology. Develop groundbreaking hardware, make strategic decisions and lead your company to success in an era when computers were true innovations.',
+    'intro.description': '1983: While Knight Rider cruises the highways and Dallas dominates television screens, a quiet revolution begins in garages and basements across America. Steve Jobs has just unveiled the Apple IIe, Commodore battles with the legendary C64 for every hobbyist, and somewhere a certain Bill Gates tinkers with MS-DOS. The future awaits to be invented.',
     'intro.prompt': '> Ready for the ultimate tech adventure?',
+    'intro.question': 'Will you become part of this digital revolution?',
     'intro.button': 'ENTER THE 80s',
     'intro.switchToGerman': 'Wechsel zu Deutsch',
 

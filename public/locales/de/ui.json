@@ -1,0 +1,57 @@
+{
+  "caseSelection": {
+    "title": "Case Auswahl",
+    "description": "Wählen Sie ein Gehäuse für: {{modelName}}",
+    "gamerCases": "Gaming Gehäuse",
+    "officeCases": "Büro Gehäuse", 
+    "selected": "{{caseName}} ausgewählt",
+    "confirmCase": "Case bestätigen",
+    "qualityImportant": "Qualität wichtig",
+    "designImportant": "Design wichtig",
+    "cases": {
+      "gamerBasic": {
+        "name": "Standard Tower",
+        "description": "Einfacher beiger Kasten"
+      },
+      "gamerColorful": {
+        "name": "Color Tower", 
+        "description": "Bunte Plastik-Front mit LED-Akzenten"
+      },
+      "gamerPremium": {
+        "name": "Neon Master",
+        "description": "Schwarzes Gehäuse mit Neon-Streifen"
+      },
+      "gamerUltimate": {
+        "name": "Crystal Beast",
+        "description": "Durchsichtiges Gehäuse mit RGB-Beleuchtung"
+      },
+      "officeBasic": {
+        "name": "Economy Box",
+        "description": "Günstigstes graues Gehäuse"
+      },
+      "officeStandard": {
+        "name": "Professional",
+        "description": "Solides graues Metallgehäuse"
+      },
+      "officePremium": {
+        "name": "Corporate Elite",
+        "description": "Hochwertiges Gehäuse mit Edelstahl"
+      },
+      "officeUltimate": {
+        "name": "Executive Tower",
+        "description": "Premium Aluminium-Gehäuse"
+      }
+    }
+  },
+  "dashboard": {
+    "nextTurn": "Nächste Runde",
+    "mobileNavHint": "← Wischen für Navigation →",
+    "saveGame": "Spiel speichern",
+    "tabs": {
+      "overview": "Übersicht",
+      "development": "Entwicklung", 
+      "market": "Markt",
+      "management": "Verwaltung"
+    }
+  }
+}

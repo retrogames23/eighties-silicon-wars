@@ -110,7 +110,7 @@ interface CaseSelectionProps {
 }
 
 export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSelectionProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['ui', 'common']);
   const [selectedCase, setSelectedCase] = useState<ComputerCase | null>(null);
 
   const handleCaseSelect = (computerCase: ComputerCase) => {

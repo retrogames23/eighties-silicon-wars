@@ -10,6 +10,7 @@ import type { Database } from '@/integrations/supabase/types';
 import type { User } from '@supabase/supabase-js';
 import { ComputerModel } from '@/types/ComputerModel';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface Budget {
   marketing: number;
@@ -55,6 +56,7 @@ interface SaveGameManagerProps {
 type SaveGame = Database['public']['Tables']['save_games']['Row'];
 
 export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }: SaveGameManagerProps) => {
+  const { t } = useTranslation(['toast', 'common']);
   const [saves, setSaves] = useState<SaveGame[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveName, setSaveName] = useState('');

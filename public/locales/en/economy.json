@@ -1,0 +1,25 @@
+{
+  "segments": {
+    "gamer": "Gaming",
+    "business": "Business",
+    "workstation": "Workstation"
+  },
+  "positions": {
+    "budget": "Budget",
+    "midrange": "Midrange", 
+    "premium": "Premium"
+  },
+  "types": {
+    "gamer": "Gaming",
+    "office": "Office"
+  },
+  "revenue": {
+    "total": "Total Revenue: {amount, number, ::currency/USD}",
+    "profit": "Profit: {amount, number, ::currency/USD}",
+    "margin": "Profit Margin: {percentage, number, ::percent}"
+  },
+  "units": {
+    "sold": "{count, plural, one {# sold} other {# sold}}",
+    "produced": "{count, plural, one {# produced} other {# produced}}"
+  }
+}

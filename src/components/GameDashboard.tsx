@@ -12,6 +12,8 @@ import { useRenderTracking } from "@/lib/dev-tools";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSwipeable } from "react-swipeable";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
+import { formatters } from "@/lib/i18n";
 import { 
   Calendar,
   ChevronRight,
@@ -75,6 +77,7 @@ export const GameDashboard = ({
   user
 }: GameDashboardProps) => {
   const { t } = useLanguage();
+  const { t: t18n } = useTranslation(['ui', 'common']);
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -133,7 +136,7 @@ export const GameDashboard = ({
                   {gameState.company.name}
                 </h1>
                 <p className="text-neon-cyan font-mono text-sm">
-                  Q{gameState.quarter} {gameState.year} - CEO Terminal
+                  {formatters.quarter(gameState.quarter, gameState.year)} - CEO Terminal
                 </p>
               </div>
             </div>
@@ -158,7 +161,7 @@ export const GameDashboard = ({
                       className="retro-border bg-card/20 hover:bg-card/40"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      {t('dashboard.saveGame')}
+                      {t18n('ui.dashboard.saveGame')}
                     </Button>
                     
                     <UserProfile user={user} />
@@ -171,7 +174,7 @@ export const GameDashboard = ({
                   variant="default"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
-                  {t('dashboard.nextTurn')}
+                  {t18n('ui.dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -290,7 +293,7 @@ export const GameDashboard = ({
             {isMobile && (
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground font-mono">
-                  {t('ui.dashboard.mobileNavHint')}
+                  {t18n('ui.dashboard.mobileNavHint')}
                 </p>
               </div>
             )}
@@ -305,7 +308,7 @@ export const GameDashboard = ({
                 variant="default"
               >
                 <Calendar className="w-5 h-5 mr-2" />
-                {t('ui.dashboard.nextTurn')}
+                {t18n('ui.dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

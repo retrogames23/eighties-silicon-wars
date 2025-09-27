@@ -1,0 +1,18 @@
+{
+  "categories": {
+    "market": "Markt",
+    "tech": "Technologie",
+    "competitor": "Konkurrenz",
+    "world": "Weltnachrichten"
+  },
+  "headlines": {
+    "marketGrowth": "Computermarkt verzeichnet außergewöhnliches Wachstum im aktuellen Quartal",
+    "priceWar": "Preiskampf zwischen Herstellern führt zu günstigeren Heimcomputern",
+    "newSegments": "Neue Zielgruppen entdecken Computer für sich als vielseitige Werkzeuge",
+    "techBreakthrough": "Durchbruch in der Prozessortechnologie verspricht deutlich schnellere Computer"
+  },
+  "content": {
+    "marketGrowth": "Marktforscher berichten von einem beeindruckenden Anstieg der Verkaufszahlen, der alle Erwartungen übertrifft und die Branche optimistisch stimmt.",
+    "priceWar": "Der intensiver werdende Wettbewerb zwingt Computerhersteller zu drastischen Preissenkungen, was Verbrauchern zugute kommt aber Gewinnmargen schmälert."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "caseSelection": {
+    "title": "Case Selection",
+    "description": "Choose a case for: {{modelName}}",
+    "gamerCases": "Gaming Cases",
+    "officeCases": "Office Cases", 
+    "selected": "{{caseName}} selected",
+    "confirmCase": "Confirm Case",
+    "qualityImportant": "Quality important",
+    "designImportant": "Design important",
+    "cases": {
+      "gamerBasic": {
+        "name": "Standard Tower",
+        "description": "Simple beige case"
+      },
+      "gamerColorful": {
+        "name": "Color Tower",
+        "description": "Colorful plastic front with LED accents"
+      },
+      "gamerPremium": {
+        "name": "Neon Master", 
+        "description": "Black case with neon strips"
+      },
+      "gamerUltimate": {
+        "name": "Crystal Beast",
+        "description": "Transparent case with RGB lighting"
+      },
+      "officeBasic": {
+        "name": "Economy Box",
+        "description": "Cheapest gray case"
+      },
+      "officeStandard": {
+        "name": "Professional",
+        "description": "Solid gray metal case"
+      },
+      "officePremium": {
+        "name": "Corporate Elite",
+        "description": "High-quality case with stainless steel"
+      },
+      "officeUltimate": {
+        "name": "Executive Tower",
+        "description": "Premium aluminum case"
+      }
+    }
+  },
+  "dashboard": {
+    "nextTurn": "Next Turn",
+    "mobileNavHint": "← Swipe to navigate →",
+    "saveGame": "Save Game",
+    "tabs": {
+      "overview": "Overview",
+      "development": "Development",
+      "market": "Market", 
+      "management": "Management"
+    }
+  }
+}

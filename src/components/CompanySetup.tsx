@@ -7,6 +7,7 @@ import { Building2, Zap, Cpu, Monitor, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { formatters } from "@/lib/i18n";
 
 interface CompanySetupProps {
   onSetupComplete: (setup: CompanySetupData) => void;
@@ -20,7 +21,7 @@ export interface CompanySetupData {
 export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const { t: t18n } = useTranslation();
+  const { t: t18n } = useTranslation(['toast', 'common']);
   const [companyName, setCompanyName] = useState("");
   const [selectedLogo, setSelectedLogo] = useState("cpu");
 
@@ -40,7 +41,7 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
     } else {
       toast({
         title: t18n('common.error'),
-        description: t('company.nameRequired'),
+        description: t18n('toast.auth.missingFields'),
         variant: "destructive"
       });
     }

@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "loginSuccess": "Successfully logged in!",
+    "loginError": "Login error: {{error}}",
+    "logoutSuccess": "Successfully logged out",
+    "logoutError": "Logout error: {{error}}",
+    "registerSuccess": "Registration successful! You can now log in.",
+    "registerError": "Registration error: {{error}}",
+    "invalidCredentials": "Invalid credentials. Please check email and password.",
+    "emailExists": "This email address is already registered. Please log in.",
+    "passwordTooShort": "Password must be at least 6 characters long",
+    "missingFields": "Please enter email and password"
+  },
+  "saveGame": {
+    "saved": "Game saved!",
+    "loaded": "Game loaded!",
+    "deleted": "Game deleted!",
+    "saveError": "Error saving game",
+    "loadError": "Error loading game",  
+    "deleteError": "Error deleting game",
+    "loadListError": "Error loading saved games",
+    "supabaseNotConfigured": "Supabase is not configured",
+    "loginRequired": "Please log in to manage saved games",
+    "loginRequiredSave": "Please log in to save"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "back": "Zurück",
+  "confirm": "Bestätigen", 
+  "cancel": "Abbrechen",
+  "save": "Speichern",
+  "loading": "Laden...",
+  "error": "Fehler",
+  "success": "Erfolg",
+  "help": "Hilfe",
+  "quality": "Qualität",
+  "design": "Design", 
+  "price": "Preis",
+  "units": {
+    "count": "{count, plural, one {# Einheit} other {# Einheiten}}",
+    "money": "{amount, number, ::currency/EUR}",
+    "percentage": "{value, number, ::percent}"
+  },
+  "quarter": "{q, selectordinal, one {Q#.} two {Q#.} few {Q#.} other {Q#.}} {year}",
+  "time": {
+    "relative": "{value, plural, one {vor # Tag} other {vor # Tagen}}",
+    "absolute": "{date, date, ::yyyyMMdd}"
+  }
+}

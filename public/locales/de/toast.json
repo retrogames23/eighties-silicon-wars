@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "loginSuccess": "Erfolgreich angemeldet!",
+    "loginError": "Fehler bei der Anmeldung: {{error}}",
+    "logoutSuccess": "Erfolgreich abgemeldet",
+    "logoutError": "Fehler beim Abmelden: {{error}}",
+    "registerSuccess": "Registrierung erfolgreich! Sie können sich jetzt anmelden.",
+    "registerError": "Fehler bei der Registrierung: {{error}}",
+    "invalidCredentials": "Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.",
+    "emailExists": "Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.",
+    "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "missingFields": "Bitte E-Mail und Passwort eingeben"
+  },
+  "saveGame": {
+    "saved": "Spielstand gespeichert!",
+    "loaded": "Spielstand geladen!",
+    "deleted": "Spielstand gelöscht!",
+    "saveError": "Fehler beim Speichern des Spielstands",
+    "loadError": "Fehler beim Laden des Spielstands",
+    "deleteError": "Fehler beim Löschen des Spielstands",
+    "loadListError": "Fehler beim Laden der Spielstände",
+    "supabaseNotConfigured": "Supabase ist nicht konfiguriert",
+    "loginRequired": "Bitte melden Sie sich an, um Spielstände zu verwalten",
+    "loginRequiredSave": "Bitte melden Sie sich an, um zu speichern"
+  }
+}

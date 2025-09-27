@@ -1,0 +1,18 @@
+{
+  "categories": {
+    "market": "Market",
+    "tech": "Technology",
+    "competitor": "Competition",
+    "world": "World News"
+  },
+  "headlines": {
+    "marketGrowth": "Computer market sees exceptional growth in current quarter",
+    "priceWar": "Price war between manufacturers leads to cheaper home computers",
+    "newSegments": "New target groups discover computers as versatile tools",
+    "techBreakthrough": "Breakthrough in processor technology promises significantly faster computers"
+  },
+  "content": {
+    "marketGrowth": "Market researchers report an impressive increase in sales figures that exceeds all expectations and makes the industry optimistic.",
+    "priceWar": "Intensifying competition forces computer manufacturers to make drastic price cuts, which benefits consumers but reduces profit margins."
+  }
+}

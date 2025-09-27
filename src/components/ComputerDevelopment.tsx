@@ -24,113 +24,12 @@ import {
 } from "lucide-react";
 import { TestReport } from "./TestReport";
 import { TestReportGenerator } from "./TestReportGenerator";
-import { GameMechanics, HARDWARE_TIMELINE } from "./GameMechanics";
+import { GameMechanics } from "./GameMechanics";
+import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 
-interface Component {
-  id: string;
-  name: string;
-  type: 'cpu' | 'gpu' | 'memory' | 'sound' | 'storage' | 'display';
-  performance: number;
-  cost: number;
-  description: string;
-  year: number;
-  quarter?: number;
-  available: boolean;
-}
+// Use HardwareComponent from HardwareManager instead of local Component interface
 
-// Erweiterte Hardware-Datenbank mit historisch korrekten Daten
-const getAllComponents = (currentYear: number, currentQuarter: number): Component[] => {
-  const components: Component[] = [];
-  
-  // CPU-Komponenten - verfügbar sobald historisch eingeführt
-  const cpuComponents = [
-    { name: 'MOS 6502', type: 'cpu', performance: 15, cost: 25, description: '8-bit Prozessor, 1 MHz - Der Klassiker', year: 1983, quarter: 1 },
-    { name: 'Zilog Z80', type: 'cpu', performance: 20, cost: 35, description: '8-bit Prozessor, 2,5 MHz - Zuverlässig und bewährt', year: 1983, quarter: 1 },
-    { name: 'Intel 8086', type: 'cpu', performance: 35, cost: 85, description: '16-bit Prozessor, 5 MHz - Moderne Business-Power', year: 1984, quarter: 1 },
-    { name: 'Motorola 68000', type: 'cpu', performance: 45, cost: 120, description: '16/32-bit Prozessor, 8 MHz - Premium Performance', year: 1984, quarter: 2 },
-    { name: 'Intel 80286', type: 'cpu', performance: 65, cost: 200, description: '16-bit Prozessor, 12 MHz - High-End Computing', year: 1985, quarter: 1 },
-    { name: 'Intel 80386', type: 'cpu', performance: 85, cost: 350, description: '32-bit Prozessor, 16 MHz - Zukunftstechnologie', year: 1986, quarter: 1 },
-    { name: 'Intel 80486', type: 'cpu', performance: 100, cost: 500, description: '32-bit Prozessor, 25 MHz - Spitzentechnologie', year: 1988, quarter: 1 }
-  ];
-
-  // GPU-Komponenten
-  const gpuComponents = [
-    { name: 'MOS VIC', type: 'gpu', performance: 10, cost: 15, description: '160x200 Pixel, 16 Farben - Einfache Grafik', year: 1983, quarter: 1 },
-    { name: 'TI TMS9918', type: 'gpu', performance: 25, cost: 45, description: '256x192 Pixel, 16 Farben - Solide Gaming-Grafik', year: 1983, quarter: 2 },
-    { name: 'Atari GTIA', type: 'gpu', performance: 30, cost: 60, description: '320x192 Pixel, 256 Farben - Atari-Technologie', year: 1984, quarter: 1 },
-    { name: 'Commodore VIC-II', type: 'gpu', performance: 35, cost: 70, description: '320x200 Pixel, Sprites - Der C64-Chip', year: 1984, quarter: 3 },
-    { name: 'EGA Graphics', type: 'gpu', performance: 45, cost: 120, description: '640x350 Pixel, 16 Farben - Enhanced Graphics', year: 1985, quarter: 4 },
-    { name: 'VGA Graphics', type: 'gpu', performance: 55, cost: 180, description: '640x480 Pixel, 256 Farben - VGA-Standard', year: 1986, quarter: 2 },
-    { name: 'Super VGA', type: 'gpu', performance: 70, cost: 250, description: '800x600 Pixel, High-Res Gaming', year: 1987, quarter: 2 }
-  ];
-
-  // Speicher-Komponenten
-  const memoryComponents = [
-    { name: '4KB RAM', type: 'memory', performance: 5, cost: 20, description: '4096 Byte Arbeitsspeicher - Basis-Ausstattung', year: 1983, quarter: 1 },
-    { name: '16KB RAM', type: 'memory', performance: 15, cost: 60, description: '16384 Byte Arbeitsspeicher - Erweitert', year: 1983, quarter: 1 },
-    { name: '64KB RAM', type: 'memory', performance: 35, cost: 150, description: '65536 Byte Arbeitsspeicher - Komfortabel', year: 1984, quarter: 1 },
-    { name: '256KB RAM', type: 'memory', performance: 55, cost: 300, description: '262144 Byte Arbeitsspeicher - Professionell', year: 1985, quarter: 1 },
-    { name: '512KB RAM', type: 'memory', performance: 70, cost: 500, description: '512KB Arbeitsspeicher - High-End', year: 1986, quarter: 1 },
-    { name: '1MB RAM', type: 'memory', performance: 85, cost: 800, description: '1 Megabyte Arbeitsspeicher - Workstation-Niveau', year: 1987, quarter: 1 },
-    { name: '2MB RAM', type: 'memory', performance: 95, cost: 1200, description: '2 Megabyte Arbeitsspeicher - Extrem viel Speicher', year: 1988, quarter: 1 }
-  ];
-
-  // Sound-Komponenten
-  const soundComponents = [
-    { name: 'PC Speaker', type: 'sound', performance: 5, cost: 5, description: 'Einfache Pieptöne - Basis-Sound', year: 1983, quarter: 1 },
-    { name: 'AY-3-8910', type: 'sound', performance: 25, cost: 35, description: '3-Kanal Synthesizer - Klassischer Arcade-Sound', year: 1983, quarter: 4 },
-    { name: 'SID 6581', type: 'sound', performance: 45, cost: 80, description: '3-Kanal Synthesizer + Filter - Legendärer C64-Sound', year: 1984, quarter: 3 },
-    { name: 'Yamaha YM2149', type: 'sound', performance: 35, cost: 50, description: '3-Kanal PSG Synthesizer - Atari ST Sound', year: 1985, quarter: 3 },
-    { name: 'AdLib Sound', type: 'sound', performance: 60, cost: 120, description: 'FM-Synthesizer - PC-Gaming Audio', year: 1986, quarter: 2 },
-    { name: 'Sound Blaster', type: 'sound', performance: 75, cost: 150, description: 'Digitale Samples + FM - Premium PC-Audio', year: 1987, quarter: 1 },
-    { name: 'Sound Blaster Pro', type: 'sound', performance: 90, cost: 200, description: 'Stereo Digital Audio - Professioneller Sound', year: 1989, quarter: 3 }
-  ];
-
-  // Storage-Komponenten
-  const storageComponents = [
-    { name: 'Kassettenlaufwerk', type: 'storage', performance: 10, cost: 40, description: 'Datenspeicherung auf Kassette - Günstig aber langsam', year: 1983, quarter: 2 },
-    { name: 'Diskettenlaufwerk 5.25"', type: 'storage', performance: 35, cost: 150, description: '160KB Disketten - Standard-Speicher', year: 1983, quarter: 3 },
-    { name: 'Diskettenlaufwerk 3.5"', type: 'storage', performance: 50, cost: 120, description: '720KB Disketten - Moderne Disketten', year: 1985, quarter: 3 },
-    { name: 'Festplatte 5MB', type: 'storage', performance: 60, cost: 1500, description: '5 Megabyte Festplatte - Permanenter Speicher', year: 1985, quarter: 2 },
-    { name: 'Festplatte 10MB', type: 'storage', performance: 65, cost: 1200, description: '10 Megabyte Festplatte - Mehr Kapazität', year: 1986, quarter: 3 },
-    { name: 'Festplatte 20MB', type: 'storage', performance: 70, cost: 1000, description: '20 Megabyte Festplatte - Viel Speicherplatz', year: 1987, quarter: 2 },
-    { name: 'CD-ROM Drive', type: 'storage', performance: 55, cost: 800, description: 'CD-ROM Laufwerk - Multimedia-Zukunft', year: 1986, quarter: 4 }
-  ];
-
-  // Display-Komponenten
-  const displayComponents = [
-    { name: 'RF Modulator', type: 'display', performance: 15, cost: 25, description: 'Anschluss an TV-Gerät - Budget-Option', year: 1983, quarter: 3 },
-    { name: 'Composite Monitor', type: 'display', performance: 35, cost: 200, description: 'Monochrom Monitor - Scharf und klar', year: 1983, quarter: 4 },
-    { name: 'RGB Monitor', type: 'display', performance: 65, cost: 500, description: 'Farb-Monitor RGB - Brillante Farben', year: 1984, quarter: 4 },
-    { name: 'EGA Monitor', type: 'display', performance: 75, cost: 600, description: 'Enhanced Graphics Monitor - Professionell', year: 1985, quarter: 4 },
-    { name: 'VGA Monitor', type: 'display', performance: 85, cost: 750, description: 'VGA High-Resolution Monitor - Beste Bildqualität', year: 1987, quarter: 1 },
-    { name: 'Multisync Monitor', type: 'display', performance: 95, cost: 1200, description: 'Multi-Standard Monitor - Workstation-Klasse', year: 1988, quarter: 2 }
-  ];
-
-  const allHardware = [
-    ...cpuComponents, ...gpuComponents, ...memoryComponents, 
-    ...soundComponents, ...storageComponents, ...displayComponents
-  ];
-
-  allHardware.forEach((hw, index) => {
-    const isTimeAvailable = (currentYear > hw.year) || 
-                           (currentYear === hw.year && currentQuarter >= (hw.quarter || 1));
-    
-    components.push({
-      id: `hw-${index}`,
-      name: hw.name,
-      type: hw.type as Component['type'],
-      performance: hw.performance,
-      cost: hw.cost,
-      description: hw.description,
-      year: hw.year,
-      quarter: hw.quarter,
-      available: isTimeAvailable
-    });
-  });
-
-  return components;
-};
+// Removed duplicate hardware logic - now using HardwareManager
 
 // Case-Daten
 const computerCases = [
@@ -228,40 +127,25 @@ interface ComputerDevelopmentProps {
 }
 
 export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips }: ComputerDevelopmentProps) => {
-  const [selectedComponents, setSelectedComponents] = useState<Component[]>([]);
+  const [selectedComponents, setSelectedComponents] = useState<HardwareComponent[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
   const [sellingPrice, setSellingPrice] = useState(0);
   const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing' | 'testreport'>('components');
   const [developedModel, setDevelopedModel] = useState<ComputerModel | null>(null);
 
-  // Lade verfügbare Komponenten basierend auf Jahr und Quartal
-  const availableComponents = getAllComponents(currentYear, currentQuarter);
-  
-  // Füge Custom Chips zu verfügbaren Komponenten hinzu
-  const customChipComponents: Component[] = customChips.map((chip, index) => ({
-    id: `custom-${chip.id}`,
-    name: `${chip.name} ⭐`,
-    type: chip.type,
-    performance: chip.performance,
-    cost: chip.cost,
-    description: `${chip.description} - EXKLUSIV`,
-    year: chip.developedYear,
-    quarter: chip.developedQuarter,
-    available: true
-  }));
-  
-  const allComponents = [...availableComponents, ...customChipComponents];
+  // Lade verfügbare Komponenten über zentralen HardwareManager
+  const allComponents = HardwareManager.getAvailableComponents(currentYear, currentQuarter, customChips);
 
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
     
-  // Preisvorschlag berechnen (80% Aufschlag wie bisher)
+  // Preisvorschlag berechnen (konsistent mit EconomicModel: 80% Aufschlag)
   const suggestedPrice = Math.round(totalCost * 1.8);
   
-  // Mindest- und Maximalpreis
+  // Mindest- und Maximalpreis (konsistent mit EconomicModel)
   const minPrice = Math.round(totalCost * 1.1); // 10% Mindestmarge
   const maxPrice = Math.round(totalCost * 4.0); // 300% Maximalmarge
   
@@ -270,7 +154,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     setSellingPrice(suggestedPrice);
   }
 
-  const toggleComponent = (component: Component) => {
+  const toggleComponent = (component: HardwareComponent) => {
     const isSelected = selectedComponents.some(c => c.id === component.id);
     const isSameType = selectedComponents.some(c => c.type === component.type);
     
@@ -339,7 +223,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const canProceedToPricing = canProceedToName && modelName.trim();
   const canFinish = canProceedToPricing && sellingPrice > 0;
 
-  const getComponentIcon = (type: Component['type']) => {
+  const getComponentIcon = (type: HardwareComponent['type']) => {
     switch (type) {
       case 'cpu': return Cpu;
       case 'gpu': return Monitor;
@@ -351,7 +235,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     }
   };
 
-  const getTypeColor = (type: Component['type']) => {
+  const getTypeColor = (type: HardwareComponent['type']) => {
     switch (type) {
       case 'cpu': return 'bg-red-500/20 text-red-300 border-red-500/30';
       case 'gpu': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
@@ -435,7 +319,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                       <CardHeader>
                         <CardTitle className="text-neon-cyan flex items-center space-x-2">
                           {(() => {
-                            const IconComponent = getComponentIcon(type as Component['type']);
+                            const IconComponent = getComponentIcon(type as HardwareComponent['type']);
                             return <IconComponent className="w-5 h-5" />;
                           })()}
                           <span>

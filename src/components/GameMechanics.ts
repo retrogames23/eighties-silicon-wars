@@ -1,5 +1,6 @@
 // Game mechanics and AI competition logic
 import { getNewsForQuarter } from '@/data/NewsEvents';
+import { HardwareManager } from '@/utils/HardwareManager';
 
 export interface Competitor {
   id: string;
@@ -53,6 +54,16 @@ export interface GameEndCondition {
     totalRevenue: number;
     customChipsCount: number;
   };
+}
+
+export interface QuarterTurnResult {
+  updatedGameState: any;
+  updatedCompetitors: Competitor[];
+  quarterResults: any;
+  newsEvents: any[];
+  marketData: any;
+  newCustomChip?: CustomChip;
+  gameEndCondition?: GameEndCondition;
 }
 
 // Zeitbasierte Hardware-Verfügbarkeit (historisch korrekt)
@@ -294,25 +305,19 @@ export class GameMechanics {
     // Basis-Komplexität abhängig von Komponenten
     let complexity = 20; // Basis
     
-    // CPU-Komplexität
-    const cpuComplexity = {
-      'MOS 6502': 10, 'Zilog Z80': 15, 'Motorola 68000': 40, 
-      'Intel 8086': 30, 'Intel 80286': 50
-    };
-    complexity += cpuComplexity[model.cpu] || 20;
+    // Nutze HardwareManager für konsistente Daten
+    const cpuData = HardwareManager.getComponentByCPU(model.cpu);
+    const gpuData = HardwareManager.getComponentByGPU(model.gpu);
+    const ramData = HardwareManager.getComponentByRAM(model.ram);
+    const soundData = HardwareManager.getComponentBySound(model.sound);
     
-    // RAM-Komplexität
-    const ramAmount = parseInt(model.ram) || 0;
-    complexity += Math.min(30, ramAmount / 4);
-    
-    // GPU-Komplexität
-    const gpuComplexity = {
-      'MOS VIC': 10, 'TI TMS9918': 20, 'Atari GTIA': 25, 'Commodore VIC-II': 30
-    };
-    complexity += gpuComplexity[model.gpu] || 15;
+    // Komponenten-basierte Komplexität
+    complexity += (cpuData?.performance || 20) * 0.4;
+    complexity += (gpuData?.performance || 15) * 0.2;
+    complexity += (ramData?.performance || 10) * 0.2;
+    complexity += (soundData?.performance || 5) * 0.1;
     
     // Zusätzliche Komponenten erhöhen Komplexität
-    if (model.soundchip && model.soundchip !== 'PC Speaker') complexity += 15;
     if (model.accessories && model.accessories.length > 0) {
       complexity += model.accessories.length * 10;
     }
@@ -471,6 +476,85 @@ export class GameMechanics {
     };
     
     return descriptions[type as keyof typeof descriptions] || 'Custom Hardware-Komponente';
+  }
+
+  /**
+   * Verarbeitet ein komplettes Quartal - Zentraler Turn-Prozessor
+   */
+  static processQuarterTurn(gameState: any, competitors: Competitor[]) {
+    const newsEvents = getNewsForQuarter(gameState.quarter, gameState.year);
+    
+    // Entwicklung von Modellen fortsetzen
+    const updatedModels = this.updateModelDevelopment(gameState.models, gameState.budget.development);
+    
+    // Custom Hardware entwickeln (basierend auf kumulativen Forschungsausgaben)
+    const totalResearchSpent = (gameState.totalResearchSpent || 0) + gameState.budget.research;
+    const newCustomChip = this.attemptCustomHardwareDevelopment(
+      gameState.budget.research,
+      gameState.budget.development,
+      gameState.year,
+      gameState.quarter,
+      gameState.customChips,
+      totalResearchSpent
+    );
+    
+    // Sales für alle Released Models simulieren
+    let totalRevenue = 0;
+    let totalUnitsSold = 0;
+    const modelResults = [];
+    
+    for (const model of updatedModels.filter(m => m.status === 'released')) {
+      // Hier würde AdvancedSalesSimulation genutzt werden
+      const basicSales = Math.floor(Math.random() * 1000 + 200); // Placeholder
+      const revenue = basicSales * model.price;
+      
+      totalRevenue += revenue;
+      totalUnitsSold += basicSales;
+      
+      modelResults.push({
+        modelId: model.id,
+        modelName: model.name,
+        unitsSold: basicSales,
+        revenue: revenue
+      });
+    }
+    
+    // Update Company Stats
+    const updatedGameState = {
+      ...gameState,
+      models: updatedModels,
+      customChips: newCustomChip 
+        ? [...gameState.customChips, newCustomChip]
+        : gameState.customChips,
+      totalResearchSpent: totalResearchSpent,
+      company: {
+        ...gameState.company,
+        cash: gameState.company.cash + totalRevenue - gameState.budget.marketing - gameState.budget.development - gameState.budget.research,
+        monthlyIncome: Math.round(totalRevenue / 3), // Quarterly to monthly
+        monthlyExpenses: Math.round((gameState.budget.marketing + gameState.budget.development + gameState.budget.research) / 3)
+      }
+    };
+    
+    // Check for game end
+    const gameEndCondition = this.checkGameEnd(gameState.year, gameState.quarter);
+    
+    const quarterResults = {
+      totalRevenue,
+      totalUnitsSold,
+      modelResults,
+      marketEvent: newsEvents[0] || null,
+      competitorActions: []
+    };
+    
+    return {
+      updatedGameState,
+      updatedCompetitors: competitors, // Placeholder - would update competitor models
+      quarterResults,
+      newsEvents,
+      marketData: { totalMarketSize: gameState.totalMarketSize },
+      newCustomChip,
+      gameEndCondition
+    };
   }
 
   // Game End Detection

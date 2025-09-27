@@ -13,7 +13,7 @@ import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface Company {
   id: string;
@@ -87,6 +87,7 @@ interface GameState {
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
 
 const Index = () => {
+  const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('intro');

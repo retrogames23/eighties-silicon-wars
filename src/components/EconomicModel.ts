@@ -1,5 +1,6 @@
 // Advanced Economic Model for Computer Business Simulation
 import { type Competitor, type CompetitorModel } from "./GameMechanics";
+import { HardwareManager } from "@/utils/HardwareManager";
 
 export interface EconomicFactors {
   inflation: number;
@@ -131,53 +132,8 @@ export class EconomicModel {
   }
 
   private static calculateBaseCost(model: any): number {
-    // Berechne Herstellungskosten basierend auf Komponenten
-    let cost = 0;
-    
-    // CPU-Kosten
-    const cpuCosts = {
-      'MOS 6502': 25, 'Zilog Z80': 35, 'Intel 8086': 85, 
-      'Motorola 68000': 120, 'Intel 80286': 200, 'Intel 80386': 350
-    };
-    cost += cpuCosts[model.cpu as keyof typeof cpuCosts] || 50;
-    
-    // GPU-Kosten
-    const gpuCosts = {
-      'MOS VIC': 15, 'TI TMS9918': 45, 'Atari GTIA': 60, 
-      'Commodore VIC-II': 70, 'VGA Graphics': 120
-    };
-    cost += gpuCosts[model.gpu as keyof typeof gpuCosts] || 30;
-    
-    // RAM-Kosten
-    const ramCosts = {
-      '4KB RAM': 20, '16KB RAM': 60, '64KB RAM': 150, 
-      '256KB RAM': 300, '512KB RAM': 500, '1MB RAM': 800
-    };
-    cost += ramCosts[model.ram as keyof typeof ramCosts] || 40;
-    
-    // Sound-Chip Kosten
-    const soundCosts = {
-      'PC Speaker': 5, 'AY-3-8910': 35, 'SID 6581': 80, 'Yamaha YM2149': 50
-    };
-    cost += soundCosts[model.sound as keyof typeof soundCosts] || 5;
-    
-    // Zubehör-Kosten
-    if (model.accessories) {
-      const accessoryCosts = {
-        'Kassettenlaufwerk': 40, 'Diskettenlaufwerk 5.25"': 150, 
-        'Diskettenlaufwerk 3.5"': 120, 'Festplatte 5MB': 1500,
-        'RF Modulator': 25, 'Composite Monitor': 200, 'RGB Monitor': 500
-      };
-      
-      model.accessories.forEach((accessory: string) => {
-        cost += accessoryCosts[accessory as keyof typeof accessoryCosts] || 50;
-      });
-    }
-    
-    // Case-Kosten
-    cost += model.case?.price || 80;
-    
-    return cost;
+    // Nutze zentralen HardwareManager für konsistente Kostenberechnung
+    return HardwareManager.calculateModelCost(model);
   }
 
   private static simulateSalesAtPrice(

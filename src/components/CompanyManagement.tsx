@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useRenderTracking } from "@/lib/dev-tools";
 import { 
   TrendingUp, 
   Cpu, 
@@ -32,6 +33,9 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
   totalBudget, 
   onBudgetChange 
 }) => {
+  
+  // Development-only render tracking
+  useRenderTracking('CompanyManagement');
   
   const usedBudget = budget.marketing + budget.development + budget.research;
   const remainingBudget = totalBudget - usedBudget;

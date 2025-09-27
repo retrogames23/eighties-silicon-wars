@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# Computer Industry Simulation Game
 
-## Project info
+Ein umfassendes Unternehmenssimulationsspiel für die Computerindustrie der 1980er Jahre.
+
+## 🚀 Quick Start
+
+```bash
+# Entwicklung starten
+npm run dev
+
+# Build für Produktion
+npm run build
+
+# Tests und Qualität
+npm run lint
+npm run typecheck
+npm run profile
+```
+
+## 🛠️ Entwicklungstools
+
+### Linting & Formatierung
+```bash
+npm run lint          # ESLint prüfen
+npm run lint:fix      # ESLint automatisch korrigieren
+npm run prettier      # Code formatieren
+npm run typecheck     # TypeScript prüfen
+```
+
+### Performance & Analyse
+```bash
+npm run analyze       # Bundle-Analyse (öffnet stats.html)
+npm run profile       # Vollständige Qualitätsprüfung
+npm run quality:baseline  # Baseline-Metriken sammeln
+```
+
+### Development Metriken
+
+In development mode sind folgende Tools aktiv:
+
+- **Render Counter**: Automatisches Tracking von Component-Renders
+- **Performance Monitor**: Speicher- und Rendering-Überwachung  
+- **Bundle Analyzer**: Chunk-Größen und Dependencies visualisieren
+
+Zugriff via Browser DevTools:
+```javascript
+// Metriken abrufen
+__METRICS__.collector().then(m => m.getBaselineReport())
+
+// Baseline generieren
+__METRICS__.baseline()
+
+// Bundle analysieren  
+__METRICS__.analyze()
+```
+
+## 📊 Baseline Metriken
+
+Nach Installation Baseline erstellen:
+```bash
+bash scripts/generate-baseline.sh
+```
+
+Dies erstellt `.metrics/` Ordner mit:
+- Bundle-Größe und Chunk-Aufteilung
+- Code-Qualitäts-Metriken (ESLint, TypeScript)
+- Datei- und Component-Anzahl
+
+## 🏗️ Architektur
+
+```
+src/
+├── components/          # React Components
+├── lib/
+│   ├── dev-tools/      # Development-only utilities
+│   ├── game-engine/    # Core game logic
+│   ├── cache/          # Performance caching
+│   └── formatters.ts   # Shared utilities
+├── services/           # Business logic
+├── hooks/              # Custom React hooks  
+└── types/              # TypeScript definitions
+```
+
+## 🔧 Konfiguration
+
+- **ESLint**: Gentle Regeln für schrittweise Migration
+- **Prettier**: Konsistente Code-Formatierung
+- **TypeScript**: Graduelle Strict-Mode Migration
+- **Vite**: Bundle-Optimierung und Dev-Server
+
+## 📈 Performance Monitoring
+
+### Render Tracking
+Automatisches Tracking für kritische Components:
+- GameDashboard
+- CompanyManagement  
+- Weitere bei Bedarf
+
+### Memory Monitoring
+Automatische Speicher-Überwachung alle 30s in development.
+
+### Bundle Analysis
+Detaillierte Bundle-Analyse mit:
+- Chunk-Größen
+- Dependency-Mapping
+- Gzip/Brotli-Größen
+
+## 🎯 Qualitätsziele
+
+- **Bundle Size**: < 500KB gzipped
+- **Render Performance**: < 16ms average
+- **Code Quality**: 0 ESLint errors, < 10 warnings
+- **TypeScript**: Graduelle Migration zu strict mode
+
+---
+
+## Original Lovable Project Info
 
 **URL**: https://lovable.dev/projects/0ee1e412-4b5a-447c-9bc4-ffbad11fef2d
 
-## How can I edit this code?
+### Technologies
+- Vite, TypeScript, React
+- shadcn-ui, Tailwind CSS  
+- Supabase (Backend)
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/0ee1e412-4b5a-447c-9bc4-ffbad11fef2d) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0ee1e412-4b5a-447c-9bc4-ffbad11fef2d) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Deployment
+Open [Lovable](https://lovable.dev/projects/0ee1e412-4b5a-447c-9bc4-ffbad11fef2d) and click Share → Publish

@@ -8,6 +8,7 @@ import { MarketTab } from "@/components/MarketTab";
 import { CompanyManagement } from "@/components/CompanyManagement";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
+import { useRenderTracking } from "@/lib/dev-tools";
 import { 
   Calendar,
   ChevronRight,
@@ -69,6 +70,9 @@ export const GameDashboard = ({
   user
 }: GameDashboardProps) => {
   const [showTutorial, setShowTutorial] = useState(false);
+  
+  // Development-only render tracking
+  useRenderTracking('GameDashboard');
   
   const getCompanyIcon = () => {
     switch (gameState.company.logo) {

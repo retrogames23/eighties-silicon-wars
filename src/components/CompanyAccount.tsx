@@ -42,7 +42,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
     supportService: { b2c: 0, b2b: 0 }
   };
 
-  const hardwareIncome = gameState.company.hardwareIncome || gameState.company.monthlyIncome;
+  const hardwareIncome = gameState.company.hardwareIncome ?? 0;
   const softwareIncome = (additionalRevenue.softwareLicenses.games + additionalRevenue.softwareLicenses.office) / 3; // Quartalseinnahmen auf Monat
   const serviceIncome = (additionalRevenue.supportService.b2c + additionalRevenue.supportService.b2b) / 3;
 

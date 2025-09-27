@@ -1,6 +1,7 @@
 // Game mechanics and AI competition logic
 import { getNewsForQuarter } from '@/data/NewsEvents';
 import { HardwareManager } from '@/utils/HardwareManager';
+import { ModelStatusGuard } from '@/services/ModelStatusGuard';
 
 export interface Competitor {
   id: string;
@@ -555,8 +556,8 @@ export class GameMechanics {
     try {
       const { EconomyModel } = await import('./EconomyModel');
       
-      // Simuliere Verkäufe für alle veröffentlichten Modelle
-      for (const model of modelsWithObsolescence.filter(m => m.status === 'released')) {
+      // Simuliere Verkäufe für alle veröffentlichten Modelle (exclude development models)
+      for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
         const salesResult = EconomyModel.simulateModelSales(
           model,
           budget.marketing,
@@ -588,8 +589,8 @@ export class GameMechanics {
       }
     } catch (error) {
       console.warn('⚠️ EconomyModel not available, using fallback calculation');
-      // Fallback auf einfache Berechnung wenn EconomyModel nicht verfügbar
-      for (const model of modelsWithObsolescence.filter(m => m.status === 'released')) {
+      // Fallback auf einfache Berechnung wenn EconomyModel nicht verfügbar (exclude development models)
+      for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
         const simpleUnits = Math.floor(Math.random() * 1000 + 100);
         const simpleRevenue = simpleUnits * model.price;
         const simpleProfit = simpleRevenue * 0.2; // 20% Gewinnmarge
@@ -758,7 +759,7 @@ export class GameMechanics {
   }
 
   static calculatePlayerMarketShare(gameState: any, competitors: Competitor[]): number {
-    const playerModels = gameState.models.filter((m: any) => m.status === 'released');
+    const playerModels = ModelStatusGuard.getMarketShareModels(gameState.models);
     const playerSales = playerModels.reduce((total: number, model: any) => {
       return total + (model.unitsSold || 0);
     }, 0);

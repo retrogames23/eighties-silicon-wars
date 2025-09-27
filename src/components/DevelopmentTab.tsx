@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Cpu, Monitor, Zap, TrendingUp, Plus } from "lucide-react";
 import type { ComputerModel } from '@/types/ComputerModel';
+import { ModelStatusGuard } from '@/services/ModelStatusGuard';
 
 interface DevelopmentTabProps {
   models: ComputerModel[];
@@ -14,8 +15,9 @@ interface DevelopmentTabProps {
 export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }: DevelopmentTabProps) => {
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
   
-  const totalRevenue = models.reduce((sum, model) => sum + (model.unitsSold * model.price), 0);
-  const totalUnitsSold = models.reduce((sum, model) => sum + model.unitsSold, 0);
+  // Use ModelStatusGuard to exclude development models from statistics
+  const totalRevenue = ModelStatusGuard.calculateTotalRevenue(models);
+  const totalUnitsSold = ModelStatusGuard.calculateTotalUnitsSold(models);
   const totalDevelopmentCosts = models.reduce((sum, model) => sum + model.developmentCost, 0);
 
   const getStatusColor = (status: string) => {
@@ -77,15 +79,15 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
         </Card>
 
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">In Entwicklung</p>
-              <p className="text-2xl font-bold text-amber-400 neon-text font-mono">
-                {models.filter(m => m.status === 'development').length}
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">In Entwicklung</p>
+                <p className="text-2xl font-bold text-amber-400 neon-text font-mono">
+                  {ModelStatusGuard.getDevelopmentModels(models).length}
+                </p>
+              </div>
+              <Cpu className="w-6 h-6 text-amber-400" />
             </div>
-            <Cpu className="w-6 h-6 text-amber-400" />
-          </div>
         </Card>
       </div>
 

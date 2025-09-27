@@ -178,9 +178,37 @@ const usedNewsEvents = new Set<string>();
 
 export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] => {
   // Filtere Events für das spezifische Quartal
-  let quarterNews = NEWS_EVENTS.filter(event => 
-    event.quarter === quarter && event.year === year
-  );
+  let quarterNews = NEWS_EVENTS.filter(event => {
+    // Regular news matching quarter/year
+    const isRegularNews = event.quarter === quarter && event.year === year;
+    
+    // Hardware-synchronized news (check for optional effectiveQuarter field)
+    const isEffectiveNews = (event as any).effectiveQuarter === quarter && event.year === year;
+    
+    // Announcement news (check for optional isAnnouncement field)
+    const isAnnouncementNews = (event as any).isAnnouncement && event.quarter === quarter && event.year === year;
+    
+    // Hardware availability check for tech news (check for optional affectedHardwareTags field)
+    if (event.category === 'tech' && (event as any).affectedHardwareTags && (event as any).affectedHardwareTags.length > 0) {
+      try {
+        // Dynamic import to avoid circular dependency
+        const { HardwareAvailabilityService } = require('@/services/HardwareAvailabilityService');
+        const hardwareAvailable = (event as any).affectedHardwareTags.some((tag: string) => 
+          HardwareAvailabilityService.isHardwareAvailable(tag, year, quarter, [])
+        );
+        
+        // Show only if hardware is available OR it's an announcement
+        if (!hardwareAvailable && !(event as any).isAnnouncement) {
+          return false;
+        }
+      } catch (error) {
+        // Fallback if service not available - show all tech news
+        console.warn('HardwareAvailabilityService not available for news sync');
+      }
+    }
+    
+    return isRegularNews || isEffectiveNews || isAnnouncementNews;
+  });
   
   // Entferne bereits verwendete Events
   quarterNews = quarterNews.filter(event => !usedNewsEvents.has(event.id));

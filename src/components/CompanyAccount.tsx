@@ -32,7 +32,7 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
   const monthlyResearch = Math.round(gameState.budget.research / 3);
 
   const expenses = [
-    { name: "Marketing Budget", amount: monthlyMarketing, category: "Marketing" },
+    { name: "Marketing-Budget", amount: monthlyMarketing, category: "Marketing" },
     { name: "Entwicklungskosten", amount: monthlyDevelopment, category: "F&E" },
     { name: "Forschungsbudget", amount: monthlyResearch, category: "F&E" },
   ];
@@ -49,10 +49,10 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
 
   const income = [
     { name: "Computer-Verkäufe", amount: hardwareIncome, category: "Hardware" },
-    { name: "Spiele-Software", amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: "Software" },
-    { name: "Büro-Software", amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: "Software" },
-    { name: "B2C Support", amount: Math.round(additionalRevenue.supportService.b2c / 3), category: "Service" },
-    { name: "B2B Support", amount: Math.round(additionalRevenue.supportService.b2b / 3), category: "Service" },
+    { name: "Spiele-Software-Lizenzen", amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: "Software" },
+    { name: "Büro-Software-Lizenzen", amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: "Software" },
+    { name: "B2C-Support", amount: Math.round(additionalRevenue.supportService.b2c / 3), category: "Service" },
+    { name: "B2B-Support", amount: Math.round(additionalRevenue.supportService.b2b / 3), category: "Service" },
   ];
 
   return (

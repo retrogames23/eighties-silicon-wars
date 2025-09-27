@@ -162,7 +162,7 @@ export const GameTutorial = ({ onClose }: GameTutorialProps) => {
             <div className="bg-accent/10 p-4 rounded space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <h4 className="font-bold text-green-400">Marketing Budget</h4>
+                  <h4 className="font-bold text-green-400">Marketing-Budget</h4>
                   <p className="text-muted-foreground">
                     Direkt proportional zu Verkäufen. Mehr Marketing = mehr Kunden erreichen.
                   </p>

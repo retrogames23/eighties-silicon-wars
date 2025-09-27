@@ -246,7 +246,7 @@ export const MarketTab = ({ competitors, marketEvents, totalMarketSize, playerMa
                   </div>
                   <ul className="space-y-1 text-sm">
                     <li>• Heimcomputer (+25%)</li>
-                    <li>• Spiele-Software (+40%)</li>
+                    <li>• Spiele-Software-Lizenzen (+40%)</li>
                     <li>• Bildungsmarkt (+18%)</li>
                   </ul>
                 </div>

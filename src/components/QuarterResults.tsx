@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Package, DollarSign, Users, Target } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
 
 interface QuarterResultsProps {
   quarter: number;
@@ -38,8 +39,6 @@ interface QuarterResultsProps {
 }
 
 export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterResultsProps) => {
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
-
   // Handle both old and new data structures from GameMechanics
   const modelSales = results.modelSales || results.modelResults || [];
   const competitorActions = results.competitorActions || [];

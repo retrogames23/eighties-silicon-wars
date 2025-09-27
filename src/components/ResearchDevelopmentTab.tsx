@@ -19,7 +19,7 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
-import { ResearchService, type ResearchProject, type ExclusiveComponent } from "@/services/ResearchService";
+import { ResearchService, type ResearchProject, type ExclusiveComponent } from "@/services/research/ResearchService";
 import { useToast } from "@/hooks/use-toast";
 
 interface ResearchDevelopmentTabProps {

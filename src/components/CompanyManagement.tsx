@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -12,6 +13,7 @@ import {
   Lightbulb,
   Megaphone
 } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
 
 interface Budget {
   marketing: number;
@@ -25,12 +27,11 @@ interface CompanyManagementProps {
   onBudgetChange: (newBudget: Budget) => void;
 }
 
-export const CompanyManagement = ({ 
+export const CompanyManagement = memo<CompanyManagementProps>(({ 
   budget, 
   totalBudget, 
   onBudgetChange 
-}: CompanyManagementProps) => {
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
+}) => {
   
   const usedBudget = budget.marketing + budget.development + budget.research;
   const remainingBudget = totalBudget - usedBudget;
@@ -264,4 +265,6 @@ export const CompanyManagement = ({
       </div>
     </div>
   );
-};
+});
+
+CompanyManagement.displayName = 'CompanyManagement';

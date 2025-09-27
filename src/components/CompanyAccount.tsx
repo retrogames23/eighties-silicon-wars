@@ -1,6 +1,8 @@
+import React, { memo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, TrendingUp, TrendingDown, Calculator } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
 
 interface CompanyAccountProps {
   gameState: {
@@ -22,8 +24,7 @@ interface CompanyAccountProps {
   };
 }
 
-export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
+export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   
   // Nur die drei Budgets als monatliche Ausgaben
   const monthlyMarketing = Math.round(gameState.budget.marketing / 3);
@@ -174,4 +175,6 @@ export const CompanyAccount = ({ gameState }: CompanyAccountProps) => {
       </div>
     </div>
   );
-};
+});
+
+CompanyAccount.displayName = 'CompanyAccount';

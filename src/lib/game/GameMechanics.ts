@@ -507,7 +507,7 @@ export class GameMechanics {
     
     // Wende Preisverfall-Manager an
     try {
-      const { PriceDecayManager } = await import('./PriceDecayManager');
+      const { PriceDecayManager } = await import('@/components/PriceDecayManager');
       PriceDecayManager.applyQuarterlyPriceDecay(gameState.year, gameState.quarter);
     } catch (error) {
       console.log('⚠️ PriceDecayManager not available, skipping price decay');
@@ -554,7 +554,7 @@ export class GameMechanics {
     
     // Importiere EconomyModel dynamisch
     try {
-      const { EconomyModel } = await import('./EconomyModel');
+      const { EconomyModel } = await import('@/components/EconomyModel');
       
       // Simuliere Verkäufe für alle veröffentlichten Modelle (exclude development models)
       for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
@@ -629,7 +629,7 @@ export class GameMechanics {
     
     // Führe Akzeptanzkriterien-Tests durch
     try {
-      const { EconomyTestSuite } = await import('./EconomyTestSuite');
+      const { EconomyTestSuite } = await import('@/components/EconomyTestSuite');
       EconomyTestSuite.runAllTests(gameState);
       EconomyTestSuite.runPerformanceTests();
     } catch (error) {

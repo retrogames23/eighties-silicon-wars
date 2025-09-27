@@ -1,5 +1,5 @@
 // Zentrale Hardware-Verwaltung - Single Source of Truth
-import { HARDWARE_TIMELINE, type CustomChip } from "@/components/GameMechanics";
+import { HARDWARE_TIMELINE, type CustomChip } from "@/lib/game";
 
 export interface HardwareComponent {
   id: string;

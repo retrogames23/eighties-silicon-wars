@@ -13,7 +13,7 @@ import { MusicToggle } from "@/components/MusicToggle";
 import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
 import { SaveGameManager } from "@/components/SaveGameManager";
-import { GameMechanics, INITIAL_COMPETITORS, type Competitor, type MarketEvent, type CustomChip, type GameEndCondition } from "@/components/GameMechanics";
+import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { useToast } from "@/hooks/use-toast";
 
 interface Company {

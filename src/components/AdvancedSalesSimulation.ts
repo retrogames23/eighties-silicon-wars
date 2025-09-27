@@ -2,7 +2,7 @@
 import { EconomicModel } from "./EconomicModel";
 import type { ComputerModel } from '@/types/ComputerModel';
 import { ModelStatusGuard } from '@/services/ModelStatusGuard';
-import { type Competitor, type CompetitorModel } from "./GameMechanics";
+import { type Competitor, type CompetitorModel } from "@/lib/game";
 
 export interface SalesResult {
   unitsSold: number;

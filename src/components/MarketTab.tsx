@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Building2, Cpu, Users, DollarSign } from "lucide-react";
-import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
+import { type Competitor, type MarketEvent } from "@/lib/game";
 
 interface MarketTabProps {
   competitors: Competitor[];

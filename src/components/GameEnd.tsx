@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, DollarSign, Cpu, TrendingUp } from "lucide-react";
-import { GameEndCondition } from "@/components/GameMechanics";
+import { GameEndCondition } from "@/lib/game";
 
 interface GameEndProps {
   gameEndCondition: GameEndCondition;

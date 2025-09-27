@@ -1,6 +1,6 @@
 // Centralized Hardware Availability Service - Single Source of Truth
 import { HardwareManager, type HardwareComponent } from '@/utils/HardwareManager';
-import { type CustomChip } from '@/components/GameMechanics';
+import { type CustomChip } from '@/lib/game';
 
 export class HardwareAvailabilityService {
   /**

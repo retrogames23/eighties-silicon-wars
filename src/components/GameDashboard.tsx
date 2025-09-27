@@ -20,7 +20,7 @@ import {
   Save
 } from "lucide-react";
 
-import { type Competitor, type MarketEvent } from "@/components/GameMechanics";
+import { type Competitor, type MarketEvent } from "@/lib/game";
 
 import type { ComputerModel } from '@/types/ComputerModel';
 

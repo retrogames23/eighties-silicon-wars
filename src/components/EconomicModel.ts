@@ -1,5 +1,5 @@
 // Advanced Economic Model for Computer Business Simulation
-import { type Competitor, type CompetitorModel } from "./GameMechanics";
+import { type Competitor, type CompetitorModel } from "@/lib/game";
 import { HardwareManager } from "@/utils/HardwareManager";
 
 export interface EconomicFactors {

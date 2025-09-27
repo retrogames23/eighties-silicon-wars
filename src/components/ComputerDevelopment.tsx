@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { TestReport } from "./TestReport";
 import { EnhancedTestReportGenerator } from "./EnhancedTestReportGenerator";
-import { GameMechanics } from "./GameMechanics";
+import { GameMechanics } from "@/lib/game";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 

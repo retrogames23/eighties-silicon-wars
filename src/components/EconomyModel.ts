@@ -1,6 +1,6 @@
 // Überarbeitetes Wirtschafts-System mit korrekter Gewinn-Kalkulation
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
-import { type Competitor, type CompetitorModel } from "./GameMechanics";
+import { type Competitor, type CompetitorModel } from "@/lib/game";
 
 // Preisverfall-Konstanten pro Komponententyp (pro Quartal)
 export const PRICE_DECAY_RATES = {

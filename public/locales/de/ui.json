@@ -53,5 +53,51 @@
       "market": "Markt",
       "management": "Verwaltung"
     }
+  },
+  "account": {
+    "labels": {
+      "accountBalance": "Kontosaldo",
+      "monthlyIncome": "Einnahmen (monatlich)",
+      "monthlyExpenses": "Ausgaben (monatlich)",
+      "monthlyProfit": "Gewinn (monatlich)",
+      "totalIncome": "Gesamteinnahmen",
+      "totalExpenses": "Gesamtausgaben"
+    },
+    "sections": {
+      "income": "Einnahmen",
+      "expenses": "Ausgaben"
+    },
+    "categories": {
+      "marketing": "Marketing",
+      "rnd": "F&E",
+      "hardware": "Hardware",
+      "software": "Software",
+      "service": "Service"
+    },
+    "expenses": {
+      "marketingBudget": "Marketing-Budget",
+      "developmentCosts": "Entwicklungskosten",
+      "researchBudget": "Forschungsbudget"
+    },
+    "income": {
+      "computerSales": "Computer-Verkäufe",
+      "gameSoftwareLicenses": "Spiele-Software-Lizenzen",
+      "officeSoftwareLicenses": "Büro-Software-Lizenzen",
+      "b2cSupport": "B2C-Support",
+      "b2bSupport": "B2B-Support"
+    }
+  },
+  "development": {
+    "labels": {
+      "totalRevenue": "Gesamtumsatz",
+      "models": "Modelle",
+      "unitsSold": "Verkaufte Einheiten", 
+      "inDevelopment": "In Entwicklung"
+    },
+    "status": {
+      "development": "In Entwicklung",
+      "released": "Verfügbar",
+      "discontinued": "Eingestellt"
+    }
   }
 }

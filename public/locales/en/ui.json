@@ -53,5 +53,51 @@
       "market": "Market", 
       "management": "Management"
     }
+  },
+  "account": {
+    "labels": {
+      "accountBalance": "Account Balance",
+      "monthlyIncome": "Monthly Income",
+      "monthlyExpenses": "Monthly Expenses",
+      "monthlyProfit": "Monthly Profit",
+      "totalIncome": "Total Income",
+      "totalExpenses": "Total Expenses"
+    },
+    "sections": {
+      "income": "Income",
+      "expenses": "Expenses"
+    },
+    "categories": {
+      "marketing": "Marketing",
+      "rnd": "R&D",
+      "hardware": "Hardware",
+      "software": "Software",
+      "service": "Service"
+    },
+    "expenses": {
+      "marketingBudget": "Marketing Budget",
+      "developmentCosts": "Development Costs",
+      "researchBudget": "Research Budget"
+    },
+    "income": {
+      "computerSales": "Computer Sales",
+      "gameSoftwareLicenses": "Game Software Licenses",
+      "officeSoftwareLicenses": "Office Software Licenses",
+      "b2cSupport": "B2C Support",
+      "b2bSupport": "B2B Support"
+    }
+  },
+  "development": {
+    "labels": {
+      "totalRevenue": "Total Revenue",
+      "models": "Models",
+      "unitsSold": "Units Sold",
+      "inDevelopment": "In Development"
+    },
+    "status": {
+      "development": "In Development",
+      "released": "Available",
+      "discontinued": "Discontinued"
+    }
   }
 }

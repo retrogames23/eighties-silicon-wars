@@ -277,6 +277,23 @@ class I18nCodemod {
   determineSectionForString(content, filePath) {
     const filename = path.basename(filePath, '.tsx');
     
+    // Economy namespace sections
+    if (this.namespace === 'economy') {
+      if (content.includes('Budget') || content.includes('Ausgaben') || content.includes('Kosten') || content.includes('Allokation')) {
+        return 'budget';
+      }
+      if (content.includes('Markt') || content.includes('Konkurrenz') || content.includes('Analyse') || content.includes('Trend')) {
+        return 'market';
+      }
+      if (content.includes('Preis') || content.includes('Kosten') || content.includes('Segment')) {
+        return 'pricing';
+      }
+      if (content.includes('Wachstum') || content.includes('Quartal') || content.includes('Volumen')) {
+        return 'metrics';
+      }
+      return 'general';
+    }
+    
     // Company-specific sections
     if (filename.includes('Company')) {
       if (content.includes('Budget') || content.includes('kosten') || content.includes('Ausgaben')) {
@@ -374,16 +391,28 @@ class I18nCodemod {
 if (require.main === module) {
   const [,, namespace, filePattern] = process.argv;
   
-  if (!namespace || !filePattern) {
-    console.error('Usage: node scripts/i18n-codemod.js <namespace> <file-pattern>');
-    console.error('Example: node scripts/i18n-codemod.js ui "src/components/CompanyAccount.tsx"');
+  if (!namespace) {
+    console.error('Usage: node scripts/i18n-codemod.js <namespace> [file-pattern]');
+    console.error('Example: node scripts/i18n-codemod.js economy');
     process.exit(1);
   }
   
   const codemod = new I18nCodemod(namespace);
   
-  // Process files (could be expanded to glob patterns)
-  const files = [filePattern]; // Simple single file for now
+  // Define target files based on namespace
+  let files = [];
+  if (namespace === 'economy') {
+    files = [
+      'src/components/CompanyManagement.tsx',
+      'src/components/MarketTab.tsx'
+    ];
+  } else if (filePattern) {
+    files = [filePattern];
+  } else {
+    console.error('File pattern required for non-economy namespaces');
+    process.exit(1);
+  }
+  
   let processedCount = 0;
   
   for (const file of files) {
@@ -394,7 +423,7 @@ if (require.main === module) {
   
   if (processedCount > 0) {
     codemod.saveTranslations();
-    console.log(`\n✅ Migration complete: ${processedCount} files processed`);
+    console.log(`\n✅ Migration complete: ${processedCount} files processed for '${namespace}' namespace`);
   } else {
     console.log('\n⚠️ No files were modified');
   }

@@ -112,6 +112,8 @@ console.log('🚀 Starting I18N Migration Verification...');
 const results = [
   verifyNoHardCodedStrings('src/components/CompanyAccount.tsx', 'CompanyAccount'),
   verifyNoHardCodedStrings('src/components/DevelopmentTab.tsx', 'DevelopmentTab'),
+  verifyNoHardCodedStrings('src/components/CompanyManagement.tsx', 'CompanyManagement'),
+  verifyNoHardCodedStrings('src/components/MarketTab.tsx', 'MarketTab'),
   verifyTranslationKeys()
 ];
 

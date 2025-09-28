@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useRenderTracking } from "@/lib/dev-tools";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslation } from 'react-i18next';
 import { 
   TrendingUp, 
   Cpu, 
@@ -35,6 +36,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
   onBudgetChange 
 }) => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation(['economy', 'common']);
   
   // Development-only render tracking
   useRenderTracking('CompanyManagement');
@@ -50,38 +52,38 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
   const budgetCategories = [
     {
       key: 'marketing' as keyof Budget,
-      name: 'Marketing',
+      name: t('economy.budget.marketing'),
       icon: Megaphone,
       color: 'text-neon-magenta',
-      description: 'Werbung, PR und Markenaufbau',
+      description: t('economy.budget.marketingDescription'),
       effects: [
-        'Erhöht Markenbekanntheit',
-        'Steigert Verkaufszahlen', 
-        'Verbessert Marktposition'
+        t('economy.budget.marketingEffect1'),
+        t('economy.budget.marketingEffect2'), 
+        t('economy.budget.marketingEffect3')
       ]
     },
     {
       key: 'development' as keyof Budget,
-      name: 'Entwicklung',
+      name: t('economy.budget.development'),
       icon: Cpu,
       color: 'text-neon-cyan',
-      description: 'Hardware- und Software-Entwicklung',
+      description: t('economy.budget.developmentDescription'),
       effects: [
-        'Schnellere Produktentwicklung',
-        'Bessere technische Features',
-        'Kürzere Time-to-Market'
+        t('economy.budget.developmentEffect1'),
+        t('economy.budget.developmentEffect2'),
+        t('economy.budget.developmentEffect3')
       ]
     },
     {
       key: 'research' as keyof Budget,
-      name: 'Forschung',
+      name: t('economy.budget.research'),
       icon: Lightbulb,
       color: 'text-neon-green',
-      description: 'Grundlagenforschung und Innovation',
+      description: t('economy.budget.researchDescription'),
       effects: [
-        'Zukunftstechnologien',
-        'Patente und IP',
-        'Langfristige Wettbewerbsvorteile'
+        t('economy.budget.researchEffect1'),
+        t('economy.budget.researchEffect2'),
+        t('economy.budget.researchEffect3')
       ]
     }
   ];
@@ -93,7 +95,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Gesamtbudget</p>
+              <p className="text-sm text-muted-foreground">{t('economy.budget.totalBudget')}</p>
               <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-neon-green neon-text font-mono`}>
                 {formatCurrency(totalBudget)}
               </p>
@@ -105,7 +107,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Verwendet</p>
+              <p className="text-sm text-muted-foreground">{t('economy.budget.used')}</p>
               <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-neon-cyan neon-text font-mono`}>
                 {formatCurrency(usedBudget)}
               </p>
@@ -117,7 +119,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Verfügbar</p>
+              <p className="text-sm text-muted-foreground">{t('economy.budget.available')}</p>
               <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold font-mono ${
                 remainingBudget >= 0 ? 'text-neon-green neon-text' : 'text-red-400'
               }`}>
@@ -131,7 +133,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Auslastung</p>
+              <p className="text-sm text-muted-foreground">{t('economy.budget.utilization')}</p>
               <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-amber neon-text font-mono`}>
                 {Math.round((usedBudget / totalBudget) * 100)}%
               </p>
@@ -147,7 +149,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
           <div className="flex items-center space-x-3">
             <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
             <p className="text-red-400 font-semibold">
-              Budget überschritten! Reduziere die Ausgaben um {formatCurrency(Math.abs(remainingBudget))}.
+              {t('economy.budget.budgetExceeded', { amount: formatCurrency(Math.abs(remainingBudget)) })}
             </p>
           </div>
         </Card>
@@ -155,7 +157,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
 
       {/* Budget-Aufteilung */}
       <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <h3 className="text-xl font-bold text-primary neon-text mb-6">Budget-Allokation</h3>
+        <h3 className="text-xl font-bold text-primary neon-text mb-6">{t('economy.budget.budgetAllocation')}</h3>
         
         <div className="space-y-8">
           {budgetCategories.map((category) => {
@@ -197,7 +199,7 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
                 </div>
 
                 <div className="bg-card/30 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-primary mb-2">Auswirkungen:</p>
+                  <p className="text-sm font-semibold text-primary mb-2">{t('economy.budget.effects')}:</p>
                   <ul className="text-sm space-y-1">
                     {category.effects.map((effect, index) => (
                       <li key={index} className="flex items-center space-x-2">
@@ -215,11 +217,11 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
 
       {/* Budget-Verteilung Visualisierung */}
       <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <h3 className="text-xl font-bold text-primary neon-text mb-4">Budget-Verteilung</h3>
+        <h3 className="text-xl font-bold text-primary neon-text mb-4">{t('economy.budget.budgetDistribution')}</h3>
         
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Gesamtauslastung</span>
+            <span className="text-sm text-muted-foreground">{t('economy.budget.totalUtilization')}</span>
             <span className="text-sm font-mono">
               {Math.round((usedBudget / totalBudget) * 100)}%
             </span>
@@ -252,21 +254,21 @@ export const CompanyManagement = memo<CompanyManagementProps>(({
           variant="secondary"
           className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
-          Ausgewogene Verteilung
+          {t('economy.budget.balancedDistribution')}
         </Button>
         <Button 
           onClick={() => onBudgetChange({ marketing: 25000, development: 100000, research: 25000 })}
           variant="secondary"
           className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
-          Fokus Entwicklung
+          {t('economy.budget.focusDevelopment')}
         </Button>
         <Button 
           onClick={() => onBudgetChange({ marketing: 75000, development: 50000, research: 25000 })}
           variant="secondary"
           className={`${isMobile ? 'w-full mobile-touch-button' : 'flex-1'}`}
         >
-          Fokus Marketing
+          {t('economy.budget.focusMarketing')}
         </Button>
       </div>
     </div>

@@ -313,6 +313,23 @@ class I18nCodemod {
       return 'development';
     }
     
+    // Hardware namespace sections
+    if (this.namespace === 'hardware') {
+      if (content.includes('Verfügbar') || content.includes('verfügbar') || content.includes('Entwicklung') || content.includes('freigeschaltet')) {
+        return 'availability';
+      }
+      if (content.includes('Leistung') || content.includes('Performance') || content.includes('Punkte')) {
+        return 'performance';
+      }
+      if (content.includes('Prozessor') || content.includes('Grafik') || content.includes('Arbeitsspeicher') || content.includes('Sound') || content.includes('Zubehör')) {
+        return 'types';
+      }
+      if (content.includes('Komponente') || content.includes('Computer-Entwicklung') || content.includes('Auswahl')) {
+        return 'components';
+      }
+      return 'announcement';
+    }
+    
     // Market-specific sections
     if (filename.includes('Market') || content.includes('Markt')) {
       return 'market';
@@ -406,10 +423,15 @@ if (require.main === module) {
       'src/components/CompanyManagement.tsx',
       'src/components/MarketTab.tsx'
     ];
+  } else if (namespace === 'hardware') {
+    files = [
+      'src/components/HardwareAnnouncement.tsx',
+      'src/components/ComputerDevelopment.tsx'
+    ];
   } else if (filePattern) {
     files = [filePattern];
   } else {
-    console.error('File pattern required for non-economy namespaces');
+    console.error('File pattern required for non-economy/hardware namespaces');
     process.exit(1);
   }
   

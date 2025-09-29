@@ -28,6 +28,7 @@ import { EnhancedTestReportGenerator } from "./EnhancedTestReportGenerator";
 import { GameMechanics } from "@/lib/game";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
+import { useTranslation } from 'react-i18next';
 
 // Use HardwareComponent from HardwareManager instead of local Component interface
 
@@ -125,6 +126,8 @@ interface ComputerDevelopmentProps {
 }
 
 export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips, existingModels = [], editingModel }: ComputerDevelopmentProps) => {
+  const { t } = useTranslation(['hardware', 'common']);
+  
   const [selectedComponents, setSelectedComponents] = useState<HardwareComponent[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
@@ -428,7 +431,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 canProceedToCase ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
               }`}>
                 <Cpu className="w-4 h-4" />
-                <span className="font-mono">1. Komponenten</span>
+                <span className="font-mono">{t('hardware.components.step1')}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400" />
               <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
@@ -461,7 +464,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
             {/* Hauptbereich */}
             <div className={currentStep === 'testreport' ? '' : 'lg:col-span-2 space-y-6'}>
               
-              {/* SCHRITT 1: Komponenten-Auswahl */}
+              {/* SCHRITT 1: {t('hardware.components.selection')} */}
               {currentStep === 'components' && (
                 <>
                   {['cpu', 'gpu', 'memory', 'sound', 'storage', 'display'].map(type => (
@@ -797,7 +800,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                   <CardContent className="space-y-4">
                     {selectedComponents.length === 0 && !selectedCase ? (
                       <p className="text-muted-foreground text-center py-8">
-                        Wählen Sie Komponenten aus
+                        {t('hardware.components.selectPrompt')}
                       </p>
                     ) : (
                       <>
@@ -865,7 +868,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full retro-border bg-card/20"
                               >
                                 <ChevronLeft className="w-4 h-4 mr-2" />
-                                Zurück zu Komponenten
+                                {t('hardware.components.backToComponents')}
                               </Button>
                               <Button
                                 onClick={() => setCurrentStep('name')}

@@ -1,0 +1,28 @@
+{
+  "announcement": {
+    "title": "Neue Hardware verfügbar!",
+    "subtitle": "Q{{quarter}} {{year}} - Technologie-Update"
+  },
+  "availability": {
+    "unlocked": "Deine Forschung hat neue Technologien freigeschaltet:",
+    "developmentNote": "Diese Komponenten sind jetzt in der Computer-Entwicklung verfügbar!"
+  },
+  "types": {
+    "cpu": "Prozessor",
+    "gpu": "Grafik",
+    "ram": "Arbeitsspeicher",
+    "sound": "Sound",
+    "accessory": "Zubehör",
+    "default": "Hardware"
+  },
+  "performance": {
+    "label": "Leistung",
+    "points": "{{points}} Punkte"
+  },
+  "components": {
+    "step1": "1. Komponenten",
+    "selection": "Komponenten-Auswahl",
+    "selectPrompt": "Wählen Sie Komponenten aus",
+    "backToComponents": "Zurück zu Komponenten"
+  }
+}

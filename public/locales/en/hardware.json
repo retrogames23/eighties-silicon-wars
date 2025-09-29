@@ -1,0 +1,28 @@
+{
+  "announcement": {
+    "title": "New Hardware Available!",
+    "subtitle": "Q{{quarter}} {{year}} - Technology Update"
+  },
+  "availability": {
+    "unlocked": "Your research has unlocked new technologies:",
+    "developmentNote": "These components are now available in computer development!"
+  },
+  "types": {
+    "cpu": "Processor",
+    "gpu": "Graphics",
+    "ram": "Memory",
+    "sound": "Sound",
+    "accessory": "Accessory",
+    "default": "Hardware"
+  },
+  "performance": {
+    "label": "Performance",
+    "points": "{{points}} Points"
+  },
+  "components": {
+    "step1": "1. Components",
+    "selection": "Component Selection",
+    "selectPrompt": "Select Components",
+    "backToComponents": "Back to Components"
+  }
+}

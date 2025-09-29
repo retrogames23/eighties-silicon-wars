@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Cpu, Monitor, HardDrive, Zap, Calendar } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface HardwareItem {
   name: string;
@@ -30,14 +31,14 @@ const getHardwareIcon = (type: string) => {
   }
 };
 
-const getHardwareTypeLabel = (type: string) => {
+const getHardwareTypeLabel = (type: string, t: any) => {
   switch (type) {
-    case 'cpu': return 'Prozessor';
-    case 'gpu': return 'Grafik';
-    case 'ram': return 'Arbeitsspeicher';
-    case 'sound': return 'Sound';
-    case 'accessory': return 'Zubehör';
-    default: return 'Hardware';
+    case 'cpu': return t('hardware.types.cpu');
+    case 'gpu': return t('hardware.types.gpu');
+    case 'ram': return t('hardware.types.ram');
+    case 'sound': return t('hardware.types.sound');
+    case 'accessory': return t('hardware.types.accessory');
+    default: return t('hardware.types.default');
   }
 };
 
@@ -48,6 +49,8 @@ export const HardwareAnnouncement = ({
   currentYear, 
   currentQuarter 
 }: HardwareAnnouncementProps) => {
+  const { t } = useTranslation(['hardware', 'common']);
+  
   if (!isOpen || newHardware.length === 0) return null;
 
   return (
@@ -56,17 +59,17 @@ export const HardwareAnnouncement = ({
         <DialogHeader>
           <DialogTitle className="text-2xl text-neon-green font-mono flex items-center gap-2">
             <Zap className="w-6 h-6" />
-            Neue Hardware verfügbar!
+            {t('hardware.announcement.title')}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            Q{currentQuarter} {currentYear} - Technologie-Update
+            {t('hardware.announcement.subtitle', { quarter: currentQuarter, year: currentYear })}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Deine Forschung hat neue Technologien freigeschaltet:
+            {t('hardware.availability.unlocked')}
           </p>
           
           <div className="grid gap-3">
@@ -83,7 +86,7 @@ export const HardwareAnnouncement = ({
                             {hardware.name}
                           </h3>
                           <Badge variant="outline" className="text-xs">
-                            {getHardwareTypeLabel(hardware.type)}
+                            {getHardwareTypeLabel(hardware.type, t)}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -91,9 +94,9 @@ export const HardwareAnnouncement = ({
                         </p>
                         {hardware.performance && (
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-muted-foreground">Leistung:</span>
+                            <span className="text-xs text-muted-foreground">{t('hardware.performance.label')}:</span>
                             <Badge variant="secondary" className="text-xs">
-                              {hardware.performance} Punkte
+                              {t('hardware.performance.points', { points: hardware.performance })}
                             </Badge>
                           </div>
                         )}
@@ -107,14 +110,14 @@ export const HardwareAnnouncement = ({
           
           <div className="border-t pt-4">
             <p className="text-xs text-muted-foreground mb-4">
-              Diese Komponenten sind jetzt in der Computer-Entwicklung verfügbar!
+              {t('hardware.availability.developmentNote')}
             </p>
             <div className="flex justify-center">
               <Button 
                 onClick={onClose}
                 className="px-8 font-mono retro-border bg-neon-green text-black hover:bg-neon-green/80"
               >
-                OK
+                {t('common.ok')}
               </Button>
             </div>
           </div>

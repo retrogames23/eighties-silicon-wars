@@ -1,0 +1,34 @@
+{
+  "title": "Quartalsresultate",
+  "subtitle": "Zusammenfassung der Geschäftstätigkeit der letzten 3 Monate",
+  "models": {
+    "title": "Verkaufte Computer-Modelle",
+    "unitsLabel": "Einheiten",
+    "noSales": "Keine Verkäufe - Du hast noch keine Computer-Modelle veröffentlicht"
+  },
+  "financial": {
+    "revenue": {
+      "title": "Einnahmen",
+      "total": "Gesamtumsatz",
+      "unitsSold": "Verkaufte Einheiten"
+    },
+    "expenses": {
+      "title": "Ausgaben",
+      "marketing": "Marketing",
+      "development": "Entwicklung",
+      "research": "Forschung"
+    },
+    "netProfit": "Nettogewinn"
+  },
+  "market": {
+    "marketShare": "Marktanteil",
+    "reputation": "Reputation"
+  },
+  "marketEvent": {
+    "title": "Marktereignis"
+  },
+  "competitors": {
+    "title": "Konkurrenz-Aktivitäten"
+  },
+  "continue": "Weiter zu"
+}

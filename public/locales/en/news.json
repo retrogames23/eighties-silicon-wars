@@ -14,5 +14,40 @@
   "content": {
     "marketGrowth": "Market researchers report an impressive increase in sales figures that exceeds all expectations and makes the industry optimistic.",
     "priceWar": "Intensifying competition forces computer manufacturers to make drastic price cuts, which benefits consumers but reduces profit margins."
+  },
+  "title": "COMPUTER GAZETTE",
+  "issue": "Issue",
+  "price": "Price: $0.50",
+  "tagline": "The leading newspaper for computer technology and electronics",
+  "byline": "By the editorial team",
+  "marketImpact": {
+    "title": "MARKET IMPACT",
+    "growth": "Market growth",
+    "pricePressure": "Price pressure"
+  },
+  "marketOverview": {
+    "title": "MARKET OVERVIEW",
+    "totalMarket": "Total market",
+    "growth": "Growth",
+    "topComputers": "TOP COMPUTERS"
+  },
+  "sideNews": {
+    "title": "MORE NEWS"
+  },
+  "techSection": {
+    "title": "TECHNOLOGY SECTION",
+    "impact": "Impact",
+    "growth": "Growth",
+    "pricePressure": "Price pressure"
+  },
+  "footer": {
+    "info": "Computer Gazette • Founded 1983 • \"Innovation through Information\"",
+    "close": "Close newspaper"
+  },
+  "months": {
+    "january": "January",
+    "april": "April",
+    "july": "July", 
+    "october": "October"
   }
 }

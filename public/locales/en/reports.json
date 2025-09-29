@@ -1,0 +1,34 @@
+{
+  "title": "Quarterly Results",
+  "subtitle": "Summary of business activities over the last 3 months",
+  "models": {
+    "title": "Computer Models Sold",
+    "unitsLabel": "units",
+    "noSales": "No sales - You haven't published any computer models yet"
+  },
+  "financial": {
+    "revenue": {
+      "title": "Revenue",
+      "total": "Total revenue",
+      "unitsSold": "Units sold"
+    },
+    "expenses": {
+      "title": "Expenses",
+      "marketing": "Marketing",
+      "development": "Development",
+      "research": "Research"
+    },
+    "netProfit": "Net profit"
+  },
+  "market": {
+    "marketShare": "Market share",
+    "reputation": "Reputation"
+  },
+  "marketEvent": {
+    "title": "Market Event"
+  },
+  "competitors": {
+    "title": "Competitor Activities"
+  },
+  "continue": "Continue to"
+}

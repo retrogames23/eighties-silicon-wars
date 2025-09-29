@@ -14,5 +14,40 @@
   "content": {
     "marketGrowth": "Marktforscher berichten von einem beeindruckenden Anstieg der Verkaufszahlen, der alle Erwartungen übertrifft und die Branche optimistisch stimmt.",
     "priceWar": "Der intensiver werdende Wettbewerb zwingt Computerhersteller zu drastischen Preissenkungen, was Verbrauchern zugute kommt aber Gewinnmargen schmälert."
+  },
+  "title": "COMPUTER GAZETTE",
+  "issue": "Ausgabe",
+  "price": "Preis: $0.50",
+  "tagline": "Die führende Zeitung für Computertechnologie und Elektronik",
+  "byline": "Von der Redaktion",
+  "marketImpact": {
+    "title": "MARKTAUSWIRKUNG",
+    "growth": "Marktwachstum",
+    "pricePressure": "Preisdruck"
+  },
+  "marketOverview": {
+    "title": "MARKT-ÜBERBLICK",
+    "totalMarket": "Gesamtmarkt",
+    "growth": "Wachstum",
+    "topComputers": "TOP COMPUTER"
+  },
+  "sideNews": {
+    "title": "WEITERE MELDUNGEN"
+  },
+  "techSection": {
+    "title": "TECHNOLOGIE-SEKTION",
+    "impact": "Auswirkung",
+    "growth": "Wachstum",
+    "pricePressure": "Preisdruck"
+  },
+  "footer": {
+    "info": "Computer Gazette • Gegründet 1983 • \"Innovation durch Information\"",
+    "close": "Zeitung schließen"
+  },
+  "months": {
+    "january": "Januar",
+    "april": "April", 
+    "july": "Juli",
+    "october": "Oktober"
   }
 }

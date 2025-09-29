@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Package, DollarSign, Users, Target } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
+import { formatters } from "@/lib/i18n";
 
 interface QuarterResultsProps {
   quarter: number;
@@ -39,6 +41,8 @@ interface QuarterResultsProps {
 }
 
 export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterResultsProps) => {
+  const { t } = useTranslation(['reports', 'common']);
+  
   // Handle both old and new data structures from GameMechanics
   const modelSales = results.modelSales || results.modelResults || [];
   const competitorActions = results.competitorActions || [];
@@ -56,10 +60,10 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto retro-border bg-card">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl text-neon-green font-mono">
-            Q{quarter} {year} - Quartalsresultate
+            {formatters.quarter(quarter, year)} - {t('title')}
           </CardTitle>
           <CardDescription>
-            Zusammenfassung der Geschäftstätigkeit der letzten 3 Monate
+            {t('subtitle')}
           </CardDescription>
         </CardHeader>
         
@@ -68,7 +72,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           <div>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Package className="w-5 h-5" />
-              Verkaufte Computer-Modelle
+              {t('models.title')}
             </h3>
             {modelSales && modelSales.length > 0 ? (
               <div className="grid gap-3">
@@ -77,7 +81,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
                     <div>
                       <div className="font-mono font-medium">{model.modelName}</div>
                       <div className="text-sm text-muted-foreground">
-                        {model.unitsSold} Einheiten × {formatCurrency(model.price || 0)}
+                        {model.unitsSold} {t('models.unitsLabel')} × {formatCurrency(model.price || 0)}
                       </div>
                     </div>
                     <Badge variant="outline" className="font-mono">
@@ -88,7 +92,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-4 border rounded-lg">
-                Keine Verkäufe - Du hast noch keine Computer-Modelle veröffentlicht
+                {t('models.noSales')}
               </div>
             )}
           </div>
@@ -99,17 +103,17 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <DollarSign className="w-4 h-4" />
-                  Einnahmen
+                  {t('financial.revenue.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Gesamtumsatz:</span>
+                    <span>{t('financial.revenue.total')}:</span>
                     <span className="font-mono text-green-400">{formatCurrency(results.totalRevenue)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Verkaufte Einheiten:</span>
+                    <span>{t('financial.revenue.unitsSold')}:</span>
                     <span className="font-mono">{results.totalUnitsSold}</span>
                   </div>
                 </div>
@@ -120,21 +124,21 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="w-4 h-4" />
-                  Ausgaben
+                  {t('financial.expenses.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span>Marketing:</span>
+                    <span>{t('financial.expenses.marketing')}:</span>
                     <span className="font-mono text-red-400">{formatCurrency(results.expenses.marketing)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Entwicklung:</span>
+                    <span>{t('financial.expenses.development')}:</span>
                     <span className="font-mono text-red-400">{formatCurrency(results.expenses.development)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Forschung:</span>
+                    <span>{t('financial.expenses.research')}:</span>
                     <span className="font-mono text-red-400">{formatCurrency(results.expenses.research)}</span>
                   </div>
                 </div>
@@ -146,7 +150,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           <Card className={totalProfit >= 0 ? "border-green-500/20" : "border-red-500/20"}>
             <CardContent className="pt-4">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Nettogewinn:</span>
+                <span className="text-lg font-semibold">{t('financial.netProfit')}:</span>
                 <Badge 
                   variant={totalProfit >= 0 ? "default" : "destructive"} 
                   className="text-lg px-4 py-2 font-mono"
@@ -161,7 +165,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="font-medium">Marktanteil:</span>
+                <span className="font-medium">{t('market.marketShare')}:</span>
                 <div className="flex items-center gap-2">
                   {results.marketShareChange > 0 ? (
                     <TrendingUp className="w-4 h-4 text-green-400" />
@@ -177,7 +181,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="font-medium">Reputation:</span>
+                <span className="font-medium">{t('market.reputation')}:</span>
                 <div className="flex items-center gap-2">
                   {results.reputationChange > 0 ? (
                     <TrendingUp className="w-4 h-4 text-green-400" />
@@ -196,7 +200,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
           {results.marketEvent && (
             <Card className="border-yellow-500/20">
               <CardHeader>
-                <CardTitle className="text-sm text-yellow-400">Marktereignis</CardTitle>
+                <CardTitle className="text-sm text-yellow-400">{t('marketEvent.title')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div>
@@ -214,7 +218,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Konkurrenz-Aktivitäten
+                  {t('competitors.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -232,7 +236,7 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               onClick={onContinue}
               className="px-8 py-2 font-mono"
             >
-              Weiter zu Q{quarter === 4 ? 1 : quarter + 1} {quarter === 4 ? year + 1 : year}
+              {t('continue')} {formatters.quarter(quarter === 4 ? 1 : quarter + 1, quarter === 4 ? year + 1 : year)}
             </Button>
           </div>
         </CardContent>

@@ -116,6 +116,8 @@ const results = [
   verifyNoHardCodedStrings('src/components/MarketTab.tsx', 'MarketTab'),
   verifyNoHardCodedStrings('src/components/HardwareAnnouncement.tsx', 'HardwareAnnouncement'),
   verifyNoHardCodedStrings('src/components/ComputerDevelopment.tsx', 'ComputerDevelopment'),
+  verifyNoHardCodedStrings('src/components/Newspaper.tsx', 'Newspaper'),
+  verifyNoHardCodedStrings('src/components/QuarterResults.tsx', 'QuarterResults'),
   verifyTranslationKeys()
 ];
 
@@ -126,7 +128,7 @@ console.log(`✅ Passed: ${results.filter(r => r).length}/${results.length}`);
 console.log(`❌ Failed: ${results.filter(r => !r).length}/${results.length}`);
 
 if (allPassed) {
-  console.log('\n🎉 All verifications passed! Commit 3 (Hardware) ready.');
+  console.log('\n🎉 All verifications passed! Commit 4 (News & Reports) ready.');
   process.exit(0);
 } else {
   console.log('\n⚠️  Some verifications failed. Please review and fix.');

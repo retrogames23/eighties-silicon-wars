@@ -75,6 +75,8 @@ const NAMESPACE_PREFIXES = {
   ui: 'ui',
   economy: 'economy',
   hardware: 'hardware',
+  news: 'news',
+  reports: 'reports',
   common: 'common'
 };
 
@@ -427,6 +429,14 @@ if (require.main === module) {
     files = [
       'src/components/HardwareAnnouncement.tsx',
       'src/components/ComputerDevelopment.tsx'
+    ];
+  } else if (namespace === 'news') {
+    files = [
+      'src/components/Newspaper.tsx'
+    ];
+  } else if (namespace === 'reports') {
+    files = [
+      'src/components/QuarterResults.tsx'
     ];
   } else if (filePattern) {
     files = [filePattern];

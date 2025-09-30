@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, Zap, Cpu, Monitor, ChevronRight } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { formatters } from "@/lib/i18n";
 
 interface CompanySetupProps {
   onSetupComplete: (setup: CompanySetupData) => void;
@@ -19,17 +17,16 @@ export interface CompanySetupData {
 }
 
 export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
-  const { t } = useLanguage();
   const { toast } = useToast();
-  const { t: t18n } = useTranslation(['toast', 'common']);
+  const { t } = useTranslation(['company', 'toast', 'common']);
   const [companyName, setCompanyName] = useState("");
   const [selectedLogo, setSelectedLogo] = useState("cpu");
 
   const logos = [
-    { id: 'building', icon: Building2, name: t('logo.corporate') },
-    { id: 'cpu', icon: Cpu, name: t('logo.cpu') },
-    { id: 'monitor', icon: Monitor, name: t('logo.computer') },
-    { id: 'zap', icon: Zap, name: t('logo.innovation') },
+    { id: 'building', icon: Building2, name: t('company:logo.corporate') },
+    { id: 'cpu', icon: Cpu, name: t('company:logo.cpu') },
+    { id: 'monitor', icon: Monitor, name: t('company:logo.computer') },
+    { id: 'zap', icon: Zap, name: t('company:logo.innovation') },
   ];
 
   const handleSubmit = () => {
@@ -40,8 +37,8 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
       });
     } else {
       toast({
-        title: t18n('common.error'),
-        description: t18n('toast.auth.missingFields'),
+        title: t('common:error'),
+        description: t('toast:auth.missingFields'),
         variant: "destructive"
       });
     }
@@ -55,30 +52,30 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
         <Card className="retro-border bg-card/80 backdrop-blur-sm p-8 max-w-2xl w-full">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold neon-text text-neon-green mb-4">
-              {t('company.title')}
+              {t('company:title')}
             </h1>
             <p className="text-neon-cyan font-mono">
-              {t('company.subtitle')}
+              {t('company:subtitle')}
             </p>
           </div>
 
           <div className="space-y-8">
             <div>
               <Label htmlFor="company-name" className="text-lg font-semibold text-primary mb-4 block">
-                {t('company.nameLabel')}
+                {t('company:nameLabel')}
               </Label>
               <Input
                 id="company-name"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder={t('company.namePlaceholder')}
+                placeholder={t('company:namePlaceholder')}
                 className="text-lg p-4 retro-border bg-background/50"
               />
             </div>
 
             <div>
               <Label className="text-lg font-semibold text-primary mb-4 block">
-                {t('company.logoLabel')}
+                {t('company:logoLabel')}
               </Label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {logos.map((logo) => {
@@ -115,7 +112,7 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
                 size="lg"
               >
                 <ChevronRight className="w-5 h-5 mr-2" />
-                {t('company.submit')}
+                {t('company:submit')}
               </Button>
             </div>
           </div>

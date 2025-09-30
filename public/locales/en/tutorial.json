@@ -1,0 +1,99 @@
+{
+  "title": "Game Tutorial - Computer Tycoon",
+  "close": "Close",
+  "goals": {
+    "title": "🎯 Game Goals",
+    "marketLeader": {
+      "title": "Become Market Leader",
+      "description": "Conquer the largest market share by 1992",
+      "badge": "Main Goal"
+    },
+    "wealthy": {
+      "title": "Get Rich",
+      "description": "Collect over $50M in total revenue",
+      "badge": "Bonus Goal"
+    },
+    "innovator": {
+      "title": "Be Innovative",
+      "description": "Develop 5+ custom hardware chips",
+      "badge": "Prestige Goal"
+    }
+  },
+  "gameplay": {
+    "title": "⚡ Gameplay (1983-1992)",
+    "step1": {
+      "title": "Develop Computers",
+      "description": "Choose CPU, RAM, Graphics and a stylish case. Takes 1-2 quarters."
+    },
+    "step2": {
+      "title": "Distribute Budget",
+      "description": "Marketing = more sales | Development = faster computers | Research = custom chips"
+    },
+    "step3": {
+      "title": "Complete Quarters",
+      "description": "View your sales, market position and competitor moves."
+    }
+  },
+  "strategies": {
+    "title": "💡 Success Strategies",
+    "gamer": {
+      "title": "🎮 Gamer Market (75%)",
+      "points": [
+        "Strong graphics (VIC-II, GTIA)",
+        "Good sound (SID, YM2149)",
+        "RGB Monitor",
+        "Stylish gamer case",
+        "Price under $1200"
+      ]
+    },
+    "business": {
+      "title": "💼 Business Market (25%)",
+      "points": [
+        "Fast CPU (68000, 80286)",
+        "Lots of RAM (256KB+)",
+        "Hard drive or floppy disk",
+        "Professional office case",
+        "Higher price = more trust"
+      ]
+    }
+  },
+  "budget": {
+    "title": "💰 Budget Management",
+    "marketing": {
+      "title": "Marketing Budget",
+      "description": "Directly proportional to sales. More marketing = reach more customers."
+    },
+    "development": {
+      "title": "Development Budget",
+      "description": "Speeds up computer development. 2x budget = 2x faster."
+    },
+    "research": {
+      "title": "Research Budget",
+      "description": "5% chance per quarter for custom chip. More budget = higher chance."
+    }
+  },
+  "warning": {
+    "title": "⚠️ Warning!",
+    "description": "You start with $5M and have ongoing costs of $30k/month. Without income you'll go bankrupt after ~13 years. Develop profitable computers quickly!"
+  },
+  "competitors": {
+    "title": "🏆 Your Competition",
+    "apple": {
+      "name": "Apple",
+      "focus": "Premium, Business"
+    },
+    "commodore": {
+      "name": "Commodore",
+      "focus": "Mass market, Gamer"
+    },
+    "ibm": {
+      "name": "IBM",
+      "focus": "Expensive, Professional"
+    },
+    "atari": {
+      "name": "Atari",
+      "focus": "Cheap, Gaming"
+    }
+  },
+  "startButton": "Let's go! 🚀"
+}

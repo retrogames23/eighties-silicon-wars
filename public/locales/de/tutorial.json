@@ -1,0 +1,99 @@
+{
+  "title": "Spielanleitung - Computer Tycoon",
+  "close": "Schließen",
+  "goals": {
+    "title": "🎯 Spielziel",
+    "marketLeader": {
+      "title": "Marktführer werden",
+      "description": "Erobere den größten Marktanteil bis 1992",
+      "badge": "Hauptziel"
+    },
+    "wealthy": {
+      "title": "Reich werden",
+      "description": "Sammle über $50M Gesamtumsatz",
+      "badge": "Bonusziel"
+    },
+    "innovator": {
+      "title": "Innovator sein",
+      "description": "Entwickle 5+ Custom Hardware-Chips",
+      "badge": "Prestigeziel"
+    }
+  },
+  "gameplay": {
+    "title": "⚡ Spielablauf (1983-1992)",
+    "step1": {
+      "title": "Computer entwickeln",
+      "description": "Wähle CPU, RAM, Grafik und ein stylisches Case. Dauert 1-2 Quartale."
+    },
+    "step2": {
+      "title": "Budget verteilen",
+      "description": "Marketing = mehr Verkäufe | Entwicklung = schnellere Computer | Forschung = Custom Chips"
+    },
+    "step3": {
+      "title": "Quartale abschließen",
+      "description": "Schaue deine Verkäufe, Marktposition und Konkurrenz-Moves an."
+    }
+  },
+  "strategies": {
+    "title": "💡 Erfolgsstrategien",
+    "gamer": {
+      "title": "🎮 Gamer-Markt (75%)",
+      "points": [
+        "Starke Grafik (VIC-II, GTIA)",
+        "Guter Sound (SID, YM2149)",
+        "RGB Monitor",
+        "Stylisches Gamer-Case",
+        "Preis unter $1200"
+      ]
+    },
+    "business": {
+      "title": "💼 Business-Markt (25%)",
+      "points": [
+        "Schnelle CPU (68000, 80286)",
+        "Viel RAM (256KB+)",
+        "Festplatte oder Diskette",
+        "Professionelles Office-Case",
+        "Höherer Preis = mehr Vertrauen"
+      ]
+    }
+  },
+  "budget": {
+    "title": "💰 Budget-Management",
+    "marketing": {
+      "title": "Marketing-Budget",
+      "description": "Direkt proportional zu Verkäufen. Mehr Marketing = mehr Kunden erreichen."
+    },
+    "development": {
+      "title": "Entwicklung Budget",
+      "description": "Beschleunigt Computer-Entwicklung. 2x Budget = 2x schneller."
+    },
+    "research": {
+      "title": "Forschung Budget",
+      "description": "5% Chance pro Quartal auf Custom Chip. Mehr Budget = höhere Chance."
+    }
+  },
+  "warning": {
+    "title": "⚠️ Achtung!",
+    "description": "Du startest mit $5M und hast laufende Kosten von $30k/Monat. Ohne Einnahmen gehst du nach ~13 Jahren bankrott. Entwickle schnell profitable Computer!"
+  },
+  "competitors": {
+    "title": "🏆 Deine Konkurrenz",
+    "apple": {
+      "name": "Apple",
+      "focus": "Premium, Business"
+    },
+    "commodore": {
+      "name": "Commodore",
+      "focus": "Masse, Gamer"
+    },
+    "ibm": {
+      "name": "IBM",
+      "focus": "Teuer, Professional"
+    },
+    "atari": {
+      "name": "Atari",
+      "focus": "Günstig, Gaming"
+    }
+  },
+  "startButton": "Los geht's! 🚀"
+}

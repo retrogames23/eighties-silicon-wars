@@ -30,5 +30,51 @@
   "competitors": {
     "title": "Konkurrenz-Aktivitäten"
   },
-  "continue": "Weiter zu"
+  "continue": "Weiter zu",
+  "quarterly": {
+    "title": "Quartalsbericht",
+    "subtitle": "Detaillierte Gewinn- & Verlustrechnung",
+    "close": "Schließen",
+    "coreMetrics": {
+      "revenue": "Umsatz",
+      "totalCosts": "Gesamtkosten",
+      "profit": "Gewinn",
+      "profitMargin": "Gewinnmarge"
+    },
+    "costBreakdown": {
+      "title": "Kosten-Aufschlüsselung",
+      "bomCosts": "Hardware-Kosten (BOM)",
+      "bomDescription": "der Gesamtkosten",
+      "developmentCosts": "Entwicklungskosten",
+      "developmentDescription": "Amortisiert über Lebensdauer",
+      "marketingCosts": "Marketing",
+      "marketingDescription": "Pro verkaufter Einheit",
+      "productionCosts": "Produktion",
+      "productionDescription": "8% der Hardware-Kosten",
+      "fixedOverhead": "Fixkosten",
+      "fixedDescription": "$50 pro verkaufter Einheit"
+    },
+    "modelPerformance": {
+      "title": "Modell-Performance",
+      "unitsSold": "Einheiten verkauft",
+      "profit": "Gewinn",
+      "revenue": "Umsatz:",
+      "hardwareCosts": "Hardware-Kosten:",
+      "profitMargin": "Gewinnmarge:"
+    },
+    "marketData": {
+      "marketPosition": "Marktposition",
+      "marketShare": "Marktanteil:",
+      "unitsSold": "Verkaufte Einheiten:",
+      "budgetExpenses": "Budget-Ausgaben",
+      "marketing": "Marketing:",
+      "development": "Entwicklung:",
+      "research": "Forschung:"
+    },
+    "assertions": {
+      "line1": "✓ ASSERTION: Quartalsreport zeigt Umsatz/Kosten/Gewinn getrennt",
+      "line2": "✓ ASSERTION: Gewinnmarge = (Gewinn / Umsatz) × 100",
+      "line3": "✓ ASSERTION: Gesamtkosten = BOM + Entwicklung + Marketing + Produktion + Fixkosten"
+    }
+  }
 }

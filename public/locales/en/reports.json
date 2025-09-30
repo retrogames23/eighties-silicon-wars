@@ -30,5 +30,51 @@
   "competitors": {
     "title": "Competitor Activities"
   },
-  "continue": "Continue to"
+  "continue": "Continue to",
+  "quarterly": {
+    "title": "Quarterly Report",
+    "subtitle": "Detailed Profit & Loss Statement",
+    "close": "Close",
+    "coreMetrics": {
+      "revenue": "Revenue",
+      "totalCosts": "Total Costs",
+      "profit": "Profit",
+      "profitMargin": "Profit Margin"
+    },
+    "costBreakdown": {
+      "title": "Cost Breakdown",
+      "bomCosts": "Hardware Costs (BOM)",
+      "bomDescription": "of total costs",
+      "developmentCosts": "Development Costs",
+      "developmentDescription": "Amortized over lifetime",
+      "marketingCosts": "Marketing",
+      "marketingDescription": "Per unit sold",
+      "productionCosts": "Production",
+      "productionDescription": "8% of hardware costs",
+      "fixedOverhead": "Fixed Costs",
+      "fixedDescription": "$50 per unit sold"
+    },
+    "modelPerformance": {
+      "title": "Model Performance",
+      "unitsSold": "units sold",
+      "profit": "Profit",
+      "revenue": "Revenue:",
+      "hardwareCosts": "Hardware Costs:",
+      "profitMargin": "Profit Margin:"
+    },
+    "marketData": {
+      "marketPosition": "Market Position",
+      "marketShare": "Market Share:",
+      "unitsSold": "Units Sold:",
+      "budgetExpenses": "Budget Expenses",
+      "marketing": "Marketing:",
+      "development": "Development:",
+      "research": "Research:"
+    },
+    "assertions": {
+      "line1": "✓ ASSERTION: Quarterly report shows revenue/costs/profit separately",
+      "line2": "✓ ASSERTION: Profit margin = (Profit / Revenue) × 100",
+      "line3": "✓ ASSERTION: Total costs = BOM + Development + Marketing + Production + Fixed costs"
+    }
+  }
 }

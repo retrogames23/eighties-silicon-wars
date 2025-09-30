@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, AlertCircle, DollarSign } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TurnSummaryProps {
   revenue: number;
@@ -21,20 +22,22 @@ export const TurnSummary = ({
   marketEvent,
   competitorUpdates
 }: TurnSummaryProps) => {
+  const { t } = useTranslation(['game']);
+
   return (
     <Card className="retro-border bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-neon-green flex items-center gap-2">
           <DollarSign className="w-5 h-5" />
-          Quartalsübersicht
+          {t('game:turnSummary.title')}
         </CardTitle>
-        <CardDescription>Ergebnisse der letzten 3 Monate</CardDescription>
+        <CardDescription>{t('game:turnSummary.subtitle')}</CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
         {/* Revenue */}
         <div className="flex justify-between items-center">
-          <span className="font-mono">Umsatz:</span>
+          <span className="font-mono">{t('game:turnSummary.revenue')}</span>
           <Badge variant={revenue > 0 ? "default" : "secondary"} className="font-mono">
             ${revenue.toLocaleString()}
           </Badge>
@@ -42,7 +45,7 @@ export const TurnSummary = ({
 
         {/* Market Share Change */}
         <div className="flex justify-between items-center">
-          <span className="font-mono">Marktanteil:</span>
+          <span className="font-mono">{t('game:turnSummary.marketShare')}</span>
           <div className="flex items-center gap-2">
             {marketShareChange > 0 ? (
               <TrendingUp className="w-4 h-4 text-green-400" />
@@ -57,7 +60,7 @@ export const TurnSummary = ({
 
         {/* Reputation Change */}
         <div className="flex justify-between items-center">
-          <span className="font-mono">Reputation:</span>
+          <span className="font-mono">{t('game:turnSummary.reputation')}</span>
           <div className="flex items-center gap-2">
             {reputationChange > 0 ? (
               <TrendingUp className="w-4 h-4 text-green-400" />
@@ -89,7 +92,7 @@ export const TurnSummary = ({
         {/* Competitor Updates */}
         {competitorUpdates.length > 0 && (
           <div className="border-t pt-4">
-            <h4 className="text-sm font-semibold mb-2">Konkurrenz-Updates:</h4>
+            <h4 className="text-sm font-semibold mb-2">{t('game:turnSummary.competitorUpdates')}</h4>
             <div className="space-y-1">
               {competitorUpdates.map((update, index) => (
                 <p key={index} className="text-xs text-muted-foreground font-mono">

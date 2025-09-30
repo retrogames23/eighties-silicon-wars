@@ -1,18 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Globe } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 interface GameIntroProps {
   onComplete: () => void;
 }
 
 export const GameIntro = ({ onComplete }: GameIntroProps) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { t, i18n } = useTranslation(['game']);
 
   const handleLanguageToggle = () => {
-    const newLanguage = language === 'de' ? 'en' : 'de';
-    setLanguage(newLanguage);
+    const newLanguage = i18n.language === 'de' ? 'en' : 'de';
+    i18n.changeLanguage(newLanguage);
   };
   return (
     <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
@@ -31,14 +31,14 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
                   className="text-muted-foreground hover:text-primary bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none ring-0 ring-offset-0 outline-none"
                 >
                   <Globe className="w-4 h-4 mr-2" />
-                  {language === 'de' ? t('intro.switchToEnglish') : t('intro.switchToGerman')}
+                  {i18n.language === 'de' ? t('game:intro.switchToEnglish') : t('game:intro.switchToGerman')}
                 </Button>
               </div>
 
               {/* Titel */}
               <div className="mb-6">
                 <h1 className="text-2xl font-bold neon-text text-primary font-mono mb-2">
-                  {t('intro.title')}
+                  {t('game:intro.title')}
                 </h1>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
               </div>
@@ -46,17 +46,17 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
               {/* Stimmungsvoller Intro-Text */}
               <div className="space-y-3 text-sm text-muted-foreground font-mono leading-relaxed">
                 <p className="text-accent">
-                  {t('intro.description')}
+                  {t('game:intro.description')}
                 </p>
                 <p className="text-accent mt-4">
-                  {t('intro.question')}
+                  {t('game:intro.question')}
                 </p>
               </div>
 
               {/* Terminal-Style Eingabeaufforderung */}
               <div className="mt-8 p-3 bg-black/80 rounded border border-primary/30 font-mono text-xs">
                 <div className="text-terminal-green">
-                  {t('intro.prompt')}
+                  {t('game:intro.prompt')}
                 </div>
                 <div className="text-terminal-green opacity-75 animate-pulse">
                   _
@@ -71,7 +71,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
                   variant="default"
                 >
                   <ChevronRight className="w-4 h-4 mr-2" />
-                  {t('intro.button')}
+                  {t('game:intro.button')}
                 </Button>
               </div>
 

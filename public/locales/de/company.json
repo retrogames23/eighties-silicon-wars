@@ -1,0 +1,14 @@
+{
+  "title": "Gründe dein Computer-Imperium",
+  "subtitle": "Wähle einen Namen und ein Logo für deine Firma",
+  "nameLabel": "Firmenname",
+  "namePlaceholder": "z.B. TechnoVision Systems",
+  "logoLabel": "Firmenlogo",
+  "submit": "Firma gründen",
+  "logo": {
+    "corporate": "Konzern",
+    "cpu": "Technologie",
+    "computer": "Computer",
+    "innovation": "Innovation"
+  }
+}

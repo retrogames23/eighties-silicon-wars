@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, DollarSign, Cpu, TrendingUp } from "lucide-react";
 import { GameEndCondition } from "@/lib/game";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
+import { formatters } from "@/lib/i18n";
 
 interface GameEndProps {
   gameEndCondition: GameEndCondition;
@@ -13,8 +14,8 @@ interface GameEndProps {
 }
 
 export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }: GameEndProps) => {
-  const { t } = useLanguage();
-  const formatCurrency = (amount: number) => `${t('units.currency')}${amount.toLocaleString()}`;
+  const { t } = useTranslation(['game', 'common']);
+  const formatCurrency = (amount: number) => formatters.currency(amount);
   
   const playerRank = gameEndCondition.finalResults?.playerRank || 0;
   const finalMarketShare = gameEndCondition.finalResults?.finalMarketShare || 0;
@@ -44,10 +45,10 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">{getRankIcon(playerRank)}</div>
             <h1 className="text-4xl font-bold neon-text text-neon-green mb-4">
-              {t('gameend.title')}
+              {t('game:end.title')}
             </h1>
             <p className="text-xl text-neon-cyan font-mono">
-              1983 - 1992: 10 {t('time.year', { year: '' })} Computer Evolution
+              1983 - 1992: {t('game:end.subtitle')}
             </p>
           </div>
 
@@ -60,10 +61,10 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
                 </h2>
                 <div className="flex justify-center items-center gap-4 flex-wrap">
                   <Badge variant="secondary" className="text-lg px-4 py-2">
-                    Platz {playerRank}
+                    {t('game:end.rank')} {playerRank}
                   </Badge>
                   <Badge variant="outline" className="text-lg px-4 py-2">
-                    {finalMarketShare.toFixed(1)}% Marktanteil
+                    {finalMarketShare.toFixed(1)}% {t('game:end.marketShare')}
                   </Badge>
                 </div>
               </div>
@@ -77,42 +78,42 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
               <CardHeader>
                 <CardTitle className="text-xl text-neon-green flex items-center gap-2">
                   <TrendingUp className="w-6 h-6" />
-                  Deine Leistung
+                  {t('game:end.performance.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Endrang:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.finalRank')}</span>
                   <span className={`font-bold text-xl ${getRankColor(playerRank)}`}>
                     #{playerRank}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Marktanteil:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.finalMarketShare')}</span>
                   <span className="font-bold text-neon-cyan">
                     {finalMarketShare.toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Gesamtumsatz:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.totalRevenue')}</span>
                   <span className="font-bold text-neon-cyan">
                     {formatCurrency(totalRevenue)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Custom Chips:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.customChips')}</span>
                   <span className="font-bold text-purple-400">
-                    {customChipsCount} entwickelt
+                    {customChipsCount} {t('game:end.performance.chipsDeveloped')}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Computer-Modelle:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.computerModels')}</span>
                   <span className="font-bold text-green-400">
-                    {gameState.models?.length || 0} Modelle
+                    {gameState.models?.length || 0} {t('game:end.performance.models')}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Kassenstand:</span>
+                  <span className="text-muted-foreground">{t('game:end.performance.cashBalance')}</span>
                   <span className="font-bold text-yellow-400">
                     {formatCurrency(gameState.company.cash)}
                   </span>
@@ -125,7 +126,7 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
               <CardHeader>
                 <CardTitle className="text-xl text-neon-green flex items-center gap-2">
                   <Trophy className="w-6 h-6" />
-                  Finale Rangliste
+                  {t('game:end.rankings.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -168,7 +169,7 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
               <CardHeader>
                 <CardTitle className="text-xl text-purple-400 flex items-center gap-2">
                   <Cpu className="w-6 h-6" />
-                  Deine Custom Hardware ({customChipsCount} Chips)
+                  {t('game:end.customChips.title')} ({customChipsCount} {t('game:end.customChips.chips')})
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -183,8 +184,8 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
                         {chip.description}
                       </p>
                       <div className="flex justify-between text-sm">
-                        <span>Performance: {chip.performance}</span>
-                        <span>Entwickelt: Q{chip.developedQuarter}/{chip.developedYear}</span>
+                        <span>{t('game:end.customChips.performance')} {chip.performance}</span>
+                        <span>{t('game:end.customChips.developed')} Q{chip.developedQuarter}/{chip.developedYear}</span>
                       </div>
                     </div>
                   ))}
@@ -198,15 +199,12 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
             <CardHeader>
               <CardTitle className="text-xl text-neon-cyan flex items-center gap-2">
                 <Star className="w-6 h-6" />
-                Historischer Kontext
+                {t('game:end.context.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                Die Heimcomputer-Ära (1983-1992) war eine Zeit enormer Innovation. Du hast miterlebt, 
-                wie aus 8-bit Systemen mit wenigen KB RAM leistungsstarke 32-bit Computer mit MB an Speicher wurden. 
-                Ab 1993 dominieren IBM-kompatible PCs und Spielkonsolen wie SNES den Markt. 
-                Die Ära der experimentellen Heimcomputer ist vorbei - aber deine Firma hat Geschichte geschrieben!
+                {t('game:end.context.description')}
               </p>
             </CardContent>
           </Card>
@@ -219,7 +217,7 @@ export const GameEnd = ({ gameEndCondition, gameState, competitors, onRestart }:
               size="lg"
             >
               <DollarSign className="w-5 h-5 mr-2" />
-              {t('gameend.playAgain')}
+              {t('game:end.playAgain')}
             </Button>
           </div>
         </div>

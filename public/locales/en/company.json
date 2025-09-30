@@ -1,0 +1,14 @@
+{
+  "title": "Found Your Computer Empire",
+  "subtitle": "Choose a name and logo for your company",
+  "nameLabel": "Company Name",
+  "namePlaceholder": "e.g. TechnoVision Systems",
+  "logoLabel": "Company Logo",
+  "submit": "Start Company",
+  "logo": {
+    "corporate": "Corporate",
+    "cpu": "Technology",
+    "computer": "Computer",
+    "innovation": "Innovation"
+  }
+}

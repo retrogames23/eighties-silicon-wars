@@ -1,0 +1,50 @@
+{
+  "intro": {
+    "title": "COMPUTER TYCOON",
+    "description": "The year is 1983. You stand at the dawn of a revolution. Computers are no longer just room-filling machines for scientists and corporations. They're becoming part of everyday life - for gamers, home users, and businesses.",
+    "question": "Will you become the next Steve Jobs or Jack Tramiel?",
+    "prompt": "> SYSTEM READY. PRESS START TO BEGIN YOUR JOURNEY...",
+    "button": "Start Game",
+    "switchToEnglish": "Switch to English",
+    "switchToGerman": "Auf Deutsch umschalten"
+  },
+  "end": {
+    "title": "GAME OVER",
+    "playAgain": "Play Again",
+    "subtitle": "10 years of Computer Evolution",
+    "rank": "Rank",
+    "marketShare": "Market Share",
+    "performance": {
+      "title": "Your Performance",
+      "finalRank": "Final Rank:",
+      "finalMarketShare": "Market Share:",
+      "totalRevenue": "Total Revenue:",
+      "customChips": "Custom Chips:",
+      "chipsDeveloped": "developed",
+      "computerModels": "Computer Models:",
+      "models": "models",
+      "cashBalance": "Cash Balance:"
+    },
+    "rankings": {
+      "title": "Final Rankings"
+    },
+    "customChips": {
+      "title": "Your Custom Hardware",
+      "chips": "Chips",
+      "performance": "Performance:",
+      "developed": "Developed:"
+    },
+    "context": {
+      "title": "Historical Context",
+      "description": "The home computer era (1983-1992) was a time of tremendous innovation. You witnessed the evolution from 8-bit systems with just KB of RAM to powerful 32-bit computers with MB of memory. From 1993 onwards, IBM-compatible PCs and gaming consoles like SNES dominated the market. The era of experimental home computers is over - but your company made history!"
+    }
+  },
+  "turnSummary": {
+    "title": "Quarter Overview",
+    "subtitle": "Results of the last 3 months",
+    "revenue": "Revenue:",
+    "marketShare": "Market Share:",
+    "reputation": "Reputation:",
+    "competitorUpdates": "Competitor Updates:"
+  }
+}

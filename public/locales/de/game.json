@@ -1,0 +1,50 @@
+{
+  "intro": {
+    "title": "COMPUTER TYCOON",
+    "description": "Wir schreiben das Jahr 1983. Du stehst am Beginn einer Revolution. Computer sind nicht mehr nur raumfüllende Maschinen für Wissenschaftler und Konzerne. Sie werden zum Teil des Alltags - für Gamer, Heimanwender und Unternehmen.",
+    "question": "Wirst du der nächste Steve Jobs oder Jack Tramiel?",
+    "prompt": "> SYSTEM BEREIT. DRÜCKE START UM DEINE REISE ZU BEGINNEN...",
+    "button": "Spiel starten",
+    "switchToEnglish": "Switch to English",
+    "switchToGerman": "Auf Deutsch umschalten"
+  },
+  "end": {
+    "title": "SPIELENDE",
+    "playAgain": "Nochmal spielen",
+    "subtitle": "10 Jahre Computer Evolution",
+    "rank": "Platz",
+    "marketShare": "Marktanteil",
+    "performance": {
+      "title": "Deine Leistung",
+      "finalRank": "Endrang:",
+      "finalMarketShare": "Marktanteil:",
+      "totalRevenue": "Gesamtumsatz:",
+      "customChips": "Custom Chips:",
+      "chipsDeveloped": "entwickelt",
+      "computerModels": "Computer-Modelle:",
+      "models": "Modelle",
+      "cashBalance": "Kassenstand:"
+    },
+    "rankings": {
+      "title": "Finale Rangliste"
+    },
+    "customChips": {
+      "title": "Deine Custom Hardware",
+      "chips": "Chips",
+      "performance": "Performance:",
+      "developed": "Entwickelt:"
+    },
+    "context": {
+      "title": "Historischer Kontext",
+      "description": "Die Heimcomputer-Ära (1983-1992) war eine Zeit enormer Innovation. Du hast miterlebt, wie aus 8-bit Systemen mit wenigen KB RAM leistungsstarke 32-bit Computer mit MB an Speicher wurden. Ab 1993 dominieren IBM-kompatible PCs und Spielkonsolen wie SNES den Markt. Die Ära der experimentellen Heimcomputer ist vorbei - aber deine Firma hat Geschichte geschrieben!"
+    }
+  },
+  "turnSummary": {
+    "title": "Quartalsübersicht",
+    "subtitle": "Ergebnisse der letzten 3 Monate",
+    "revenue": "Umsatz:",
+    "marketShare": "Marktanteil:",
+    "reputation": "Reputation:",
+    "competitorUpdates": "Konkurrenz-Updates:"
+  }
+}

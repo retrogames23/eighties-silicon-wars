@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "description": "Verbindliches Glossar für konsistente Terminologie",
+    "version": "1.0.0",
+    "lastUpdated": "2025-10-03"
+  },
+  "terms": {
+    "business": {
+      "price_recommendation": "Preisempfehlung",
+      "market_share": "Marktanteil",
+      "revenue": "Umsatz",
+      "profit": "Gewinn",
+      "margin": "Marge",
+      "sales": "Verkäufe",
+      "units_sold": "verkaufte Einheiten",
+      "inventory": "Lagerbestand",
+      "production": "Produktion",
+      "development": "Entwicklung",
+      "in_development": "in Entwicklung",
+      "company": "Unternehmen",
+      "competitor": "Konkurrent",
+      "market": "Markt",
+      "economy": "Wirtschaft",
+      "quarter": "Quartal",
+      "year": "Jahr"
+    },
+    "hardware": {
+      "processor": "Prozessor",
+      "cpu": "CPU",
+      "graphics_card": "Grafikkarte",
+      "ram": "RAM",
+      "storage": "Speicher",
+      "motherboard": "Mainboard",
+      "case": "Gehäuse",
+      "power_supply": "Netzteil",
+      "cooling": "Kühlung",
+      "performance": "Leistung",
+      "quality": "Qualität",
+      "design": "Design",
+      "availability": "Verfügbarkeit",
+      "shortage": "Knappheit",
+      "obsolete": "veraltet",
+      "discontinued": "eingestellt"
+    },
+    "products": {
+      "computer": "Computer",
+      "model": "Modell",
+      "revision": "Revision",
+      "version": "Version",
+      "prototype": "Prototyp",
+      "release": "Veröffentlichung",
+      "launch": "Markteinführung",
+      "segment": "Segment",
+      "gamer": "Gamer",
+      "office": "Büro",
+      "workstation": "Workstation",
+      "budget": "Budget",
+      "midrange": "Mittelklasse",
+      "premium": "Premium"
+    },
+    "reviews": {
+      "test_report": "Testbericht",
+      "review": "Test",
+      "rating": "Bewertung",
+      "score": "Punktzahl",
+      "benchmark": "Benchmark",
+      "comparison": "Vergleich",
+      "recommendation": "Empfehlung",
+      "verdict": "Fazit",
+      "pros": "Vorteile",
+      "cons": "Nachteile"
+    },
+    "events": {
+      "announcement": "Ankündigung",
+      "press_release": "Pressemitteilung",
+      "market_event": "Marktereignis",
+      "economic_trend": "Konjunkturtrend",
+      "shortage": "Knappheit",
+      "price_increase": "Preiserhöhung",
+      "price_drop": "Preissenkung",
+      "demand_surge": "Nachfrageschub",
+      "supply_issue": "Lieferengpass"
+    },
+    "ui": {
+      "save": "Speichern",
+      "load": "Laden",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "confirm": "Bestätigen",
+      "continue": "Weiter",
+      "back": "Zurück",
+      "next": "Weiter",
+      "previous": "Zurück",
+      "close": "Schließen",
+      "open": "Öffnen",
+      "select": "Auswählen",
+      "start": "Start",
+      "end": "Ende",
+      "game": "Spiel",
+      "dashboard": "Übersicht",
+      "overview": "Überblick"
+    }
+  },
+  "synonyms": {
+    "avoid": {
+      "Firma": "Verwende 'Unternehmen'",
+      "Rechner": "Verwende 'Computer'",
+      "Grafik": "Verwende 'Grafikkarte'",
+      "Prozent": "Verwende '%' oder 'Prozent' konsistent",
+      "Tests": "Verwende 'Testbericht' oder 'Test' konsistent"
+    }
+  },
+  "style_rules": {
+    "capitalization": "Substantive groß, Verben klein",
+    "punctuation": "Keine Punkte bei Überschriften",
+    "tone": "Sachlich, neutral, informativ",
+    "formality": "Sie-Form in UI, neutrale Anrede in News"
+  }
+}

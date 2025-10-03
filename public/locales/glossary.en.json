@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "description": "Authoritative glossary for consistent terminology",
+    "version": "1.0.0",
+    "lastUpdated": "2025-10-03"
+  },
+  "terms": {
+    "business": {
+      "price_recommendation": "price recommendation",
+      "market_share": "market share",
+      "revenue": "revenue",
+      "profit": "profit",
+      "margin": "margin",
+      "sales": "sales",
+      "units_sold": "units sold",
+      "inventory": "inventory",
+      "production": "production",
+      "development": "development",
+      "in_development": "in development",
+      "company": "company",
+      "competitor": "competitor",
+      "market": "market",
+      "economy": "economy",
+      "quarter": "quarter",
+      "year": "year"
+    },
+    "hardware": {
+      "processor": "processor",
+      "cpu": "CPU",
+      "graphics_card": "graphics card",
+      "ram": "RAM",
+      "storage": "storage",
+      "motherboard": "motherboard",
+      "case": "case",
+      "power_supply": "power supply",
+      "cooling": "cooling",
+      "performance": "performance",
+      "quality": "quality",
+      "design": "design",
+      "availability": "availability",
+      "shortage": "shortage",
+      "obsolete": "obsolete",
+      "discontinued": "discontinued"
+    },
+    "products": {
+      "computer": "computer",
+      "model": "model",
+      "revision": "revision",
+      "version": "version",
+      "prototype": "prototype",
+      "release": "release",
+      "launch": "launch",
+      "segment": "segment",
+      "gamer": "gamer",
+      "office": "office",
+      "workstation": "workstation",
+      "budget": "budget",
+      "midrange": "midrange",
+      "premium": "premium"
+    },
+    "reviews": {
+      "test_report": "test report",
+      "review": "review",
+      "rating": "rating",
+      "score": "score",
+      "benchmark": "benchmark",
+      "comparison": "comparison",
+      "recommendation": "recommendation",
+      "verdict": "verdict",
+      "pros": "pros",
+      "cons": "cons"
+    },
+    "events": {
+      "announcement": "announcement",
+      "press_release": "press release",
+      "market_event": "market event",
+      "economic_trend": "economic trend",
+      "shortage": "shortage",
+      "price_increase": "price increase",
+      "price_drop": "price drop",
+      "demand_surge": "demand surge",
+      "supply_issue": "supply issue"
+    },
+    "ui": {
+      "save": "Save",
+      "load": "Load",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "continue": "Continue",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "close": "Close",
+      "open": "Open",
+      "select": "Select",
+      "start": "Start",
+      "end": "End",
+      "game": "Game",
+      "dashboard": "Dashboard",
+      "overview": "Overview"
+    }
+  },
+  "synonyms": {
+    "avoid": {
+      "firm": "Use 'company'",
+      "PC": "Use 'computer'",
+      "GPU": "Use 'graphics card' in full text, 'GPU' in technical contexts only",
+      "percent": "Use '%' or 'percent' consistently",
+      "tests": "Use 'test report' or 'review' consistently"
+    }
+  },
+  "style_rules": {
+    "capitalization": "Sentence case for UI, title case for headings",
+    "punctuation": "No periods in headings or button labels",
+    "tone": "Professional, neutral, informative",
+    "formality": "Direct address (you), clear and concise"
+  }
+}

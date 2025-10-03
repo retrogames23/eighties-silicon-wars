@@ -1,19 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Globe } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface GameIntroProps {
   onComplete: () => void;
 }
 
 export const GameIntro = ({ onComplete }: GameIntroProps) => {
-  const { t, i18n } = useTranslation(['game']);
+  const { t } = useTranslation(['game']);
 
-  const handleLanguageToggle = () => {
-    const newLanguage = i18n.language === 'de' ? 'en' : 'de';
-    i18n.changeLanguage(newLanguage);
-  };
   return (
     <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
       <div className="crt-screen">
@@ -22,17 +19,9 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
         <div className="flex items-center justify-center">
           <Card className="w-96 bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
             <div className="p-8 text-center space-y-4">
-              {/* Language Selection Button */}
+              {/* Language Switcher */}
               <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLanguageToggle}
-                  className="text-muted-foreground hover:text-primary bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none ring-0 ring-offset-0 outline-none"
-                >
-                  <Globe className="w-4 h-4 mr-2" />
-                  {i18n.language === 'de' ? t('game:intro.switchToEnglish') : t('game:intro.switchToGerman')}
-                </Button>
+                <LanguageSwitcher variant="toggle" size="sm" />
               </div>
 
               {/* Titel */}

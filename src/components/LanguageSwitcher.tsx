@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { startTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import {
@@ -27,7 +28,9 @@ export const LanguageSwitcher = ({
   const { i18n } = useTranslation();
 
   const handleLanguageChange = (lang: string) => {
-    i18n.changeLanguage(lang);
+    startTransition(() => {
+      i18n.changeLanguage(lang);
+    });
   };
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];

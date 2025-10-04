@@ -1,0 +1,39 @@
+{
+  "axis": {
+    "revenue": "Umsatz",
+    "profit": "Gewinn",
+    "marketShare": "Marktanteil",
+    "units": "Verkaufte Einheiten",
+    "quarter": "Quartal",
+    "year": "Jahr",
+    "price": "Preis",
+    "performance": "Leistung"
+  },
+  "legend": {
+    "revenue": "Umsatz",
+    "expenses": "Ausgaben",
+    "profit": "Gewinn",
+    "marketing": "Marketing",
+    "development": "Entwicklung",
+    "research": "Forschung"
+  },
+  "units": {
+    "currency": "{value}€",
+    "percentage": "{value}%",
+    "count": "{value} Einheiten",
+    "thousands": "{value}K",
+    "millions": "{value}M"
+  },
+  "trend": {
+    "increasing": "Steigend",
+    "decreasing": "Fallend",
+    "stable": "Stabil",
+    "volatile": "Volatil"
+  },
+  "tooltip": {
+    "revenue": "Umsatz: {value}",
+    "profit": "Gewinn: {value}",
+    "marketShare": "Marktanteil: {value}%",
+    "units": "Einheiten: {value}"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "rating": {
+    "excellent": "Ausgezeichnet",
+    "veryGood": "Sehr gut",
+    "good": "Gut",
+    "fair": "Befriedigend",
+    "poor": "Mangelhaft"
+  },
+  "summary": {
+    "office": "Büro-Leistung: {rating}",
+    "gaming": "Gaming-Leistung: {rating}",
+    "overall": "Gesamtwertung: {rating}"
+  },
+  "performance": {
+    "cpu": "Prozessor-Leistung",
+    "memory": "Speicher-Leistung",
+    "graphics": "Grafik-Leistung",
+    "sound": "Sound-Qualität"
+  },
+  "adjectives": {
+    "blazingFast": "blitzschnell",
+    "impressive": "beeindruckend",
+    "solid": "solide",
+    "adequate": "ausreichend",
+    "disappointing": "enttäuschend",
+    "outdated": "veraltet"
+  },
+  "report": {
+    "title": "Testbericht",
+    "score": "Bewertung",
+    "pros": "Vorteile",
+    "cons": "Nachteile",
+    "verdict": "Fazit",
+    "recommendation": "Empfehlung"
+  }
+}

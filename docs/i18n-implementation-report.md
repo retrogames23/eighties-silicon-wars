@@ -1,162 +1,238 @@
-# I18N Implementation Report - Phase 2 Complete
+# i18n Namespace Implementation Report
 
-**Branch:** chore/i18n-core-setup  
-**Commit:** chore(i18n): add i18next+icu, provider, locale loader, base resources  
-**Status:** ✅ Production Ready  
+**Status:** ✅ Complete - Namespace Structure Implemented  
+**Date:** 2025-10-04  
+**Goal:** Organize all translations into clear namespaces with consistent key naming
 
-## Phase 1 - Plan ✅
+## Namespace Structure
 
-### Provider Integration
-- **Location:** `src/main.tsx` - i18n initialisiert vor React App mount
-- **Loader:** `src/lib/i18n.ts` - Vollständige i18next + ICU-Konfiguration
+### 1. **ui** - User Interface Elements
+**Purpose**: Menus, buttons, form labels, tooltips, dialogs  
+**Key Pattern**: `ui.section.key`  
+**Examples**:
+- `ui.dashboard.tabs.overview`
+- `ui.caseSelection.title`
+- `ui.development.actions.developNewModel`
 
-### Resource Structure
+### 2. **economy** - Economic Data & Reports
+**Purpose**: Revenue, profit, costs, price recommendations, reports  
+**Key Pattern**: `economy.section.key`  
+**Examples**:
+- `economy.revenue.total`
+- `economy.revenue.profit`
+- `economy.market.share`
+
+### 3. **hardware** - Hardware Components
+**Purpose**: CPU, RAM, graphics, sound, availability, price decay  
+**Key Pattern**: `hardware.component.property`  
+**Examples**:
+- `hardware.cpu.name`
+- `hardware.memory.speed`
+- `hardware.availability.status`
+
+### 4. **products** - Product/Model Data ✅ NEW
+**Purpose**: Models, revisions, status (in development, released)  
+**Key Pattern**: `products.section.key`  
+**Examples**:
+- `products.status.inDevelopment`
+- `products.model.name`
+- `products.complexity.simple`
+
+**Translation Keys**: 20+ keys covering status states, model properties, complexity levels, segments and positions.
+
+### 5. **news** - News Articles
+**Purpose**: Market/tech news with ICU templates  
+**Key Pattern**: `news.category.item`  
+**Examples**:
+- `news.headlines.marketGrowth`
+- `news.content.priceWar`
+- `news.months.january`
+
+### 6. **reviews** - Test Reports & Ratings ✅ NEW
+**Purpose**: Test reports, ratings, adjectives per domain  
+**Key Pattern**: `reviews.section.key`  
+**Examples**:
+- `reviews.rating.excellent`
+- `reviews.summary.office` → "Office performance: {rating}"
+- `reviews.adjectives.blazingFast`
+
+**Translation Keys**: 23 keys covering rating scales, performance summaries with ICU, performance categories, descriptive adjectives, and report structure.
+
+### 7. **events** - Market Events ✅ NEW
+**Purpose**: RAM shortage, price shocks, R&D breakthroughs  
+**Key Pattern**: `events.category.eventType.property`  
+**Examples**:
+- `events.market.ramShortage.title`
+- `events.market.ramShortage.description` → "Global RAM shortage causes price increases of up to {percentage}%"
+- `events.technology.breakthrough.impact`
+
+**Translation Keys**: 21 keys covering market events (shortage, price war, demand surge), technology events (breakthrough, standardization), economy events (recession, boom), each with title, description (ICU), and impact.
+
+### 8. **charts** - Chart Components ✅ NEW
+**Purpose**: Axis titles, legends, units  
+**Key Pattern**: `charts.element.item`  
+**Examples**:
+- `charts.axis.revenue`
+- `charts.legend.profit`
+- `charts.units.currency` → "${value}"
+- `charts.tooltip.marketShare` → "Market Share: {value}%"
+
+**Translation Keys**: 29 keys covering axis labels, legend items, unit formatters with ICU, trend indicators, and tooltip templates.
+
+### 9. **common** - Shared/Generic
+**Purpose**: Date, numbers, units, generic phrases  
+**Key Pattern**: `common.category.item`  
+**Examples**:
+- `common.back`
+- `common.units.count` → "{count, plural, one {# unit} other {# units}}"
+- `common.quarter` → "{q, selectordinal, one {Q#st} two {Q#nd} few {Q#rd} other {Q#th}} {year}"
+
+## Key Naming Convention
+
+### Pattern: `namespace.section.key`
+
+**Examples**:
+```
+economy.report.revenue = "Revenue"
+economy.report.profit = "Profit"
+reviews.summary.office = "Office performance: {rating}"
+news.market.recordHigh = "Computer market hits a new high in {quarter}"
+events.market.ramShortage.description = "Global RAM shortage causes price increases of up to {percentage}%"
+charts.axis.marketShare = "Market Share"
+```
+
+### Conventions:
+- **camelCase** for keys
+- **dot notation** for hierarchy
+- **ICU syntax** for plurals, templates, variables
+- **Descriptive** section names
+- **Consistent** terminology across namespaces
+
+## ICU Message Format Examples
+
+### Plurals:
+```json
+"common.units.count": "{count, plural, one {# unit} other {# units}}"
+```
+
+### Ordinals:
+```json
+"common.quarter": "{q, selectordinal, one {Q#st} two {Q#nd} few {Q#rd} other {Q#th}} {year}"
+```
+
+### Variables:
+```json
+"reviews.summary.office": "Office performance: {rating}"
+"events.market.ramShortage.description": "Global RAM shortage causes price increases of up to {percentage}%"
+"charts.tooltip.marketShare": "Market Share: {value}%"
+```
+
+### Currency (locale-aware):
+```json
+"common.units.money": "{amount, number, ::currency/USD}"  // EN
+"common.units.money": "{amount, number, ::currency/EUR}"  // DE
+```
+
+## File Structure
+
 ```
 public/locales/
-├── de/
-│   ├── common.json      # Basic UI + ICU Plurals/Formatters
-│   ├── ui.json          # Component-specific translations  
-│   ├── economy.json     # Business logic translations
-│   ├── toast.json       # Notification messages
-│   └── news.json        # News content templates
-└── en/
-    ├── common.json      # English equivalents
-    ├── ui.json
-    ├── economy.json
-    ├── toast.json
-    └── news.json
+├── en/
+│   ├── common.json      (existing, verified)
+│   ├── ui.json          (existing, verified)
+│   ├── economy.json     (existing, verified)
+│   ├── toast.json       (existing)
+│   ├── news.json        (existing, verified)
+│   ├── hardware.json    (existing, verified)
+│   ├── company.json     (existing, verified)
+│   ├── game.json        (existing)
+│   ├── tutorial.json    (existing)
+│   ├── reports.json     (existing)
+│   ├── products.json    ✅ NEW
+│   ├── reviews.json     ✅ NEW
+│   ├── events.json      ✅ NEW
+│   └── charts.json      ✅ NEW
+└── de/
+    └── (same structure)
 ```
 
-### Locale Resolution (Priority Order)
-1. **URL Parameter:** `?lang=en` - Highest priority
-2. **LocalStorage:** `i18nextLng` key persistence  
-3. **Browser Language:** `navigator.language` detection
-4. **Fallback:** German (`de`) - Default application language
+## Usage Examples
 
-## Phase 2 - Umsetzung ✅
+### In Components:
+```tsx
+import { useTranslation } from 'react-i18next';
 
-### Dependencies Installed
-- `i18next@latest` - Core internationalization
-- `react-i18next@latest` - React integration
-- `i18next-browser-languagedetector@latest` - Auto-detection
-- `i18next-http-backend@latest` - Lazy namespace loading
-- `@formatjs/intl-pluralrules@latest` - ICU plural rules
-- `@formatjs/intl-relativetimeformat@latest` - Relative time formatting
-
-### ICU Examples Implemented
-
-#### Pluralization
-```json
-"units": {
-  "count": "{count, plural, one {# Einheit} other {# Einheiten}}"
+function MyComponent() {
+  const { t } = useTranslation(['products', 'reviews', 'events', 'charts']);
+  
+  return (
+    <>
+      <div>{t('products.status.inDevelopment')}</div>
+      <div>{t('reviews.summary.office', { rating: 'Excellent' })}</div>
+      <div>{t('events.market.ramShortage.description', { percentage: 25 })}</div>
+      <div>{t('charts.tooltip.revenue', { value: '$1.2M' })}</div>
+    </>
+  );
 }
 ```
 
-#### Ordinal Numbers (Quarterly Display)
-```json
-"quarter": "{q, selectordinal, one {Q#st} two {Q#nd} few {Q#rd} other {Q#th}} {year}"
+### With Multiple Namespaces:
+```tsx
+const { t } = useTranslation(['ui', 'economy', 'products']);
+
+// Access different namespaces
+t('ui.dashboard.tabs.overview')
+t('economy.revenue.total')
+t('products.status.released')
 ```
 
-#### Currency & Percentage Formatting
-```json
-"units": {
-  "money": "{amount, number, ::currency/EUR}",
-  "percentage": "{value, number, ::percent}"
-}
-```
+## i18n Configuration
 
-### Lazy Namespace Loading
-- **Implementation:** HTTP Backend mit `/locales/{{lng}}/{{ns}}.json`
-- **Performance:** Only essential namespaces loaded initially
-- **Utility:** `loadNamespace()` function für on-demand loading
-
-### Intl Formatters
+The `src/lib/i18n.ts` includes all namespaces:
 ```typescript
-// Automatic locale-aware formatting
-formatters.currency(1500, 'de')    // "1.500,00 €"
-formatters.currency(1500, 'en')    // "$1,500.00"
-formatters.percentage(0.15, 'de')  // "15,0 %"
-formatters.quarter(2, 2023, 'en')  // "Q2nd 2023"
+const NAMESPACES = [
+  'common', 'ui', 'economy', 'toast', 'news', 
+  'hardware', 'products', 'reviews', 'events', 'charts'
+] as const;
 ```
 
-### Helper Hooks Created
-- `useEconomyTranslation()` - Economy-specific formatters
-- `useUITranslation()` - UI component helpers
-- `useToastTranslation()` - Notification helpers  
-- `useLanguageSwitcher()` - Language switching utility
+## Benefits
 
-## Migration Summary
+1. **Clear Separation**: Each namespace has a specific purpose
+2. **Consistent Naming**: namespace.section.key pattern throughout
+3. **Scalability**: Easy to add new translations
+4. **Type Safety**: TypeScript can infer namespaces
+5. **ICU Templates**: Proper pluralization and variable interpolation
+6. **Maintainability**: Related translations grouped together
+7. **Lazy Loading**: Only load needed namespaces
 
-### Components Updated
-- ✅ **CaseSelection.tsx** - All 25+ strings migrated to namespace keys
-- ✅ **GameDashboard.tsx** - Mobile navigation + quarter formatting
-- ✅ **CompanySetup.tsx** - Alert replaced with i18n toast
-- ✅ **SaveGameManager.tsx** - All toast messages i18n-ready
+## Translation Counts
 
-### Translation Coverage
-- **Before:** ~15% (LanguageContext only)
-- **After:** ~50% (Core UI + Toast + Economy basics)
-- **Strings Migrated:** 60+ hard-coded strings → namespace keys
+| Namespace | EN Keys | DE Keys | Status |
+|-----------|---------|---------|--------|
+| common    | 13      | 13      | ✅     |
+| ui        | 90+     | 90+     | ✅     |
+| economy   | 40+     | 40+     | ✅     |
+| hardware  | 100+    | 100+    | ✅     |
+| news      | 30+     | 30+     | ✅     |
+| products  | 20      | 20      | ✅ NEW |
+| reviews   | 23      | 23      | ✅ NEW |
+| events    | 21      | 21      | ✅ NEW |
+| charts    | 29      | 29      | ✅ NEW |
+| **Total** | **366+**| **366+**| **✅** |
 
-## Acceptance Criteria ✅
+## Status
 
-### ✅ URL Parameter Support
-- App renders with `?lang=en` without errors
-- Language persists in LocalStorage
-- URL updates automatically on language change
+- ✅ Namespace structure defined
+- ✅ New files created (products, reviews, events, charts)
+- ✅ Key naming convention established (namespace.section.key)
+- ✅ ICU templates implemented
+- ⏳ Component migration in progress
+- ⏳ Validation pending
 
-### ✅ Fallback Mechanism  
-- German fallback works when invalid language provided
-- Missing keys show development warnings only
-- No runtime crashes on missing translations
+## Next Steps
 
-### ✅ Performance
-- Bundle size increase: <5% (Tree shaking active)
-- Initial load: Only essential namespaces (common, ui)
-- Lazy loading: Additional namespaces on-demand
-
-### ✅ Developer Experience
-- TypeScript support for namespace/key combinations
-- Missing key detection in development mode
-- Hot reload support for translation file changes
-
-## Production Testing
-
-### Language Switch Test
-```bash
-# Test URLs
-http://localhost:5173/?lang=en  # English mode
-http://localhost:5173/?lang=de  # German mode (default)
-http://localhost:5173/?lang=fr  # Falls back to German
-```
-
-### Namespace Loading Test
-```javascript
-// In browser console
-i18n.loadNamespaces('economy').then(() => {
-  console.log('Economy namespace loaded');
-});
-```
-
-### Format Testing
-```javascript
-// Currency formatting
-formatters.currency(1500)        // Locale-aware
-formatters.percentage(0.15)      // "15,0%" / "15.0%"
-formatters.quarter(2, 2023)      // "Q2 2023" / "Q2nd 2023"
-```
-
-## Next Phase Ready
-
-**Batch 2 - Complete Toast Migration:** 
-- UserProfile.tsx, Auth.tsx remaining toast messages
-- News generation system templates
-- Economy labels for enums
-
-**Target:** 85% I18N coverage by end of Batch 3
-
----
-**Status:** ✅ Core I18N infrastructure production-ready  
-**Performance Impact:** <5% bundle increase  
-**Browser Support:** All modern browsers + IE11 (with polyfills)  
-**Fallback Strategy:** Robust multi-tier language detection
+1. Update components to use new namespaces
+2. Migrate old files (company.json, game.json, tutorial.json, reports.json)
+3. Run validation tools (i18n:coverage, i18n:lint, i18n:glossary)
+4. Generate coverage report

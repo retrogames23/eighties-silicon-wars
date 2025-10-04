@@ -1,0 +1,43 @@
+{
+  "market": {
+    "ramShortage": {
+      "title": "RAM-Knappheit trifft Markt",
+      "description": "Globale RAM-Knappheit verursacht Preissteigerungen von bis zu {percentage}%",
+      "impact": "RAM-Preise gestiegen"
+    },
+    "priceWar": {
+      "title": "Preiskampf verschärft sich",
+      "description": "Große Hersteller betreiben aggressive Preispolitik, Marktpreise fallen um {percentage}%",
+      "impact": "Marktpreise gesunken"
+    },
+    "demandSurge": {
+      "title": "Rekordnachfrage",
+      "description": "Computermarkt verzeichnet beispielloses Wachstum von {percentage}%",
+      "impact": "Marktnachfrage gestiegen"
+    }
+  },
+  "technology": {
+    "breakthrough": {
+      "title": "Technologie-Durchbruch",
+      "description": "Neue {component}-Technologie ermöglicht {percentage}% Leistungsverbesserung",
+      "impact": "F&E beschleunigt"
+    },
+    "standardization": {
+      "title": "Industrie-Standardisierung",
+      "description": "Neuer Industriestandard für {component} etabliert",
+      "impact": "Entwicklungskosten reduziert"
+    }
+  },
+  "economy": {
+    "recession": {
+      "title": "Wirtschaftsabschwung",
+      "description": "Markt schrumpft um {percentage}% aufgrund wirtschaftlicher Unsicherheit",
+      "impact": "Verkäufe rückläufig"
+    },
+    "boom": {
+      "title": "Wirtschaftsboom",
+      "description": "Starke Wirtschaft treibt {percentage}% Marktwachstum",
+      "impact": "Verkäufe gestiegen"
+    }
+  }
+}

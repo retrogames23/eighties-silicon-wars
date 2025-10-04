@@ -1,0 +1,39 @@
+{
+  "axis": {
+    "revenue": "Revenue",
+    "profit": "Profit",
+    "marketShare": "Market Share",
+    "units": "Units Sold",
+    "quarter": "Quarter",
+    "year": "Year",
+    "price": "Price",
+    "performance": "Performance"
+  },
+  "legend": {
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "profit": "Profit",
+    "marketing": "Marketing",
+    "development": "Development",
+    "research": "Research"
+  },
+  "units": {
+    "currency": "${value}",
+    "percentage": "{value}%",
+    "count": "{value} units",
+    "thousands": "{value}K",
+    "millions": "{value}M"
+  },
+  "trend": {
+    "increasing": "Increasing",
+    "decreasing": "Decreasing",
+    "stable": "Stable",
+    "volatile": "Volatile"
+  },
+  "tooltip": {
+    "revenue": "Revenue: {value}",
+    "profit": "Profit: {value}",
+    "marketShare": "Market Share: {value}%",
+    "units": "Units: {value}"
+  }
+}

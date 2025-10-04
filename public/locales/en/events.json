@@ -1,0 +1,43 @@
+{
+  "market": {
+    "ramShortage": {
+      "title": "RAM Shortage Hits Market",
+      "description": "Global RAM shortage causes price increases of up to {percentage}%",
+      "impact": "RAM prices increased"
+    },
+    "priceWar": {
+      "title": "Price War Intensifies",
+      "description": "Major manufacturers engage in aggressive pricing, market prices drop by {percentage}%",
+      "impact": "Market prices decreased"
+    },
+    "demandSurge": {
+      "title": "Record Demand",
+      "description": "Computer market sees unprecedented growth of {percentage}%",
+      "impact": "Market demand increased"
+    }
+  },
+  "technology": {
+    "breakthrough": {
+      "title": "Technology Breakthrough",
+      "description": "New {component} technology enables {percentage}% performance improvement",
+      "impact": "R&D accelerated"
+    },
+    "standardization": {
+      "title": "Industry Standardization",
+      "description": "New industry standard for {component} established",
+      "impact": "Development costs reduced"
+    }
+  },
+  "economy": {
+    "recession": {
+      "title": "Economic Downturn",
+      "description": "Market contracts by {percentage}% due to economic uncertainty",
+      "impact": "Sales declined"
+    },
+    "boom": {
+      "title": "Economic Boom",
+      "description": "Strong economy drives {percentage}% market growth",
+      "impact": "Sales increased"
+    }
+  }
+}

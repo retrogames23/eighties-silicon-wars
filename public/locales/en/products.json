@@ -1,0 +1,36 @@
+{
+  "status": {
+    "inDevelopment": "In Development",
+    "released": "Released",
+    "discontinued": "Discontinued",
+    "available": "Available"
+  },
+  "model": {
+    "name": "Model Name",
+    "revision": "Revision",
+    "performance": "Performance",
+    "price": "Price",
+    "releaseDate": "Release Date",
+    "developmentTime": "Development Time",
+    "complexity": "Complexity"
+  },
+  "complexity": {
+    "simple": "Simple",
+    "medium": "Medium",
+    "complex": "Complex"
+  },
+  "segment": {
+    "gamer": "Gaming",
+    "business": "Business",
+    "workstation": "Workstation"
+  },
+  "position": {
+    "budget": "Budget",
+    "midrange": "Mid-range",
+    "premium": "Premium"
+  },
+  "type": {
+    "gamer": "Gaming",
+    "office": "Office"
+  }
+}

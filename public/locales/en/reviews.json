@@ -1,0 +1,36 @@
+{
+  "rating": {
+    "excellent": "Excellent",
+    "veryGood": "Very Good",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "summary": {
+    "office": "Office performance: {rating}",
+    "gaming": "Gaming performance: {rating}",
+    "overall": "Overall rating: {rating}"
+  },
+  "performance": {
+    "cpu": "Processor Performance",
+    "memory": "Memory Performance",
+    "graphics": "Graphics Performance",
+    "sound": "Sound Quality"
+  },
+  "adjectives": {
+    "blazingFast": "blazing fast",
+    "impressive": "impressive",
+    "solid": "solid",
+    "adequate": "adequate",
+    "disappointing": "disappointing",
+    "outdated": "outdated"
+  },
+  "report": {
+    "title": "Test Report",
+    "score": "Score",
+    "pros": "Pros",
+    "cons": "Cons",
+    "verdict": "Verdict",
+    "recommendation": "Recommendation"
+  }
+}

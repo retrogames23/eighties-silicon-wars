@@ -35,60 +35,60 @@ import { useTranslation } from 'react-i18next';
 // Removed duplicate hardware logic - now using HardwareManager
 
 // Case-Daten
-const computerCases = [
+const getComputerCases = (t: any) => [
   {
     id: 'beige-tower',
-    name: 'Beige Tower',
+    name: t('hardware:cases.beigeTower.name'),
     type: 'office' as const,
     quality: 65,
     design: 40,
     price: 80,
-    description: 'Klassisches Business-Gehäuse in beigem Kunststoff'
+    description: t('hardware:cases.beigeTower.description')
   },
   {
     id: 'black-desktop',
-    name: 'Black Desktop',
+    name: t('hardware:cases.blackDesktop.name'),
     type: 'office' as const,
     quality: 70,
     design: 55,
     price: 120,
-    description: 'Elegantes schwarzes Desktop-Gehäuse für den Bürobereich'
+    description: t('hardware:cases.blackDesktop.description')
   },
   {
     id: 'gamer-rgb',
-    name: 'RGB Gaming Case',
+    name: t('hardware:cases.gamerRgb.name'),
     type: 'gamer' as const,
     quality: 85,
     design: 90,
     price: 200,
-    description: 'Stylisches Gaming-Gehäuse mit LED-Beleuchtung'
+    description: t('hardware:cases.gamerRgb.description')
   },
   {
     id: 'retro-wood',
-    name: 'Holz-Optik Retro',
+    name: t('hardware:cases.retroWood.name'),
     type: 'gamer' as const,
     quality: 60,
     design: 80,
     price: 150,
-    description: 'Nostalgisches Gehäuse in Holzoptik für Retro-Liebhaber'
+    description: t('hardware:cases.retroWood.description')
   },
   {
     id: 'premium-metal',
-    name: 'Premium Metall',
+    name: t('hardware:cases.premiumMetal.name'),
     type: 'office' as const,
     quality: 95,
     design: 85,
     price: 300,
-    description: 'Hochwertiges Vollmetall-Gehäuse für professionelle Anwendungen'
+    description: t('hardware:cases.premiumMetal.description')
   },
   {
     id: 'compact-mini',
-    name: 'Compact Mini',
+    name: t('hardware:cases.compactMini.name'),
     type: 'office' as const,
     quality: 75,
     design: 65,
     price: 100,
-    description: 'Platzsparendes Mini-Gehäuse für den Schreibtisch'
+    description: t('hardware:cases.compactMini.description')
   }
 ];
 
@@ -127,6 +127,7 @@ interface ComputerDevelopmentProps {
 
 export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips, existingModels = [], editingModel }: ComputerDevelopmentProps) => {
   const { t } = useTranslation(['hardware', 'common']);
+  const computerCases = getComputerCases(t);
   
   const [selectedComponents, setSelectedComponents] = useState<HardwareComponent[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
@@ -415,10 +416,10 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 className="retro-border bg-card/20 hover:bg-card/40"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Zurück zum Dashboard
+                {t('ui:development.sections.backToDashboard')}
               </Button>
               <h1 className="text-4xl font-bold neon-text text-neon-green">
-                Computer-Entwicklung
+                {t('ui:development.sections.computerDevelopment')}
               </h1>
             </div>
           </div>
@@ -564,7 +565,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                     <CardHeader>
                       <CardTitle className="text-neon-cyan flex items-center space-x-2">
                         <Gamepad2 className="w-5 h-5" />
-                        <span>Gaming Gehäuse</span>
+                        <span>{t('ui:caseSelection.gamerCases')}</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -610,7 +611,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                     <CardHeader>
                       <CardTitle className="text-gray-400 flex items-center space-x-2">
                         <Briefcase className="w-5 h-5" />
-                        <span>Büro Gehäuse</span>
+                        <span>{t('ui:caseSelection.officeCases')}</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -672,7 +673,10 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                       autoFocus
                     />
                     <p className="text-xs text-muted-foreground">
-                      Die Entwicklung dauert {averagePerformance <= 40 ? '1 Quartal' : '2 Quartale'} und wird durch das Entwicklungsbudget beschleunigt.
+                      {t('ui:development.descriptions.developmentDuration', {
+                        quarters: averagePerformance <= 40 ? '1' : '2',
+                        plural: averagePerformance <= 40 ? '' : 'e'
+                      })}
                     </p>
                   </CardContent>
                 </Card>
@@ -826,23 +830,27 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                         
                         <div className="border-t border-terminal-green/30 pt-4 space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Durchschnittliche Leistung:</span>
+                            <span className="text-muted-foreground">{t('ui:development.labels.averagePerformance')}:</span>
                             <span className="text-neon-green font-bold">{averagePerformance}/100</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Komplexität:</span>
+                            <span className="text-muted-foreground">{t('ui:development.labels.complexity')}:</span>
                             <span className="text-neon-cyan font-bold">
-                              {averagePerformance <= 40 ? 'Einfach (1 Quartal)' : 'Mittel (2 Quartale)'}
+                              {averagePerformance <= 40 
+                                ? t('ui:development.descriptions.complexitySimple')
+                                : t('ui:development.descriptions.complexityMedium')}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Entwicklungskosten:</span>
+                            <span className="text-muted-foreground">{t('ui:development.labels.developmentCost')}:</span>
                             <span className="text-neon-cyan font-bold">${totalCost.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Verkaufspreis:</span>
+                            <span className="text-muted-foreground">{t('ui:development.labels.sellingPrice')}:</span>
                             <span className="text-yellow-400 font-bold">
-                              {sellingPrice > 0 ? `$${sellingPrice.toLocaleString()}` : `$${suggestedPrice.toLocaleString()} (Empfehlung)`}
+                              {sellingPrice > 0 
+                                ? `$${sellingPrice.toLocaleString()}` 
+                                : `$${suggestedPrice.toLocaleString()} (${t('ui:development.labels.recommended')})`}
                             </span>
                           </div>
                         </div>

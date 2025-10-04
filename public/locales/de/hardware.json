@@ -24,5 +24,31 @@
     "selection": "Komponenten-Auswahl",
     "selectPrompt": "Wählen Sie Komponenten aus",
     "backToComponents": "Zurück zu Komponenten"
+  },
+  "cases": {
+    "beigeTower": {
+      "name": "Beige Tower",
+      "description": "Klassisches Business-Gehäuse in beigem Kunststoff"
+    },
+    "blackDesktop": {
+      "name": "Black Desktop",
+      "description": "Elegantes schwarzes Desktop-Gehäuse für den Bürobereich"
+    },
+    "gamerRgb": {
+      "name": "RGB Gaming Case",
+      "description": "Stylisches Gaming-Gehäuse mit LED-Beleuchtung"
+    },
+    "retroWood": {
+      "name": "Holz-Optik Retro",
+      "description": "Nostalgisches Gehäuse in Holzoptik für Retro-Liebhaber"
+    },
+    "premiumMetal": {
+      "name": "Premium Metall",
+      "description": "Hochwertiges Vollmetall-Gehäuse für professionelle Anwendungen"
+    },
+    "compactMini": {
+      "name": "Compact Mini",
+      "description": "Platzsparendes Mini-Gehäuse für den Schreibtisch"
+    }
   }
 }

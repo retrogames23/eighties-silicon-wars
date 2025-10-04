@@ -101,7 +101,11 @@
       "components": "Komponenten",
       "developmentProgress": "Entwicklungsfortschritt",
       "sales": "Verkäufe",
-      "release": "Release"
+      "release": "Release",
+      "averagePerformance": "Durchschnittliche Leistung",
+      "complexity": "Komplexität",
+      "sellingPrice": "Verkaufspreis",
+      "recommended": "Empfehlung"
     },
     "status": {
       "development": "In Entwicklung",
@@ -111,7 +115,9 @@
     "sections": {
       "newModels": "Neue Modelle",
       "currentModels": "Deine Computer-Modelle",
-      "newModelDevelopment": "Neues Computer-Modell entwickeln"
+      "newModelDevelopment": "Neues Computer-Modell entwickeln",
+      "computerDevelopment": "Computer-Entwicklung",
+      "backToDashboard": "Zurück zum Dashboard"
     },
     "actions": {
       "developNewModel": "Neues Modell entwickeln",
@@ -122,13 +128,34 @@
       "developNewModel": "Entwickeln Sie neue Computer-Modelle um auf dem Markt zu konkurrieren.",
       "newModelDevelopment": "Entwickle innovative Computer für verschiedene Zielgruppen",
       "noModels": "Noch keine Modelle entwickelt",
-      "noModelsHint": "Klicke auf \"Entwicklung starten\", um dein erstes Computer-Modell zu entwickeln."
+      "noModelsHint": "Klicke auf \"Entwicklung starten\", um dein erstes Computer-Modell zu entwickeln.",
+      "developmentDuration": "Die Entwicklung dauert {{quarters}} Quartal{{plural}} und wird durch das Entwicklungsbudget beschleunigt.",
+      "complexitySimple": "Einfach (1 Quartal)",
+      "complexityMedium": "Mittel (2 Quartale)"
     },
     "components": {
       "cpu": "CPU",
       "memory": "RAM",
       "graphics": "Grafik",
       "sound": "Sound"
+    },
+    "research": {
+      "status": {
+        "inProgress": "In Entwicklung",
+        "completed": "Abgeschlossen",
+        "cancelled": "Abgebrochen"
+      },
+      "toast": {
+        "projectCompleted": "Projekt abgeschlossen! Exklusive Komponente verfügbar!",
+        "investmentSuccess": "Investition erfolgreich!",
+        "componentAvailable": "Die neue Komponente ist jetzt in der Entwicklung verfügbar",
+        "investmentFailed": "Investition fehlgeschlagen",
+        "error": "Fehler"
+      },
+      "labels": {
+        "developmentBudget": "Entwicklungsbudget",
+        "invested": "investiert"
+      }
     }
   }
 }

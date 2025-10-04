@@ -10,5 +10,32 @@
     "cpu": "Technologie",
     "computer": "Computer",
     "innovation": "Innovation"
+  },
+  "selection": {
+    "title": "COMPUTER WARS",
+    "subtitle": "Die 80er Heimcomputer Revolution",
+    "prompt": "Wähle deine Firma und erobere den Markt",
+    "selectButton": "Firma auswählen",
+    "startingCapital": "Startkapital:",
+    "speciality": "Spezialisierung:",
+    "systemOnline": ">>> SYSTEM ONLINE - BEREIT FÜR EINGABE <<<",
+    "copyright": "COMPUTER_WARS.EXE v1.0 - (C) 1985 RetroSoft Industries",
+    "companies": {
+      "commodore": {
+        "name": "Commodore",
+        "description": "Pionier der Heimcomputer mit dem legendären C64",
+        "speciality": "8-Bit Consumer Markets"
+      },
+      "atari": {
+        "name": "Atari",
+        "description": "Von Arcade-Spielen zu Heimcomputern",
+        "speciality": "Gaming & Graphics"
+      },
+      "custom": {
+        "name": "Eigene Firma",
+        "description": "Starte deine eigene Computer-Revolution",
+        "speciality": "Innovation & Risiko"
+      }
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, Cpu, Gamepad2 } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface Company {
   id: string;
@@ -11,38 +12,36 @@ interface Company {
   icon: React.ReactNode;
 }
 
-const companies: Company[] = [
-  {
-    id: "commodore",
-    name: "Commodore",
-    description: "Pionier der Heimcomputer mit dem legendären C64",
-    startingCash: 500000,
-    speciality: "8-Bit Consumer Markets",
-    icon: <Cpu className="w-8 h-8" />
-  },
-  {
-    id: "atari",
-    name: "Atari",
-    description: "Von Arcade-Spielen zu Heimcomputern",
-    startingCash: 450000,
-    speciality: "Gaming & Graphics",
-    icon: <Gamepad2 className="w-8 h-8" />
-  },
-  {
-    id: "custom",
-    name: "Eigene Firma",
-    description: "Starte deine eigene Computer-Revolution",
-    startingCash: 300000,
-    speciality: "Innovation & Risiko",
-    icon: <Building2 className="w-8 h-8" />
-  }
-];
+export const CompanySelection = ({ onSelectCompany }: { onSelectCompany: (company: Company) => void }) => {
+  const { t } = useTranslation(['company', 'common']);
+  
+  const companies: Company[] = [
+    {
+      id: "commodore",
+      name: t('company:selection.companies.commodore.name'),
+      description: t('company:selection.companies.commodore.description'),
+      startingCash: 500000,
+      speciality: t('company:selection.companies.commodore.speciality'),
+      icon: <Cpu className="w-8 h-8" />
+    },
+    {
+      id: "atari",
+      name: t('company:selection.companies.atari.name'),
+      description: t('company:selection.companies.atari.description'),
+      startingCash: 450000,
+      speciality: t('company:selection.companies.atari.speciality'),
+      icon: <Gamepad2 className="w-8 h-8" />
+    },
+    {
+      id: "custom",
+      name: t('company:selection.companies.custom.name'),
+      description: t('company:selection.companies.custom.description'),
+      startingCash: 300000,
+      speciality: t('company:selection.companies.custom.speciality'),
+      icon: <Building2 className="w-8 h-8" />
+    }
+  ];
 
-interface CompanySelectionProps {
-  onSelectCompany: (company: Company) => void;
-}
-
-export const CompanySelection = ({ onSelectCompany }: CompanySelectionProps) => {
   return (
     <div className="min-h-screen bg-gradient-crt p-8">
       <div className="crt-screen">
@@ -51,13 +50,13 @@ export const CompanySelection = ({ onSelectCompany }: CompanySelectionProps) => 
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-6xl font-bold neon-text text-neon-green mb-4 animate-glow-pulse">
-              COMPUTER WARS
+              {t('company:selection.title')}
             </h1>
             <h2 className="text-2xl text-neon-cyan mb-2">
-              Die 80er Heimcomputer Revolution
+              {t('company:selection.subtitle')}
             </h2>
             <p className="text-lg text-muted-foreground">
-              Wähle deine Firma und erobere den Markt
+              {t('company:selection.prompt')}
             </p>
           </div>
 
@@ -83,14 +82,14 @@ export const CompanySelection = ({ onSelectCompany }: CompanySelectionProps) => 
                   
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Startkapital:</span>
+                      <span className="text-muted-foreground">{t('company:selection.startingCapital')}</span>
                       <span className="text-neon-green font-mono">
                         ${company.startingCash.toLocaleString()}
                       </span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Spezialisierung:</span>
+                      <span className="text-muted-foreground">{t('company:selection.speciality')}</span>
                       <span className="text-accent">{company.speciality}</span>
                     </div>
                   </div>
@@ -99,7 +98,7 @@ export const CompanySelection = ({ onSelectCompany }: CompanySelectionProps) => 
                     className="w-full mt-6 glow-button"
                     variant="default"
                   >
-                    Firma auswählen
+                    {t('company:selection.selectButton')}
                   </Button>
                 </div>
               </Card>
@@ -109,10 +108,10 @@ export const CompanySelection = ({ onSelectCompany }: CompanySelectionProps) => 
           <div className="text-center mt-12">
             <div className="retro-border inline-block p-4 bg-card/30 backdrop-blur-sm">
               <p className="text-sm text-muted-foreground mb-2">
-                {">>> SYSTEM ONLINE - READY FOR INPUT <<<"}
+                {t('company:selection.systemOnline')}
               </p>
               <p className="text-xs text-terminal-green font-mono">
-                COMPUTER_WARS.EXE v1.0 - (C) 1985 RetroSoft Industries
+                {t('company:selection.copyright')}
               </p>
             </div>
           </div>

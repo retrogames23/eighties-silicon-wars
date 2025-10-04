@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { ResearchService, type ResearchProject, type ExclusiveComponent } from "@/services/research/ResearchService";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
+import { formatters } from '@/lib/i18n';
 
 interface ResearchDevelopmentTabProps {
   budget: {
@@ -38,11 +40,14 @@ export const ResearchDevelopmentTab = ({
   currentYear, 
   onBudgetChange 
 }: ResearchDevelopmentTabProps) => {
+  const { t } = useTranslation(['ui', 'common']);
   const [projects, setProjects] = useState<ResearchProject[]>([]);
   const [exclusiveComponents, setExclusiveComponents] = useState<ExclusiveComponent[]>([]);
   const [loading, setLoading] = useState(true);
   const [investmentAmount, setInvestmentAmount] = useState<Record<string, number>>({});
   const { toast } = useToast();
+  
+  const formatCurrency = (amount: number) => formatters.currency(amount);
 
   useEffect(() => {
     loadResearchData();
@@ -135,14 +140,14 @@ export const ResearchDevelopmentTab = ({
 
     if (result.success) {
       const message = result.completed 
-        ? "Projekt abgeschlossen! Exklusive Komponente verfügbar!"
-        : "Investition erfolgreich!";
+        ? t('ui:development.research.toast.projectCompleted')
+        : t('ui:development.research.toast.investmentSuccess');
       
       toast({
         title: message,
         description: result.completed 
-          ? "Die neue Komponente ist jetzt in der Entwicklung verfügbar"
-          : `$${amount.toLocaleString()} investiert`,
+          ? t('ui:development.research.toast.componentAvailable')
+          : `$${amount.toLocaleString()} ${t('ui:development.research.labels.invested')}`,
         variant: "default"
       });
       
@@ -158,8 +163,8 @@ export const ResearchDevelopmentTab = ({
       loadResearchData();
     } else {
       toast({
-        title: "Fehler",
-        description: "Investition fehlgeschlagen",
+        title: t('ui:development.research.toast.error'),
+        description: t('ui:development.research.toast.investmentFailed'),
         variant: "destructive"
       });
     }
@@ -186,14 +191,12 @@ export const ResearchDevelopmentTab = ({
 
   const getStatusText = (status: ResearchProject['status']) => {
     const texts = {
-      in_progress: 'In Entwicklung',
-      completed: 'Abgeschlossen',
-      cancelled: 'Abgebrochen'
+      in_progress: t('ui:development.research.status.inProgress'),
+      completed: t('ui:development.research.status.completed'),
+      cancelled: t('ui:development.research.status.cancelled')
     };
     return texts[status];
   };
-
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
 
   if (loading) {
     return (
@@ -227,7 +230,7 @@ export const ResearchDevelopmentTab = ({
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Entwicklungsbudget</p>
+              <p className="text-sm text-muted-foreground">{t('ui:development.research.labels.developmentBudget')}</p>
               <p className="text-2xl font-bold text-neon-cyan font-mono">
                 {formatCurrency(budget.development)}
               </p>

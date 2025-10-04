@@ -24,5 +24,31 @@
     "selection": "Component Selection",
     "selectPrompt": "Select Components",
     "backToComponents": "Back to Components"
+  },
+  "cases": {
+    "beigeTower": {
+      "name": "Beige Tower",
+      "description": "Classic business case in beige plastic"
+    },
+    "blackDesktop": {
+      "name": "Black Desktop",
+      "description": "Elegant black desktop case for office use"
+    },
+    "gamerRgb": {
+      "name": "RGB Gaming Case",
+      "description": "Stylish gaming case with LED lighting"
+    },
+    "retroWood": {
+      "name": "Wood-Look Retro",
+      "description": "Nostalgic case in wood finish for retro enthusiasts"
+    },
+    "premiumMetal": {
+      "name": "Premium Metal",
+      "description": "High-quality all-metal case for professional use"
+    },
+    "compactMini": {
+      "name": "Compact Mini",
+      "description": "Space-saving mini case for desktop use"
+    }
   }
 }

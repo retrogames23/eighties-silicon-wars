@@ -101,7 +101,11 @@
       "components": "Components",
       "developmentProgress": "Development Progress",
       "sales": "Sales",
-      "release": "Release"
+      "release": "Release",
+      "averagePerformance": "Average Performance",
+      "complexity": "Complexity",
+      "sellingPrice": "Selling Price",
+      "recommended": "Recommended"
     },
     "status": {
       "development": "In Development",
@@ -111,7 +115,9 @@
     "sections": {
       "newModels": "New Models",
       "currentModels": "Your Computer Models",
-      "newModelDevelopment": "Develop New Computer Model"
+      "newModelDevelopment": "Develop New Computer Model",
+      "computerDevelopment": "Computer Development",
+      "backToDashboard": "Back to Dashboard"
     },
     "actions": {
       "developNewModel": "Develop New Model",
@@ -122,13 +128,34 @@
       "developNewModel": "Develop new computer models to compete in the market.",
       "newModelDevelopment": "Develop innovative computers for different target groups",
       "noModels": "No models developed yet",
-      "noModelsHint": "Click \"Start Development\" to develop your first computer model."
+      "noModelsHint": "Click \"Start Development\" to develop your first computer model.",
+      "developmentDuration": "Development takes {{quarters}} quarter{{plural}} and is accelerated by the development budget.",
+      "complexitySimple": "Simple (1 Quarter)",
+      "complexityMedium": "Medium (2 Quarters)"
     },
     "components": {
       "cpu": "CPU", 
       "memory": "RAM",
       "graphics": "Graphics",
       "sound": "Sound"
+    },
+    "research": {
+      "status": {
+        "inProgress": "In Development",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "toast": {
+        "projectCompleted": "Project completed! Exclusive component available!",
+        "investmentSuccess": "Investment successful!",
+        "componentAvailable": "The new component is now available in development",
+        "investmentFailed": "Investment failed",
+        "error": "Error"
+      },
+      "labels": {
+        "developmentBudget": "Development Budget",
+        "invested": "invested"
+      }
     }
   }
 }

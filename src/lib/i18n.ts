@@ -69,6 +69,11 @@ i18n
     defaultNS: 'common',
     ns: NAMESPACES,
     
+    // Enable React Suspense support
+    react: {
+      useSuspense: true
+    },
+    
     interpolation: {
       escapeValue: false, // React already escapes values
       format: (value, format, lng) => {

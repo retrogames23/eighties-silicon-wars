@@ -36,9 +36,9 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   const monthlyResearch = Math.round(gameState.budget.research / 3);
 
   const expenses = [
-    { name: t('ui.account.expenses.marketingBudget'), amount: monthlyMarketing, category: t('ui.account.categories.marketing') },
-    { name: t('ui.account.expenses.developmentCosts'), amount: monthlyDevelopment, category: t('ui.account.categories.rnd') },
-    { name: t('ui.account.expenses.researchBudget'), amount: monthlyResearch, category: t('ui.account.categories.rnd') },
+    { name: t('ui:account.expenses.marketingBudget'), amount: monthlyMarketing, category: t('ui:account.categories.marketing') },
+    { name: t('ui:account.expenses.developmentCosts'), amount: monthlyDevelopment, category: t('ui:account.categories.rnd') },
+    { name: t('ui:account.expenses.researchBudget'), amount: monthlyResearch, category: t('ui:account.categories.rnd') },
   ];
 
   // Berechne zusätzliche Einnahmen aus den Komponenten (falls vorhanden)
@@ -52,11 +52,11 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   const serviceIncome = (additionalRevenue.supportService.b2c + additionalRevenue.supportService.b2b) / 3;
 
   const income = [
-    { name: t('ui.account.income.computerSales'), amount: hardwareIncome, category: t('ui.account.categories.hardware') },
-    { name: t('ui.account.income.gameSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: t('ui.account.categories.software') },
-    { name: t('ui.account.income.officeSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: t('ui.account.categories.software') },
-    { name: t('ui.account.income.b2cSupport'), amount: Math.round(additionalRevenue.supportService.b2c / 3), category: t('ui.account.categories.service') },
-    { name: t('ui.account.income.b2bSupport'), amount: Math.round(additionalRevenue.supportService.b2b / 3), category: t('ui.account.categories.service') },
+    { name: t('ui:account.income.computerSales'), amount: hardwareIncome, category: t('ui:account.categories.hardware') },
+    { name: t('ui:account.income.gameSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: t('ui:account.categories.software') },
+    { name: t('ui:account.income.officeSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: t('ui:account.categories.software') },
+    { name: t('ui:account.income.b2cSupport'), amount: Math.round(additionalRevenue.supportService.b2c / 3), category: t('ui:account.categories.service') },
+    { name: t('ui:account.income.b2bSupport'), amount: Math.round(additionalRevenue.supportService.b2b / 3), category: t('ui:account.categories.service') },
   ];
 
   // Korrekte Gewinnberechnung: Gesamteinnahmen minus Gesamtausgaben
@@ -71,7 +71,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">{t('ui.account.labels.accountBalance')}</p>
+              <p className="text-sm text-muted-foreground">{t('ui:account.labels.accountBalance')}</p>
               <p className="text-xl font-bold text-neon-green neon-text font-mono">
                 {formatCurrency(gameState.company.cash)}
               </p>
@@ -83,7 +83,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">{t('ui.account.labels.monthlyIncome')}</p>
+              <p className="text-sm text-muted-foreground">{t('ui:account.labels.monthlyIncome')}</p>
               <p className="text-xl font-bold text-neon-cyan neon-text font-mono">
                 {formatCurrency(totalIncome)}
               </p>
@@ -95,7 +95,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">{t('ui.account.labels.monthlyExpenses')}</p>
+              <p className="text-sm text-muted-foreground">{t('ui:account.labels.monthlyExpenses')}</p>
               <p className="text-xl font-bold text-red-400 font-mono">
                 {formatCurrency(totalExpenses)}
               </p>
@@ -107,7 +107,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">{t('ui.account.labels.monthlyProfit')}</p>
+              <p className="text-sm text-muted-foreground">{t('ui:account.labels.monthlyProfit')}</p>
               <p className={`text-xl font-bold font-mono ${monthlyProfit >= 0 ? 'text-neon-green neon-text' : 'text-red-400'}`}>
                 {formatCurrency(monthlyProfit)}
               </p>
@@ -123,7 +123,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
           <h3 className="text-xl font-bold text-neon-cyan neon-text mb-4 flex items-center">
             <TrendingUp className="w-5 h-5 mr-2" />
-            {t('ui.account.sections.income')}
+            {t('ui:account.sections.income')}
           </h3>
           <div className="space-y-4">
             {income.map((item, index) => (
@@ -139,7 +139,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
             ))}
             <div className="border-t border-border pt-4">
               <div className="flex justify-between items-center font-bold">
-                <span className="text-primary">{t('ui.account.labels.total')}</span>
+                <span className="text-primary">{t('ui:account.labels.total')}</span>
                 <span className="font-mono text-neon-cyan neon-text">
                   {formatCurrency(totalIncome)}
                 </span>
@@ -152,7 +152,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
           <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center">
             <TrendingDown className="w-5 h-5 mr-2" />
-            {t('ui.account.sections.expenses')}
+            {t('ui:account.sections.expenses')}
           </h3>
           <div className="space-y-4">
             {expenses.map((item, index) => (
@@ -168,7 +168,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
             ))}
             <div className="border-t border-border pt-4">
               <div className="flex justify-between items-center font-bold">
-                <span className="text-primary">{t('ui.account.labels.total')}</span>
+                <span className="text-primary">{t('ui:account.labels.total')}</span>
                 <span className="font-mono text-red-400">
                   -{formatCurrency(totalExpenses)}
                 </span>

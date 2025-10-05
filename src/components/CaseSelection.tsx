@@ -152,10 +152,10 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                 className="retro-border bg-card/20 hover:bg-card/40"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {t('common.back')}
+                {t('common:back')}
               </Button>
               <h1 className="text-4xl font-bold neon-text text-neon-green">
-                {t('ui.caseSelection.title')}
+                {t('ui:caseSelection.title')}
               </h1>
             </div>
           </div>
@@ -164,7 +164,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
             <Card className="retro-border bg-card/20 backdrop-blur-sm mb-6">
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  {t('ui.caseSelection.description', { modelName: computerSpecs.name })}
+                  {t('ui:caseSelection.description', { modelName: computerSpecs.name })}
                 </p>
               </CardContent>
             </Card>
@@ -174,7 +174,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-neon-cyan mb-4 flex items-center">
               <Star className="w-6 h-6 mr-2" />
-              {t('ui.caseSelection.gamerCases')}
+              {t('ui:caseSelection.gamerCases')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {computerCases.filter(c => c.type === 'gamer').map(computerCase => (
@@ -188,7 +188,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                   onClick={() => handleCaseSelect(computerCase)}
                 >
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg text-neon-cyan">{t(`ui.caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
+                    <CardTitle className="text-lg text-neon-cyan">{t(`ui:caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Pixel Art Case */}
@@ -209,19 +209,19 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
 
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t('common.quality')}:</span>
+                          <span className="text-muted-foreground">{t('common:quality')}:</span>
                           <span className={`font-bold ${getQualityColor(computerCase.quality)}`}>
                             {computerCase.quality}/100
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t('common.design')}:</span>
+                          <span className="text-muted-foreground">{t('common:design')}:</span>
                           <span className={`font-bold ${getDesignColor(computerCase.design)}`}>
                             {computerCase.design}/100
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{t('common.price')}:</span>
+                          <span className="text-muted-foreground">{t('common:price')}:</span>
                           <span className="font-bold text-yellow-400">
                             ${computerCase.price}
                           </span>
@@ -229,12 +229,12 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                       </div>
 
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {t(`ui.caseSelection.cases.${computerCase.description}.description`)}
+                        {t(`ui:caseSelection.cases.${computerCase.description}.description`)}
                       </p>
 
                       <div className="flex flex-wrap gap-1">
                         <Badge variant="secondary" className="text-xs">
-                          {t('ui.caseSelection.designImportant')}
+                          {t('ui:caseSelection.designImportant')}
                         </Badge>
                       </div>
                   </CardContent>
@@ -247,7 +247,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-400 mb-4 flex items-center">
               <DollarSign className="w-6 h-6 mr-2" />
-              {t('ui.caseSelection.officeCases')}
+              {t('ui:caseSelection.officeCases')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {computerCases.filter(c => c.type === 'office').map(computerCase => (
@@ -261,7 +261,7 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                   onClick={() => handleCaseSelect(computerCase)}
                 >
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg text-gray-300">{t(`ui.caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
+                    <CardTitle className="text-lg text-gray-300">{t(`ui:caseSelection.cases.${computerCase.name}.name`)}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Pixel Art Case */}
@@ -282,19 +282,19 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
 
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t('common.quality')}:</span>
+                        <span className="text-muted-foreground">{t('common:quality')}:</span>
                         <span className={`font-bold ${getQualityColor(computerCase.quality)}`}>
                           {computerCase.quality}/100
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t('common.design')}:</span>
+                        <span className="text-muted-foreground">{t('common:design')}:</span>
                         <span className={`font-bold ${getDesignColor(computerCase.design)}`}>
                           {computerCase.design}/100
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t('common.price')}:</span>
+                        <span className="text-muted-foreground">{t('common:price')}:</span>
                         <span className="font-bold text-yellow-400">
                           ${computerCase.price}
                         </span>
@@ -302,12 +302,12 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                     </div>
 
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      {t(`ui.caseSelection.cases.${computerCase.description}.description`)}
+                      {t(`ui:caseSelection.cases.${computerCase.description}.description`)}
                     </p>
 
                     <div className="flex flex-wrap gap-1">
                       <Badge variant="secondary" className="text-xs">
-                        {t('ui.caseSelection.qualityImportant')}
+                        {t('ui:caseSelection.qualityImportant')}
                       </Badge>
                     </div>
                   </CardContent>
@@ -323,17 +323,17 @@ export const CaseSelection = ({ onBack, onCaseSelected, computerSpecs }: CaseSel
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold text-neon-green">
-                      {t('ui.caseSelection.selected', { caseName: t(`ui.caseSelection.cases.${selectedCase.name}.name`) })}
+                      {t('ui:caseSelection.selected', { caseName: t(`ui:caseSelection.cases.${selectedCase.name}.name`) })}
                     </h3>
                     <p className="text-muted-foreground">
-                      {t('common.quality')}: {selectedCase.quality}/100 | {t('common.design')}: {selectedCase.design}/100 | {t('common.price')}: ${selectedCase.price}
+                      {t('common:quality')}: {selectedCase.quality}/100 | {t('common:design')}: {selectedCase.design}/100 | {t('common:price')}: ${selectedCase.price}
                     </p>
                   </div>
                   <Button
                     onClick={confirmSelection}
                     className="glow-button"
                   >
-                    {t('ui.caseSelection.confirmCase')}
+                    {t('ui:caseSelection.confirmCase')}
                   </Button>
                 </div>
               </CardContent>

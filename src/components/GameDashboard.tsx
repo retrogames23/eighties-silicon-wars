@@ -11,7 +11,6 @@ import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSwipeable } from "react-swipeable";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "react-i18next";
 import { formatters } from "@/lib/i18n";
 import { 
@@ -76,8 +75,7 @@ export const GameDashboard = ({
   onOpenSaveManager,
   user
 }: GameDashboardProps) => {
-  const { t } = useLanguage();
-  const { t: t18n } = useTranslation(['ui', 'common']);
+  const { t } = useTranslation(['ui', 'common']);
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -150,7 +148,7 @@ export const GameDashboard = ({
                   className="retro-border bg-card/20 hover:bg-card/40"
                 >
                   <HelpCircle className="w-4 h-4 mr-2" />
-                  {t('common.help')}
+                  {t('common:help')}
                 </Button>
                 
                 {onOpenSaveManager && (
@@ -161,7 +159,7 @@ export const GameDashboard = ({
                       className="retro-border bg-card/20 hover:bg-card/40"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      {t18n('ui:dashboard.saveGame')}
+                      {t('ui:dashboard.saveGame')}
                     </Button>
                     
                     <UserProfile user={user} />
@@ -174,7 +172,7 @@ export const GameDashboard = ({
                   variant="default"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
-                  {t18n('ui:dashboard.nextTurn')}
+                  {t('ui:dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -204,7 +202,7 @@ export const GameDashboard = ({
                 className="w-full retro-border bg-card/20 hover:bg-card/40 mobile-touch-button justify-start"
               >
                 <HelpCircle className="w-4 h-4 mr-2" />
-                {t('common.help')}
+                {t('common:help')}
               </Button>
               
               {onOpenSaveManager && (
@@ -217,7 +215,7 @@ export const GameDashboard = ({
                   className="w-full retro-border bg-card/20 hover:bg-card/40 mobile-touch-button justify-start"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {t18n('ui:dashboard.saveGame')}
+                  {t('ui:dashboard.saveGame')}
                 </Button>
               )}
 
@@ -237,25 +235,25 @@ export const GameDashboard = ({
                   value="account" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? t('tabs.overview').slice(0,4) : t('tabs.overview')}
+                  {isMobile ? t('ui:dashboard.tabs.overview').slice(0,4) : t('ui:dashboard.tabs.overview')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="development" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? 'Dev' : t('tabs.development')}
+                  {isMobile ? 'Dev' : t('ui:dashboard.tabs.development')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {t('tabs.market')}
+                  {t('ui:dashboard.tabs.market')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="management" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? 'Mgmt' : t('dashboard.budget')}
+                  {isMobile ? 'Mgmt' : t('ui:dashboard.tabs.management')}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -293,7 +291,7 @@ export const GameDashboard = ({
             {isMobile && (
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground font-mono">
-                  {t18n('ui:dashboard.mobileNavHint')}
+                  {t('ui:dashboard.mobileNavHint')}
                 </p>
               </div>
             )}
@@ -308,7 +306,7 @@ export const GameDashboard = ({
                 variant="default"
               >
                 <Calendar className="w-5 h-5 mr-2" />
-                {t18n('ui:dashboard.nextTurn')}
+                {t('ui:dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

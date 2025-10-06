@@ -161,7 +161,7 @@ export const GameDashboard = ({
                       className="retro-border bg-card/20 hover:bg-card/40"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      {t18n('ui.dashboard.saveGame')}
+                      {t18n('ui:dashboard.saveGame')}
                     </Button>
                     
                     <UserProfile user={user} />
@@ -174,7 +174,7 @@ export const GameDashboard = ({
                   variant="default"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
-                  {t18n('ui.dashboard.nextTurn')}
+                  {t18n('ui:dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -217,7 +217,7 @@ export const GameDashboard = ({
                   className="w-full retro-border bg-card/20 hover:bg-card/40 mobile-touch-button justify-start"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {t('dashboard.saveGame')}
+                  {t18n('ui:dashboard.saveGame')}
                 </Button>
               )}
 
@@ -293,7 +293,7 @@ export const GameDashboard = ({
             {isMobile && (
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground font-mono">
-                  {t18n('ui.dashboard.mobileNavHint')}
+                  {t18n('ui:dashboard.mobileNavHint')}
                 </p>
               </div>
             )}
@@ -308,7 +308,7 @@ export const GameDashboard = ({
                 variant="default"
               >
                 <Calendar className="w-5 h-5 mr-2" />
-                {t18n('ui.dashboard.nextTurn')}
+                {t18n('ui:dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

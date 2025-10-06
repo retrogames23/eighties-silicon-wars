@@ -59,6 +59,7 @@ export class NewsContentGenerator {
 
   /**
    * Generate complete news articles with full sentences (12-24 words)
+   * Returns i18n keys instead of hardcoded text
    */
   static generateMarketNews(quarter: number, year: number, marketData?: any): GeneratedNewsContent[] {
     const data: NewsContentData = {
@@ -74,28 +75,28 @@ export class NewsContentGenerator {
 
     const templates = [
       {
-        headline: 'Computermarkt verzeichnet außergewöhnliches Wachstum im aktuellen Quartal',
-        content: 'Marktforscher berichten von einem beeindruckenden Anstieg der Verkaufszahlen, der alle Erwartungen übertrifft und die Branche optimistisch stimmt.',
+        headlineKey: 'news:headlines.marketGrowth',
+        contentKey: 'news:content.marketGrowth',
         impact: { marketGrowth: Math.random() * 0.1 + 0.05 }
       },
       {
-        headline: 'Preiskampf zwischen Herstellern führt zu günstigeren Heimcomputern',
-        content: 'Der intensiver werdende Wettbewerb zwingt Computerhersteller zu drastischen Preissenkungen, was Verbrauchern zugute kommt aber Gewinnmargen schmälert.',
+        headlineKey: 'news:headlines.priceWar',
+        contentKey: 'news:content.priceWar',
         impact: { priceChange: -0.1 - Math.random() * 0.1 }
       },
       {
-        headline: 'Neue Zielgruppen entdecken Computer für sich als vielseitige Werkzeuge',
-        content: 'Während Computer früher primär von Technik-Enthusiasten genutzt wurden, erobern sie nun Büros und Wohnzimmer gewöhnlicher Familien.',
+        headlineKey: 'news:headlines.newSegments',
+        contentKey: 'news:content.newSegments',
         impact: { demandShift: [{ segment: 'home', change: 0.15 }] }
       },
       {
-        headline: 'Einzelhandel meldet deutlich gestiegene Nachfrage nach Computerzubehör',
-        content: 'Fachgeschäfte berichten von einem überraschenden Boom bei Druckern, Disketten und Monitoren, der die starke Verbreitung von Heimcomputern widerspiegelt.',
+        headlineKey: 'news:headlines.retailBoom',
+        contentKey: 'news:content.retailBoom',
         impact: { marketGrowth: 0.08 }
       },
       {
-        headline: 'Softwarehersteller profitieren vom expandierenden Computermarkt enorm',
-        content: 'Die wachsende Anzahl von Computerbesitzern beschert Programmentwicklern traumhafte Umsätze und treibt Innovationen in allen Anwendungsbereichen voran.',
+        headlineKey: 'news:headlines.softwareProfit',
+        contentKey: 'news:content.softwareProfit',
         impact: { marketGrowth: 0.12 }
       }
     ];
@@ -106,8 +107,8 @@ export class NewsContentGenerator {
     return [{
       id: `${year}q${quarter}_market_${this.generateDedupKey(data)}`,
       category: 'market',
-      headline: template.headline,
-      content: template.content,
+      headline: template.headlineKey,
+      content: template.contentKey,
       impact: template.impact
     }];
   }
@@ -126,28 +127,28 @@ export class NewsContentGenerator {
 
     const templates = [
       {
-        headline: 'Durchbruch in der Prozessortechnologie verspricht deutlich schnellere Computer',
-        content: 'Ingenieure haben neue Fertigungsverfahren entwickelt, die es ermöglichen, Prozessoren mit höheren Taktraten und besserer Energieeffizienz zu produzieren.',
+        headlineKey: 'news:headlines.techBreakthrough',
+        contentKey: 'news:content.techBreakthrough',
         impact: { marketGrowth: 0.15 }
       },
       {
-        headline: 'Revolutionäre Grafikchips sollen Spielerlebnis auf völlig neue Ebene heben',
-        content: 'Die neueste Generation von Grafikprozessoren verspricht eine bisher unerreichte Darstellungsqualität und wird Gaming-Computer in neue Dimensionen führen.',
+        headlineKey: 'news:headlines.graphicsRevolution',
+        contentKey: 'news:content.graphicsRevolution',
         impact: { demandShift: [{ segment: 'gaming', change: 0.2 }] }
       },
       {
-        headline: 'Speichertechnologie macht Computer für Unternehmen noch attraktiver',
-        content: 'Neue RAM-Module mit größerer Kapazität und niedrigeren Preisen ermöglichen es Firmen, leistungsfähigere Arbeitsplätze kostengünstig auszustatten.',
+        headlineKey: 'news:headlines.memoryAdvance',
+        contentKey: 'news:content.memoryAdvance',
         impact: { demandShift: [{ segment: 'business', change: 0.18 }] }
       },
       {
-        headline: 'Audio-Chips erreichen Qualitätsniveau professioneller Musikstudios',
-        content: 'Fortschritte in der digitalen Signalverarbeitung bringen Sound-Qualität hervor, die selbst anspruchsvolle Musiker und Audiophile begeistert.',
+        headlineKey: 'news:headlines.audioQuality',
+        contentKey: 'news:content.audioQuality',
         impact: { marketGrowth: 0.1 }
       },
       {
-        headline: 'Neue Festplattentechnologie verdoppelt Speicherkapazität bei gleichen Kosten',
-        content: 'Revolutionäre Entwicklungen in der magnetischen Datenspeicherung versprechen Computer mit nie dagewesenen Speichermengen für Privatnutzer und Profis.',
+        headlineKey: 'news:headlines.storageDouble',
+        contentKey: 'news:content.storageDouble',
         impact: { marketGrowth: 0.13 }
       }
     ];
@@ -158,8 +159,8 @@ export class NewsContentGenerator {
     return [{
       id: `${year}q${quarter}_tech_${this.generateDedupKey(data)}`,
       category: 'tech',
-      headline: template.headline,
-      content: template.content,
+      headline: template.headlineKey,
+      content: template.contentKey,
       impact: template.impact
     }];
   }
@@ -178,20 +179,20 @@ export class NewsContentGenerator {
 
     const templates = [
       {
-        headline: 'Etablierte Computerhersteller kündigen aggressive Expansionspläne an',
-        content: 'Branchenriesen investieren Milliardenbeträge in neue Produktionskapazitäten und Forschung, um ihre Marktführerschaft gegen aufstrebende Konkurrenten zu verteidigen.'
+        headlineKey: 'news:headlines.competitorExpansion',
+        contentKey: 'news:content.competitorExpansion'
       },
       {
-        headline: 'Internationale Konzerne drängen verstärkt auf den deutschen Computermarkt',
-        content: 'Amerikanische und japanische Technologieunternehmen intensivieren ihre Bemühungen, europäische Märkte zu erobern und lokale Hersteller unter Druck zu setzen.'
+        headlineKey: 'news:headlines.internationalPush',
+        contentKey: 'news:content.internationalPush'
       },
       {
-        headline: 'Fusion zweier Computerhersteller könnte Marktlandschaft grundlegend verändern',
-        content: 'Spekulationen über eine bevorstehende Übernahme sorgen für Unruhe in der Branche und könnten die Machtverhältnisse im Computersektor verschieben.'
+        headlineKey: 'news:headlines.mergerRumors',
+        contentKey: 'news:content.mergerRumors'
       },
       {
-        headline: 'Neuer Marktteilnehmer verspricht revolutionäre Computer zu Niedrigpreisen',
-        content: 'Ein bisher unbekanntes Unternehmen kündigt an, mit innovativen Produktionsverfahren Computer anzubieten, die bisherige Preis-Leistungs-Verhältnisse sprengen sollen.'
+        headlineKey: 'news:headlines.newEntrant',
+        contentKey: 'news:content.newEntrant'
       }
     ];
 
@@ -201,8 +202,8 @@ export class NewsContentGenerator {
     return [{
       id: `${year}q${quarter}_competitor_${this.generateDedupKey(data)}`,
       category: 'competitor',
-      headline: template.headline,
-      content: template.content
+      headline: template.headlineKey,
+      content: template.contentKey
     }];
   }
 
@@ -220,21 +221,21 @@ export class NewsContentGenerator {
 
     const templates = [
       {
-        headline: 'Internationale Handelsabkommen fördern den globalen Technologieaustausch',
-        content: 'Neue diplomatische Vereinbarungen erleichtern Import und Export von Computerkomponenten, was Herstellern besseren Zugang zu weltweiten Märkten ermöglicht.'
+        headlineKey: 'news:headlines.tradeAgreements',
+        contentKey: 'news:content.tradeAgreements'
       },
       {
-        headline: 'Bildungsreformen sehen verstärkten Computereinsatz in Schulen vor',
-        content: 'Kultusminister verschiedener Länder planen massive Investitionen in Schul-Computer, um Schüler frühzeitig mit moderner Technologie vertraut zu machen.',
+        headlineKey: 'news:headlines.educationReform',
+        contentKey: 'news:content.educationReform',
         impact: { demandShift: [{ segment: 'education', change: 0.25 }] }
       },
       {
-        headline: 'Wirtschaftsaufschwung verstärkt Nachfrage nach Büroautomatisierung deutlich',
-        content: 'Die verbesserte Konjunkturlage ermutigt Unternehmen zu Investitionen in Computertechnik, um Arbeitsabläufe zu optimieren und Wettbewerbsvorteile zu erzielen.'
+        headlineKey: 'news:headlines.economicBoom',
+        contentKey: 'news:content.economicBoom'
       },
       {
-        headline: 'Kultureller Wandel macht Computer zum Symbol moderner Lebensweise',
-        content: 'Computer entwickeln sich vom Nischenwerkzeug zum Statussymbol aufstrebender Gesellschaftsschichten und prägen das Selbstverständnis technikaffiner Bürger.'
+        headlineKey: 'news:headlines.culturalShift',
+        contentKey: 'news:content.culturalShift'
       }
     ];
 
@@ -244,8 +245,8 @@ export class NewsContentGenerator {
     return [{
       id: `${year}q${quarter}_world_${this.generateDedupKey(data)}`,
       category: 'world',
-      headline: template.headline,
-      content: template.content,
+      headline: template.headlineKey,
+      content: template.contentKey,
       impact: template.impact
     }];
   }
@@ -289,8 +290,8 @@ export class NewsContentGenerator {
     return [{
       id: `${year}q${quarter}_fallback_${this.generateDedupKey(data)}`,
       category: 'market',
-      headline: 'Computerbranche zeigt weiterhin stabiles Wachstum trotz Marktherausforderungen',
-      content: 'Experten bestätigen die anhaltend positive Entwicklung des Computermarktes, der sich als überraschend widerstandsfähig gegen wirtschaftliche Schwankungen erweist.',
+      headline: 'news:headlines.marketStability',
+      content: 'news:content.marketStability',
       impact: { marketGrowth: 0.05 }
     }];
   }

@@ -88,6 +88,12 @@
       "b2bSupport": "B2B-Support"
     }
   },
+  "auth": {
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "signingOut": "Wird abgemeldet...",
+    "signedInAs": "Angemeldet als:"
+  },
   "development": {
     "labels": {
       "totalRevenue": "Gesamtumsatz",

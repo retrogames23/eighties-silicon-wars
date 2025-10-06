@@ -120,7 +120,7 @@ export const Newspaper = ({
                   {getCategoryLabel(mainNews[0].category, t).toUpperCase()}
                 </Badge>
                 <h2 className="text-4xl font-bold font-serif leading-tight mb-3">
-                  {mainNews[0].headline}
+                  {mainNews[0].headline.startsWith('news:') ? t(mainNews[0].headline) : mainNews[0].headline}
                 </h2>
                 <div className="text-xs text-gray-600 mb-3">
                   {t('byline')} • {t('title')}
@@ -128,7 +128,7 @@ export const Newspaper = ({
               </div>
               <div className="columns-2 gap-6 text-justify text-sm leading-relaxed">
                 <p className="mb-4 first-letter:text-4xl first-letter:font-bold first-letter:float-left first-letter:mr-1 first-letter:mt-1">
-                  {mainNews[0].content}
+                  {mainNews[0].content.startsWith('news:') ? t(mainNews[0].content) : mainNews[0].content}
                 </p>
                 {mainNews[0].impact && (
                   <div className="border-2 border-black p-3 bg-gray-100 break-inside-avoid mb-4">
@@ -198,10 +198,10 @@ export const Newspaper = ({
                         </Badge>
                       </div>
                       <h4 className="font-bold text-sm mb-1 leading-tight">
-                        {event.headline}
+                        {event.headline.startsWith('news:') ? t(event.headline) : event.headline}
                       </h4>
                       <p className="text-xs leading-relaxed text-gray-700">
-                        {event.content.substring(0, 120)}...
+                        {(event.content.startsWith('news:') ? t(event.content) : event.content).substring(0, 120)}...
                       </p>
                     </div>
                   );
@@ -221,10 +221,10 @@ export const Newspaper = ({
               {techNews.map((event, index) => (
                 <div key={event.id} className="border-2 border-black p-4">
                   <h4 className="font-bold text-lg mb-2 font-serif">
-                    {event.headline}
+                    {event.headline.startsWith('news:') ? t(event.headline) : event.headline}
                   </h4>
                   <p className="text-sm leading-relaxed text-justify">
-                    {event.content}
+                    {event.content.startsWith('news:') ? t(event.content) : event.content}
                   </p>
                   {event.impact && (
                     <div className="mt-3 text-xs border-t border-gray-300 pt-2">

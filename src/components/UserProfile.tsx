@@ -6,12 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface UserProfileProps {
   user: User | null;
 }
 
 export const UserProfile = ({ user }: UserProfileProps) => {
+  const { t } = useTranslation(['ui', 'toast']);
   const [loading, setLoading] = useState(false);
 
   const handleSignOut = async () => {
@@ -19,12 +21,12 @@ export const UserProfile = ({ user }: UserProfileProps) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        toast.error('Fehler beim Abmelden: ' + error.message);
+        toast.error(t('toast:auth.signOutError', { message: error.message }));
       } else {
-        toast.success('Erfolgreich abgemeldet');
+        toast.success(t('toast:auth.signOutSuccess'));
       }
     } catch (error: any) {
-      toast.error('Fehler beim Abmelden: ' + error.message);
+      toast.error(t('toast:auth.signOutError', { message: error.message }));
     } finally {
       setLoading(false);
     }
@@ -39,7 +41,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
         className="font-mono"
       >
         <UserIcon className="w-4 h-4 mr-2" />
-        Anmelden
+        {t('ui:auth.signIn')}
       </Button>
     );
   }
@@ -57,7 +59,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="text-sm">
-                <p className="font-mono text-muted-foreground">Angemeldet als:</p>
+                <p className="font-mono text-muted-foreground">{t('ui:auth.signedInAs')}</p>
                 <p className="font-mono text-primary truncate">{user.email}</p>
               </div>
               <Button
@@ -68,7 +70,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
                 className="w-full font-mono"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                {loading ? 'Wird abgemeldet...' : 'Abmelden'}
+                {loading ? t('ui:auth.signingOut') : t('ui:auth.signOut')}
               </Button>
             </div>
           </CardContent>

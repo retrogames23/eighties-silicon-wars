@@ -88,6 +88,12 @@
       "b2bSupport": "B2B Support"
     }
   },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signingOut": "Signing out...",
+    "signedInAs": "Signed in as:"
+  },
   "development": {
     "labels": {
       "totalRevenue": "Total Revenue",

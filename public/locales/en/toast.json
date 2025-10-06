@@ -1,5 +1,7 @@
 {
   "auth": {
+    "signOutSuccess": "Successfully signed out",
+    "signOutError": "Error signing out: {message}",
     "loginSuccess": "Successfully logged in!",
     "loginError": "Login error: {{error}}",
     "logoutSuccess": "Successfully logged out",

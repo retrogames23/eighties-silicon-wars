@@ -123,6 +123,7 @@
       "currentModels": "Your Computer Models",
       "newModelDevelopment": "Develop New Computer Model",
       "computerDevelopment": "Computer Development",
+      "computerConfiguration": "Computer Configuration",
       "backToDashboard": "Back to Dashboard"
     },
     "actions": {

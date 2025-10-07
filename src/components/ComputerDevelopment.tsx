@@ -528,7 +528,9 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                           {component.name}
                                         </h4>
                                         <p className={`text-xs ${isAvailable ? 'text-muted-foreground' : 'text-gray-600'}`}>
-                                          {component.description}
+                                          {component.description.startsWith('hardware:') 
+                                            ? t(component.description)
+                                            : component.description}
                                         </p>
                                         {!isAvailable && (
                                           <p className="text-xs text-yellow-400 mt-1">
@@ -799,7 +801,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
               <div className="space-y-6">
                 <Card className="retro-border bg-card/20 backdrop-blur-sm">
                   <CardHeader>
-                    <CardTitle className="text-neon-cyan">Computer-Konfiguration</CardTitle>
+                    <CardTitle className="text-neon-cyan">{t('ui:development.sections.computerConfiguration')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {selectedComponents.length === 0 && !selectedCase ? (

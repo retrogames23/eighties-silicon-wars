@@ -432,7 +432,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 canProceedToCase ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
               }`}>
                 <Cpu className="w-4 h-4" />
-                <span className="font-mono">{t('hardware.components.step1')}</span>
+                <span className="font-mono">{t('hardware:components.step1')}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400" />
               <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
@@ -440,7 +440,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 selectedCase ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
               }`}>
                 <Package className="w-4 h-4" />
-                <span className="font-mono">2. Gehäuse</span>
+                <span className="font-mono">{t('ui:development.steps.case')}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400" />
               <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
@@ -448,7 +448,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 modelName ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
               }`}>
                 <Zap className="w-4 h-4" />
-                <span className="font-mono">3. Name</span>
+                <span className="font-mono">{t('ui:development.steps.name')}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400" />
               <div className={`flex items-center space-x-2 px-4 py-2 rounded ${
@@ -456,7 +456,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 sellingPrice > 0 ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-500/20 text-gray-600'
               }`}>
                 <DollarSign className="w-4 h-4" />
-                <span className="font-mono">4. Preis</span>
+                <span className="font-mono">{t('ui:development.steps.pricing')}</span>
               </div>
             </div>
           </div>
@@ -477,12 +477,12 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                             return <IconComponent className="w-5 h-5" />;
                           })()}
                           <span>
-                            {type === 'cpu' && 'Prozessor (CPU) *'}
-                            {type === 'gpu' && 'Grafik (GPU) *'}
-                            {type === 'memory' && 'Arbeitsspeicher *'}
-                            {type === 'sound' && 'Soundchip (Optional)'}
-                            {type === 'storage' && 'Speicher-Laufwerk (Optional)'}
-                            {type === 'display' && 'Bildschirm (Optional)'}
+                            {type === 'cpu' && t('hardware:types.cpuRequired')}
+                            {type === 'gpu' && t('hardware:types.gpuRequired')}
+                            {type === 'memory' && t('hardware:types.memoryRequired')}
+                            {type === 'sound' && t('hardware:types.soundOptional')}
+                            {type === 'storage' && t('hardware:types.storageOptional')}
+                            {type === 'display' && t('hardware:types.displayOptional')}
                           </span>
                         </CardTitle>
                       </CardHeader>
@@ -532,7 +532,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                         </p>
                                         {!isAvailable && (
                                           <p className="text-xs text-yellow-400 mt-1">
-                                            Verfügbar: {component.year} Q{component.quarter || 1}
+                                            {t('hardware:availability.availableAt', { year: component.year, quarter: component.quarter || 1 })}
                                           </p>
                                         )}
                                       </div>
@@ -804,7 +804,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                   <CardContent className="space-y-4">
                     {selectedComponents.length === 0 && !selectedCase ? (
                       <p className="text-muted-foreground text-center py-8">
-                        {t('hardware.components.selectPrompt')}
+                        {t('hardware:components.selectPrompt')}
                       </p>
                     ) : (
                       <>
@@ -933,7 +933,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           
                           {!canProceedToCase && currentStep === 'components' && (
                             <p className="text-xs text-red-400 text-center">
-                              CPU, GPU und Arbeitsspeicher sind erforderlich
+                              {t('hardware:components.required')}
                             </p>
                           )}
                         </div>

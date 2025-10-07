@@ -130,6 +130,11 @@
       "discontinue": "Einstellen",
       "startDevelopment": "Entwicklung starten"
     },
+    "steps": {
+      "case": "2. Gehäuse",
+      "name": "3. Name",
+      "pricing": "4. Preis"
+    },
     "descriptions": {
       "developNewModel": "Entwickeln Sie neue Computer-Modelle um auf dem Markt zu konkurrieren.",
       "newModelDevelopment": "Entwickle innovative Computer für verschiedene Zielgruppen",
@@ -160,7 +165,30 @@
       },
       "labels": {
         "developmentBudget": "Entwicklungsbudget",
-        "invested": "investiert"
+        "invested": "investiert",
+        "researchBudget": "Forschungsbudget",
+        "availableResearchPaths": "Verfügbare Forschungspfade",
+        "activeResearchProjects": "Aktive Forschungsprojekte",
+        "exclusiveComponents": "Exklusive Komponenten"
+      },
+      "tabs": {
+        "research": "Forschung",
+        "projects": "Aktive Projekte",
+        "exclusive": "Exklusive Komponenten"
+      },
+      "descriptions": {
+        "developExclusiveComponents": "Entwickeln Sie exklusive Komponenten für Wettbewerbsvorteile",
+        "noActiveProjects": "Keine aktiven Projekte",
+        "startNewProject": "Starten Sie ein neues Forschungsprojekt im \"Forschung\" Tab",
+        "noExclusiveComponents": "Keine exklusiven Komponenten",
+        "completeProjects": "Schließen Sie Forschungsprojekte ab, um exklusive Komponenten zu erhalten"
+      },
+      "errors": {
+        "insufficientBudget": "Unzureichendes Budget",
+        "minimumBudgetRequired": "Mindestens $25,000 Forschungsbudget erforderlich",
+        "invalidAmount": "Ungültiger Betrag",
+        "positiveAmountRequired": "Bitte geben Sie einen positiven Investitionsbetrag ein",
+        "notEnoughBudget": "Nicht genügend Forschungsbudget verfügbar"
       }
     }
   }

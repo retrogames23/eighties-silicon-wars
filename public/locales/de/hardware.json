@@ -5,13 +5,23 @@
   },
   "availability": {
     "unlocked": "Deine Forschung hat neue Technologien freigeschaltet:",
-    "developmentNote": "Diese Komponenten sind jetzt in der Computer-Entwicklung verfügbar!"
+    "developmentNote": "Diese Komponenten sind jetzt in der Computer-Entwicklung verfügbar!",
+    "availableAt": "Verfügbar: {{year}} Q{{quarter}}"
   },
   "types": {
     "cpu": "Prozessor",
+    "cpuRequired": "Prozessor (CPU) *",
     "gpu": "Grafik",
+    "gpuRequired": "Grafik (GPU) *",
     "ram": "Arbeitsspeicher",
+    "memory": "Arbeitsspeicher",
+    "memoryRequired": "Arbeitsspeicher *",
     "sound": "Sound",
+    "soundOptional": "Soundchip (Optional)",
+    "storage": "Speicher",
+    "storageOptional": "Speicher-Laufwerk (Optional)",
+    "display": "Bildschirm",
+    "displayOptional": "Bildschirm (Optional)",
     "accessory": "Zubehör",
     "default": "Hardware"
   },
@@ -23,7 +33,8 @@
     "step1": "1. Komponenten",
     "selection": "Komponenten-Auswahl",
     "selectPrompt": "Wählen Sie Komponenten aus",
-    "backToComponents": "Zurück zu Komponenten"
+    "backToComponents": "Zurück zu Komponenten",
+    "required": "CPU, GPU und Arbeitsspeicher sind erforderlich"
   },
   "cases": {
     "beigeTower": {

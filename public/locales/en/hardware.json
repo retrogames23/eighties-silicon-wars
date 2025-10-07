@@ -5,13 +5,23 @@
   },
   "availability": {
     "unlocked": "Your research has unlocked new technologies:",
-    "developmentNote": "These components are now available in computer development!"
+    "developmentNote": "These components are now available in computer development!",
+    "availableAt": "Available: {{year}} Q{{quarter}}"
   },
   "types": {
     "cpu": "Processor",
+    "cpuRequired": "Processor (CPU) *",
     "gpu": "Graphics",
+    "gpuRequired": "Graphics (GPU) *",
     "ram": "Memory",
+    "memory": "Memory",
+    "memoryRequired": "Memory *",
     "sound": "Sound",
+    "soundOptional": "Sound Chip (Optional)",
+    "storage": "Storage",
+    "storageOptional": "Storage Drive (Optional)",
+    "display": "Display",
+    "displayOptional": "Display (Optional)",
     "accessory": "Accessory",
     "default": "Hardware"
   },
@@ -23,7 +33,8 @@
     "step1": "1. Components",
     "selection": "Component Selection",
     "selectPrompt": "Select Components",
-    "backToComponents": "Back to Components"
+    "backToComponents": "Back to Components",
+    "required": "CPU, GPU and Memory are required"
   },
   "cases": {
     "beigeTower": {

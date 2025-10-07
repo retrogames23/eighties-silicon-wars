@@ -78,8 +78,8 @@ export const ResearchDevelopmentTab = ({
   const handleStartProject = async (projectType: ResearchProject['project_type']) => {
     if (budget.research < 25000) {
       toast({
-        title: "Unzureichendes Budget",
-        description: "Mindestens $25,000 Forschungsbudget erforderlich",
+        title: t('ui:development.research.errors.insufficientBudget'),
+        description: t('ui:development.research.errors.minimumBudgetRequired'),
         variant: "destructive"
       });
       return;
@@ -120,8 +120,8 @@ export const ResearchDevelopmentTab = ({
     
     if (amount <= 0) {
       toast({
-        title: "Ungültiger Betrag",
-        description: "Bitte geben Sie einen positiven Investitionsbetrag ein",
+        title: t('ui:development.research.errors.invalidAmount'),
+        description: t('ui:development.research.errors.positiveAmountRequired'),
         variant: "destructive"
       });
       return;
@@ -129,8 +129,8 @@ export const ResearchDevelopmentTab = ({
 
     if (amount > budget.research) {
       toast({
-        title: "Unzureichendes Budget",
-        description: "Nicht genügend Forschungsbudget verfügbar",
+        title: t('ui:development.research.errors.insufficientBudget'),
+        description: t('ui:development.research.errors.notEnoughBudget'),
         variant: "destructive"
       });
       return;
@@ -224,7 +224,7 @@ export const ResearchDevelopmentTab = ({
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Forschungsbudget</p>
+              <p className="text-sm text-muted-foreground">{t('ui:development.research.labels.researchBudget')}</p>
               <p className="text-2xl font-bold text-neon-green font-mono">
                 {formatCurrency(budget.research)}
               </p>
@@ -241,9 +241,9 @@ export const ResearchDevelopmentTab = ({
 
       <Tabs defaultValue="research" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="research" className="retro-tab">Forschung</TabsTrigger>
-          <TabsTrigger value="projects" className="retro-tab">Aktive Projekte</TabsTrigger>
-          <TabsTrigger value="exclusive" className="retro-tab">Exklusive Komponenten</TabsTrigger>
+          <TabsTrigger value="research" className="retro-tab">{t('ui:development.research.tabs.research')}</TabsTrigger>
+          <TabsTrigger value="projects" className="retro-tab">{t('ui:development.research.tabs.projects')}</TabsTrigger>
+          <TabsTrigger value="exclusive" className="retro-tab">{t('ui:development.research.tabs.exclusive')}</TabsTrigger>
         </TabsList>
 
         {/* Research Paths */}
@@ -252,10 +252,10 @@ export const ResearchDevelopmentTab = ({
             <CardHeader>
             <CardTitle className="flex items-center gap-2 text-neon-cyan">
               <TestTube className="w-5 h-5" />
-              Verfügbare Forschungspfade
+              {t('ui:development.research.labels.availableResearchPaths')}
             </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Entwickeln Sie exklusive Komponenten für Wechselstvorteile
+                {t('ui:development.research.descriptions.developExclusiveComponents')}
               </p>
             </CardHeader>
             <CardContent>
@@ -329,16 +329,16 @@ export const ResearchDevelopmentTab = ({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-neon-cyan">
                 <Clock className="w-5 h-5" />
-                Aktive Forschungsprojekte
+                {t('ui:development.research.labels.activeResearchProjects')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {projects.length === 0 ? (
               <div className="text-center py-8">
                 <TestTube className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Keine aktiven Projekte</p>
+                <p className="text-muted-foreground">{t('ui:development.research.descriptions.noActiveProjects')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Starten Sie ein neues Forschungsprojekt im "Forschung" Tab
+                  {t('ui:development.research.descriptions.startNewProject')}
                 </p>
               </div>
               ) : (
@@ -452,9 +452,9 @@ export const ResearchDevelopmentTab = ({
               {exclusiveComponents.length === 0 ? (
                 <div className="text-center py-8">
                   <Star className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Keine exklusiven Komponenten</p>
+                  <p className="text-muted-foreground">{t('ui:development.research.descriptions.noExclusiveComponents')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Schließen Sie Forschungsprojekte ab, um exklusive Komponenten zu erhalten
+                    {t('ui:development.research.descriptions.completeProjects')}
                   </p>
                 </div>
               ) : (

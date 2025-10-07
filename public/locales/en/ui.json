@@ -130,6 +130,11 @@
       "discontinue": "Discontinue",
       "startDevelopment": "Start Development"
     },
+    "steps": {
+      "case": "2. Case",
+      "name": "3. Name",
+      "pricing": "4. Pricing"
+    },
     "descriptions": {
       "developNewModel": "Develop new computer models to compete in the market.",
       "newModelDevelopment": "Develop innovative computers for different target groups",
@@ -160,7 +165,30 @@
       },
       "labels": {
         "developmentBudget": "Development Budget",
-        "invested": "invested"
+        "invested": "invested",
+        "researchBudget": "Research Budget",
+        "availableResearchPaths": "Available Research Paths",
+        "activeResearchProjects": "Active Research Projects",
+        "exclusiveComponents": "Exclusive Components"
+      },
+      "tabs": {
+        "research": "Research",
+        "projects": "Active Projects",
+        "exclusive": "Exclusive Components"
+      },
+      "descriptions": {
+        "developExclusiveComponents": "Develop exclusive components for competitive advantages",
+        "noActiveProjects": "No active projects",
+        "startNewProject": "Start a new research project in the \"Research\" tab",
+        "noExclusiveComponents": "No exclusive components",
+        "completeProjects": "Complete research projects to obtain exclusive components"
+      },
+      "errors": {
+        "insufficientBudget": "Insufficient Budget",
+        "minimumBudgetRequired": "At least $25,000 research budget required",
+        "invalidAmount": "Invalid Amount",
+        "positiveAmountRequired": "Please enter a positive investment amount",
+        "notEnoughBudget": "Not enough research budget available"
       }
     }
   }

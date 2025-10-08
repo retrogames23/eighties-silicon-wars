@@ -229,6 +229,15 @@ export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] =>
     }));
     return convertedNews;
   }
+  const localizedQuarterNews = quarterNews.map(event => {
+    const isKeyed = event.headline.startsWith('news:') && event.content.startsWith('news:');
+    if (isKeyed) return event;
+    return {
+      ...event,
+      headline: `news:static.${event.id}.headline`,
+      content: `news:static.${event.id}.content`
+    };
+  });
   
-  return quarterNews;
+  return localizedQuarterNews;
 };

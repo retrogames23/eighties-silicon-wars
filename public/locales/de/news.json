@@ -81,5 +81,79 @@
     "april": "April", 
     "july": "Juli",
     "october": "Oktober"
+  },
+  "static": {
+    "1983q1_world1": {
+      "headline": "Ronald Reagan kündigt \"Strategic Defense Initiative\" an",
+      "content": "Präsident Reagan startet das ehrgeizige Raumabwehrprogramm und verspricht massive Investitionen in Hochtechnologie, die auch der Computerindustrie zugute kommen werden."
+    },
+    "1983q1_tech1": {
+      "headline": "IBM PC XT mit revolutionärer Festplatte vorgestellt",
+      "content": "IBM revolutioniert den Computermarkt mit dem ersten PC, der eine integrierte 10MB Festplatte besitzt und für 4.995 Dollar verkauft wird."
+    },
+    "1983q2_competitor1": {
+      "headline": "Apple Lisa Computer für $9.995 angekündigt",
+      "content": "Apple stellt einen revolutionären Computer mit grafischer Benutzeroberfläche vor, doch Experten bezweifeln den Erfolg bei diesem extrem hohen Verkaufspreis."
+    },
+    "1983q3_market1": {
+      "headline": "Heimcomputer-Boom erreicht Europa mit Rekordverkäufen",
+      "content": "Der Commodore 64 entwickelt sich europaweit zum absoluten Bestseller und erreicht allein im dritten Quartal Verkaufszahlen von über 200.000 Einheiten."
+    },
+    "1983q4_world2": {
+      "headline": "US-Militäreinsatz in Grenada verstärkt Technologie-Interesse",
+      "content": "Der Militäreinsatz der USA demonstriert die strategische Bedeutung moderner Kommunikationstechnologie und steigert das Interesse an Computersystemen erheblich."
+    },
+    "1984q1_tech2": {
+      "headline": "Apple Macintosh mit revolutionärer GUI vorgestellt",
+      "content": "Der \"Computer für alle\" mit Maus und grafischer Oberfläche. Startpreis: $2.495."
+    },
+    "1984q1_world3": {
+      "headline": "Olympische Winterspiele in Sarajevo",
+      "content": "Erste computergestützte Zeitnahme bei Olympischen Spielen sorgt für Aufmerksamkeit."
+    },
+    "1984q2_competitor2": {
+      "headline": "IBM PCjr floppt am Markt",
+      "content": "IBMs Versuch eines Heimcomputers scheitert. Nur 240.000 Einheiten verkauft, Produktion eingestellt."
+    },
+    "1984q3_market2": {
+      "headline": "Preiskampf bei Heimcomputern eskaliert",
+      "content": "Commodore senkt C64-Preis auf $199. Atari und andere Hersteller ziehen nach."
+    },
+    "1984q4_world4": {
+      "headline": "Indira Gandhi ermordet - Unruhen in Indien",
+      "content": "Politische Instabilität beeinflusst globale Märkte und Technologie-Investitionen."
+    },
+    "1985q1_tech3": {
+      "headline": "Intel 80286 Prozessor revolutioniert PCs",
+      "content": "Der 12 MHz Prozessor mit 16-bit Performance setzt neue Standards für Business-Computer."
+    },
+    "1985q2_competitor3": {
+      "headline": "Commodore Amiga angekündigt",
+      "content": "Revolutionärer 16-bit Computer mit fortschrittlicher Grafik und Multitasking für $1.295."
+    },
+    "1985q3_world5": {
+      "headline": "Live Aid Konzert verbindet die Welt",
+      "content": "Satellitentechnologie ermöglicht globale Live-Übertragung. Interesse an Kommunikationstechnik steigt."
+    },
+    "1985q4_market3": {
+      "headline": "Software wird zum Geschäft",
+      "content": "Lotus 1-2-3 überschreitet 1 Million verkaufte Kopien. Software wichtiger als Hardware."
+    },
+    "1986q1_world6": {
+      "headline": "Challenger-Katastrophe schockiert Welt",
+      "content": "NASA-Shuttle explodiert. Fragen zur Zuverlässigkeit computergesteuerter Systeme."
+    },
+    "1986q2_tech4": {
+      "headline": "CD-ROM Technologie für Computer",
+      "content": "Neue Speichertechnologie mit 650MB Kapazität eröffnet neue Möglichkeiten."
+    },
+    "1986q3_competitor4": {
+      "headline": "Atari ST Computer startet in Europa",
+      "content": "Günstiger 16-bit Computer mit MIDI-Unterstützung für Musiker. Preis: $799."
+    },
+    "1986q4_world7": {
+      "headline": "Tschernobyl-Katastrophe erschüttert Europa",
+      "content": "Nuklearunfall verstärkt Interesse an computergestützter Sicherheitstechnik."
+    }
   }
 }

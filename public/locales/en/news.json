@@ -81,5 +81,79 @@
     "april": "April",
     "july": "July", 
     "october": "October"
+  },
+  "static": {
+    "1983q1_world1": {
+      "headline": "Ronald Reagan announces the \"Strategic Defense Initiative\"",
+      "content": "President Reagan launches an ambitious space defense program and promises massive investments in high technology that will also benefit the computer industry."
+    },
+    "1983q1_tech1": {
+      "headline": "IBM PC XT introduced with revolutionary hard drive",
+      "content": "IBM revolutionizes the computer market with the first PC to include an integrated 10 MB hard drive, priced at $4,995."
+    },
+    "1983q2_competitor1": {
+      "headline": "Apple Lisa computer announced at $9,995",
+      "content": "Apple unveils a revolutionary computer with a graphical user interface, but experts doubt success at such an extremely high price point."
+    },
+    "1983q3_market1": {
+      "headline": "Home computer boom reaches Europe with record sales",
+      "content": "The Commodore 64 becomes a runaway bestseller across Europe, selling over 200,000 units in the third quarter alone."
+    },
+    "1983q4_world2": {
+      "headline": "U.S. military intervention in Grenada boosts interest in technology",
+      "content": "The U.S. operation demonstrates the strategic importance of modern communications technology and significantly increases interest in computer systems."
+    },
+    "1984q1_tech2": {
+      "headline": "Apple Macintosh with revolutionary GUI introduced",
+      "content": "The \"computer for everyone\" with mouse and graphical interface launches at $2,495."
+    },
+    "1984q1_world3": {
+      "headline": "Winter Olympics in Sarajevo",
+      "content": "First computer-assisted timekeeping at the Olympic Games draws attention."
+    },
+    "1984q2_competitor2": {
+      "headline": "IBM PCjr flops on the market",
+      "content": "IBM’s attempt at a home computer fails. Only 240,000 units sold; production discontinued."
+    },
+    "1984q3_market2": {
+      "headline": "Price war in home computers escalates",
+      "content": "Commodore cuts C64 price to $199. Atari and other manufacturers follow."
+    },
+    "1984q4_world4": {
+      "headline": "Indira Gandhi assassinated – unrest in India",
+      "content": "Political instability affects global markets and technology investments."
+    },
+    "1985q1_tech3": {
+      "headline": "Intel 80286 processor revolutionizes PCs",
+      "content": "The 12 MHz processor with 16-bit performance sets new standards for business computers."
+    },
+    "1985q2_competitor3": {
+      "headline": "Commodore Amiga announced",
+      "content": "Revolutionary 16-bit computer with advanced graphics and multitasking for $1,295."
+    },
+    "1985q3_world5": {
+      "headline": "Live Aid concert connects the world",
+      "content": "Satellite technology enables a global live broadcast; interest in communication tech rises."
+    },
+    "1985q4_market3": {
+      "headline": "Software becomes the business",
+      "content": "Lotus 1-2-3 surpasses one million copies sold; software becomes more important than hardware."
+    },
+    "1986q1_world6": {
+      "headline": "Challenger disaster shocks the world",
+      "content": "NASA shuttle explodes; questions arise about the reliability of computer-controlled systems."
+    },
+    "1986q2_tech4": {
+      "headline": "CD-ROM technology for computers",
+      "content": "New storage technology with 650 MB capacity opens up new possibilities."
+    },
+    "1986q3_competitor4": {
+      "headline": "Atari ST computer launches in Europe",
+      "content": "Affordable 16-bit computer with MIDI support for musicians. Price: $799."
+    },
+    "1986q4_world7": {
+      "headline": "Chernobyl disaster shakes Europe",
+      "content": "Nuclear accident increases interest in computer-aided safety technology."
+    }
   }
 }

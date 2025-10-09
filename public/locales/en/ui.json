@@ -92,7 +92,18 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "signingOut": "Signing out...",
-    "signedInAs": "Signed in as:"
+    "signedInAs": "Signed in as:",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "Your password",
+    "passwordMinLength": "At least 6 characters",
+    "signingIn": "Signing in...",
+    "registering": "Registering...",
+    "backToGame": "Back to Game",
+    "redirecting": "Already signed in. Redirecting...",
+    "description": "Create an account or sign in to save your game progress"
   },
   "development": {
     "labels": {

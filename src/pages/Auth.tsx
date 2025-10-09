@@ -8,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User, Session } from '@supabase/supabase-js';
+import { useTranslation } from 'react-i18next';
 
 export default function Auth() {
+  const { t } = useTranslation(['toast', 'ui']);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +50,7 @@ export default function Auth() {
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Bitte E-Mail und Passwort eingeben');
+      toast.error(t('toast:auth.missingFields'));
       return;
     }
 
@@ -66,19 +68,19 @@ export default function Auth() {
 
       if (error) {
         if (error.message.includes('User already registered')) {
-          toast.error('Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.');
+          toast.error(t('toast:auth.emailExists'));
         } else if (error.message.includes('Password should be')) {
-          toast.error('Das Passwort muss mindestens 6 Zeichen lang sein');
+          toast.error(t('toast:auth.passwordTooShort'));
         } else {
-          toast.error(error.message);
+          toast.error(t('toast:auth.registerError', { error: error.message }));
         }
       } else {
-        toast.success('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
+        toast.success(t('toast:auth.registerSuccess'));
         setEmail('');
         setPassword('');
       }
     } catch (error: any) {
-      toast.error('Fehler bei der Registrierung: ' + error.message);
+      toast.error(t('toast:auth.registerError', { error: error.message }));
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ export default function Auth() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Bitte E-Mail und Passwort eingeben');
+      toast.error(t('toast:auth.missingFields'));
       return;
     }
 
@@ -100,15 +102,15 @@ export default function Auth() {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          toast.error('Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.');
+          toast.error(t('toast:auth.invalidCredentials'));
         } else {
-          toast.error(error.message);
+          toast.error(t('toast:auth.loginError', { error: error.message }));
         }
       } else {
-        toast.success('Erfolgreich angemeldet!');
+        toast.success(t('toast:auth.loginSuccess'));
       }
     } catch (error: any) {
-      toast.error('Fehler bei der Anmeldung: ' + error.message);
+      toast.error(t('toast:auth.loginError', { error: error.message }));
     } finally {
       setLoading(false);
     }
@@ -119,7 +121,7 @@ export default function Auth() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20">
         <div className="text-center">
-          <p className="text-lg">Bereits angemeldet. Weiterleitung...</p>
+          <p className="text-lg">{t('ui:auth.redirecting')}</p>
         </div>
       </div>
     );
@@ -131,35 +133,35 @@ export default function Auth() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Silicon Wars</CardTitle>
           <CardDescription>
-            Erstellen Sie ein Konto oder melden Sie sich an, um Ihre Spielstände zu speichern
+            {t('ui:auth.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Anmelden</TabsTrigger>
-              <TabsTrigger value="signup">Registrieren</TabsTrigger>
+              <TabsTrigger value="signin">{t('ui:auth.signIn')}</TabsTrigger>
+              <TabsTrigger value="signup">{t('ui:auth.register')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin" className="space-y-4">
               <form onSubmit={signIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">E-Mail</Label>
+                  <Label htmlFor="signin-email">{t('ui:auth.email')}</Label>
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="ihre@email.de"
+                    placeholder={t('ui:auth.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">Passwort</Label>
+                  <Label htmlFor="signin-password">{t('ui:auth.password')}</Label>
                   <Input
                     id="signin-password"
                     type="password"
-                    placeholder="Ihr Passwort"
+                    placeholder={t('ui:auth.passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -170,7 +172,7 @@ export default function Auth() {
                   className="w-full" 
                   disabled={loading}
                 >
-                  {loading ? 'Wird angemeldet...' : 'Anmelden'}
+                  {loading ? t('ui:auth.signingIn') : t('ui:auth.signIn')}
                 </Button>
               </form>
             </TabsContent>
@@ -178,22 +180,22 @@ export default function Auth() {
             <TabsContent value="signup" className="space-y-4">
               <form onSubmit={signUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-Mail</Label>
+                  <Label htmlFor="signup-email">{t('ui:auth.email')}</Label>
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="ihre@email.de"
+                    placeholder={t('ui:auth.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Passwort</Label>
+                  <Label htmlFor="signup-password">{t('ui:auth.password')}</Label>
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="Mindestens 6 Zeichen"
+                    placeholder={t('ui:auth.passwordMinLength')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -205,7 +207,7 @@ export default function Auth() {
                   className="w-full" 
                   disabled={loading}
                 >
-                  {loading ? 'Wird registriert...' : 'Registrieren'}
+                  {loading ? t('ui:auth.registering') : t('ui:auth.register')}
                 </Button>
               </form>
             </TabsContent>
@@ -217,7 +219,7 @@ export default function Auth() {
               onClick={() => navigate('/')}
               className="text-sm"
             >
-              ← Zurück zum Spiel
+              ← {t('ui:auth.backToGame')}
             </Button>
           </div>
         </CardContent>

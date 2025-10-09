@@ -74,12 +74,12 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
   const loadSaves = async () => {
     if (!supabaseReady) {
-      toast.error('Supabase ist nicht konfiguriert');
+      toast.error(t('toast:saveGame.supabaseNotConfigured'));
       return;
     }
 
     if (!user) {
-      toast.error('Bitte melden Sie sich an, um Spielstände zu verwalten');
+      toast.error(t('toast:saveGame.loginRequired'));
       return;
     }
 
@@ -103,12 +103,12 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
   const saveGame = async (slotNumber: number, name: string) => {
     if (!supabaseReady) {
-      toast.error('Supabase ist nicht konfiguriert');
+      toast.error(t('toast:saveGame.supabaseNotConfigured'));
       return;
     }
 
     if (!user) {
-      toast.error('Bitte melden Sie sich an, um zu speichern');
+      toast.error(t('toast:saveGame.loginRequiredSave'));
       return;
     }
 
@@ -155,7 +155,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
   const deleteSave = async (save: SaveGame) => {
     if (!supabaseReady) {
-      toast.error('Supabase ist nicht konfiguriert');
+      toast.error(t('toast:saveGame.supabaseNotConfigured'));
       return;
     }
 

@@ -92,7 +92,18 @@
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "signingOut": "Wird abgemeldet...",
-    "signedInAs": "Angemeldet als:"
+    "signedInAs": "Angemeldet als:",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "emailPlaceholder": "ihre@email.de",
+    "passwordPlaceholder": "Ihr Passwort",
+    "passwordMinLength": "Mindestens 6 Zeichen",
+    "signingIn": "Wird angemeldet...",
+    "registering": "Wird registriert...",
+    "backToGame": "Zurück zum Spiel",
+    "redirecting": "Bereits angemeldet. Weiterleitung...",
+    "description": "Erstellen Sie ein Konto oder melden Sie sich an, um Ihre Spielstände zu speichern"
   },
   "development": {
     "labels": {

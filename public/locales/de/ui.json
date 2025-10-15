@@ -51,7 +51,23 @@
       "overview": "Übersicht",
       "development": "Entwicklung", 
       "market": "Markt",
-      "management": "Verwaltung"
+      "management": "Verwaltung",
+      "headquarters": "Zentrale"
+    }
+  },
+  "headquarters": {
+    "title": "Unternehmenszentrale",
+    "description": "Ihre Zentrale wächst mit Ihrem Erfolg. Mehr Umsatz und Mitarbeiter führen zu größeren, moderneren Büros.",
+    "buildingSize": "Gebäudegröße",
+    "level": "Stufe {{level}}",
+    "employees": "Mitarbeiter",
+    "revenue": "Umsatz",
+    "era": "Jahr {{year}}",
+    "stage": {
+      "startup": "Kleine Start-up-Büros - Der Anfang einer großen Reise",
+      "growing": "Wachsendes Unternehmen - Die Zentrale expandiert",
+      "established": "Etabliertes Unternehmen - Moderne Büroräume",
+      "corporation": "Großkonzern - Imposante Firmenzentrale"
     }
   },
   "account": {

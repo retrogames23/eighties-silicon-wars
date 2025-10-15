@@ -6,6 +6,7 @@ import { CompanyAccount } from "@/components/CompanyAccount";
 import { DevelopmentTab } from "@/components/DevelopmentTab";
 import { MarketTab } from "@/components/MarketTab";
 import { CompanyManagement } from "@/components/CompanyManagement";
+import { HeadquartersTab } from "@/components/HeadquartersTab";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";
@@ -85,7 +86,7 @@ export const GameDashboard = ({
   useRenderTracking('GameDashboard');
 
   // Tab navigation for swipe gestures
-  const tabs = ["account", "development", "market", "management"];
+  const tabs = ["account", "development", "market", "management", "headquarters"];
   
   const navigateToTab = useCallback((direction: 'left' | 'right') => {
     const currentIndex = tabs.indexOf(activeTab);
@@ -255,6 +256,12 @@ export const GameDashboard = ({
                 >
                   {isMobile ? 'Mgmt' : t('ui:dashboard.tabs.management')}
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="headquarters" 
+                  className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
+                >
+                  {isMobile ? 'HQ' : t('ui:dashboard.tabs.headquarters')}
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -284,6 +291,16 @@ export const GameDashboard = ({
                 budget={gameState.budget}
                 totalBudget={200000}
                 onBudgetChange={onBudgetChange}
+              />
+            </TabsContent>
+
+            <TabsContent value="headquarters" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <HeadquartersTab 
+                cash={gameState.company.cash}
+                employees={gameState.company.employees}
+                revenue={gameState.company.monthlyIncome}
+                quarter={gameState.quarter}
+                year={gameState.year}
               />
             </TabsContent>
 

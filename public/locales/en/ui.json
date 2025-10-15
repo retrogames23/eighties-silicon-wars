@@ -51,7 +51,23 @@
       "overview": "Overview",
       "development": "Development",
       "market": "Market", 
-      "management": "Management"
+      "management": "Management",
+      "headquarters": "Headquarters"
+    }
+  },
+  "headquarters": {
+    "title": "Company Headquarters",
+    "description": "Your headquarters grows with your success. More revenue and employees lead to larger, more modern offices.",
+    "buildingSize": "Building Size",
+    "level": "Level {{level}}",
+    "employees": "Employees",
+    "revenue": "Revenue",
+    "era": "Year {{year}}",
+    "stage": {
+      "startup": "Small startup offices - The beginning of a great journey",
+      "growing": "Growing company - Headquarters expanding",
+      "established": "Established company - Modern office spaces",
+      "corporation": "Large corporation - Impressive headquarters"
     }
   },
   "account": {

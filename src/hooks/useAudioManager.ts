@@ -6,105 +6,105 @@ const PLAYLIST = [
   '/audio/Digital_Dreamscape.mp3'
 ];
 
+type AudioStore = {
+  audio: HTMLAudioElement;
+  enabled: boolean;
+  trackIndex: number;
+  listenerAttached: boolean;
+};
+
+const getAudioStore = (): AudioStore => {
+  const w = window as any;
+  if (!w.__APP_AUDIO_STORE__) {
+    const audio = new Audio(PLAYLIST[0]);
+    audio.volume = 0.3;
+    audio.loop = false;
+    w.__APP_AUDIO_STORE__ = {
+      audio,
+      enabled: false,
+      trackIndex: 0,
+      listenerAttached: false
+    } as AudioStore;
+    console.log('Audio store initialized');
+  }
+  return w.__APP_AUDIO_STORE__ as AudioStore;
+};
+
 export const useAudioManager = () => {
-  const [isEnabled, setIsEnabled] = useState(false); // Startet deaktiviert
+  const storeRef = useRef<AudioStore | null>(null);
+  const [isEnabled, setIsEnabled] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isPlayingRef = useRef(false);
 
-  // Audio Element initialisieren
+  // Initialize once per app (singleton)
   useEffect(() => {
-    audioRef.current = new Audio(PLAYLIST[0]);
-    audioRef.current.volume = 0.3;
-    audioRef.current.loop = false;
-    
-    console.log('Audio initialized');
+    const store = getAudioStore();
+    storeRef.current = store;
+    setIsEnabled(store.enabled);
+    setCurrentTrack(store.trackIndex);
 
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-        audioRef.current = null;
-      }
-    };
+    if (!store.listenerAttached) {
+      const handleTrackEnd = () => {
+        if (!store.enabled) return;
+        const nextIndex = (store.trackIndex + 1) % PLAYLIST.length;
+        store.trackIndex = nextIndex;
+        store.audio.src = PLAYLIST[nextIndex];
+        store.audio.currentTime = 0;
+        store.audio
+          .play()
+          .then(() => setCurrentTrack(nextIndex))
+          .catch((err) => console.error('Failed to play next track:', err));
+      };
+      store.audio.addEventListener('ended', handleTrackEnd);
+      store.listenerAttached = true;
+    }
+
+    // Do not tear down on unmount to avoid HMR double-audio issues
   }, []);
 
-  // Track-Ende Handler
+  // Reflect external store changes (e.g., other toggles) - basic polling-free sync
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTrackEnd = () => {
-      if (!isEnabled) return;
-      
-      const nextTrackIndex = (currentTrack + 1) % PLAYLIST.length;
-      console.log(`Track ended, playing next: ${PLAYLIST[nextTrackIndex]}`);
-      
-      audio.src = PLAYLIST[nextTrackIndex];
-      audio.currentTime = 0;
-      
-      audio.play()
-        .then(() => {
-          setCurrentTrack(nextTrackIndex);
-        })
-        .catch(error => {
-          console.error('Failed to play next track:', error);
-          isPlayingRef.current = false;
-        });
-    };
-
-    audio.addEventListener('ended', handleTrackEnd);
-    return () => audio.removeEventListener('ended', handleTrackEnd);
-  }, [currentTrack, isEnabled]);
-
-  // Musik starten/stoppen basierend auf isEnabled
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handlePlayback = async () => {
-      if (isEnabled && !isPlayingRef.current) {
-        try {
-          await audio.play();
-          isPlayingRef.current = true;
-          console.log(`Music started: ${PLAYLIST[currentTrack]}`);
-        } catch (error) {
-          console.error('Failed to start music:', error);
-          isPlayingRef.current = false;
-        }
-      } else if (!isEnabled && isPlayingRef.current) {
-        audio.pause();
-        isPlayingRef.current = false;
-        console.log('Music stopped');
-      }
-    };
-
-    handlePlayback();
+    const id = window.setInterval(() => {
+      const s = storeRef.current || getAudioStore();
+      if (s.enabled !== isEnabled) setIsEnabled(s.enabled);
+      if (s.trackIndex !== currentTrack) setCurrentTrack(s.trackIndex);
+    }, 500);
+    return () => window.clearInterval(id);
   }, [isEnabled, currentTrack]);
 
   const toggleMusic = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const store = storeRef.current || getAudioStore();
 
-    setIsEnabled(prev => {
-      const newState = !prev;
-      
-      if (!newState) {
-        // Musik ausschalten
-        audio.pause();
-        isPlayingRef.current = false;
-        console.log('Music toggle: OFF');
-      } else {
-        console.log('Music toggle: ON');
-      }
-      
-      return newState;
-    });
+    if (store.enabled) {
+      // Turn OFF
+      store.enabled = false;
+      try {
+        store.audio.pause();
+      } catch {}
+      setIsEnabled(false);
+      console.log('Music stopped');
+    } else {
+      // Turn ON
+      store.enabled = true;
+      if (!store.audio.src) store.audio.src = PLAYLIST[store.trackIndex];
+      store.audio.currentTime = store.audio.currentTime || 0;
+      store.audio
+        .play()
+        .then(() => {
+          setIsEnabled(true);
+          setCurrentTrack(store.trackIndex);
+          console.log(`Music started: ${PLAYLIST[store.trackIndex]}`);
+        })
+        .catch((err) => {
+          store.enabled = false;
+          setIsEnabled(false);
+          console.error('Failed to start music:', err);
+        });
+    }
   }, []);
 
   return {
     isEnabled,
-    isPlaying: isPlayingRef.current,
+    isPlaying: isEnabled && !(storeRef.current?.audio.paused ?? true),
     currentTrack: PLAYLIST[currentTrack],
     toggleMusic
   };

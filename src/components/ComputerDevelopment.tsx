@@ -878,7 +878,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full retro-border bg-card/20"
                               >
                                 <ChevronLeft className="w-4 h-4 mr-2" />
-                                {t('hardware.components.backToComponents')}
+                                {t('hardware:components.backToComponents')}
                               </Button>
                               <Button
                                 onClick={() => setCurrentStep('name')}

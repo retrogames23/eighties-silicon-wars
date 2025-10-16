@@ -33,12 +33,12 @@ const getHardwareIcon = (type: string) => {
 
 const getHardwareTypeLabel = (type: string, t: any) => {
   switch (type) {
-    case 'cpu': return t('hardware.types.cpu');
-    case 'gpu': return t('hardware.types.gpu');
-    case 'ram': return t('hardware.types.ram');
-    case 'sound': return t('hardware.types.sound');
-    case 'accessory': return t('hardware.types.accessory');
-    default: return t('hardware.types.default');
+    case 'cpu': return t('hardware:types.cpu');
+    case 'gpu': return t('hardware:types.gpu');
+    case 'ram': return t('hardware:types.ram');
+    case 'sound': return t('hardware:types.sound');
+    case 'accessory': return t('hardware:types.accessory');
+    default: return t('hardware:types.default');
   }
 };
 
@@ -59,17 +59,17 @@ export const HardwareAnnouncement = ({
         <DialogHeader>
           <DialogTitle className="text-2xl text-neon-green font-mono flex items-center gap-2">
             <Zap className="w-6 h-6" />
-            {t('hardware.announcement.title')}
+            {t('hardware:announcement.title')}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            {t('hardware.announcement.subtitle', { quarter: currentQuarter, year: currentYear })}
+            {t('hardware:announcement.subtitle', { quarter: currentQuarter, year: currentYear })}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {t('hardware.availability.unlocked')}
+            {t('hardware:availability.unlocked')}
           </p>
           
           <div className="grid gap-3">
@@ -94,9 +94,9 @@ export const HardwareAnnouncement = ({
                         </p>
                         {hardware.performance && (
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-muted-foreground">{t('hardware.performance.label')}:</span>
+                            <span className="text-xs text-muted-foreground">{t('hardware:performance.label')}:</span>
                             <Badge variant="secondary" className="text-xs">
-                              {t('hardware.performance.points', { points: hardware.performance })}
+                              {t('hardware:performance.points', { points: hardware.performance })}
                             </Badge>
                           </div>
                         )}
@@ -110,7 +110,7 @@ export const HardwareAnnouncement = ({
           
           <div className="border-t pt-4">
             <p className="text-xs text-muted-foreground mb-4">
-              {t('hardware.availability.developmentNote')}
+              {t('hardware:availability.developmentNote')}
             </p>
             <div className="flex justify-center">
               <Button 

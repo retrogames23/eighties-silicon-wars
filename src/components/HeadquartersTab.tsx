@@ -55,12 +55,66 @@ export const HeadquartersTab = ({
 
   const getColorScheme = () => {
     const schemes = [
-      { building: "#8B7355", window: "#FFE4B5", accent: "#CD853F" },
-      { building: "#A9A9A9", window: "#87CEEB", accent: "#4682B4" },
-      { building: "#696969", window: "#B0E0E6", accent: "#5F9EA0" },
-      { building: "#708090", window: "#ADD8E6", accent: "#4169E1" },
-      { building: "#2F4F4F", window: "#00CED1", accent: "#00BFFF" },
-      { building: "#1C1C1C", window: "#00FFFF", accent: "#0FF" }
+      { 
+        building: "#8B7355", 
+        wall: "#A0826D",
+        floor: "#6B5D52",
+        ceiling: "#9B8672",
+        window: "#87CEEB", 
+        furniture: "#8B4513",
+        accent: "#CD853F",
+        door: "#654321"
+      },
+      { 
+        building: "#7A6F5D", 
+        wall: "#C4B5A0",
+        floor: "#5A5145",
+        ceiling: "#8B7D6B",
+        window: "#B0C4DE", 
+        furniture: "#654321",
+        accent: "#8B7355",
+        door: "#4A3728"
+      },
+      { 
+        building: "#696969", 
+        wall: "#D3D3D3",
+        floor: "#505050",
+        ceiling: "#A9A9A9",
+        window: "#ADD8E6", 
+        furniture: "#8B7355",
+        accent: "#778899",
+        door: "#556B2F"
+      },
+      { 
+        building: "#5F6A6A", 
+        wall: "#ECF0F1",
+        floor: "#34495E",
+        ceiling: "#95A5A6",
+        window: "#3498DB", 
+        furniture: "#34495E",
+        accent: "#3498DB",
+        door: "#2C3E50"
+      },
+      { 
+        building: "#2C3E50", 
+        wall: "#FAFAFA",
+        floor: "#1C2833",
+        ceiling: "#566573",
+        window: "#5DADE2", 
+        furniture: "#2C3E50",
+        accent: "#3498DB",
+        door: "#17202A"
+      },
+      { 
+        building: "#1A1A1A", 
+        wall: "#FFFFFF",
+        floor: "#0D0D0D",
+        ceiling: "#2C2C2C",
+        window: "#00D9FF", 
+        furniture: "#1A1A1A",
+        accent: "#00BFFF",
+        door: "#000000"
+      }
     ];
     return schemes[Math.min(level.modernity, schemes.length - 1)];
   };
@@ -114,161 +168,335 @@ export const HeadquartersTab = ({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw ground
-      ctx.fillStyle = 'rgba(100, 100, 100, 0.3)';
+      ctx.fillStyle = '#8B7355';
       ctx.fillRect(0, 500, canvas.width, 100);
-      ctx.strokeStyle = '#555';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, 500);
-      ctx.lineTo(canvas.width, 500);
-      ctx.stroke();
-
-      // Draw building background
-      ctx.fillStyle = colors.building;
-      ctx.fillRect(40, 500 - level.floors * floorHeight, buildingWidth, level.floors * floorHeight);
-      ctx.strokeStyle = colors.accent;
-      ctx.lineWidth = 4;
-      ctx.strokeRect(40, 500 - level.floors * floorHeight, buildingWidth, level.floors * floorHeight);
-
-      // Draw roof
-      ctx.fillStyle = colors.accent;
-      ctx.beginPath();
-      ctx.moveTo(40, 500 - level.floors * floorHeight);
-      ctx.lineTo(340, 500 - level.floors * floorHeight - 30);
-      ctx.lineTo(640, 500 - level.floors * floorHeight);
-      ctx.closePath();
-      ctx.fill();
-
-      // Company logo on roof
-      if (level.size >= 5) {
-        ctx.fillStyle = colors.window;
-        ctx.font = 'bold 24px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('●', 340, 500 - level.floors * floorHeight - 10);
+      ctx.fillStyle = '#6B5D52';
+      ctx.fillRect(0, 500, canvas.width, 10);
+      
+      // Grass pattern
+      ctx.fillStyle = '#7A9B57';
+      for (let i = 0; i < 20; i++) {
+        const gx = Math.random() * canvas.width;
+        ctx.fillRect(gx, 510 + Math.random() * 90, 2, 3);
       }
 
-      // Draw floors and rooms
+      // Draw building exterior
+      ctx.fillStyle = colors.building;
+      ctx.fillRect(50, 500 - level.floors * floorHeight, buildingWidth, level.floors * floorHeight);
+      
+      // Building outline
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(50, 500 - level.floors * floorHeight, buildingWidth, level.floors * floorHeight);
+
+      // Draw floors
       for (let floor = 0; floor < level.floors; floor++) {
         const y = 500 - floor * floorHeight;
         
-        // Floor line
-        ctx.strokeStyle = colors.accent;
+        // Floor/ceiling
+        ctx.fillStyle = colors.ceiling;
+        ctx.fillRect(50, y - floorHeight, buildingWidth, 8);
+        ctx.fillStyle = colors.floor;
+        ctx.fillRect(50, y - 8, buildingWidth, 8);
+        
+        // Floor outline
+        ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(40, y);
-        ctx.lineTo(40 + buildingWidth, y);
+        ctx.moveTo(50, y);
+        ctx.lineTo(50 + buildingWidth, y);
         ctx.stroke();
 
         // Rooms
         for (let room = 0; room < 4; room++) {
-          const roomX = 40 + room * roomWidth;
+          const roomX = 50 + room * roomWidth;
           
-          // Room separator
+          // Room background (wall color)
+          ctx.fillStyle = colors.wall;
+          ctx.fillRect(roomX, y - floorHeight + 8, roomWidth, floorHeight - 16);
+          
+          // Room divider walls
           if (room > 0) {
-            ctx.strokeStyle = colors.accent + '40';
+            ctx.fillStyle = '#999';
+            ctx.fillRect(roomX - 2, y - floorHeight + 8, 4, floorHeight - 16);
+            ctx.strokeStyle = '#000';
             ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(roomX, y - floorHeight);
-            ctx.lineTo(roomX, y);
-            ctx.stroke();
+            ctx.strokeRect(roomX - 2, y - floorHeight + 8, 4, floorHeight - 16);
           }
 
-          // Windows
+          // Back wall windows
+          const windowY = y - floorHeight + 15;
+          const windowHeight = 35;
+          const windowWidth = 45;
+          
+          // Window frame
+          ctx.fillStyle = '#666';
+          ctx.fillRect(roomX + 10, windowY, windowWidth, windowHeight);
+          
+          // Window glass
           ctx.fillStyle = colors.window;
-          ctx.globalAlpha = 0.8;
-          ctx.fillRect(roomX + 15, y - floorHeight + 10, 50, 30);
+          ctx.globalAlpha = 0.7;
+          ctx.fillRect(roomX + 13, windowY + 3, windowWidth - 6, windowHeight - 6);
           ctx.globalAlpha = 1;
-          ctx.strokeStyle = colors.accent;
-          ctx.lineWidth = 2;
-          ctx.strokeRect(roomX + 15, y - floorHeight + 10, 50, 30);
-
+          
           // Window panes
-          ctx.strokeStyle = colors.accent;
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#555';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(roomX + 40, y - floorHeight + 10);
-          ctx.lineTo(roomX + 40, y - floorHeight + 40);
+          ctx.moveTo(roomX + 32, windowY);
+          ctx.lineTo(roomX + 32, windowY + windowHeight);
           ctx.stroke();
           ctx.beginPath();
-          ctx.moveTo(roomX + 15, y - floorHeight + 25);
-          ctx.lineTo(roomX + 65, y - floorHeight + 25);
+          ctx.moveTo(roomX + 10, windowY + windowHeight / 2);
+          ctx.lineTo(roomX + 55, windowY + windowHeight / 2);
           ctx.stroke();
 
-          // Furniture (desks)
-          if (level.modernity >= 2) {
-            ctx.fillStyle = colors.accent + '80';
-            ctx.fillRect(roomX + 80, y - 25, 40, 15);
+          // Room-specific furniture
+          const roomType = (floor * 4 + room) % 5;
+          
+          if (roomType === 0) {
+            // Office with desk
+            // Desk
+            ctx.fillStyle = colors.furniture;
+            ctx.fillRect(roomX + 65, y - 30, 55, 20);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(roomX + 65, y - 30, 55, 20);
             
-            // Computer monitor
-            if (level.modernity >= 3) {
-              ctx.fillStyle = '#333';
-              ctx.fillRect(roomX + 90, y - 35, 12, 10);
-              ctx.fillStyle = colors.window;
-              ctx.fillRect(roomX + 91, y - 34, 10, 8);
+            // Desk legs
+            ctx.fillRect(roomX + 68, y - 10, 3, 10);
+            ctx.fillRect(roomX + 115, y - 10, 3, 10);
+            
+            // Chair
+            ctx.fillStyle = '#4A4A4A';
+            ctx.fillRect(roomX + 120, y - 25, 15, 15);
+            ctx.fillRect(roomX + 125, y - 35, 5, 10);
+            
+            // Computer
+            if (level.modernity >= 2) {
+              ctx.fillStyle = '#2C2C2C';
+              ctx.fillRect(roomX + 75, y - 42, 18, 12);
+              ctx.fillStyle = '#87CEEB';
+              ctx.globalAlpha = 0.8;
+              ctx.fillRect(roomX + 76, y - 41, 16, 10);
+              ctx.globalAlpha = 1;
               
-              // Screen glow
-              ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
-              ctx.fillRect(roomX + 91, y - 34, 10, 8);
+              // Keyboard
+              ctx.fillStyle = '#E0E0E0';
+              ctx.fillRect(roomX + 95, y - 28, 20, 6);
+            }
+            
+            // Filing cabinet
+            ctx.fillStyle = '#A0A0A0';
+            ctx.fillRect(roomX + 130, y - 35, 15, 35);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(roomX + 130, y - 35, 15, 35);
+            for (let d = 0; d < 3; d++) {
+              ctx.fillStyle = '#666';
+              ctx.fillRect(roomX + 135, y - 32 + d * 11, 5, 2);
+            }
+            
+          } else if (roomType === 1) {
+            // Conference room
+            // Table
+            ctx.fillStyle = colors.furniture;
+            ctx.fillRect(roomX + 60, y - 35, 70, 25);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(roomX + 60, y - 35, 70, 25);
+            
+            // Chairs around table
+            for (let c = 0; c < 3; c++) {
+              ctx.fillStyle = '#4A4A4A';
+              ctx.fillRect(roomX + 65 + c * 20, y - 8, 12, 8);
+            }
+            
+            // Whiteboard
+            if (level.modernity >= 3) {
+              ctx.fillStyle = '#FFF';
+              ctx.fillRect(roomX + 10, y - 50, 40, 25);
+              ctx.strokeStyle = '#333';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(roomX + 10, y - 50, 40, 25);
+            }
+            
+          } else if (roomType === 2) {
+            // Developer room
+            // L-shaped desk
+            ctx.fillStyle = colors.furniture;
+            ctx.fillRect(roomX + 60, y - 35, 60, 20);
+            ctx.fillRect(roomX + 60, y - 35, 20, 30);
+            
+            // Multiple monitors
+            if (level.modernity >= 3) {
+              for (let m = 0; m < 2; m++) {
+                ctx.fillStyle = '#1A1A1A';
+                ctx.fillRect(roomX + 70 + m * 25, y - 50, 20, 15);
+                ctx.fillStyle = '#00FF00';
+                ctx.globalAlpha = 0.6;
+                ctx.fillRect(roomX + 71 + m * 25, y - 49, 18, 13);
+                ctx.globalAlpha = 1;
+              }
+            }
+            
+            // Server rack
+            ctx.fillStyle = '#333';
+            ctx.fillRect(roomX + 125, y - 45, 18, 45);
+            for (let s = 0; s < 6; s++) {
+              ctx.fillStyle = s % 2 === 0 ? '#00FF00' : '#FF0000';
+              ctx.fillRect(roomX + 128, y - 42 + s * 7, 3, 3);
+            }
+            
+          } else if (roomType === 3) {
+            // Break room
+            // Couch
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(roomX + 65, y - 25, 50, 20);
+            ctx.fillRect(roomX + 65, y - 30, 50, 5);
+            ctx.fillRect(roomX + 60, y - 30, 5, 25);
+            ctx.fillRect(roomX + 115, y - 30, 5, 25);
+            
+            // Coffee table
+            ctx.fillStyle = colors.furniture;
+            ctx.fillRect(roomX + 75, y - 12, 30, 12);
+            
+            // Plant
+            if (level.modernity >= 2) {
+              ctx.fillStyle = '#8B4513';
+              ctx.fillRect(roomX + 125, y - 15, 12, 15);
+              ctx.fillStyle = '#228B22';
+              ctx.beginPath();
+              ctx.arc(roomX + 131, y - 25, 10, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#2E7D32';
+              ctx.beginPath();
+              ctx.arc(roomX + 126, y - 28, 7, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(roomX + 136, y - 28, 7, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            
+          } else {
+            // Open workspace
+            for (let d = 0; d < 2; d++) {
+              // Desk
+              ctx.fillStyle = colors.furniture;
+              ctx.fillRect(roomX + 65 + d * 35, y - 30, 30, 18);
+              
+              // Computer
+              if (level.modernity >= 1) {
+                ctx.fillStyle = '#2C2C2C';
+                ctx.fillRect(roomX + 70 + d * 35, y - 42, 15, 12);
+                ctx.fillStyle = '#87CEEB';
+                ctx.globalAlpha = 0.7;
+                ctx.fillRect(roomX + 71 + d * 35, y - 41, 13, 10);
+                ctx.globalAlpha = 1;
+              }
             }
           }
 
-          // Plants (modern offices)
-          if (level.modernity >= 4 && room % 2 === 0) {
-            ctx.fillStyle = '#2d8659';
+          // Door
+          if (room === 0 || room === 2) {
+            ctx.fillStyle = colors.door;
+            ctx.fillRect(roomX + roomWidth - 25, y - 48, 20, 48);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(roomX + roomWidth - 25, y - 48, 20, 48);
+            // Door handle
+            ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(roomX + 25, y - 15, 8, 0, Math.PI * 2);
+            ctx.arc(roomX + roomWidth - 10, y - 24, 2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#1e5a3d';
-            ctx.beginPath();
-            ctx.arc(roomX + 25, y - 20, 5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // Coffee machine (modern offices)
-          if (level.modernity >= 5 && room === 1 && floor === 0) {
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(roomX + 130, y - 30, 15, 25);
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(roomX + 132, y - 28, 11, 5);
           }
         }
       }
 
-      // Draw entrance door
-      const doorX = 40 + buildingWidth / 2 - 30;
-      ctx.fillStyle = colors.accent;
-      ctx.fillRect(doorX, 450, 60, 50);
-      ctx.strokeStyle = colors.building;
+      // Draw entrance at ground level
+      const entranceX = 50 + buildingWidth / 2 - 35;
+      const entranceWidth = 70;
+      
+      // Entrance doors (glass)
+      ctx.fillStyle = 'rgba(135, 206, 235, 0.4)';
+      ctx.fillRect(entranceX, 455, entranceWidth, 45);
+      ctx.strokeStyle = '#333';
       ctx.lineWidth = 3;
-      ctx.strokeRect(doorX, 450, 60, 50);
-      ctx.fillStyle = colors.window;
-      ctx.font = 'bold 10px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('ENTRANCE', doorX + 30, 480);
+      ctx.strokeRect(entranceX, 455, entranceWidth, 45);
+      
+      // Door frame
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(entranceX + entranceWidth / 2, 455);
+      ctx.lineTo(entranceX + entranceWidth / 2, 500);
+      ctx.stroke();
+      
+      // Door handles
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(entranceX + 15, 475, 8, 3);
+      ctx.fillRect(entranceX + entranceWidth - 23, 475, 8, 3);
+
+      // Stairs (if multiple floors)
+      if (level.floors > 1) {
+        for (let floor = 0; floor < level.floors - 1; floor++) {
+          const stairX = 630;
+          const stairY = 500 - floor * floorHeight;
+          
+          // Staircase background
+          ctx.fillStyle = '#888';
+          ctx.fillRect(stairX, stairY - floorHeight, 30, floorHeight);
+          
+          // Steps
+          ctx.strokeStyle = '#555';
+          ctx.lineWidth = 1;
+          for (let step = 0; step < 8; step++) {
+            const sy = stairY - (step * (floorHeight / 8));
+            ctx.beginPath();
+            ctx.moveTo(stairX, sy);
+            ctx.lineTo(stairX + 30, sy);
+            ctx.stroke();
+          }
+          
+          // Handrail
+          ctx.strokeStyle = '#FFD700';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(stairX + 5, stairY);
+          ctx.lineTo(stairX + 25, stairY - floorHeight);
+          ctx.stroke();
+        }
+      }
 
       // Parking lot
       if (level.modernity >= 3) {
-        const carCount = Math.min(5, Math.floor(level.size / 2));
+        const carCount = Math.min(4, Math.floor(level.size / 2));
         for (let i = 0; i < carCount; i++) {
-          const carX = 40 + buildingWidth + 20 + (i * 35);
-          ctx.fillStyle = colors.accent;
-          ctx.globalAlpha = 0.6;
-          ctx.fillRect(carX, 470, 28, 18);
-          ctx.globalAlpha = 1;
-          ctx.strokeStyle = colors.building;
-          ctx.lineWidth = 1;
-          ctx.strokeRect(carX, 470, 28, 18);
+          const carX = 680 + (i * 30);
+          const carY = 470;
+          
+          // Car body
+          ctx.fillStyle = ['#E74C3C', '#3498DB', '#2ECC71', '#F39C12'][i % 4];
+          ctx.fillRect(carX, carY, 25, 18);
+          ctx.fillRect(carX + 3, carY - 8, 19, 8);
           
           // Windows
-          ctx.fillStyle = colors.window;
-          ctx.fillRect(carX + 2, 472, 10, 8);
-          ctx.fillRect(carX + 16, 472, 10, 8);
+          ctx.fillStyle = 'rgba(135, 206, 235, 0.6)';
+          ctx.fillRect(carX + 4, carY - 7, 8, 6);
+          ctx.fillRect(carX + 13, carY - 7, 8, 6);
           
           // Wheels
-          ctx.fillStyle = '#333';
+          ctx.fillStyle = '#1A1A1A';
           ctx.beginPath();
-          ctx.arc(carX + 5, 488, 3, 0, Math.PI * 2);
-          ctx.arc(carX + 23, 488, 3, 0, Math.PI * 2);
+          ctx.arc(carX + 6, carY + 18, 4, 0, Math.PI * 2);
+          ctx.arc(carX + 19, carY + 18, 4, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Wheel rims
+          ctx.fillStyle = '#888';
+          ctx.beginPath();
+          ctx.arc(carX + 6, carY + 18, 2, 0, Math.PI * 2);
+          ctx.arc(carX + 19, carY + 18, 2, 0, Math.PI * 2);
           ctx.fill();
         }
       }

@@ -7,154 +7,104 @@ const PLAYLIST = [
 ];
 
 export const useAudioManager = () => {
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false); // Startet deaktiviert
   const [currentTrack, setCurrentTrack] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const nextAudioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isPlayingRef = useRef(false);
 
-  // Fade-Funktion
-  const fadeAudio = useCallback((from: HTMLAudioElement, to: HTMLAudioElement, callback?: () => void) => {
-    const fadeTime = 2000; // 2 Sekunden
-    const steps = 50;
-    const stepTime = fadeTime / steps;
-    const volumeStep = 0.3 / steps;
-    
-    let step = 0;
-    
-    if (fadeIntervalRef.current) {
-      clearInterval(fadeIntervalRef.current);
-    }
-    
-    fadeIntervalRef.current = setInterval(() => {
-      step++;
-      from.volume = Math.max(0, 0.3 - (volumeStep * step));
-      to.volume = Math.min(0.3, volumeStep * step);
-      
-      if (step >= steps) {
-        clearInterval(fadeIntervalRef.current!);
-        from.pause();
-        from.currentTime = 0;
-        callback?.();
-      }
-    }, stepTime);
-  }, []);
-
-  // Audio Elemente initialisieren
+  // Audio Element initialisieren
   useEffect(() => {
-    try {
-      audioRef.current = new Audio(PLAYLIST[0]);
-      audioRef.current.volume = 0.3;
-      nextAudioRef.current = new Audio(PLAYLIST[1]);
-      nextAudioRef.current.volume = 0;
-      
-      console.log('Audio playlist initialized');
-    } catch (error) {
-      console.error('Audio initialization failed:', error);
-    }
+    audioRef.current = new Audio(PLAYLIST[0]);
+    audioRef.current.volume = 0.3;
+    audioRef.current.loop = false;
+    
+    console.log('Audio initialized');
 
     return () => {
-      if (fadeIntervalRef.current) {
-        clearInterval(fadeIntervalRef.current);
-      }
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.src = '';
         audioRef.current = null;
-      }
-      if (nextAudioRef.current) {
-        nextAudioRef.current.pause();
-        nextAudioRef.current = null;
       }
     };
   }, []);
 
   // Track-Ende Handler
   useEffect(() => {
-    const currentAudio = audioRef.current;
-    if (!currentAudio) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
     const handleTrackEnd = () => {
-      if (!isEnabled || !isPlaying) return;
+      if (!isEnabled) return;
       
       const nextTrackIndex = (currentTrack + 1) % PLAYLIST.length;
-      const nextAudio = nextAudioRef.current;
+      console.log(`Track ended, playing next: ${PLAYLIST[nextTrackIndex]}`);
       
-      if (nextAudio) {
-        nextAudio.src = PLAYLIST[nextTrackIndex];
-        nextAudio.currentTime = 0;
-        nextAudio.volume = 0;
-        
-        nextAudio.play().then(() => {
-          fadeAudio(currentAudio, nextAudio, () => {
-            // Prüfung ob noch aktiv vor State-Update
-            if (!isEnabled || !isPlaying) return;
-            setCurrentTrack(nextTrackIndex);
-            // Tausche die Referenzen
-            const temp = audioRef.current;
-            audioRef.current = nextAudioRef.current;
-            nextAudioRef.current = temp;
-          });
-        }).catch(console.error);
+      audio.src = PLAYLIST[nextTrackIndex];
+      audio.currentTime = 0;
+      
+      audio.play()
+        .then(() => {
+          setCurrentTrack(nextTrackIndex);
+        })
+        .catch(error => {
+          console.error('Failed to play next track:', error);
+          isPlayingRef.current = false;
+        });
+    };
+
+    audio.addEventListener('ended', handleTrackEnd);
+    return () => audio.removeEventListener('ended', handleTrackEnd);
+  }, [currentTrack, isEnabled]);
+
+  // Musik starten/stoppen basierend auf isEnabled
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlayback = async () => {
+      if (isEnabled && !isPlayingRef.current) {
+        try {
+          await audio.play();
+          isPlayingRef.current = true;
+          console.log(`Music started: ${PLAYLIST[currentTrack]}`);
+        } catch (error) {
+          console.error('Failed to start music:', error);
+          isPlayingRef.current = false;
+        }
+      } else if (!isEnabled && isPlayingRef.current) {
+        audio.pause();
+        isPlayingRef.current = false;
+        console.log('Music stopped');
       }
     };
 
-    currentAudio.addEventListener('ended', handleTrackEnd);
-    return () => currentAudio.removeEventListener('ended', handleTrackEnd);
-  }, [currentTrack, isEnabled, isPlaying, fadeAudio]);
-
-  // Musik automatisch starten wenn enabled
-  useEffect(() => {
-    if (isEnabled && audioRef.current && !isPlaying && audioRef.current.paused) {
-      const startMusic = async () => {
-        try {
-          // Zusätzliche Prüfung vor dem Abspielen
-          if (!audioRef.current || !audioRef.current.paused || !isEnabled) {
-            return;
-          }
-          await audioRef.current.play();
-          setIsPlaying(true);
-          console.log(`Started track: ${PLAYLIST[currentTrack]}`);
-        } catch (error) {
-          console.error('Failed to start music:', error);
-        }
-      };
-      
-      const timer = setTimeout(startMusic, 500);
-      return () => clearTimeout(timer);
-    }
+    handlePlayback();
   }, [isEnabled, currentTrack]);
 
-  const toggleMusic = async () => {
-    if (!audioRef.current) return;
+  const toggleMusic = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    try {
-      if (isEnabled && isPlaying) {
-        // Musik aus - erst stoppen, dann State setzen
-        audioRef.current.pause();
-        if (nextAudioRef.current) {
-          nextAudioRef.current.pause();
-        }
-        if (fadeIntervalRef.current) {
-          clearInterval(fadeIntervalRef.current);
-        }
-        setIsPlaying(false);
-        setIsEnabled(false);
-        console.log('Music stopped');
+    setIsEnabled(prev => {
+      const newState = !prev;
+      
+      if (!newState) {
+        // Musik ausschalten
+        audio.pause();
+        isPlayingRef.current = false;
+        console.log('Music toggle: OFF');
       } else {
-        // Musik an - erst State setzen, dann abspielen über useEffect
-        setIsEnabled(true);
-        // setIsPlaying wird automatisch im useEffect gesetzt
-        console.log(`Music will start: ${PLAYLIST[currentTrack]}`);
+        console.log('Music toggle: ON');
       }
-    } catch (error) {
-      console.error('Failed to toggle music:', error);
-    }
-  };
+      
+      return newState;
+    });
+  }, []);
 
   return {
     isEnabled,
-    isPlaying,
+    isPlaying: isPlayingRef.current,
     currentTrack: PLAYLIST[currentTrack],
     toggleMusic
   };

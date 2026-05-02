@@ -46,5 +46,18 @@
     "marketShare": "Market Share:",
     "reputation": "Reputation:",
     "competitorUpdates": "Competitor Updates:"
+  },
+  "footer": {
+    "buyMeCoffee": "Buy me a coffee",
+    "builtWith": "Built with",
+    "imprint": "Imprint",
+    "contact": "Contact",
+    "licenses": "Licenses",
+    "imprintTitle": "Imprint",
+    "imprintLegal": "Information pursuant to § 5 TMG (German Telemedia Act)",
+    "licensesTitle": "Open Source Components & Licenses",
+    "licensesDescription": "This game uses the following open source software and fonts.",
+    "librariesHeading": "Libraries",
+    "fontsHeading": "Fonts"
   }
 }

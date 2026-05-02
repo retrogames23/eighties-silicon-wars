@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { IntroFooter } from "./IntroFooter";
 
 interface GameIntroProps {
   onComplete: () => void;
@@ -12,7 +13,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
   const { t } = useTranslation(['game']);
 
   return (
-    <div className="min-h-screen bg-gradient-crt p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-crt p-6 flex flex-col items-center justify-center">
       <div className="crt-screen">
         <div className="scanline" />
         

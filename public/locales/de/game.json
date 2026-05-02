@@ -46,5 +46,18 @@
     "marketShare": "Marktanteil:",
     "reputation": "Reputation:",
     "competitorUpdates": "Konkurrenz-Updates:"
+  },
+  "footer": {
+    "buyMeCoffee": "Buy me a coffee",
+    "builtWith": "Built with",
+    "imprint": "Impressum",
+    "contact": "Kontakt",
+    "licenses": "Lizenzen",
+    "imprintTitle": "Impressum",
+    "imprintLegal": "Angaben gemäß § 5 TMG",
+    "licensesTitle": "Freie-Software-Komponenten & Lizenzen",
+    "licensesDescription": "Dieses Spiel verwendet folgende Open-Source-Software und Schriften.",
+    "librariesHeading": "Bibliotheken",
+    "fontsHeading": "Schriften"
   }
 }

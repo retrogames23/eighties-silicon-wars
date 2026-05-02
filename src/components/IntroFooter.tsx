@@ -155,6 +155,23 @@ export const IntroFooter = () => {
             <div className="space-y-6 text-sm">
               <section>
                 <h3 className="font-semibold text-primary mb-2">
+                  {t("game:footer.gameLicenseHeading")}
+                </h3>
+                <p className="text-muted-foreground mb-2">
+                  {t("game:footer.gameLicenseText")}
+                </p>
+                <a
+                  href="https://github.com/retrogames23/eighties-silicon-wars"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  {t("game:footer.viewOnGithub")} — MIT License
+                </a>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-primary mb-2">
                   {t("game:footer.librariesHeading")}
                 </h3>
                 <ul className="space-y-1">

@@ -58,6 +58,9 @@
     "licensesTitle": "Freie-Software-Komponenten & Lizenzen",
     "licensesDescription": "Dieses Spiel verwendet folgende Open-Source-Software und Schriften.",
     "librariesHeading": "Bibliotheken",
-    "fontsHeading": "Schriften"
+    "fontsHeading": "Schriften",
+    "gameLicenseHeading": "Dieses Spiel",
+    "gameLicenseText": "Der Quellcode dieses Spiels steht unter der MIT-Lizenz und ist auf GitHub verfügbar.",
+    "viewOnGithub": "Auf GitHub ansehen"
   }
 }

@@ -58,6 +58,9 @@
     "licensesTitle": "Open Source Components & Licenses",
     "licensesDescription": "This game uses the following open source software and fonts.",
     "librariesHeading": "Libraries",
-    "fontsHeading": "Fonts"
+    "fontsHeading": "Fonts",
+    "gameLicenseHeading": "This Game",
+    "gameLicenseText": "The source code of this game is licensed under the MIT License and available on GitHub.",
+    "viewOnGithub": "View on GitHub"
   }
 }

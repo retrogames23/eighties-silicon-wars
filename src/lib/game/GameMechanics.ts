@@ -546,18 +546,72 @@ export class GameMechanics {
     // 4. NEWS EVENTS
     const newsEvents = getNewsForQuarter(gameState.quarter, gameState.year);
     
-    // 5. VERKÄUFE mit EconomyModel simulieren
+    // 5. PORTFOLIO-SIMULATION: Sammle alle markt-relevanten Modelle, gruppiere nach Segment,
+    //    teile Marktanteile innerhalb des Segments (Kannibalisierung).
     let totalRevenue = 0;
-    let totalProfit = 0;
+    let totalGrossProfit = 0;
     let totalUnitsSold = 0;
     const modelResults: any[] = [];
-    
-    // Importiere EconomyModel dynamisch
+
+    // 5a. Markt-Event-Multiplikatoren (BOM und Demand) holen
+    let bomMultiplier = 1;
+    let demandMultiplier = 1;
+    try {
+      const { MarketEventsService } = await import('@/services/MarketEventsService');
+      const { data: { user } } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getUser());
+      if (user?.id) {
+        const activeEvents = await MarketEventsService.getActiveMarketEvents(user.id);
+        for (const ev of activeEvents) {
+          const t = ev.event_details.event_type;
+          if (t === 'shortage' || t === 'price_shock') {
+            bomMultiplier *= ev.current_price_multiplier;
+          } else if (t === 'surplus') {
+            bomMultiplier *= ev.current_price_multiplier; // <1
+          } else if (t === 'demand_shift' || t === 'tech_breakthrough') {
+            demandMultiplier *= ev.current_price_multiplier;
+          }
+        }
+      }
+    } catch (e) {
+      console.log('⚠️ Market events not available, using neutral multipliers');
+    }
+
     try {
       const { EconomyModel } = await import('@/components/EconomyModel');
-      
-      // Simuliere Verkäufe für alle veröffentlichten Modelle (exclude development models)
-      for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
+      const relevantModels = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence);
+
+      // 5b. Portfolio-Appeal je Segment vorab berechnen → Anteile (Kannibalisierung).
+      const segments = ['gamer', 'business', 'workstation'] as const;
+      const segmentAppeal: Record<string, { model: any; appeal: number }[]> = {
+        gamer: [], business: [], workstation: [],
+      };
+      for (const m of relevantModels) {
+        for (const seg of segments) {
+          const appeal = EconomyModel.calculateSegmentAppeal(m, seg, gameState.year);
+          // Preisakzeptanz dämpft Appeal weiter
+          const maxPrice = EconomyModel.getSegmentMaxPrice(seg, gameState.year);
+          const elasticity = EconomyModel.calculatePriceElasticity(m.price, maxPrice, seg);
+          segmentAppeal[seg].push({ model: m, appeal: appeal * elasticity });
+        }
+      }
+      const segmentTotals: Record<string, number> = {};
+      for (const seg of segments) {
+        segmentTotals[seg] = segmentAppeal[seg].reduce((s, x) => s + x.appeal, 0);
+      }
+
+      for (const model of relevantModels) {
+        // Anteil dieses Modells am Player-Portfolio im jeweiligen Segment
+        const segmentShareOverride: Partial<Record<typeof segments[number], number>> = {};
+        for (const seg of segments) {
+          const total = segmentTotals[seg];
+          if (total > 0) {
+            const own = segmentAppeal[seg].find(x => x.model === model)?.appeal ?? 0;
+            segmentShareOverride[seg] = own / total;
+          } else {
+            segmentShareOverride[seg] = 0;
+          }
+        }
+
         const salesResult = EconomyModel.simulateModelSales(
           model,
           budget.marketing,
@@ -565,91 +619,76 @@ export class GameMechanics {
           competitors,
           gameState.year,
           gameState.quarter,
-          1000000
+          1000000,
+          { bomMultiplier, demandMultiplier, segmentShareOverride }
         );
-        
+
         totalRevenue += salesResult.revenue;
-        totalProfit += salesResult.profitBreakdown.netProfit;
+        totalGrossProfit += salesResult.profitBreakdown.netProfit;
         totalUnitsSold += salesResult.unitsSold;
-        
-        // Test: Obsoleszenz-Effekt loggen
-        if (model.obsolescenceFactorCurrent && model.obsolescenceFactorCurrent < 0.8) {
-          console.log(`⏰ [Obsolescence Test] ${model.name}: ${model.quartersSinceRelease} quarters old, ${(model.obsolescenceFactorCurrent * 100).toFixed(1)}% appeal remaining`);
-          console.log(`✅ ASSERTION: Gleicher Preis, ältere Hardware → weniger Verkäufe (Obsoleszenz-Faktor: ${(model.obsolescenceFactorCurrent * 100).toFixed(1)}%)`);
-        }
-        
+
         modelResults.push({
           modelName: model.name,
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,
           profit: salesResult.profitBreakdown.netProfit,
           profitBreakdown: salesResult.profitBreakdown,
-          demandFactors: salesResult.demandFactors
+          demandFactors: salesResult.demandFactors,
         });
       }
     } catch (error) {
-      console.warn('⚠️ EconomyModel not available, using fallback calculation');
-      // Fallback auf einfache Berechnung wenn EconomyModel nicht verfügbar (exclude development models)
+      console.warn('⚠️ EconomyModel not available, using fallback calculation', error);
       for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
         const simpleUnits = Math.floor(Math.random() * 1000 + 100);
         const simpleRevenue = simpleUnits * model.price;
-        const simpleProfit = simpleRevenue * 0.2; // 20% Gewinnmarge
-        
+        const simpleProfit = simpleRevenue * 0.2;
         totalRevenue += simpleRevenue;
-        totalProfit += simpleProfit;
+        totalGrossProfit += simpleProfit;
         totalUnitsSold += simpleUnits;
-        
         modelResults.push({
           modelName: model.name,
           unitsSold: simpleUnits,
           revenue: simpleRevenue,
-          profit: simpleProfit
+          profit: simpleProfit,
         });
       }
     }
-    
-    // 6. Quartalsausgaben
+
+    // 6. ZENTRALE QUARTALSAUSGABEN (Periodenkosten — exakt EINMAL gebucht!).
+    //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten (Refactor v2),
+    //    deshalb hier sauber als Periodenkosten abziehen. Inflations-skalierte Gehälter.
+    const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
+    const baseSalaries = 60000; // Basisgehälter Quartal 1983
+    const salaries = Math.round(baseSalaries * inflation);
+
     const quarterlyExpenses = {
       marketing: budget.marketing,
       development: budget.development,
-      research: budget.research
+      research: budget.research,
+      salaries,
     };
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
-    
-    // 7. KORREKTUR: Cash-Update basierend auf Gewinn, nicht Umsatz
-    const netCashFlow = totalProfit - totalExpenses;
-    
-    console.log(`💰 [Profit Calculation] Revenue: $${totalRevenue.toLocaleString()}, Profit: $${totalProfit.toLocaleString()}, Expenses: $${totalExpenses.toLocaleString()}, Net Cash Flow: $${netCashFlow.toLocaleString()}`);
-    
-    // Console-Tests für Akzeptanzkriterien
-    console.log(`✅ ASSERTION: Quartalsreport zeigt Umsatz ($${totalRevenue.toLocaleString()}) / Kosten ($${totalExpenses.toLocaleString()}) / Gewinn ($${totalProfit.toLocaleString()}) getrennt`);
-    console.log(`✅ ASSERTION: Gewinnmarge = ${totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : 0}%`);
-    console.log(`✅ ASSERTION: Komponentenpreise sinken automatisch pro Quartal`);
-    console.log(`✅ ASSERTION: Keine "Liquidität"-Anzeige mehr vorhanden`);
-    
-    // Führe Akzeptanzkriterien-Tests durch
-    try {
-      const { EconomyTestSuite } = await import('@/components/EconomyTestSuite');
-      EconomyTestSuite.runAllTests(gameState);
-      EconomyTestSuite.runPerformanceTests();
-    } catch (error) {
-      console.log('⚠️ EconomyTestSuite not available, skipping comprehensive tests');
-    }
-    
+
+    // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.
+    const totalProfit = totalGrossProfit - totalExpenses;
+    const netCashFlow = totalProfit;
+
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()}`);
+
     // 8. Marktanteil und Reputation Updates
     const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
     const marketShareChange = newMarketShare - (company.marketShare || 0);
-    
-    const newReputation = Math.min(100, Math.max(0, 
+
+    const newReputation = Math.min(100, Math.max(0,
       company.reputation + (modelResults.length > 0 ? 2 : -1) + marketShareChange
     ));
     const reputationChange = newReputation - company.reputation;
-    
-    // 9. Aktualisierter Spielzustand mit korrekter Gewinn-Logik
+
+    // 9. Aktualisierter Spielzustand
     const updatedGameState = {
       ...gameState,
       models: modelsWithObsolescence,
-      customChips: newCustomChip 
+      customChips: newCustomChip
         ? [...gameState.customChips, newCustomChip]
         : gameState.customChips,
       totalResearchSpent: totalResearchSpent,
@@ -661,13 +700,14 @@ export class GameMechanics {
         monthlyIncome: Math.round(totalRevenue / 3),
         monthlyExpenses: Math.round(totalExpenses / 3),
         quarterlyProfit: totalProfit,
-        quarterlyRevenue: totalRevenue
-      }
+        quarterlyRevenue: totalRevenue,
+      },
     };
-    
+
     const quarterResults = {
       totalRevenue,
       totalProfit,
+      totalGrossProfit,
       totalUnitsSold,
       modelResults,
       profitMargin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0,
@@ -676,17 +716,42 @@ export class GameMechanics {
       marketShare: newMarketShare,
       marketShareChange,
       reputation: newReputation,
-      reputationChange
+      reputationChange,
+      marketEventMultipliers: { bomMultiplier, demandMultiplier },
     };
-    
+
     return {
       updatedGameState,
       quarterResults,
-      updatedCompetitors: competitors,
+      updatedCompetitors: this.updateCompetitorsForYear(competitors, gameState.year),
       newCustomChip,
       newsEvents,
-      marketData: this.generateMarketData(gameState, competitors, modelResults)
+      marketData: this.generateMarketData(gameState, competitors, modelResults),
     };
+  }
+
+  /**
+   * KI-Konkurrenten skalieren mit der Zeit: Preise (Inflation) und Performance
+   * (Tech-Fortschritt) wachsen mit dem Jahr. Verhindert, dass alte Modelle
+   * 1990 noch zu 1983-Preisen den Markt dominieren.
+   */
+  static updateCompetitorsForYear(competitors: Competitor[], year: number): Competitor[] {
+    const yearsSince = Math.max(0, year - 1983);
+    const inflation = Math.pow(1.03, yearsSince);
+    const techGrowth = 1 + yearsSince * 0.05;
+    return competitors.map(c => ({
+      ...c,
+      models: c.models.map(m => {
+        const ageQuarters = (year - m.releaseYear) * 4;
+        // Modelle älter als 8 Quartale veralten und werden günstiger / verkaufen weniger.
+        const obsolescence = Math.max(0.4, 1 - ageQuarters * 0.04);
+        return {
+          ...m,
+          price: Math.round(m.price * inflation * obsolescence),
+          performance: Math.min(100, Math.round(m.performance * Math.min(1.4, techGrowth))),
+        };
+      }),
+    }));
   }
 
   // Legacy fallback-Funktion für Kompatibilität

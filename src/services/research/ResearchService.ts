@@ -40,13 +40,23 @@ export class ResearchService {
     currentYear: number,
     investmentAmount: number
   ): Promise<{ success: boolean; project?: ResearchProject; error?: string }> {
-    
-    const projectSpecs = ProjectGenerator.generateProjectSpecs(projectType, currentYear);
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return { success: false, error: 'User not authenticated' };
     }
+
+    // Level = Anzahl bereits abgeschlossener Projekte dieses Typs + 1
+    // (exponentielle Kostenskalierung 1.6^(level − 1))
+    const { count: completedCount } = await supabase
+      .from('research_projects')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('project_type', projectType)
+      .eq('status', 'completed');
+
+    const level = (completedCount ?? 0) + 1;
+    const projectSpecs = ProjectGenerator.generateProjectSpecs(projectType, currentYear, level);
 
     const project = {
       user_id: user.id,

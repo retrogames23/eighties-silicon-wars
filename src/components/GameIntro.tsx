@@ -18,7 +18,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
         <div className="scanline" />
         
         <div className="flex items-center justify-center">
-          <Card className="w-96 bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
+          <Card className="w-96 lg:w-[28rem] xl:w-[32rem] 2xl:w-[36rem] bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
             <div className="p-8 text-center space-y-4">
               {/* Language Switcher */}
               <div className="flex justify-end">

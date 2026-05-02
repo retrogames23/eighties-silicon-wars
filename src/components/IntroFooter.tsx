@@ -65,7 +65,7 @@ export const IntroFooter = () => {
   const [showLicenses, setShowLicenses] = useState(false);
 
   return (
-    <footer className="w-full max-w-3xl mx-auto mt-8 px-4 pb-6 text-xs text-muted-foreground/80 font-mono">
+    <footer className="w-full max-w-3xl xl:max-w-5xl 2xl:max-w-6xl mx-auto mt-8 px-4 pb-6 text-xs text-muted-foreground/80 font-mono">
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center">
         <a
           href="https://buymeacoffee.com/doener"

@@ -57,9 +57,6 @@ export class ResearchService {
 
     const level = (completedCount ?? 0) + 1;
     const projectSpecs = ProjectGenerator.generateProjectSpecs(projectType, currentYear, level);
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
 
     const project = {
       user_id: user.id,

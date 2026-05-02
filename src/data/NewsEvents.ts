@@ -1,4 +1,5 @@
 import { NewsContentGenerator } from "@/services/NewsContentGenerator";
+import { HardwareAvailabilityService } from "@/services/HardwareAvailabilityService";
 
 export interface NewsEvent {
   id: string;
@@ -193,8 +194,6 @@ export const getNewsForQuarter = (quarter: number, year: number): NewsEvent[] =>
     // Hardware availability check for tech news (check for optional affectedHardwareTags field)
     if (event.category === 'tech' && (event as any).affectedHardwareTags && (event as any).affectedHardwareTags.length > 0) {
       try {
-        // Dynamic import to avoid circular dependency
-        const { HardwareAvailabilityService } = require('@/services/HardwareAvailabilityService');
         const hardwareAvailable = (event as any).affectedHardwareTags.some((tag: string) => 
           HardwareAvailabilityService.isHardwareAvailable(tag, year, quarter, [])
         );

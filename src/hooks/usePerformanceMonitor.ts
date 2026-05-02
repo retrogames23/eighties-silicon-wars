@@ -10,7 +10,7 @@ interface PerformanceMetrics {
  * Development Hook für Performance-Monitoring
  * Hilft dabei, Re-Render-Hotspots zu identifizieren
  */
-export function usePerformanceMonitor(componentName: string, enabled = process.env.NODE_ENV === 'development') {
+export function usePerformanceMonitor(componentName: string, enabled = import.meta.env.DEV) {
   const renderCount = useRef(0);
   const startTime = useRef<number>(0);
   const renderTimes = useRef<number[]>([]);
@@ -62,7 +62,7 @@ export function usePerformanceMonitor(componentName: string, enabled = process.e
 export function useActionPerformance<T extends (...args: any[]) => any>(
   action: T,
   actionName: string,
-  enabled = process.env.NODE_ENV === 'development'
+  enabled = import.meta.env.DEV
 ): T {
   return useCallback((...args: Parameters<T>): ReturnType<T> => {
     if (!enabled) {

@@ -63,7 +63,7 @@ i18n
   })
   .use(initReactI18next)
   .init({
-    debug: process.env.NODE_ENV === 'development',
+    debug: import.meta.env.DEV,
     
     fallbackLng: 'de',
     defaultNS: 'common',
@@ -132,9 +132,9 @@ i18n
     load: 'languageOnly',
     
     // Fallback configuration
-    saveMissing: process.env.NODE_ENV === 'development',
+    saveMissing: import.meta.env.DEV,
     missingKeyHandler: (lng, ns, key) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.warn(`Missing translation key: ${ns}:${key} for language: ${lng}`);
       }
     }

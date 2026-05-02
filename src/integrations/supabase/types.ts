@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -28,13 +28,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          current_price_multiplier: number
+          current_price_multiplier?: number
           game_quarter: number
           game_year: number
           id?: string
           is_visible_to_player?: boolean
           market_event_id: string
-          remaining_quarters: number
+          remaining_quarters?: number
           user_id: string
         }
         Update: {
@@ -81,14 +81,14 @@ export type Database = {
           available_from_year: number
           component_name: string
           component_type: string
-          cost: number
+          cost?: number
           created_at?: string
-          description: string
+          description?: string
           exclusive_until_quarter: number
           exclusive_until_year: number
           id?: string
           is_active?: boolean
-          performance: number
+          performance?: number
           research_project_id: string
           updated_at?: string
           user_id: string
@@ -133,33 +133,31 @@ export type Database = {
           id: string
           is_active: boolean
           is_global: boolean
-          market_impact: number | null
+          market_impact: number
           price_multiplier: number
           severity: string
           start_quarter: number
           start_year: number
-          trigger_probability: number | null
-          updated_at: string
+          trigger_probability: number
         }
         Insert: {
-          affected_categories: string[]
+          affected_categories?: string[]
           created_at?: string
-          description: string
+          description?: string
           duration_quarters?: number
-          end_quarter: number
-          end_year: number
+          end_quarter?: number
+          end_year?: number
           event_name: string
           event_type: string
           id?: string
           is_active?: boolean
           is_global?: boolean
-          market_impact?: number | null
+          market_impact?: number
           price_multiplier?: number
           severity?: string
-          start_quarter: number
-          start_year: number
-          trigger_probability?: number | null
-          updated_at?: string
+          start_quarter?: number
+          start_year?: number
+          trigger_probability?: number
         }
         Update: {
           affected_categories?: string[]
@@ -173,13 +171,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_global?: boolean
-          market_impact?: number | null
+          market_impact?: number
           price_multiplier?: number
           severity?: string
           start_quarter?: number
           start_year?: number
-          trigger_probability?: number | null
-          updated_at?: string
+          trigger_probability?: number
         }
         Relationships: []
       }
@@ -205,7 +202,7 @@ export type Database = {
         Insert: {
           completion_quarter?: number | null
           completion_year?: number | null
-          component_specs: Json
+          component_specs?: Json
           cost_invested?: number
           created_at?: string
           exclusive_until_quarter?: number | null
@@ -216,7 +213,7 @@ export type Database = {
           start_quarter: number
           start_year: number
           status?: string
-          total_cost_required: number
+          total_cost_required?: number
           updated_at?: string
           user_id: string
         }

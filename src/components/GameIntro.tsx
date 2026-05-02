@@ -73,6 +73,7 @@ export const GameIntro = ({ onComplete }: GameIntroProps) => {
           </Card>
         </div>
       </div>
+      <IntroFooter />
     </div>
   );
 };

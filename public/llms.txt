@@ -1,0 +1,8 @@
+# Computer Tycoon
+
+> A retro 1980s homecomputer business tycoon game playable in the browser. Design machines, manage R&D, marketing, and finances, and compete against AI rivals across the decade.
+
+## Pages
+
+- [Home](/): Start a new game, set up your company, and play the tycoon simulation.
+- [Sign in](/auth): Sign in or create an account to save your game progress.

@@ -215,6 +215,9 @@ export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = 
             </Card>
           )}
 
+          {/* KI-Welt: Warum-Panel */}
+          <WhyPanel events={aiEvents} />
+
           {/* Konkurrenz-Aktivitäten */}
           {competitorActions && competitorActions.length > 0 && (
             <Card>

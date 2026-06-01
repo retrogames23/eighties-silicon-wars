@@ -5,6 +5,8 @@ import { TrendingUp, TrendingDown, Package, DollarSign, Users, Target } from "lu
 import { formatCurrency } from "@/lib/formatters";
 import { useTranslation } from "react-i18next";
 import { formatters } from "@/lib/i18n";
+import { WhyPanel } from "@/components/WhyPanel";
+import type { AiWorldEvent } from "@/services/LivingWorldService";
 
 interface QuarterResultsProps {
   quarter: number;
@@ -38,9 +40,10 @@ interface QuarterResultsProps {
     };
   };
   onContinue: () => void;
+  aiEvents?: AiWorldEvent[];
 }
 
-export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterResultsProps) => {
+export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = [] }: QuarterResultsProps) => {
   const { t } = useTranslation(['reports', 'common']);
   
   // Handle both old and new data structures from GameMechanics
@@ -211,6 +214,9 @@ export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterRe
               </CardContent>
             </Card>
           )}
+
+          {/* KI-Welt: Warum-Panel */}
+          <WhyPanel events={aiEvents} />
 
           {/* Konkurrenz-Aktivitäten */}
           {competitorActions && competitorActions.length > 0 && (

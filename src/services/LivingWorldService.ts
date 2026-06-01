@@ -182,7 +182,7 @@ export class LivingWorldService {
         magnitude: ev.magnitude,
         duration_quarters: ev.duration_quarters,
         remaining_quarters: ev.duration_quarters,
-        applied_effects: effect as unknown as Record<string, unknown>,
+        applied_effects: effect as unknown as never,
       };
     });
 

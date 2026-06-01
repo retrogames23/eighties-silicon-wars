@@ -40,9 +40,10 @@ interface QuarterResultsProps {
     };
   };
   onContinue: () => void;
+  aiEvents?: AiWorldEvent[];
 }
 
-export const QuarterResults = ({ quarter, year, results, onContinue }: QuarterResultsProps) => {
+export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = [] }: QuarterResultsProps) => {
   const { t } = useTranslation(['reports', 'common']);
   
   // Handle both old and new data structures from GameMechanics

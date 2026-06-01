@@ -470,6 +470,7 @@ const Index = () => {
             quarter={quarterResults.quarter}
             year={quarterResults.year}
             results={quarterResults.results}
+            aiEvents={quarterResults.aiEvents ?? []}
             onContinue={handleContinueFromResults}
           />
         ) : null;

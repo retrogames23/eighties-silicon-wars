@@ -58,6 +58,107 @@ export type Database = {
           },
         ]
       }
+      ai_press_articles: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          era: string | null
+          game_quarter: number
+          game_year: number
+          headline: string
+          id: string
+          kind: string
+          source_event_id: string | null
+          tone: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          era?: string | null
+          game_quarter: number
+          game_year: number
+          headline: string
+          id?: string
+          kind: string
+          source_event_id?: string | null
+          tone?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          era?: string | null
+          game_quarter?: number
+          game_year?: number
+          headline?: string
+          id?: string
+          kind?: string
+          source_event_id?: string | null
+          tone?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_press_articles_source_event_id_fkey"
+            columns: ["source_event_id"]
+            isOneToOne: false
+            referencedRelation: "ai_world_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_world_events: {
+        Row: {
+          affected_segments: string[]
+          applied_effects: Json
+          body: string
+          category: string
+          created_at: string
+          duration_quarters: number
+          game_quarter: number
+          game_year: number
+          headline: string
+          id: string
+          magnitude: number
+          remaining_quarters: number
+          user_id: string
+        }
+        Insert: {
+          affected_segments?: string[]
+          applied_effects?: Json
+          body: string
+          category: string
+          created_at?: string
+          duration_quarters?: number
+          game_quarter: number
+          game_year: number
+          headline: string
+          id?: string
+          magnitude: number
+          remaining_quarters?: number
+          user_id: string
+        }
+        Update: {
+          affected_segments?: string[]
+          applied_effects?: Json
+          body?: string
+          category?: string
+          created_at?: string
+          duration_quarters?: number
+          game_quarter?: number
+          game_year?: number
+          headline?: string
+          id?: string
+          magnitude?: number
+          remaining_quarters?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       exclusive_components: {
         Row: {
           available_from_quarter: number

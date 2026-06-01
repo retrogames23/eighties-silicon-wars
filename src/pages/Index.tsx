@@ -245,13 +245,29 @@ const Index = () => {
       });
     });
     
+    // KI-Welt: neue Events generieren + alte runter-ticken (best effort, blockiert nicht bei Fehler)
+    let aiEvents: AiWorldEvent[] = [];
+    if (user?.id) {
+      try {
+        await LivingWorldService.tickActiveEvents(user.id);
+        aiEvents = await LivingWorldService.generateQuarterEvents({
+          userId: user.id,
+          year: gameState.year,
+          quarter: gameState.quarter,
+        });
+      } catch (err) {
+        console.warn("[LivingWorld] quarter generation failed:", err);
+      }
+    }
+
     // Zeige Quartalsresultate
     setQuarterResults({
       quarter: gameState.quarter,
       year: gameState.year,
       results: result.quarterResults,
       newsEvents: result.newsEvents,
-      marketData: result.marketData
+      marketData: result.marketData,
+      aiEvents,
     });
     
     // Aktualisiere den Spielzustand für das nächste Quartal

@@ -15,6 +15,7 @@ import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
+import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 

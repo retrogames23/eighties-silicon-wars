@@ -136,6 +136,20 @@ supabase/functions/
 
 So bleibt das Spiel ein **Spiel** — die KI macht es lebendig, nicht beliebig.
 
+## Ergänzung: Lebendiges Bürogebäude (Phase 3.5)
+
+Die bestehende `Headquarters`-Visualisierung wird zum sichtbaren Wachstums-Statussymbol der Firma:
+
+- **KI-generierte Gebäude-Stufen**: Bei jedem Wachstums-Meilenstein (Mitarbeiterzahl, Cash, Reputation) generiert `google/gemini-3-pro-image-preview` (Banana Pro) eine neue isometrische Pixel-Art-Ansicht des Hauptquartiers — passend zur Ära (Garage 1978 → Bürogebäude 1990 → Glas-Hochhaus 2005). Strukturierter Prompt mit festem Stil-Anker ("16-bit isometric pixel art, same camera angle, limited palette"), damit alle Stufen visuell zusammenpassen.
+- **Caching**: Bilder werden pro Spielstand × Stufe **einmal** generiert und in Lovable Cloud Storage abgelegt (`headquarters/{user_id}/{stage}.png`). Keine Re-Generierung pro Render. Optional Vorab-Generierung der nächsten Stufe im Hintergrund.
+- **Pixel-Männchen-Sprites**: Sprite-Sheet (einmalig per Banana Pro mit transparentem Hintergrund generiert und als Asset im Projekt). Canvas-Layer über dem Gebäude animiert 5–30 Sprites entlang vordefinierter Pfade (Eingang → Schreibtisch → Kaffeeküche → Meetingraum). Anzahl skaliert mit Mitarbeiterzahl, Geschwindigkeit mit Produktivität.
+- **Reagiert auf Spielzustand**: Krise → wenige, langsame Sprites; Boom → viele, hektische; Produkt-Launch → Sprites versammeln sich vor dem Eingang; Insolvenznähe → Lichter gehen aus.
+- **Determinismus**: Sprite-Pfade per Seed; Gebäude-Bilder nur an festen Meilensteinen, nicht pro Quartal.
+
+Kosten-Deckel: ~6–8 Gebäude-Generierungen über das gesamte Spiel (eine pro Wachstums-Stufe). Sprite-Sheet 1× pro Projekt.
+
 ---
 
-Sag mir, ob die Richtung passt — dann starten wir mit Phase 1 (Welt-Director + lebendige Presse) als ersten greifbaren Schritt.
+Phasenplan-Update: Diese Visualisierung kommt als **Phase 3.5** nach den Berater-Dialogen, weil sie unabhängig vom Sim-Core läuft und ein schöner "Show-Off"-Schritt ist, bevor wir an Freitext-Aktionen gehen.
+
+Soll ich mit **Phase 1** (Welt-Director + lebendige Presse) loslegen?

@@ -5,6 +5,8 @@ import { TrendingUp, TrendingDown, Package, DollarSign, Users, Target } from "lu
 import { formatCurrency } from "@/lib/formatters";
 import { useTranslation } from "react-i18next";
 import { formatters } from "@/lib/i18n";
+import { WhyPanel } from "@/components/WhyPanel";
+import type { AiWorldEvent } from "@/services/LivingWorldService";
 
 interface QuarterResultsProps {
   quarter: number;

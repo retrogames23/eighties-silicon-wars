@@ -11,7 +11,7 @@ export interface VcCharacter {
   image: string;
   personaDe: string;
   personaEn: string;
-  accentClass: string; // Tailwind border/glow accent
+  accentClass: string;
 }
 
 export const VC_CAST: VcCharacter[] = [
@@ -19,7 +19,7 @@ export const VC_CAST: VcCharacter[] = [
     id: "charles",
     name: "Charles Whitfield III",
     firm: "Whitfield & Hayes Capital · Sand Hill Road",
-    tagline: '„Zahlen lügen nicht — Gründer schon."',
+    tagline: "Zahlen lügen nicht — Gründer schon.",
     image: charles,
     personaDe:
       "Du bist Charles Whitfield III, abgebrühter Old-Money-VC aus Menlo Park. Pinstripe-Anzug, Whiskey-Tumbler, eiskalter Blick. Fragst nach Unit Economics, Gross Margin und Burn Rate. Kein Mitleid, keine Visionen ohne Zahlen.",
@@ -29,24 +29,24 @@ export const VC_CAST: VcCharacter[] = [
   },
   {
     id: "veronica",
-    name: "Veronica „Ronnie" Sterling",
+    name: "Veronica \u201eRonnie\u201c Sterling",
     firm: "Sterling Ventures · Miami",
-    tagline: '„Beweg dich oder verschwinde."',
+    tagline: "Beweg dich oder verschwinde.",
     image: veronica,
     personaDe:
-      "Du bist Veronica „Ronnie" Sterling, scharfzüngige VC-Partnerin aus Miami. Big Hair, Power-Blazer, gnadenlos schnell. Du interessierst dich für Markt-Timing, Vertriebskanäle und Wettbewerbsdruck. Du unterbrichst gerne.",
+      "Du bist Veronica Ronnie Sterling, scharfzüngige VC-Partnerin aus Miami. Big Hair, Power-Blazer, gnadenlos schnell. Du interessierst dich für Markt-Timing, Vertriebskanäle und Wettbewerbsdruck. Du unterbrichst gerne.",
     personaEn:
       "You are Veronica 'Ronnie' Sterling, a sharp-tongued VC partner out of Miami. Big hair, power blazer, ruthlessly fast. You care about market timing, distribution and competitive pressure. You love to interrupt.",
     accentClass: "border-cyan-400/60 shadow-[0_0_20px_hsl(190_100%_55%/0.35)]",
   },
   {
     id: "hiroshi",
-    name: "Hiroshi „Hiro" Tanaka",
+    name: "Hiroshi \u201eHiro\u201c Tanaka",
     firm: "Tanaka Strategic Partners · Tokyo",
-    tagline: '„Was ist der unfaire Vorteil?"',
+    tagline: "Was ist der unfaire Vorteil?",
     image: hiroshi,
     personaDe:
-      "Du bist Hiroshi „Hiro" Tanaka, technologieaffiner Japaner-VC, brick-Cellphone am Ohr. Du fragst nach Technologie-Roadmap, Supply Chain und langfristiger Differenzierung. Höflich, aber durchdringend.",
+      "Du bist Hiroshi Hiro Tanaka, technologieaffiner Japaner-VC, brick-Cellphone am Ohr. Du fragst nach Technologie-Roadmap, Supply Chain und langfristiger Differenzierung. Höflich, aber durchdringend.",
     personaEn:
       "You are Hiroshi 'Hiro' Tanaka, a tech-savvy Japanese VC with a brick cellphone glued to his ear. You probe on technology roadmap, supply chain and long-term differentiation. Polite, but piercing.",
     accentClass: "border-purple-500/60 shadow-[0_0_20px_hsl(280_100%_60%/0.35)]",
@@ -54,6 +54,7 @@ export const VC_CAST: VcCharacter[] = [
 ];
 
 export function pickVcForRound(roundNumber: number): VcCharacter {
-  const idx = ((roundNumber - 1) % VC_CAST.length + VC_CAST.length) % VC_CAST.length;
+  const n = VC_CAST.length;
+  const idx = (((roundNumber - 1) % n) + n) % n;
   return VC_CAST[idx];
 }

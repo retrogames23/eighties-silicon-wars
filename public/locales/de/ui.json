@@ -3,7 +3,7 @@
     "title": "Case Auswahl",
     "description": "Wählen Sie ein Gehäuse für: {{modelName}}",
     "gamerCases": "Gaming Gehäuse",
-    "officeCases": "Büro Gehäuse", 
+    "officeCases": "Büro Gehäuse",
     "selected": "{{caseName}} ausgewählt",
     "confirmCase": "Case bestätigen",
     "qualityImportant": "Qualität wichtig",
@@ -14,7 +14,7 @@
         "description": "Einfacher beiger Kasten"
       },
       "gamerColorful": {
-        "name": "Color Tower", 
+        "name": "Color Tower",
         "description": "Bunte Plastik-Front mit LED-Akzenten"
       },
       "gamerPremium": {
@@ -49,7 +49,7 @@
     "saveGame": "Spiel speichern",
     "tabs": {
       "overview": "Übersicht",
-      "development": "Entwicklung", 
+      "development": "Entwicklung",
       "market": "Markt",
       "management": "Verwaltung",
       "headquarters": "Zentrale"
@@ -125,7 +125,7 @@
     "labels": {
       "totalRevenue": "Gesamtumsatz",
       "models": "Modelle",
-      "unitsSold": "Verkaufte Einheiten", 
+      "unitsSold": "Verkaufte Einheiten",
       "inDevelopment": "In Entwicklung",
       "price": "Preis",
       "revenue": "Umsatz",
@@ -218,6 +218,37 @@
         "positiveAmountRequired": "Bitte geben Sie einen positiven Investitionsbetrag ein",
         "notEnoughBudget": "Nicht genügend Forschungsbudget verfügbar"
       }
-    }
+    },
+    "pricing": {
+      "title": "Verkaufspreis festlegen",
+      "minPrice": "Mindestpreis",
+      "recommended": "Empfohlen",
+      "maxPrice": "Maximaler Preis",
+      "marginPct": "{{pct}}% Marge",
+      "marginPctStandard": "{{pct}}% Marge (Standard)",
+      "applyRecommended": "Empfohlenen Preis übernehmen",
+      "orCustom": "Oder eigenen Preis festlegen:",
+      "analysisTitle": "Preisanalyse",
+      "profitPerUnit": "Gewinn pro Einheit:",
+      "profitMargin": "Gewinnmarge:",
+      "hintBelowMin": "⚠️ Preis unter Mindestmarge – Verlustrisiko!",
+      "hintAggressive": "💡 Aggressiver Preis – mehr Verkäufe, weniger Gewinn",
+      "hintPremium": "🎯 Premium-Preis – weniger Verkäufe, höhere Marge",
+      "hintTooHigh": "⚠️ Sehr hoher Preis – Verkaufsrisiko!"
+    },
+    "nav": {
+      "toCase": "Weiter zu Gehäuse",
+      "toName": "Weiter zu Name",
+      "toPricing": "Weiter zu Preissetzung",
+      "backToCase": "Zurück zu Gehäuse",
+      "backToName": "Zurück zu Name",
+      "testComputer": "Computer testen"
+    },
+    "caseAttrs": {
+      "quality": "Qualität",
+      "design": "Design",
+      "price": "Preis"
+    },
+    "yearSuffix": "(für {{year}})"
   }
 }

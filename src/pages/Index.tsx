@@ -550,9 +550,10 @@ const Index = () => {
       year: 1983,
       models: [],
     budget: {
-      marketing: 20000, // Leicht erhöht für bessere Verkäufe
-      development: 30000, // Leicht erhöht für schnellere Entwicklung
-      research: 5000
+      marketing: 0,
+      development: 0,
+      research: 0,
+      support: 0
     },
       competitors: INITIAL_COMPETITORS,
       marketEvents: [],

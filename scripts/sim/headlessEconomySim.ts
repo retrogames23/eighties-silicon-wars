@@ -288,7 +288,19 @@ function runStrategy(mode: Mode, s: Strategy): QuarterRow[] {
         portfolioMaintenance = Math.round(activeModelCount * 3000 * infl);
         fixedOverhead = Math.round((10000 + employees * 1000) * infl);
       }
-      const expenses = marketing + development + research + support + salaries + portfolioMaintenance + fixedOverhead;
+      // Kredit-Annuität als zusätzliche Periodenausgabe (vereinfacht: keine Zins/Tilgung-Trennung im Sim-Report).
+      let loanPayment = 0;
+      if (loanQuartersLeft > 0) {
+        loanPayment = Math.round(loanQuarterly);
+        loanQuartersLeft--;
+        // Vereinfachte Restschuld-Fortschreibung: Zins auf Restschuld, Rest = Tilgung.
+        const quarterlyRate = loanRate / 4;
+        const interest = loanOutstanding * quarterlyRate;
+        const principalPaid = Math.max(0, loanPayment - interest);
+        loanOutstanding = Math.max(0, loanOutstanding - principalPaid);
+        if (loanQuartersLeft === 0) loanOutstanding = 0;
+      }
+      const expenses = marketing + development + research + support + salaries + portfolioMaintenance + fixedOverhead + loanPayment;
       const net = grossProfit - expenses;
       cash += net;
 

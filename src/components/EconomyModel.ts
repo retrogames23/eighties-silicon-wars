@@ -83,6 +83,16 @@ export interface EconomyContext {
   demandMultiplier?: number;
   /** Markt-Anteils-Verteilung pro Segment (kommt aus Portfolio-Sim). 0..1 */
   segmentShareOverride?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
+  /**
+   * Deterministischer Quartals-Seed (anti-save-scum). Wenn gesetzt, wird die
+   * stochastische Verkaufs-Varianz aus diesem Seed gezogen statt aus Math.random().
+   */
+  rngSeed?: number;
+  /**
+   * Vorberechneter KI-Druck pro Segment (0..1). 0 = kein Druck, 0.5 = halbierter
+   * verfügbarer Markt. Speist aktive AiCompetitor-Stati in die Sim.
+   */
+  aiCompetitorPressure?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
 }
 
 export class EconomyModel {

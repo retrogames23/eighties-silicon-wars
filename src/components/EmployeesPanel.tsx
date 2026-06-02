@@ -64,6 +64,10 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
   }, [team, agg, onTeamChanged]);
 
   const roleLabel = (r: StaffMember["role"]) => t(`ui:employees.roles.${r}`);
+  const specialtyLabel = (raw: string) => {
+    const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    return t(`ui:employees.specialties.${slug}`, { defaultValue: raw });
+  };
 
   const handleHire = async (c: Candidate, idx: number) => {
     if (!userId) return;

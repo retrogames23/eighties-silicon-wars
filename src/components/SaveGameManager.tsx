@@ -57,7 +57,8 @@ interface SaveGameManagerProps {
 type SaveGame = Database['public']['Tables']['save_games']['Row'];
 
 export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }: SaveGameManagerProps) => {
-  const { t } = useTranslation(['toast', 'common']);
+  const { t, i18n } = useTranslation(['toast', 'common', 'ui']);
+  const tSgm = (key: string, opts?: Record<string, unknown>) => t(`ui:saveGameManager.${key}`, opts);
   const [saves, setSaves] = useState<SaveGame[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveName, setSaveName] = useState('');

@@ -282,6 +282,8 @@ function VcPitchCard({
   const [result, setResult] = useState<{ accepted: boolean; mult: number; cash: number; feedback: string; weaknesses: string[] } | null>(null);
 
   const roundsLeft = 3 - vcRounds.length;
+  const upcomingRoundNumber = vcRounds.length + 1;
+  const vc: VcCharacter = pickVcForRound(upcomingRoundNumber);
   const canPitch = roundsLeft > 0 && equityGivenAway + offered <= 75;
 
   const snapshot = (): CompanySnapshot => ({

@@ -604,7 +604,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
         spritesRef.current = [];
         return;
       }
-      const target = Math.min(propsRef.current.employees, MAX_VISIBLE_SPRITES);
+      // Show roughly 2-3 sprites per floor — keeps small companies looking small
+      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 3));
+      const target = Math.min(propsRef.current.employees, visibleCap);
       const list = spritesRef.current;
 
       // Clamp existing sprites to existing floors

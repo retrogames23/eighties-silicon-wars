@@ -1,60 +1,74 @@
-# Faire & konsistente Testberichte
+# Computer Tycoon — Gesamtplan
 
-## Problem
+## Phase 1.5 — Faire & konsistente Testberichte ✅
 
-1. **Widersprüchliches Fazit** (siehe Screenshot Amiga 500):
-   - Satz 1: „weist deutliche Schwächen auf … nur für spezielle Anwendungen geeignet."
-   - Satz 2: „Die ausgewogene Leistung macht ihn zum idealen Allrounder…"
-   - Ursache: In `EnhancedTestReportGenerator.generateFinalVerdict` (und analog `TestReportGenerator`) werden zwei Sätze unabhängig voneinander aus zwei verschiedenen Schwellen gebaut. Der zweite Satz fällt in den „Allrounder"-Fallback, sobald Gaming- und Business-Score nahe beieinander liegen — unabhängig vom Gesamturteil.
+**Problem:** Widersprüchliche Verdicts (z. B. Amiga 500: „deutliche Schwächen" + „idealer Allrounder") und unfaire absolute Skala (1983-Top-Hardware → „Mangelhaft").
 
-2. **Unfaire Bewertung am Spielanfang**:
-   - `TestScoringMatrix` bewertet Komponenten absolut auf einer Skala, die für 1988er High-End geeicht ist (Intel 80486 = 90+, VGA = 95). Ein 1983er Rechner mit damals **bester** verfügbarer Hardware (z. B. Z80, TMS9918, 16 KB) erreicht selbst bei optimaler Konfiguration nur 25–45 Punkte und wird als „Mangelhaft" eingestuft.
-   - Tester der Spielwelt müssten 1983 aber mit den Erwartungen von 1983 messen, nicht mit denen von 1995.
+**Lösung:**
+- `TestScoringMatrix`: Era-relative Bewertung via `getEraBaseline(year, quarter)` aus `HardwareAvailabilityService`.
+- `EnhancedTestReportGenerator` & `TestReportGenerator`: `generateFinalVerdict` als **eine** Bucket-Lookup-Tabelle. „Allrounder"-Satz nur bei `overallScore ≥ 70`.
+- `TestReport.tsx` reicht `currentYear`/`currentQuarter` durch.
 
-## Lösung
+**Validierung:** 1983-Q1-Top-Hardware ≥ 80, 1988-Q2 ≥ 85, 1995 mit 1983er-Hardware ≤ 35.
 
-### 1. Era-relative Bewertung (Kern-Fix)
+---
 
-In `TestScoringMatrix` einen **Era-Baseline** einführen, der die maximal verfügbare Tier-Stufe pro Komponente zum Testzeitpunkt kennt:
+## Phase 2 — Lebende Spielwelt ✅
 
-- Neue Funktion `getEraBaseline(year, quarter)` (nutzt vorhandene Hardware-Verfügbarkeitsdaten aus `HardwareAvailabilityService` bzw. den existierenden Component-Listen).
-- Liefert pro Komponententyp die zum Zeitpunkt höchste verfügbare `tier`-Stufe.
-- Score-Normalisierung: `relativeScore = absoluteScore + eraBonus`, wobei `eraBonus` so gewählt ist, dass eine Konfiguration aus der jeweils besten verfügbaren Komponente einen Score von ~85–92 erreicht (statt 25 in 1983 oder 95 in 1995).
-- Formel: `relativeScore = clamp(absoluteScore * (maxTierEver / maxTierThisEra), 0, 100)` mit anschließendem Cap bei 98 — so dass eine wirklich „spitzen"-Konfiguration der Ära in ihrer Zeit als spitzen wahrgenommen wird, aber spätere Generationen die historischen Geräte noch immer relativ schlechter dastehen lassen, wenn man heutige Maßstäbe anlegt (zweiter Score für „aus heutiger Sicht").
-- Penalisierung bleibt bestehen, wenn der Spieler **unter** dem zeitlich Verfügbaren bleibt (alte Komponenten in neuer Ära).
+### 2a) LLM-Berater (`AdvisorChat.tsx`, `advisor-chat` Edge Function)
+Drei Personas mit eigenen System-Prompts:
+- Dr. Helga Brandt (Marktforschung)
+- K.J. Jordan (Head of Development)
+- Margarete Vogel (Aktionärin)
 
-API-Signaturen bekommen optional `year`/`quarter` durchgereicht; bestehende Aufrufer in `TestReportGenerator`, `EnhancedTestReportGenerator` und ggf. `TestReport.tsx` werden angepasst.
+Floating-Button auf Dashboard, kontext-aware (year, quarter, cash, reputation, marketShare, budget, activeModels). Modell: `google/gemini-3-flash-preview`.
 
-### 2. Widerspruchsfreies Fazit
+### 2b) Lebende KI-Konkurrenten (`CompetitorsService.ts`, `competitor-turn` Edge Function)
+- DB-Tabelle `ai_competitors` mit RLS (persona_key, market_share, reputation, relationship_score).
+- Drei Personas: BlueChip Industries (konservativ), Pixel Garage (Hobbyist-Startup), Crimson Systems (aggressiv).
+- Pro Quartal: LLM wählt aus 7 Aktionen (price_cut, new_model_announce, layoffs, …), deterministisches Effect-Mapping, deutsche Pressemeldungen in `ai_press_articles`.
 
-`generateFinalVerdict` in **beiden** Generatoren umbauen:
+---
 
-- Nur **ein** zusammenhängender Verdict-String, der aus Score-Bucket **und** Spezialisierung kombiniert wird (Lookup-Tabelle statt zwei unabhängige if-Ketten).
-- „Allrounder"-Satz darf nur fallen, wenn `overallScore ≥ 70` **und** Gaming/Business nah beieinander liegen.
-- Bei `overallScore < 60`: keine positiven Anschluss-Sätze; stattdessen konkrete Schwäche („CPU zu schwach für die Ära", „kein zeitgemäßer Sound") aus den Komponenten-Bewertungen ableiten.
-- Score-Buckets werden mit den era-relativen Scores berechnet, damit Bewertung und Fazit dieselbe Skala nutzen.
+## Phase 2.5 — Playtest & Balancing 🎯 (NÄCHSTER SCHRITT)
 
-### 3. Hardware-Verfügbarkeit als Quelle der Wahrheit
+**Ziel:** Vor Aufbau weiterer Systeme prüfen, ob die Kern-Feedbackschleife (Entwickeln → Testen → Verkaufen → Konkurrenz reagiert) sich rund anfühlt.
 
-Existierende Listen in `HardwareAvailabilityService` / Hardware-Komponentendaten werden gelesen, um Tier-Maxima pro Quartal zu ermitteln (kein neues Datenmodell, nur Aggregation).
+**Vorgehen:** 1–2-Stunden-Session 1983 → ~1989, mit Fokus auf:
+1. **Cash-Flow** der ersten 8 Quartale: nicht zu hart, nicht zu lasch.
+2. **Test-Verdicts** über alle Ären konsistent (Phase-1.5-Regression).
+3. **KI-Konkurrenz** spürbar, aber nicht überwältigend (Marktanteile, Pressestimmen).
+4. **Berater-Nutzen**: liefern alle drei eigenständigen Mehrwert, oder sind sie redundant?
+5. **UI-Pacing**: Quartalswechsel zu schnell/langsam? Newspaper informativ?
 
-## Technische Details
+**Output:** Bug-/Balancing-Liste als Issues → kleine Fixes vor Phase 3.
 
-Geänderte Dateien:
-- `src/services/TestScoringMatrix.ts` — Era-Baseline + relative Scoring-Pipeline, Tier-Daten aus Hardware-Service ziehen.
-- `src/components/EnhancedTestReportGenerator.ts` — `generateFinalVerdict` neu (eine Bucket-Lookup-Tabelle, keine doppelten Sätze), `year`/`quarter` durchreichen.
-- `src/components/TestReportGenerator.ts` — analog (Legacy-Generator).
-- `src/components/TestReport.tsx` — Aufrufstelle übergibt `currentYear`/`currentQuarter`.
-- `src/services/HardwareAvailabilityService.ts` — kleine Helper-Funktion `getMaxAvailableTiers(year, quarter)` (read-only Aggregation).
-- Locales (`public/locales/de/reviews.json`, `public/locales/en/reviews.json`) — falls neue Verdict-Phrasen i18n-pflichtig werden (bestehende Hardcoded-Strings bleiben sonst wie sie sind).
+---
 
-Keine Änderungen an Spielmechanik, Wirtschaftsmodell, Phase-1-LWS oder anderen Bereichen.
+## Phase 3 — Tiefe & Atmosphäre (geplant)
 
-## Validierung
+### 3a) Jahreshauptversammlung
+Am Jahresende: zusammenfassender Report (Umsatz, Marktanteil, Reputation, Konkurrenz), Aktionärs-Bewertung, optionale strategische Weichenstellungen.
 
-- Bestehender Regressionstest `validateTopConfiguration1988Q2` bleibt grün.
-- Neue Sanity-Checks (manuell):
-  - 1983 Q1 mit bester Hardware → Overall ≥ 80, Verdict positiv, konsistent.
-  - 1988 Q2 Top-Config → unverändert ≥ 85.
-  - 1995 mit 1983er-Hardware → Overall ≤ 35, Verdict eindeutig negativ ohne „Allrounder"-Satz.
-- Optisch im Preview nach Implementierung: Amiga-500-Fall darf nicht mehr beide Sätze gleichzeitig zeigen.
+### 3b) Lebendes Bürogebäude (Banana-Pro / Gemini-Image)
+Headquarters-Visualisierung wird dynamisch: Fenster leuchten je nach Aktivität, Erweiterungen bei R&D-Investitionen, jahreszeitliche/zeitalter-spezifische Stilanpassung. Bildgenerierung über `google/gemini-3.1-flash-image-preview`, cached.
+
+### 3c) Weitere Berater-Trigger
+Proaktive Berater-Pings bei kritischen Ereignissen (Cash < 30 Tage Runway, Konkurrent veröffentlicht überlegenes Modell, Reputation fällt > 20 %).
+
+---
+
+## Phase 4+ — Offen
+Mitarbeiter-System, Lizenz-Deals, internationaler Markt, Spielende-Bedingungen. Definition erst nach Phase 3.
+
+---
+
+## Geänderte/erstellte Kern-Dateien (Stand jetzt)
+
+- `src/services/TestScoringMatrix.ts`, `src/services/HardwareAvailabilityService.ts`
+- `src/components/EnhancedTestReportGenerator.ts`, `TestReportGenerator.ts`, `TestReport.tsx`
+- `src/components/AdvisorChat.tsx`
+- `src/services/CompetitorsService.ts`
+- `supabase/functions/advisor-chat/`, `competitor-turn/`, `press-write/`, `world-director/`
+- `supabase/migrations/…_add_ai_competitors.sql`
+- `src/pages/Index.tsx` (Integration)

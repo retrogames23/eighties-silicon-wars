@@ -38,7 +38,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
       <Button 
         variant="outline" 
         size="sm"
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate('/auth', { state: { from: location.pathname + location.search + location.hash } })}
         className="font-mono"
       >
         <UserIcon className="w-4 h-4 mr-2" />

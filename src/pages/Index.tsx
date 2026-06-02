@@ -684,6 +684,10 @@ const Index = () => {
           onDevelopNewModel={handleDevelopNewModel}
           onDiscontinueModel={handleDiscontinueModel}
           onOpenSaveManager={handleOpenSaveManager}
+          onCashChange={(delta) => setGameState(prev => ({
+            ...prev,
+            company: { ...prev.company, cash: prev.company.cash + delta },
+          }))}
           aiCompetitors={aiCompetitors}
         />
         );

@@ -665,7 +665,7 @@ const Index = () => {
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
-        return <GameIntro onComplete={handleIntroComplete} user={user} />;
+        return <GameIntro onComplete={handleIntroComplete} user={user} onContinueGame={handleContinueGame} onOpenLoadManager={handleOpenSaveManager} />;
       
       case 'company-setup':
         return <CompanySetup onSetupComplete={handleCompanySetup} />;

@@ -19,6 +19,12 @@
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
 import { mulberry32 } from "@/lib/game/rng";
+import {
+  getParadigmMaxPriceMultiplier,
+  getParadigmSegmentSizeMultiplier,
+  getParadigmAppealDelta,
+  type Segment,
+} from "@/lib/game/ParadigmEvents";
 
 // Preisverfall-Konstanten pro Komponententyp (pro Quartal)
 export const PRICE_DECAY_RATES = {
@@ -93,6 +99,17 @@ export interface EconomyContext {
    * verfügbarer Markt. Speist aktive AiCompetitor-Stati in die Sim.
    */
   aiCompetitorPressure?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
+  /**
+   * Persistenter Marken-Bekanntheitsgrad 0..100. Wird über Quartale aufgebaut/zerfällt
+   * und multipliziert die effektive Marketing-Wirkung. Verhindert Snowball aus reinem
+   * Cash-Marketing in einem einzelnen Quartal.
+   */
+  brandAwareness?: number;
+  /**
+   * Anzahl aktiver Modelle im Verkauf. >8 löst Komplexitäts-Malus aus
+   * (Vertriebs-Overhead, Verwirrung im Kanal): −10 % je zusätzlichem Modell.
+   */
+  activeModelCount?: number;
 }
 
 export class EconomyModel {
@@ -194,9 +211,9 @@ export class EconomyModel {
   } {
     const segments = ['gamer', 'business', 'workstation'] as const;
     const segmentSizes = {
-      gamer: 70000 + (year - 1983) * 15000,
-      business: 30000 + (year - 1983) * 8000,
-      workstation: Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)),
+      gamer: Math.round((70000 + (year - 1983) * 15000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
+      business: Math.round((30000 + (year - 1983) * 8000) * getParadigmSegmentSizeMultiplier('business', year, quarter)),
+      workstation: Math.round(Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
     };
 
     let totalUnitsSold = 0;
@@ -208,12 +225,17 @@ export class EconomyModel {
       year,
       quarter
     ) * this.calculateGenerationFactor(model, year, quarter);
-    const marketingBoost = this.calculateMarketingEffectiveness(marketingBudget, playerReputation, year);
+    const marketingBoost = this.calculateMarketingEffectiveness(
+      marketingBudget, playerReputation, year, context.brandAwareness ?? 0
+    );
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;
 
+    // Portfolio-Komplexitäts-Malus: >8 aktive Modelle erzeugen Vertriebs-Overhead.
+    const activeCount = context.activeModelCount ?? 0;
+    const portfolioMalus = activeCount > 8 ? Math.pow(0.9, activeCount - 8) : 1;
+
     // Deterministisches RNG für Verkaufs-Varianz (Save-Scum-Schutz).
-    // Wenn kein Seed: Fallback auf Math.random für Abwärtskompatibilität.
     const rand = context.rngSeed !== undefined ? mulberry32(context.rngSeed) : Math.random;
 
     segments.forEach(segment => {
@@ -223,8 +245,8 @@ export class EconomyModel {
         return;
       }
 
-      const baseAppeal = this.calculateSegmentAppeal(model, segment, year) / 100;
-      const maxPrice = this.getSegmentMaxPrice(segment, year);
+      const baseAppeal = this.calculateSegmentAppeal(model, segment, year, quarter) / 100;
+      const maxPrice = this.getSegmentMaxPrice(segment, year, quarter);
       const priceElasticity = this.calculatePriceElasticity(model.price, maxPrice, segment);
       let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
 
@@ -239,7 +261,8 @@ export class EconomyModel {
         obsolescenceFactor *
         seasonalityFactor *
         marketingBoost *
-        demandEvent;
+        demandEvent *
+        portfolioMalus;
 
       // Optionaler Portfolio-Marktanteils-Override (Kannibalisierung).
       const shareOverride = context.segmentShareOverride?.[segment];
@@ -375,7 +398,7 @@ export class EconomyModel {
    * "Stand der Technik" des aktuellen Jahres. Verschiedene Segmente gewichten
    * Komponenten unterschiedlich (Gamer ≠ Business ≠ Workstation).
    */
-  static calculateSegmentAppeal(model: any, segment: string, year: number): number {
+  static calculateSegmentAppeal(model: any, segment: string, year: number, quarter: number = 1): number {
     const baselineBrand = 35; // Marken-/Marketing-Grundsockel
     const yearBoost = (year - 1983) * 1.5;
 
@@ -407,7 +430,9 @@ export class EconomyModel {
     }
     // specScore liegt typischerweise in [0.1, 1.2].
 
-    const appeal = baselineBrand + yearBoost + specScore * 55;
+    let appeal = baselineBrand + yearBoost + specScore * 55;
+    // Paradigm-Events (z.B. GUI-Erwartung 1989) addieren/subtrahieren Appeal.
+    appeal += getParadigmAppealDelta(model, segment as Segment, year, quarter, perf.ram, perf.gpu);
     return Math.max(5, Math.min(100, appeal));
   }
 
@@ -481,12 +506,12 @@ export class EconomyModel {
   }
 
 
-  static getSegmentMaxPrice(segment: string, year: number): number {
+  static getSegmentMaxPrice(segment: string, year: number, quarter: number = 1): number {
     const basePrices = { gamer: 800, business: 2000, workstation: 5000 };
     const basePrice = basePrices[segment as keyof typeof basePrices] || 1000;
     const stepped = basePrice + (year - 1983) * (segment === 'gamer' ? 100 : segment === 'business' ? 500 : 1000);
-    // Inflations-Aufschlag obendrauf
-    return stepped * this.getInflationFactor(year);
+    // Inflations-Aufschlag + Paradigm-Event-Multiplikator (z.B. Preisschlacht 1983).
+    return stepped * this.getInflationFactor(year) * getParadigmMaxPriceMultiplier(segment as Segment, year, quarter);
   }
 
   static calculateCompetitionImpact(model: any, competitors: Competitor[], segment: string): number {
@@ -496,11 +521,36 @@ export class EconomyModel {
     return Math.max(0.4, 1.0 - (similarPriceCompetitors * 0.1));
   }
 
-  static calculateMarketingEffectiveness(marketingBudget: number, reputation: number, year: number = 1983): number {
-    // Inflation: gleicher nominaler Marketing-Einsatz wirkt schwächer in späteren Jahren.
-    const baseBudget = 25000 * this.getInflationFactor(year);
-    const effectiveness = Math.sqrt(marketingBudget / baseBudget) * (0.8 + reputation / 100 * 0.4);
-    return Math.max(0.5, Math.min(3.0, effectiveness));
+  /**
+   * Marketing-Wirkung mit Diminishing Returns, hartem Cap und Brand-Awareness.
+   * - sqrt-Kurve bis $500k (Inflations-adjustiert), danach log-Sättigung
+   * - Hard-Cap bei Faktor 2.5 (kein unbegrenzter Snowball mehr)
+   * - Brand-Awareness (0..100) multipliziert zusätzlich (0.7..1.4)
+   */
+  static calculateMarketingEffectiveness(
+    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0
+  ): number {
+    const infl = this.getInflationFactor(year);
+    const baseBudget = 25000 * infl;
+    const saturationPoint = 500000 * infl;
+
+    let effectiveness: number;
+    if (marketingBudget <= saturationPoint) {
+      effectiveness = Math.sqrt(marketingBudget / baseBudget);
+    } else {
+      // Über Sättigungspunkt: nur noch log-Wachstum.
+      const baseAtSat = Math.sqrt(saturationPoint / baseBudget);
+      const overflow = (marketingBudget - saturationPoint) / saturationPoint;
+      effectiveness = baseAtSat + Math.log(1 + overflow) * 0.3;
+    }
+
+    // Reputation- und Brand-Awareness-Multiplikator.
+    const repMult = 0.8 + reputation / 100 * 0.4;
+    const brandMult = 0.7 + (brandAwareness / 100) * 0.7;
+    effectiveness *= repMult * brandMult;
+
+    // Hard-Cap bei 2.5 (vorher 3.0).
+    return Math.max(0.5, Math.min(2.5, effectiveness));
   }
 
   static getSeasonalityFactor(quarter: number): number {

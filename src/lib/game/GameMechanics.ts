@@ -610,9 +610,14 @@ export class GameMechanics {
     const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter);
 
 
+    // Brand-Awareness aus Vorquartal (Persistent), 0 falls erstes Quartal.
+    const prevBrandAwareness: number = company.brandAwareness ?? 0;
+    let newBrandAwareness = prevBrandAwareness;
+
     try {
       const { EconomyModel } = await import('@/components/EconomyModel');
       const relevantModels = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence);
+      const activeModelCount = relevantModels.length;
 
       // 5b. Portfolio-Appeal je Segment vorab berechnen → Anteile (Kannibalisierung).
       const segments = ['gamer', 'business', 'workstation'] as const;
@@ -621,9 +626,8 @@ export class GameMechanics {
       };
       for (const m of relevantModels) {
         for (const seg of segments) {
-          const appeal = EconomyModel.calculateSegmentAppeal(m, seg, gameState.year);
-          // Preisakzeptanz dämpft Appeal weiter
-          const maxPrice = EconomyModel.getSegmentMaxPrice(seg, gameState.year);
+          const appeal = EconomyModel.calculateSegmentAppeal(m, seg, gameState.year, gameState.quarter);
+          const maxPrice = EconomyModel.getSegmentMaxPrice(seg, gameState.year, gameState.quarter);
           const elasticity = EconomyModel.calculatePriceElasticity(m.price, maxPrice, seg);
           segmentAppeal[seg].push({ model: m, appeal: appeal * elasticity });
         }
@@ -634,7 +638,6 @@ export class GameMechanics {
       }
 
       for (const model of relevantModels) {
-        // Anteil dieses Modells am Player-Portfolio im jeweiligen Segment
         const segmentShareOverride: Partial<Record<typeof segments[number], number>> = {};
         for (const seg of segments) {
           const total = segmentTotals[seg];
@@ -654,7 +657,12 @@ export class GameMechanics {
           gameState.year,
           gameState.quarter,
           1000000,
-          { bomMultiplier, demandMultiplier, segmentShareOverride, rngSeed, aiCompetitorPressure }
+          {
+            bomMultiplier, demandMultiplier, segmentShareOverride,
+            rngSeed, aiCompetitorPressure,
+            brandAwareness: prevBrandAwareness,
+            activeModelCount,
+          }
         );
 
         totalRevenue += salesResult.revenue;
@@ -671,31 +679,40 @@ export class GameMechanics {
           demandFactors: salesResult.demandFactors,
         });
       }
+
+      // Brand-Awareness-Update: Marketing baut auf, Inaktivität zerfällt.
+      // Aufbau: bis +8 pro Quartal bei hohem Budget, Decay −5 ohne Marketing.
+      const infl = Math.pow(1.03, Math.max(0, gameState.year - 1983));
+      const buildup = Math.min(8, (budget.marketing / (200000 * infl)) * 4);
+      const decay = budget.marketing < 50000 * infl ? 5 : 0;
+      newBrandAwareness = Math.max(0, Math.min(100, prevBrandAwareness + buildup - decay));
     } catch (error) {
-      console.warn('⚠️ EconomyModel not available, using fallback calculation', error);
+      console.warn('⚠️ EconomyModel not available, fallback sales = 0 (modelle müssen korrekt definiert sein)', error);
+      // Kein RNG-basierter Fallback mehr — verhindert Phantom-Umsatz.
       for (const model of ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence)) {
-        const simpleUnits = Math.floor(Math.random() * 1000 + 100);
-        const simpleRevenue = simpleUnits * model.price;
-        const simpleProfit = simpleRevenue * 0.2;
-        totalRevenue += simpleRevenue;
-        totalGrossProfit += simpleProfit;
-        totalUnitsSold += simpleUnits;
         modelResults.push({
           modelName: model.name,
-          unitsSold: simpleUnits,
-          revenue: simpleRevenue,
+          unitsSold: 0,
+          revenue: 0,
           price: model.price,
-          profit: simpleProfit,
+          profit: 0,
         });
       }
     }
 
     // 6. ZENTRALE QUARTALSAUSGABEN (Periodenkosten — exakt EINMAL gebucht!).
-    //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten (Refactor v2),
-    //    deshalb hier sauber als Periodenkosten abziehen. Inflations-skalierte Gehälter.
+    //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten,
+    //    deshalb hier sauber als Periodenkosten abziehen.
+    //    Gehälter skalieren mit der Mitarbeiterzahl (kein doppelter Flat-Posten).
     const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
-    const baseSalaries = 60000; // Basisgehälter Quartal 1983
-    const salaries = Math.round(baseSalaries * inflation);
+    const employeeCount = Math.max(1, company.employees ?? 8);
+    const salaryPerEmployeePerQuarter = 7500; // $30k/Jahr Basis-Gehalt 1983
+    const salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
+    const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
+    const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
+    // Mindest-Overhead (Miete, Strom, Verwaltung), skaliert leicht mit Team.
+    const fixedOverhead = Math.round((15000 + employeeCount * 1200) * inflation);
 
     const quarterlyExpenses = {
       marketing: budget.marketing,
@@ -703,6 +720,8 @@ export class GameMechanics {
       research: budget.research,
       support: budget.support ?? 0,
       salaries,
+      portfolioMaintenance,
+      fixedOverhead,
     };
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
 
@@ -710,7 +729,7 @@ export class GameMechanics {
     const totalProfit = totalGrossProfit - totalExpenses;
     const netCashFlow = totalProfit;
 
-    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()}`);
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()} | Brand ${Math.round(newBrandAwareness)}`);
 
     // 8. Marktanteil und Reputation Updates
     const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
@@ -734,6 +753,7 @@ export class GameMechanics {
         cash: company.cash + netCashFlow,
         marketShare: newMarketShare,
         reputation: newReputation,
+        brandAwareness: newBrandAwareness,
         monthlyIncome: Math.round(totalRevenue / 3),
         monthlyExpenses: Math.round(totalExpenses / 3),
         quarterlyProfit: totalProfit,

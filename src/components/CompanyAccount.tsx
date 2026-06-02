@@ -118,6 +118,34 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
             <Calculator className="w-6 h-6 text-muted-foreground" />
           </div>
         </Card>
+        <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Schulden</p>
+              <p className={`text-xl font-bold font-mono ${(gameState.company.outstandingDebt ?? 0) > 0 ? 'text-orange-400' : 'text-muted-foreground'}`}>
+                {formatCurrency(Math.round(gameState.company.outstandingDebt ?? 0))}
+              </p>
+            </div>
+            <Landmark className={`w-6 h-6 ${(gameState.company.outstandingDebt ?? 0) > 0 ? 'text-orange-400' : 'text-muted-foreground'}`} />
+          </div>
+        </Card>
+
+        <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Equity-frei</p>
+              <p className="text-xl font-bold text-neon-magenta neon-text font-mono">
+                {(100 - (gameState.company.equityGivenAwayPct ?? 0)).toFixed(1)}%
+              </p>
+              {(gameState.company.equityGivenAwayPct ?? 0) > 0 && (
+                <p className="text-[10px] text-muted-foreground">
+                  −{(gameState.company.equityGivenAwayPct ?? 0).toFixed(1)}% an VCs
+                </p>
+              )}
+            </div>
+            <PieChart className="w-6 h-6 text-neon-magenta" />
+          </div>
+        </Card>
       </div>
 
       {/* Detaillierte Aufschlüsselung */}

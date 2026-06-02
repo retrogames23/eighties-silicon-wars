@@ -606,8 +606,8 @@ export class GameMechanics {
       console.log('⚠️ AI competitors not available, pressure=0');
     }
 
-    // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming).
-    const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter);
+    // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
+    const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);
 
 
     // Brand-Awareness aus Vorquartal (Persistent), 0 falls erstes Quartal.
@@ -759,9 +759,11 @@ export class GameMechanics {
     const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
     const marketShareChange = newMarketShare - (company.marketShare || 0);
 
-    const newReputation = Math.min(100, Math.max(0,
-      company.reputation + (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta
-    ));
+    // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
+    const { clampReputationDelta } = await import('@/lib/game/AntiExploit');
+    const rawRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta;
+    const cappedRepDelta = clampReputationDelta(rawRepDelta);
+    const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
     const reputationChange = newReputation - company.reputation;
 
     // 9. Aktualisierter Spielzustand

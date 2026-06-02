@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { generateSeedSalt, registerLoad, SAVE_SCUM_REPUTATION_PENALTY, SAVE_SCUM_THRESHOLD } from '@/lib/game/AntiExploit';
 import { ComputerModel } from '@/types/ComputerModel';
 import { GameIntro } from "@/components/GameIntro";
 import { LanguageSelection } from "@/components/LanguageSelection";
@@ -71,6 +72,10 @@ interface GameState {
   totalMarketSize: number;
   customChips: CustomChip[];
   totalRevenue: number;
+  /** Anti-Save-Scum: stabiler RNG-Salt pro Spielstart. */
+  seedSalt?: string;
+  /** Anti-Save-Scum: Lade-Zähler pro Quartal. */
+  loadGuard?: { loadCount: number; lastLoadedQuarterKey: string };
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
@@ -153,7 +158,8 @@ const Index = () => {
     marketEvents: [],
     totalMarketSize: 1000000, // 1 Million $ Gesamtmarkt 1983
     customChips: [],
-    totalRevenue: 0
+    totalRevenue: 0,
+    seedSalt: generateSeedSalt(),
   });
 
   const handleIntroComplete = () => {
@@ -565,14 +571,41 @@ const Index = () => {
       marketEvents: [],
       totalMarketSize: 1000000,
       customChips: [],
-      totalRevenue: 0
+      totalRevenue: 0,
+      seedSalt: generateSeedSalt(),
     });
   };
 
   const handleLoadGame = (loadedGameState: GameState) => {
-    setGameState(loadedGameState);
+    // Anti-Save-Scum: Lade-Zähler + Reputations-Penalty bei wiederholtem Reload desselben Quartals.
+    const { next, penaltyApplied } = registerLoad(
+      loadedGameState.loadGuard, loadedGameState.year, loadedGameState.quarter,
+    );
+    const patched: GameState = {
+      ...loadedGameState,
+      // Salt persistieren: alte Saves bekommen jetzt einen.
+      seedSalt: loadedGameState.seedSalt ?? generateSeedSalt(),
+      loadGuard: next,
+      company: penaltyApplied
+        ? { ...loadedGameState.company, reputation: Math.max(0, loadedGameState.company.reputation - SAVE_SCUM_REPUTATION_PENALTY) }
+        : loadedGameState.company,
+    };
+    setGameState(patched);
     setCurrentScreen('dashboard');
     setShowSaveManager(false);
+
+    if (penaltyApplied) {
+      toast({
+        title: 'Save-Scumming erkannt',
+        description: `Dasselbe Quartal wurde ≥${SAVE_SCUM_THRESHOLD}× geladen. Reputation −${SAVE_SCUM_REPUTATION_PENALTY}.`,
+        variant: 'destructive',
+      });
+    } else if (next.loadCount >= 2) {
+      toast({
+        title: 'Hinweis',
+        description: `Quartal Q${loadedGameState.quarter}/${loadedGameState.year} wurde bereits ${next.loadCount}× geladen — RNG bleibt identisch.`,
+      });
+    }
   };
 
   const handleOpenSaveManager = () => {

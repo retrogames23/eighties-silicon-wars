@@ -19,6 +19,7 @@
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
 import { mulberry32 } from "@/lib/game/rng";
+import { priceSanityFactor } from "@/lib/game/AntiExploit";
 import {
   getParadigmMaxPriceMultiplier,
   getParadigmSegmentSizeMultiplier,
@@ -110,6 +111,8 @@ export interface EconomyContext {
    * (Vertriebs-Overhead, Verwirrung im Kanal): −10 % je zusätzlichem Modell.
    */
   activeModelCount?: number;
+  /** Intern: BOM-Cost-Hint zur Preis-Sanity-Berechnung in der Segment-Schleife. */
+  _bomCostHint?: number;
 }
 
 export class EconomyModel {
@@ -143,8 +146,11 @@ export class EconomyModel {
   ): SalesSimulationResult {
     const bomCosts = this.calculateBOMCostsWithDecay(model, year, quarter, context.bomMultiplier ?? 1);
 
+    // Anti-Exploit: Preis-Sanity (Dumping unter BOM, Trust-Schwelle nach unten).
+    const contextWithBom: EconomyContext = { ...context, _bomCostHint: bomCosts };
+
     const demandSimulation = this.simulateMarketDemand(
-      model, competitors, year, quarter, marketSize, marketingBudget, playerReputation, context
+      model, competitors, year, quarter, marketSize, marketingBudget, playerReputation, contextWithBom
     );
 
     const profitBreakdown = this.calculateProfitBreakdown(
@@ -254,9 +260,14 @@ export class EconomyModel {
       const aiPressure = context.aiCompetitorPressure?.[segment] ?? 0;
       competitionFactor *= Math.max(0.3, 1 - Math.min(0.5, aiPressure));
 
+      // Anti-Exploit: Preis-Sanity (Dumping unter BOM, Trust bei extrem niedrigem Preis).
+      const bomHint = context._bomCostHint ?? 0;
+      const sanity = priceSanityFactor(model.price, bomHint, maxPrice);
+
       const demandMultiplier =
         baseAppeal *
         priceElasticity *
+        sanity.multiplier *
         competitionFactor *
         obsolescenceFactor *
         seasonalityFactor *
@@ -282,10 +293,17 @@ export class EconomyModel {
       totalUnitsSold += segmentUnits;
     });
 
+    // Korrekte Segment-gewichtete Mittelwerte (vorher: hartcodiert business + maxPrice=1500).
+    const segs = ['gamer', 'business', 'workstation'] as const;
+    const avgElasticity = segs.reduce((sum, s) =>
+      sum + this.calculatePriceElasticity(model.price, this.getSegmentMaxPrice(s, year, quarter), s), 0) / segs.length;
+    const avgCompetition = segs.reduce((sum, s) =>
+      sum + this.calculateCompetitionImpact(model, competitors, s), 0) / segs.length;
+
     const averageDemandFactors: DemandFactors = {
       baseAppeal: Object.values(segmentBreakdown).reduce((sum, seg) => sum + seg.appeal, 0) / 3,
-      priceElasticity: this.calculatePriceElasticity(model.price, 1500, 'business'),
-      competitionFactor: this.calculateCompetitionImpact(model, competitors, 'business'),
+      priceElasticity: avgElasticity,
+      competitionFactor: avgCompetition,
       obsolescenceFactor,
       seasonalityFactor,
       marketingBoost,

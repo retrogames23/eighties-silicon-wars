@@ -28,13 +28,23 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-/** Seed für ein konkretes Quartal eines Spielers. */
-export function quarterSeed(userId: string | null | undefined, year: number, quarter: number): number {
-  const key = `${userId ?? 'anon'}|${year}|${quarter}`;
+/** Seed für ein konkretes Quartal eines Spielers (+ optionaler Spiel-Salt). */
+export function quarterSeed(
+  userId: string | null | undefined,
+  year: number,
+  quarter: number,
+  salt?: string | null,
+): number {
+  const key = `${userId ?? 'anon'}|${salt ?? ''}|${year}|${quarter}`;
   return hashSeed(key);
 }
 
-/** Convenience: liefert direkt eine RNG-Funktion für (user, year, quarter). */
-export function quarterRng(userId: string | null | undefined, year: number, quarter: number): () => number {
-  return mulberry32(quarterSeed(userId, year, quarter));
+/** Convenience: liefert direkt eine RNG-Funktion für (user, year, quarter, salt). */
+export function quarterRng(
+  userId: string | null | undefined,
+  year: number,
+  quarter: number,
+  salt?: string | null,
+): () => number {
+  return mulberry32(quarterSeed(userId, year, quarter, salt));
 }

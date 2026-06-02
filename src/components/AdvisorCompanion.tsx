@@ -334,7 +334,7 @@ export const AdvisorCompanion = ({
                     ? activeTip.text
                     : (
                       <span className="italic text-muted-foreground">
-                        {t('advisor:companion.chat.intro')}
+                        {t('advisor:companion.noTips')}
                       </span>
                     )}
               </p>
@@ -358,7 +358,15 @@ export const AdvisorCompanion = ({
                       {t('advisor:companion.dismiss')}
                     </Button>
                   </>
-                ) : null}
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => { setMode('tour'); setTourStep(0); }}
+                  >
+                    {t('advisor:companion.replayTour')}
+                  </Button>
+                )}
               </div>
             </>
           )}

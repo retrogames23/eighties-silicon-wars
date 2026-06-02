@@ -60,6 +60,7 @@ interface TestReportProps {
 }
 
 export const TestReport = ({ model, testResult, onContinue, onRevise }: TestReportProps) => {
+  const { t } = useTranslation();
   const getRatingColor = (rating: string) => {
     switch (rating.toLowerCase()) {
       case 'exzellent': case 'hervorragend': return 'text-green-400';

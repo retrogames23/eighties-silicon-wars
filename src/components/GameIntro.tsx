@@ -23,8 +23,9 @@ export const GameIntro = ({ onComplete, user }: GameIntroProps) => {
         <div className="flex items-center justify-center w-full">
           <Card className="w-full max-w-md lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl bg-card/95 backdrop-blur-sm border-2 border-primary/50 shadow-2xl">
             <div className="p-8 lg:p-12 space-y-6">
-              {/* Language Switcher */}
-              <div className="flex justify-end">
+              {/* Language Switcher + Login */}
+              <div className="flex justify-end items-center gap-2">
+                <UserProfile user={user} />
                 <LanguageSwitcher variant="toggle" size="sm" />
               </div>
 

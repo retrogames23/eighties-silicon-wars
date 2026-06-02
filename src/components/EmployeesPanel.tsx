@@ -64,6 +64,10 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
   }, [team, agg, onTeamChanged]);
 
   const roleLabel = (r: StaffMember["role"]) => t(`ui:employees.roles.${r}`);
+  const specialtyLabel = (raw: string) => {
+    const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    return t(`ui:employees.specialties.${slug}`, { defaultValue: raw });
+  };
 
   const handleHire = async (c: Candidate, idx: number) => {
     if (!userId) return;
@@ -144,7 +148,7 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                   <div className="min-w-0">
                     <div className="text-sm font-mono truncate">{s.name}</div>
                     <div className="text-[10px] text-muted-foreground font-mono truncate">
-                      {roleLabel(s.role)} · {s.specialty} · {t("ui:employees.since")} Q{s.hired_quarter}/{s.hired_year}
+                      {roleLabel(s.role)} · {specialtyLabel(s.specialty)} · {t("ui:employees.since")} Q{s.hired_quarter}/{s.hired_year}
                     </div>
                   </div>
                 </div>
@@ -190,7 +194,7 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                   <div className="min-w-0">
                     <div className="text-sm font-mono truncate">{c.name}</div>
                     <div className="text-[10px] text-muted-foreground font-mono truncate">
-                      {roleLabel(c.role)} · {c.specialty}
+                      {roleLabel(c.role)} · {specialtyLabel(c.specialty)}
                     </div>
                   </div>
                 </div>

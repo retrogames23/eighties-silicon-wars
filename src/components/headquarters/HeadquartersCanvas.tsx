@@ -1,12 +1,20 @@
-import hqImageAsset from "@/assets/hq-building-5floor.jpg.asset.json";
-const hqImage = hqImageAsset.url;
+import hqMidriseAsset from "@/assets/hq-building-5floor.jpg.asset.json";
+import hqGarage from "@/assets/hq-garage.jpg";
+import hqSmallOffice from "@/assets/hq-smalloffice.jpg";
+import hqHighrise from "@/assets/hq-highrise.jpg";
+import hqSkyscraper from "@/assets/hq-skyscraper.jpg";
 
 // ============================================================================
 // Headquarters illustration
 // ============================================================================
-// Hand-painted 5-floor cross-section (City of Crime × 80s). The number of
-// visible floors grows with employee count by cropping from the TOP — the
-// ground floor (reception) is always anchored at the bottom.
+// Hand-painted 80s cross-section. Building type scales with employee count:
+//   1–3      garage
+//   4–9      small 2-story office
+//   10–30    5-floor mid-rise (existing painting)
+//   31–80    10-floor high-rise
+//   81+      20-floor skyscraper
+// Within a building tier we reveal more floors from the BOTTOM up as the team
+// grows, so the ground floor / entrance always anchors the bottom.
 // ============================================================================
 
 interface Props {
@@ -16,21 +24,39 @@ interface Props {
   companyName: string;
 }
 
-const IMAGE_FLOORS = 5;
+type Tier = {
+  src: string;
+  totalFloors: number; // floors painted in the source image
+  minEmployees: number;
+  maxEmployees: number; // employees needed to reveal ALL floors of this tier
+};
 
-function floorCount(employees: number): number {
-  if (employees >= 41) return 5;
-  if (employees >= 26) return 5;
-  if (employees >= 16) return 4;
-  if (employees >= 9) return 3;
-  if (employees >= 4) return 2;
-  return 1;
+const TIERS: Tier[] = [
+  { src: hqGarage,                   totalFloors: 1,  minEmployees: 0,  maxEmployees: 3 },
+  { src: hqSmallOffice,              totalFloors: 2,  minEmployees: 4,  maxEmployees: 9 },
+  { src: hqMidriseAsset.url,         totalFloors: 5,  minEmployees: 10, maxEmployees: 30 },
+  { src: hqHighrise,                 totalFloors: 10, minEmployees: 31, maxEmployees: 80 },
+  { src: hqSkyscraper,               totalFloors: 20, minEmployees: 81, maxEmployees: 250 },
+];
+
+function pickTier(employees: number): Tier {
+  for (const t of TIERS) if (employees <= t.maxEmployees) return t;
+  return TIERS[TIERS.length - 1];
+}
+
+function visibleFloors(tier: Tier, employees: number): number {
+  if (tier.totalFloors === 1) return 1;
+  const span = tier.maxEmployees - tier.minEmployees;
+  const clamped = Math.max(0, Math.min(span, employees - tier.minEmployees));
+  // Always show at least 1 floor; scale linearly to totalFloors.
+  const floors = 1 + Math.round((clamped / Math.max(1, span)) * (tier.totalFloors - 1));
+  return Math.max(1, Math.min(tier.totalFloors, floors));
 }
 
 export const HeadquartersCanvas = ({ employees, quarter, companyName }: Props) => {
-  const floors = floorCount(employees);
-  // Show bottom `floors / IMAGE_FLOORS` of the image
-  const visiblePct = (floors / IMAGE_FLOORS) * 100;
+  const tier = pickTier(employees);
+  const floors = visibleFloors(tier, employees);
+  const ratio = floors / tier.totalFloors;
 
   // Day/night tint over the building
   const tint =
@@ -38,29 +64,37 @@ export const HeadquartersCanvas = ({ employees, quarter, companyName }: Props) =
     quarter === 3 ? "rgba(255,140,60,0.10)" :
     "rgba(0,0,0,0)";
 
+  // Preserve image's intrinsic aspect ratio. We use a square-ish wrapper for
+  // the garage and let taller buildings be taller naturally.
+  const baseAspect =
+    tier === TIERS[0] ? 5 / 4 :         // garage: landscape-ish square
+    tier === TIERS[1] ? 1 :              // small office: square
+    tier === TIERS[2] ? 9 / 16 :         // mid-rise
+    tier === TIERS[3] ? 3 / 4 :          // high-rise source
+    9 / 16;                              // skyscraper source
+
   return (
     <div
       className="relative w-full overflow-hidden rounded-md bg-[#1a1410]"
-      style={{ aspectRatio: `1 / ${floors / IMAGE_FLOORS}` }}
+      style={{ aspectRatio: `${1} / ${baseAspect * ratio}` }}
       aria-label={companyName ? `${companyName} headquarters` : "Headquarters"}
     >
-      {/* Image positioned to anchor the GROUND floor at the bottom */}
+      {/* Image anchored at the bottom; reveals more floors from the bottom up. */}
       <img
-        src={hqImage}
+        src={tier.src}
         alt=""
         className="absolute left-0 w-full select-none pointer-events-none"
         style={{
           bottom: 0,
-          height: `${(IMAGE_FLOORS / floors) * 100}%`,
+          height: `${(tier.totalFloors / floors) * 100}%`,
         }}
         draggable={false}
+        loading="lazy"
       />
-      {/* Day/night/sunset tint overlay */}
       {tint !== "rgba(0,0,0,0)" && (
         <div className="absolute inset-0 pointer-events-none" style={{ background: tint }} />
       )}
-      {/* Top fade so the cut is soft, not a hard slice */}
-      {floors < IMAGE_FLOORS && (
+      {floors < tier.totalFloors && (
         <div
           className="absolute inset-x-0 top-0 pointer-events-none"
           style={{
@@ -69,7 +103,6 @@ export const HeadquartersCanvas = ({ employees, quarter, companyName }: Props) =
           }}
         />
       )}
-      {/* Company sign */}
       {companyName && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-[2%] px-3 py-1 bg-black/70 border border-amber-400/60 rounded-sm">
           <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-amber-300">

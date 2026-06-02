@@ -605,9 +605,11 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
         spritesRef.current = [];
         return;
       }
-      // Show roughly 2-3 sprites per floor — keeps small companies looking small
-      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 3));
-      const target = Math.min(propsRef.current.employees, visibleCap);
+      // Sprites repräsentieren Mitarbeitende (nicht 1:1) — kleine Firmen bleiben ruhig.
+      // 1 MA → 1 Sprite, 2–3 → 1, 4–6 → 2, 7–9 → 3, ...  (≈ ceil(em/3), min 1)
+      const representative = Math.max(1, Math.ceil(propsRef.current.employees / 3));
+      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 2));
+      const target = Math.min(representative, visibleCap);
       const list = spritesRef.current;
 
       // Clamp existing sprites to existing floors

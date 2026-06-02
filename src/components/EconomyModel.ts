@@ -211,9 +211,9 @@ export class EconomyModel {
   } {
     const segments = ['gamer', 'business', 'workstation'] as const;
     const segmentSizes = {
-      gamer: 70000 + (year - 1983) * 15000,
-      business: 30000 + (year - 1983) * 8000,
-      workstation: Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)),
+      gamer: Math.round((70000 + (year - 1983) * 15000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
+      business: Math.round((30000 + (year - 1983) * 8000) * getParadigmSegmentSizeMultiplier('business', year, quarter)),
+      workstation: Math.round(Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
     };
 
     let totalUnitsSold = 0;
@@ -225,12 +225,17 @@ export class EconomyModel {
       year,
       quarter
     ) * this.calculateGenerationFactor(model, year, quarter);
-    const marketingBoost = this.calculateMarketingEffectiveness(marketingBudget, playerReputation, year);
+    const marketingBoost = this.calculateMarketingEffectiveness(
+      marketingBudget, playerReputation, year, context.brandAwareness ?? 0
+    );
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;
 
+    // Portfolio-Komplexitäts-Malus: >8 aktive Modelle erzeugen Vertriebs-Overhead.
+    const activeCount = context.activeModelCount ?? 0;
+    const portfolioMalus = activeCount > 8 ? Math.pow(0.9, activeCount - 8) : 1;
+
     // Deterministisches RNG für Verkaufs-Varianz (Save-Scum-Schutz).
-    // Wenn kein Seed: Fallback auf Math.random für Abwärtskompatibilität.
     const rand = context.rngSeed !== undefined ? mulberry32(context.rngSeed) : Math.random;
 
     segments.forEach(segment => {
@@ -240,8 +245,8 @@ export class EconomyModel {
         return;
       }
 
-      const baseAppeal = this.calculateSegmentAppeal(model, segment, year) / 100;
-      const maxPrice = this.getSegmentMaxPrice(segment, year);
+      const baseAppeal = this.calculateSegmentAppeal(model, segment, year, quarter) / 100;
+      const maxPrice = this.getSegmentMaxPrice(segment, year, quarter);
       const priceElasticity = this.calculatePriceElasticity(model.price, maxPrice, segment);
       let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
 
@@ -256,7 +261,8 @@ export class EconomyModel {
         obsolescenceFactor *
         seasonalityFactor *
         marketingBoost *
-        demandEvent;
+        demandEvent *
+        portfolioMalus;
 
       // Optionaler Portfolio-Marktanteils-Override (Kannibalisierung).
       const shareOverride = context.segmentShareOverride?.[segment];

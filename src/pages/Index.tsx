@@ -571,6 +571,21 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // KI-Konkurrenten seeden + initial laden, sobald der User eingeloggt ist
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const seeded = await CompetitorsService.ensureSeeded(user.id);
+        if (!cancelled) setAiCompetitors(seeded);
+      } catch (e) {
+        console.warn('[Competitors] initial seed failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':

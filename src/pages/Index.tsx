@@ -831,7 +831,8 @@ const Index = () => {
             companyName={gameState.company.name}
             quarter={gameState.quarter}
             year={gameState.year}
-            onOpenChat={() => setAdvisorOpen(true)}
+            reputation={gameState.company.reputation}
+            marketShare={gameState.company.marketShare}
           />
           <AdvisorChat
             isOpen={advisorOpen}

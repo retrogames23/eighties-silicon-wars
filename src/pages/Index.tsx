@@ -359,16 +359,21 @@ const Index = () => {
     yearRevenueRef.current.modelsReleased += newlyReleasedCount;
 
     // Proaktive Berater-Trigger (Phase 3c)
+    const advisorIsEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
+    const advisorLabel = advisorIsEn ? 'Advisors' : 'Berater';
+    const advisorAlt = advisorIsEn ? 'Open advisors' : 'Berater öffnen';
     const nextCash = result.updatedGameState.company?.cash ?? gameState.company.cash;
     const monthlyBurn = (gameState.company.monthlyExpenses ?? 0) || 30000;
     const runwayMonths = monthlyBurn > 0 ? nextCash / monthlyBurn : Infinity;
     if (runwayMonths < 3 && runwayMonths > 0) {
       toast({
-        title: '💸 Margarete Vogel klopft an',
-        description: `Liquidität reicht nur noch ~${runwayMonths.toFixed(1)} Monate. Ein Gespräch mit den Aktionärinnen wäre klug.`,
+        title: advisorIsEn ? '💸 Margarete Vogel is knocking' : '💸 Margarete Vogel klopft an',
+        description: advisorIsEn
+          ? `Liquidity only lasts ~${runwayMonths.toFixed(1)} more months. A chat with the shareholders would be wise.`
+          : `Liquidität reicht nur noch ~${runwayMonths.toFixed(1)} Monate. Ein Gespräch mit den Aktionärinnen wäre klug.`,
         action: (
-          <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
-            Berater
+          <ToastAction altText={advisorAlt} onClick={() => setAdvisorOpen(true)}>
+            {advisorLabel}
           </ToastAction>
         ),
       });
@@ -378,11 +383,13 @@ const Index = () => {
       const playerRep = result.updatedGameState.company?.reputation ?? 50;
       if (top && top.reputation > playerRep + 15) {
         toast({
-          title: `📈 ${top.name} zieht vorbei`,
-          description: 'K.J. Jordan empfiehlt einen Strategie-Check in der Entwicklung.',
+          title: advisorIsEn ? `📈 ${top.name} is pulling ahead` : `📈 ${top.name} zieht vorbei`,
+          description: advisorIsEn
+            ? 'K.J. Jordan recommends a strategy review in development.'
+            : 'K.J. Jordan empfiehlt einen Strategie-Check in der Entwicklung.',
           action: (
-            <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
-              Berater
+            <ToastAction altText={advisorAlt} onClick={() => setAdvisorOpen(true)}>
+              {advisorLabel}
             </ToastAction>
           ),
         });
@@ -748,7 +755,7 @@ const Index = () => {
             size="sm"
           >
             <MessagesSquare className="w-4 h-4" />
-            Berater
+            {(typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ? 'Advisors' : 'Berater'}
           </Button>
           <AdvisorChat
             isOpen={advisorOpen}

@@ -98,12 +98,15 @@
       "rnd": "R&D",
       "hardware": "Hardware",
       "software": "Software",
-      "service": "Service"
+      "service": "Service",
+      "operations": "Operations"
     },
     "expenses": {
       "marketingBudget": "Marketing Budget",
       "developmentCosts": "Development Costs",
-      "researchBudget": "Research Budget"
+      "researchBudget": "Research Budget",
+      "supportBudget": "Support Budget",
+      "otherOperating": "Other Operating Costs"
     },
     "income": {
       "computerSales": "Computer Sales",

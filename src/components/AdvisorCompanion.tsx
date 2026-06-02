@@ -14,7 +14,6 @@ import {
   summarize,
   type Budget,
   type BudgetArea,
-  AREA_TO_ROLE,
 } from '@/lib/game/BudgetRules';
 
 interface AdvisorCompanionProps {

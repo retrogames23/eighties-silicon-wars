@@ -886,7 +886,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                               className="w-full glow-button"
                             >
                               <ChevronRight className="w-4 h-4 mr-2" />
-                              Weiter zu Gehäuse
+                              {t('ui:development.nav.toCase')}
                             </Button>
                           )}
                           
@@ -906,7 +906,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full glow-button"
                               >
                                 <ChevronRight className="w-4 h-4 mr-2" />
-                                Weiter zu Name
+                                {t('ui:development.nav.toName')}
                               </Button>
                             </div>
                           )}
@@ -919,7 +919,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full retro-border bg-card/20"
                               >
                                 <ChevronLeft className="w-4 h-4 mr-2" />
-                                Zurück zu Gehäuse
+                                {t('ui:development.nav.backToCase')}
                               </Button>
                               <Button
                                 onClick={() => setCurrentStep('pricing')}
@@ -927,7 +927,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full glow-button"
                               >
                                 <ChevronRight className="w-4 h-4 mr-2" />
-                                Weiter zu Preissetzung
+                                {t('ui:development.nav.toPricing')}
                               </Button>
                             </div>
                           )}
@@ -940,7 +940,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full retro-border bg-card/20"
                               >
                                 <ChevronLeft className="w-4 h-4 mr-2" />
-                                Zurück zu Name
+                                {t('ui:development.nav.backToName')}
                               </Button>
                               <Button
                                 onClick={startDevelopment}
@@ -948,7 +948,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                                 className="w-full glow-button"
                               >
                                 <Zap className="w-4 h-4 mr-2" />
-                                Computer testen
+                                {t('ui:development.nav.testComputer')}
                               </Button>
                             </div>
                           )}

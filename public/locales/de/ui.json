@@ -3,7 +3,7 @@
     "title": "Case Auswahl",
     "description": "Wählen Sie ein Gehäuse für: {{modelName}}",
     "gamerCases": "Gaming Gehäuse",
-    "officeCases": "Büro Gehäuse", 
+    "officeCases": "Büro Gehäuse",
     "selected": "{{caseName}} ausgewählt",
     "confirmCase": "Case bestätigen",
     "qualityImportant": "Qualität wichtig",
@@ -14,7 +14,7 @@
         "description": "Einfacher beiger Kasten"
       },
       "gamerColorful": {
-        "name": "Color Tower", 
+        "name": "Color Tower",
         "description": "Bunte Plastik-Front mit LED-Akzenten"
       },
       "gamerPremium": {
@@ -49,7 +49,7 @@
     "saveGame": "Spiel speichern",
     "tabs": {
       "overview": "Übersicht",
-      "development": "Entwicklung", 
+      "development": "Entwicklung",
       "market": "Markt",
       "management": "Verwaltung",
       "headquarters": "Zentrale"
@@ -125,7 +125,7 @@
     "labels": {
       "totalRevenue": "Gesamtumsatz",
       "models": "Modelle",
-      "unitsSold": "Verkaufte Einheiten", 
+      "unitsSold": "Verkaufte Einheiten",
       "inDevelopment": "In Entwicklung",
       "price": "Preis",
       "revenue": "Umsatz",
@@ -218,6 +218,88 @@
         "positiveAmountRequired": "Bitte geben Sie einen positiven Investitionsbetrag ein",
         "notEnoughBudget": "Nicht genügend Forschungsbudget verfügbar"
       }
+    },
+    "pricing": {
+      "title": "Verkaufspreis festlegen",
+      "minPrice": "Mindestpreis",
+      "recommended": "Empfohlen",
+      "maxPrice": "Maximaler Preis",
+      "marginPct": "{{pct}}% Marge",
+      "marginPctStandard": "{{pct}}% Marge (Standard)",
+      "applyRecommended": "Empfohlenen Preis übernehmen",
+      "orCustom": "Oder eigenen Preis festlegen:",
+      "analysisTitle": "Preisanalyse",
+      "profitPerUnit": "Gewinn pro Einheit:",
+      "profitMargin": "Gewinnmarge:",
+      "hintBelowMin": "⚠️ Preis unter Mindestmarge – Verlustrisiko!",
+      "hintAggressive": "💡 Aggressiver Preis – mehr Verkäufe, weniger Gewinn",
+      "hintPremium": "🎯 Premium-Preis – weniger Verkäufe, höhere Marge",
+      "hintTooHigh": "⚠️ Sehr hoher Preis – Verkaufsrisiko!"
+    },
+    "nav": {
+      "toCase": "Weiter zu Gehäuse",
+      "toName": "Weiter zu Name",
+      "toPricing": "Weiter zu Preissetzung",
+      "backToCase": "Zurück zu Gehäuse",
+      "backToName": "Zurück zu Name",
+      "testComputer": "Computer testen"
+    },
+    "caseAttrs": {
+      "quality": "Qualität",
+      "design": "Design",
+      "price": "Preis"
+    },
+    "yearSuffix": "(für {{year}})",
+    "expectedTestScore": "Erwarteter Test-Score"
+  },
+  "competitors": {
+    "title": "Lebende Konkurrenz",
+    "market": "Markt",
+    "reputation": "Ruf",
+    "actions": {
+      "price_cut": "Preissenkung",
+      "price_hike": "Preiserhöhung",
+      "new_model_announce": "Neues Modell",
+      "marketing_push": "Marketing-Offensive",
+      "layoffs": "Stellenabbau",
+      "partnership": "Partnerschaft",
+      "quiet_quarter": "Stilles Quartal"
+    }
+  },
+  "employees": {
+    "title": "Personal",
+    "headcountSuffix": "Mitarbeitende",
+    "salariesPerQ": "Gehälter / Q",
+    "moraleAvg": "Moral Ø",
+    "devSpeed": "Dev-Speed",
+    "research": "Forschung",
+    "sales": "Vertrieb",
+    "reputation": "Reputation",
+    "currentTeam": "Aktuelles Team",
+    "emptyTeam": "Noch niemand angestellt. Schau in den Bewerber-Pool unten.",
+    "applications": "Bewerbungsmappe",
+    "noCandidates": "Keine offenen Bewerbungen. Neue kommen mit dem nächsten Quartal.",
+    "fire": "Entlassen",
+    "hire": "Einstellen",
+    "tooExpensive": "Zu teuer",
+    "skill": "Skill",
+    "morale": "Moral",
+    "since": "seit",
+    "perQ": "$/Q",
+    "roles": {
+      "engineer": "Entwicklerin",
+      "marketer": "Marketing",
+      "support": "Support",
+      "researcher": "Forschung"
+    },
+    "toasts": {
+      "notEnoughCash": "Nicht genug Cash",
+      "tooExpensiveDesc": "{{name}} verlangt {{salary}} $ / Quartal — zu teuer.",
+      "hireFailed": "Einstellung fehlgeschlagen",
+      "hired": "{{name}} ist an Bord",
+      "hiredDesc": "{{role}} · Skill {{skill}} · {{salary}} $ / Q",
+      "fireFailed": "Entlassung fehlgeschlagen",
+      "fired": "{{name}} verlässt das Unternehmen"
     }
   }
 }

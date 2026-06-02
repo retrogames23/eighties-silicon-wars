@@ -322,16 +322,23 @@ const Index = () => {
           // Sync mit echter Teamgröße + Startteam (8).
           result.updatedGameState.company.employees = 8 + team.length;
         }
+        const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
         if (pay.underpaid && team.length > 0) {
           toast({
-            title: "⚠️ Gehälter nicht gedeckt",
-            description: `Nur ${Math.round(pay.paid).toLocaleString("de-DE")} $ ausgezahlt — Moral fällt um 15 Punkte.`,
+            title: isEn ? "⚠️ Payroll shortfall" : "⚠️ Gehälter nicht gedeckt",
+            description: isEn
+              ? `Only $${Math.round(pay.paid).toLocaleString('en-US')} paid — morale drops by 15 points.`
+              : `Nur ${Math.round(pay.paid).toLocaleString("de-DE")} $ ausgezahlt — Moral fällt um 15 Punkte.`,
             variant: "destructive",
           });
         } else if (pay.paid > 0) {
           toast({
-            title: `💼 Payroll Q${gameState.quarter}/${gameState.year}`,
-            description: `${pay.paid.toLocaleString("de-DE")} $ Gehälter an ${team.length} Mitarbeitende ausgezahlt.`,
+            title: isEn
+              ? `💼 Payroll Q${gameState.quarter}/${gameState.year}`
+              : `💼 Payroll Q${gameState.quarter}/${gameState.year}`,
+            description: isEn
+              ? `$${pay.paid.toLocaleString('en-US')} in salaries paid to ${team.length} employees.`
+              : `${pay.paid.toLocaleString("de-DE")} $ Gehälter an ${team.length} Mitarbeitende ausgezahlt.`,
           });
         }
       } catch (err) {

@@ -8,21 +8,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { AiCompetitor } from '@/services/CompetitorsService';
 
 interface AiCompetitorsPanelProps {
   competitors: AiCompetitor[];
 }
-
-const ACTION_LABEL: Record<string, string> = {
-  price_cut: 'Preissenkung',
-  price_hike: 'Preiserhöhung',
-  new_model_announce: 'Neues Modell',
-  marketing_push: 'Marketing-Offensive',
-  layoffs: 'Stellenabbau',
-  partnership: 'Partnerschaft',
-  quiet_quarter: 'Stilles Quartal',
-};
 
 const ACTION_TONE: Record<string, string> = {
   price_cut: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
@@ -35,6 +26,7 @@ const ACTION_TONE: Record<string, string> = {
 };
 
 export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => {
+  const { t } = useTranslation();
   if (!competitors || competitors.length === 0) return null;
 
   return (
@@ -42,7 +34,7 @@ export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => 
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Users className="w-4 h-4" />
-          Lebende Konkurrenz
+          {t('ui:competitors.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -61,8 +53,8 @@ export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => 
                   </div>
                 </div>
                 <div className="text-right text-xs whitespace-nowrap">
-                  <div>Markt: <span className="font-mono">{c.market_share.toFixed(1)}%</span></div>
-                  <div>Ruf: <span className="font-mono">{Math.round(c.reputation)}</span></div>
+                  <div>{t('ui:competitors.market')}: <span className="font-mono">{c.market_share.toFixed(1)}%</span></div>
+                  <div>{t('ui:competitors.reputation')}: <span className="font-mono">{Math.round(c.reputation)}</span></div>
                 </div>
               </div>
 
@@ -72,7 +64,7 @@ export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => 
                     variant="outline"
                     className={`text-xs ${ACTION_TONE[action] ?? ''}`}
                   >
-                    {ACTION_LABEL[action] ?? action}
+                    {t(`ui:competitors.actions.${action}`, { defaultValue: action })}
                     {c.last_action_year && c.last_action_quarter
                       ? ` · Q${c.last_action_quarter}/${c.last_action_year}`
                       : ''}

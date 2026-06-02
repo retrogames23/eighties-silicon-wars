@@ -38,6 +38,7 @@ interface Budget {
   marketing: number;
   development: number;
   research: number;
+  support: number;
 }
 
 interface GameState {

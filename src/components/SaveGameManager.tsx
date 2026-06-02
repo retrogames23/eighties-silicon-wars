@@ -11,7 +11,7 @@ import type { User } from '@supabase/supabase-js';
 import { ComputerModel } from '@/types/ComputerModel';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Budget {
   marketing: number;
@@ -65,6 +65,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Check if Supabase is properly configured
   const supabaseReady = !!supabase;
@@ -234,7 +235,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                 <Button 
                   onClick={() => {
                     onClose();
-                    navigate('/auth');
+                    navigate('/auth', { state: { from: location.pathname + location.search + location.hash } });
                   }}
                   size="sm"
                   className="mb-2"

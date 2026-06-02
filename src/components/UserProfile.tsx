@@ -7,7 +7,7 @@ import { LogOut, User as UserIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface UserProfileProps {
   user: User | null;
@@ -17,6 +17,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
   const { t } = useTranslation(['ui', 'toast']);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const handleSignOut = async () => {
     setLoading(true);
     try {
@@ -38,7 +39,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
       <Button 
         variant="outline" 
         size="sm"
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate('/auth', { state: { from: location.pathname + location.search + location.hash } })}
         className="font-mono"
       >
         <UserIcon className="w-4 h-4 mr-2" />

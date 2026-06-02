@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,8 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from ?? '/';
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -25,10 +27,10 @@ export default function Auth() {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Redirect to main page if user is authenticated
+
+        // Redirect back to where the user came from (preserves in-progress game)
         if (session?.user) {
-          navigate('/');
+          navigate(from, { replace: true });
         }
       }
     );
@@ -37,15 +39,14 @@ export default function Auth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Redirect to main page if already authenticated
+
       if (session?.user) {
-        navigate('/');
+        navigate(from, { replace: true });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, from]);
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();

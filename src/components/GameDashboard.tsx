@@ -8,6 +8,7 @@ import { MarketTab } from "@/components/MarketTab";
 import { AiCompetitorsPanel } from "@/components/AiCompetitorsPanel";
 import type { AiCompetitor } from "@/services/CompetitorsService";
 import { CompanyManagement } from "@/components/CompanyManagement";
+import EmployeesPanel from "@/components/EmployeesPanel";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
@@ -292,6 +293,11 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="management" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <EmployeesPanel
+                year={gameState.year}
+                quarter={gameState.quarter}
+                cash={gameState.company.cash}
+              />
               <CompanyManagement 
                 budget={gameState.budget}
                 totalBudget={200000}

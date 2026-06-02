@@ -185,6 +185,18 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
         </CardContent>
       </Card>
 
+      {/* Hiring hint — surface roles the player hasn't covered yet */}
+      {missingRoles.length > 0 && (
+        <div className="rounded-md border border-amber/40 bg-amber/10 px-3 py-2 text-xs font-mono text-amber-foreground">
+          <span className="font-semibold">{t("ui:employees.hiringHint", { defaultValue: "Empfohlen jetzt einstellen:" })}</span>{" "}
+          {missingRoles.map((m, i) => (
+            <span key={m.role}>
+              {i > 0 ? ", " : ""}+1 {t(`ui:employees.roles.${m.role}`)}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Bewerber-Pool */}
       <Card className="retro-border bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import midnightSaveFile from '@/assets/Midnight_Save_File.mp3.asset.json';
 
 type Track = { src: string; title: string };
 
@@ -6,7 +7,9 @@ const PLAYLIST: Track[] = [
   { src: '/audio/Neon_Dreams.mp3', title: 'Neon Dreams' },
   { src: '/audio/Virtual_Dreamscape.mp3', title: 'Virtual Dreamscape' },
   { src: '/audio/Digital_Dreamscape.mp3', title: 'Digital Dreamscape' },
+  { src: midnightSaveFile.url, title: 'Midnight Save File' },
 ];
+
 
 const TARGET_VOLUME = 0.3;
 const FADE_MS = 1200;

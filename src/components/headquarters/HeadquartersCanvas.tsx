@@ -497,11 +497,14 @@ function drawRoom(
       break;
     }
     case "dev": {
-      drawDesk(ctx, cx, baseY, p, era);
-      drawDesk(ctx, cx + 18, baseY, p, era);
-      // second monitor on first desk
-      px(ctx, cx + 16, baseY - 12, 6, 6, "#1a1a1a");
-      px(ctx, cx + 17, baseY - 11, 4, 4, "#39ff88");
+      // Two dev workstations with chairs, plenty of breathing room
+      drawDesk(ctx, cx + 4, baseY, p, era);
+      px(ctx, cx + 12, baseY - 5, 5, 5, "#2a2a2a");
+      // dual monitor on the second station
+      drawDesk(ctx, cx + 28, baseY, p, era);
+      px(ctx, cx + 40, baseY - 12, 6, 6, "#1a1a1a");
+      px(ctx, cx + 41, baseY - 11, 4, 4, "#39ff88");
+      px(ctx, cx + 36, baseY - 5, 5, 5, "#2a2a2a");
       drawServerRack(ctx, x0 + w - 12, baseY);
       break;
     }
@@ -512,10 +515,11 @@ function drawRoom(
       break;
     }
     case "arcade": {
-      drawArcade(ctx, cx, baseY, t, 0);
-      drawArcade(ctx, cx + 14, baseY, t, 1);
-      if (w >= 16 * TILE) drawArcade(ctx, cx + 28, baseY, t, 2);
+      // Two cabinets + couch, no third
+      drawArcade(ctx, cx + 4, baseY, t, 0);
+      drawArcade(ctx, cx + 20, baseY, t, 1);
       drawCouch(ctx, x0 + w - 22, baseY);
+      drawPlant(ctx, cx + 36, baseY);
       break;
     }
     case "executive": {

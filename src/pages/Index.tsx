@@ -542,12 +542,13 @@ const Index = () => {
       company: {
         name: '',
         logo: '',
-      cash: 5000000, // Erhöht auf 5M für bessere Balance
+      cash: 1500000,
       employees: 8,
       reputation: 50,
       marketShare: 0,
       monthlyIncome: 0,
-      monthlyExpenses: 30000 // Reduziert auf 30k für bessere Überlebenschancen
+      monthlyExpenses: 30000,
+      brandAwareness: 0
       },
       quarter: 1,
       year: 1983,

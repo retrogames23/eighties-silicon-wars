@@ -371,6 +371,27 @@ function VcPitchCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {canPitch && phase !== "result" && (
+            <div className={`flex gap-4 items-center p-3 rounded-lg bg-gradient-to-br from-background to-muted/40 border-2 ${vc.accentClass}`}>
+              <img
+                src={vc.image}
+                alt={vc.name}
+                width={96}
+                height={96}
+                loading="lazy"
+                className="w-24 h-24 rounded-md object-cover border-2 border-foreground/20 shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Heute pitchst du an
+                </div>
+                <div className="font-bold text-base leading-tight truncate">{vc.name}</div>
+                <div className="text-xs text-muted-foreground truncate">{vc.firm}</div>
+                <div className="text-xs italic mt-1">„{vc.tagline}"</div>
+              </div>
+            </div>
+          )}
+
           {!canPitch && (
             <div className="flex items-start gap-2 p-3 bg-destructive/10 text-destructive rounded text-xs">
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />

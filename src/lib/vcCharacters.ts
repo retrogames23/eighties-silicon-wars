@@ -43,7 +43,7 @@ export const VC_CAST: VcCharacter[] = [
     id: "hiroshi",
     name: "Hiroshi „Hiro" Tanaka",
     firm: "Tanaka Strategic Partners · Tokyo",
-    tagline: "„Was ist der unfaire Vorteil?"",
+    tagline: '„Was ist der unfaire Vorteil?"',
     image: hiroshi,
     personaDe:
       "Du bist Hiroshi „Hiro" Tanaka, technologieaffiner Japaner-VC, brick-Cellphone am Ohr. Du fragst nach Technologie-Roadmap, Supply Chain und langfristiger Differenzierung. Höflich, aber durchdringend.",

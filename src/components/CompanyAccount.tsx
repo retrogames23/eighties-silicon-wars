@@ -70,7 +70,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   return (
     <div className="space-y-6">
       {/* Übersicht */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card className="retro-border bg-card/50 backdrop-blur-sm p-4">
           <div className="flex items-center justify-between">
             <div>

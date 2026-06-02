@@ -119,13 +119,26 @@ export const AdvisorCompanion = ({
     summarize(budget, agg, { cash, lastQuarterRevenue, hasActiveModels }),
   [budget, agg, cash, lastQuarterRevenue, hasActiveModels]);
 
+  const hireSuggestions = useMemo(
+    () => recommendHiring(summary, agg, {
+      activeModelsCount: activeModelsCount ?? (hasActiveModels ? 1 : 0),
+      reputation,
+      competitorAvgMarketShare,
+      ownMarketShare: marketShare,
+    }),
+    [summary, agg, activeModelsCount, hasActiveModels, reputation, competitorAvgMarketShare, marketShare],
+  );
+
   const tips: Tip[] = useMemo(() => {
     const out: Tip[] = [];
+    const tag = `q${year}-${quarter}`;
+
+    // 1) Gate-missing tips (per area)
     (Object.keys(summary.areas) as BudgetArea[]).forEach(area => {
       const s = summary.areas[area];
       if (!s.hasGate && s.currentBudget > 0) {
         out.push({
-          id: `gate-${area}-q${year}-${quarter}`,
+          id: `gate-${area}-${tag}`,
           priority: 100,
           text: t('advisor:companion.tips.needRole', {
             amount: formatCurrency(s.currentBudget),
@@ -134,21 +147,82 @@ export const AdvisorCompanion = ({
           }),
         });
       }
+    });
+
+    // 2) Near-cap tips with concrete unlock estimate
+    (Object.keys(summary.areas) as BudgetArea[]).forEach(area => {
+      const s = summary.areas[area];
+      if (s.hasGate && s.utilizationPct >= 80 && s.hireWouldUnlock >= 10_000) {
+        out.push({
+          id: `near-${area}-${tag}`,
+          priority: 75,
+          text: t('advisor:companion.tips.nearCap', {
+            area: t(`economy:budget.${area}`),
+            util: s.utilizationPct,
+            role: t(`economy:budget.rolesLabel.${s.role}`),
+            unlock: formatCurrency(s.hireWouldUnlock),
+          }),
+        });
+      }
       if (s.hasGate && s.saturation === 'saturated') {
         out.push({
-          id: `sat-${area}-q${year}-${quarter}`,
-          priority: 50,
+          id: `sat-${area}-${tag}`,
+          priority: 55,
           text: t('advisor:companion.tips.saturated', {
             area: t(`economy:budget.${area}`),
           }),
         });
       }
     });
+
+    // 3) Multi-model understaffed
+    const activeModels = activeModelsCount ?? (hasActiveModels ? 1 : 0);
+    if (activeModels >= 2 && agg.byRole.engineer <= 1) {
+      out.push({
+        id: `multi-eng-${tag}`,
+        priority: 85,
+        text: t('advisor:companion.tips.multiModelUnderstaffed', {
+          count: activeModels,
+          engineers: agg.byRole.engineer,
+        }),
+      });
+    }
+
+    // 4) Reputation slipping + no support
+    if ((reputation ?? 100) < 55 && agg.byRole.support === 0) {
+      out.push({
+        id: `sup-missing-${tag}`,
+        priority: 78,
+        text: t('advisor:companion.tips.supportMissing', { rep: reputation ?? 0 }),
+      });
+    }
+
+    // 5) Competition growing faster
+    if (
+      competitorAvgMarketShare != null &&
+      marketShare != null &&
+      marketShare + 1 < competitorAvgMarketShare &&
+      agg.headcount < 4
+    ) {
+      const sug = hireSuggestions.find(h => h.reason === 'growth');
+      const role = sug?.role ?? 'engineer';
+      out.push({
+        id: `comp-grow-${tag}`,
+        priority: 65,
+        text: t('advisor:companion.tips.competitionGrowing', {
+          avg: Math.round(competitorAvgMarketShare),
+          own: Math.round(marketShare),
+          role: t(`economy:budget.rolesLabel.${role}`),
+        }),
+      });
+    }
+
+    // 6) Marketing under-spent vs. recommendation
     if (lastQuarterRevenue > 0 && summary.areas.marketing.hasGate) {
       const rec = summary.areas.marketing.recommended;
       if (rec > 0 && budget.marketing < rec * 0.5) {
         out.push({
-          id: `mkt-low-q${year}-${quarter}`,
+          id: `mkt-low-${tag}`,
           priority: 70,
           text: t('advisor:companion.tips.revenueGrew', {
             revenue: formatCurrency(lastQuarterRevenue),
@@ -157,24 +231,30 @@ export const AdvisorCompanion = ({
         });
       }
     }
+
+    // 7) Morale
     if (agg.headcount > 0 && agg.averageMorale > 0 && agg.averageMorale < 40) {
       out.push({
-        id: `morale-q${year}-${quarter}`,
+        id: `morale-${tag}`,
         priority: 80,
         text: t('advisor:companion.tips.lowMorale', { morale: agg.averageMorale }),
       });
     }
+
+    // 8) Cash
     if (cash > 0 && cash < summary.totalOutflow * 1.5 && summary.totalOutflow > 0) {
       out.push({
-        id: `cash-q${year}-${quarter}`,
+        id: `cash-${tag}`,
         priority: 90,
         text: t('advisor:companion.tips.cashLow'),
       });
     }
+
     return out
       .filter(tip => !dismissed.has(tip.id))
       .sort((a, b) => b.priority - a.priority);
-  }, [summary, budget, lastQuarterRevenue, cash, agg, year, quarter, t, dismissed]);
+  }, [summary, budget, lastQuarterRevenue, cash, agg, year, quarter, t, dismissed,
+      hireSuggestions, activeModelsCount, hasActiveModels, reputation, competitorAvgMarketShare, marketShare]);
 
   // Tour steps — onboarding walks through team, hardware, all budgets,
   // competition, the quarter loop, and finally the three financing modes.

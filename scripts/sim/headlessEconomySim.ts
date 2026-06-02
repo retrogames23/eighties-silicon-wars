@@ -141,7 +141,17 @@ const stratC: Strategy = {
   },
 };
 
-const STRATEGIES = [stratA, stratB, stratC];
+// Step-2-Validierung: gleiche Strategie wie C, aber mit $800k Bankkredit in 1983 Q2.
+// Annuität 20 Quartale @ 9.5 % p.a. (entspricht reputation~50 in baseInterestRateForYear).
+const stratD: Strategy = {
+  ...stratC,
+  id: "rnd_with_loan",
+  label: "R&D-heavy + $800k Bankkredit (Q2)",
+  description: "Wie R&D-heavy, aber $800k Kredit in 1983 Q2 (9.5% p.a., 20 Quartale).",
+  loan: { principal: 800_000, annualRate: 0.095, quartersTotal: 20, takeYear: 1983, takeQuarter: 2 },
+};
+
+const STRATEGIES = [stratA, stratB, stratC, stratD];
 
 // ---------- Pre-Step-2 monkey patches ----------
 

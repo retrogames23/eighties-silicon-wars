@@ -726,7 +726,7 @@ const Index = () => {
         ) : null;
       
       default:
-        return <GameIntro onComplete={handleIntroComplete} user={user} />;
+        return <GameIntro onComplete={handleIntroComplete} user={user} onContinueGame={handleContinueGame} onOpenLoadManager={handleOpenSaveManager} />;
     }
   };
 

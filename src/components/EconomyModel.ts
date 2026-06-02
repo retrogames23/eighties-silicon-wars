@@ -506,12 +506,12 @@ export class EconomyModel {
   }
 
 
-  static getSegmentMaxPrice(segment: string, year: number): number {
+  static getSegmentMaxPrice(segment: string, year: number, quarter: number = 1): number {
     const basePrices = { gamer: 800, business: 2000, workstation: 5000 };
     const basePrice = basePrices[segment as keyof typeof basePrices] || 1000;
     const stepped = basePrice + (year - 1983) * (segment === 'gamer' ? 100 : segment === 'business' ? 500 : 1000);
-    // Inflations-Aufschlag obendrauf
-    return stepped * this.getInflationFactor(year);
+    // Inflations-Aufschlag + Paradigm-Event-Multiplikator (z.B. Preisschlacht 1983).
+    return stepped * this.getInflationFactor(year) * getParadigmMaxPriceMultiplier(segment as Segment, year, quarter);
   }
 
   static calculateCompetitionImpact(model: any, competitors: Competitor[], segment: string): number {
@@ -521,11 +521,36 @@ export class EconomyModel {
     return Math.max(0.4, 1.0 - (similarPriceCompetitors * 0.1));
   }
 
-  static calculateMarketingEffectiveness(marketingBudget: number, reputation: number, year: number = 1983): number {
-    // Inflation: gleicher nominaler Marketing-Einsatz wirkt schwächer in späteren Jahren.
-    const baseBudget = 25000 * this.getInflationFactor(year);
-    const effectiveness = Math.sqrt(marketingBudget / baseBudget) * (0.8 + reputation / 100 * 0.4);
-    return Math.max(0.5, Math.min(3.0, effectiveness));
+  /**
+   * Marketing-Wirkung mit Diminishing Returns, hartem Cap und Brand-Awareness.
+   * - sqrt-Kurve bis $500k (Inflations-adjustiert), danach log-Sättigung
+   * - Hard-Cap bei Faktor 2.5 (kein unbegrenzter Snowball mehr)
+   * - Brand-Awareness (0..100) multipliziert zusätzlich (0.7..1.4)
+   */
+  static calculateMarketingEffectiveness(
+    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0
+  ): number {
+    const infl = this.getInflationFactor(year);
+    const baseBudget = 25000 * infl;
+    const saturationPoint = 500000 * infl;
+
+    let effectiveness: number;
+    if (marketingBudget <= saturationPoint) {
+      effectiveness = Math.sqrt(marketingBudget / baseBudget);
+    } else {
+      // Über Sättigungspunkt: nur noch log-Wachstum.
+      const baseAtSat = Math.sqrt(saturationPoint / baseBudget);
+      const overflow = (marketingBudget - saturationPoint) / saturationPoint;
+      effectiveness = baseAtSat + Math.log(1 + overflow) * 0.3;
+    }
+
+    // Reputation- und Brand-Awareness-Multiplikator.
+    const repMult = 0.8 + reputation / 100 * 0.4;
+    const brandMult = 0.7 + (brandAwareness / 100) * 0.7;
+    effectiveness *= repMult * brandMult;
+
+    // Hard-Cap bei 2.5 (vorher 3.0).
+    return Math.max(0.5, Math.min(2.5, effectiveness));
   }
 
   static getSeasonalityFactor(quarter: number): number {

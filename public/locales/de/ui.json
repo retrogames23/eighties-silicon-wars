@@ -332,5 +332,26 @@
       "head_of_development": "K.J. Jordan, Entwicklung. Was steht an?",
       "shareholder": "Margarete Vogel, Aktionärssprecherin. Reden wir Klartext."
     }
+  },
+  "saveGameManager": {
+    "title": "SPIELSTAND VERWALTUNG",
+    "notConfigured": "SUPABASE NICHT KONFIGURIERT",
+    "notConfiguredDesc": "Bitte konfiguriere deine Supabase-Verbindung, um Spielstände zu speichern.",
+    "loginRequired": "ANMELDUNG ERFORDERLICH",
+    "loginRequiredDesc": "Sie müssen sich anmelden, um Spielstände zu speichern und zu laden.",
+    "signInNow": "Jetzt anmelden",
+    "noAccountHint": "Haben Sie noch kein Konto? Sie können sich auf der Anmeldeseite registrieren.",
+    "savedGames": "GESPEICHERTE SPIELSTÄNDE",
+    "noSaves": "Keine Spielstände vorhanden",
+    "slot": "SLOT",
+    "company": "Firma",
+    "round": "Runde",
+    "money": "Geld",
+    "load": "LADEN",
+    "saveNew": "NEUEN SPIELSTAND SPEICHERN",
+    "namePlaceholder": "Name für den Spielstand (optional)",
+    "saveButton": "SPIELSTAND SPEICHERN",
+    "allSlotsFull": "Alle 5 Speicherplätze sind belegt. Lösche einen Spielstand, um einen neuen zu speichern.",
+    "defaultName": "Spielstand {slot}"
   }
 }

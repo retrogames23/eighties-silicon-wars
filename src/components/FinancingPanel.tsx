@@ -467,6 +467,13 @@ function VcPitchCard({
 
           {phase === "result" && result && (
             <div className="space-y-3 text-sm">
+              <div className={`flex gap-3 items-start p-3 rounded-lg border-2 ${vc.accentClass} bg-gradient-to-br from-background to-muted/40`}>
+                <img src={vc.image} alt={vc.name} width={64} height={64} loading="lazy" className="w-16 h-16 rounded-md object-cover border border-foreground/20 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-sm">{vc.name}</div>
+                  <div className="text-xs italic text-muted-foreground">„{result.feedback}"</div>
+                </div>
+              </div>
               <div className={`flex items-center gap-2 p-3 rounded ${result.accepted ? "bg-green-500/10 text-green-700 dark:text-green-300" : "bg-destructive/10 text-destructive"}`}>
                 {result.accepted ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                 <div>
@@ -478,7 +485,6 @@ function VcPitchCard({
                   </div>
                 </div>
               </div>
-              <div className="p-3 bg-muted/30 rounded text-xs italic">"{result.feedback}"</div>
               {result.weaknesses.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold mb-1">Kritikpunkte:</div>

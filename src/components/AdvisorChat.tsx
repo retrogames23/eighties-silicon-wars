@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 type Advisor = 'market_researcher' | 'head_of_development' | 'shareholder';
 
@@ -18,8 +19,6 @@ interface Message {
 interface AdvisorChatProps {
   isOpen: boolean;
   onClose: () => void;
-  // Slim, advisor-relevant slice of the game state — we deliberately do NOT
-  // dump everything; the LLM only needs business-context, not internal flags.
   gameContext: {
     year: number;
     quarter: number;
@@ -30,23 +29,11 @@ interface AdvisorChatProps {
   };
 }
 
-const ADVISORS: Record<Advisor, { label: string; intro: string }> = {
-  market_researcher: {
-    label: 'Marktforschung',
-    intro: 'Dr. Helga Brandt, Marktforschung. Was möchten Sie wissen?',
-  },
-  head_of_development: {
-    label: 'Entwicklung',
-    intro: 'K.J. Jordan, Entwicklung. Was steht an?',
-  },
-  shareholder: {
-    label: 'Aktionäre',
-    intro: 'Margarete Vogel, Aktionärssprecherin. Reden wir Klartext.',
-  },
-};
+const ADVISOR_KEYS: Advisor[] = ['market_researcher', 'head_of_development', 'shareholder'];
 
 export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) => {
   const { toast } = useToast();
+  const { t, i18n } = useTranslation('ui');
   const [activeAdvisor, setActiveAdvisor] = useState<Advisor>('market_researcher');
   const [threads, setThreads] = useState<Record<Advisor, Message[]>>({
     market_researcher: [],
@@ -57,7 +44,13 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
   const [sending, setSending] = useState(false);
 
   const messages = threads[activeAdvisor];
-  const intro = useMemo(() => ADVISORS[activeAdvisor].intro, [activeAdvisor]);
+  const activeLabel = t(`advisor.tabs.${activeAdvisor}`);
+  const intro = useMemo(
+    () => t(`advisor.intros.${activeAdvisor}`),
+    [activeAdvisor, t],
+  );
+  // Tell the edge function which language the persona should reply in.
+  const language = (i18n.language || 'de').toLowerCase().startsWith('en') ? 'en' : 'de';
 
   const send = async () => {
     const text = draft.trim();
@@ -70,23 +63,22 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
 
     try {
       const { data, error } = await supabase.functions.invoke('advisor-chat', {
-        body: { advisor: activeAdvisor, messages: next, gameContext },
+        body: { advisor: activeAdvisor, messages: next, gameContext, language },
       });
       if (error) throw error;
       const reply = (data as { reply?: string })?.reply ?? '…';
-      setThreads((t) => ({
-        ...t,
+      setThreads((tr) => ({
+        ...tr,
         [activeAdvisor]: [...next, { role: 'assistant', content: reply }],
       }));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast({
-        title: 'Berater nicht erreichbar',
+        title: t('advisor.unreachableTitle'),
         description: msg,
         variant: 'destructive',
       });
-      // Roll back the user message so they can retry without losing it.
-      setThreads((t) => ({ ...t, [activeAdvisor]: messages }));
+      setThreads((tr) => ({ ...tr, [activeAdvisor]: messages }));
       setDraft(text);
     } finally {
       setSending(false);
@@ -97,7 +89,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Berater sprechen</DialogTitle>
+          <DialogTitle>{t('advisor.title')}</DialogTitle>
         </DialogHeader>
 
         <Tabs
@@ -106,19 +98,19 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
           className="flex-1 flex flex-col min-h-0"
         >
           <TabsList className="grid grid-cols-3">
-            {(Object.keys(ADVISORS) as Advisor[]).map((a) => (
+            {ADVISOR_KEYS.map((a) => (
               <TabsTrigger key={a} value={a}>
-                {ADVISORS[a].label}
+                {t(`advisor.tabs.${a}`)}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {(Object.keys(ADVISORS) as Advisor[]).map((a) => (
+          {ADVISOR_KEYS.map((a) => (
             <TabsContent key={a} value={a} className="flex-1 flex flex-col min-h-0 mt-3">
               <ScrollArea className="flex-1 border rounded-md p-3 bg-muted/30">
                 <div className="space-y-3 text-sm">
                   {threads[a].length === 0 && (
-                    <p className="text-muted-foreground italic">{ADVISORS[a].intro}</p>
+                    <p className="text-muted-foreground italic">{t(`advisor.intros.${a}`)}</p>
                   )}
                   {threads[a].map((m, i) => (
                     <div
@@ -134,7 +126,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
                   ))}
                   {sending && activeAdvisor === a && (
                     <div className="mr-8 text-muted-foreground flex items-center gap-2 text-xs">
-                      <Loader2 className="w-3 h-3 animate-spin" /> denkt nach…
+                      <Loader2 className="w-3 h-3 animate-spin" /> {t('advisor.thinking')}
                     </div>
                   )}
                 </div>
@@ -147,7 +139,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder={`Frage an ${ADVISORS[activeAdvisor].label}…`}
+            placeholder={t('advisor.inputPlaceholder', { label: activeLabel })}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();

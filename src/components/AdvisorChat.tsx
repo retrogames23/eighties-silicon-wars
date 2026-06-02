@@ -55,6 +55,16 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
   const send = async () => {
     const text = draft.trim();
     if (!text || sending) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      toast({
+        title: t('advisor.loginRequiredTitle'),
+        description: t('advisor.loginRequiredDescription'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const userMsg: Message = { role: 'user', content: text };
     const next = [...messages, userMsg];
     setThreads((t) => ({ ...t, [activeAdvisor]: next }));
@@ -64,6 +74,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
     try {
       const { data, error } = await supabase.functions.invoke('advisor-chat', {
         body: { advisor: activeAdvisor, messages: next, gameContext, language },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
       const reply = (data as { reply?: string })?.reply ?? '…';

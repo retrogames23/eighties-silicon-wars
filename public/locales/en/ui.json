@@ -308,6 +308,8 @@
     "thinking": "thinking…",
     "inputPlaceholder": "Question for {{label}}…",
     "unreachableTitle": "Advisor unreachable",
+    "loginRequiredTitle": "Sign-in required",
+    "loginRequiredDescription": "Sign in to speak with the advisors.",
     "openAction": "Advisors",
     "tabs": {
       "market_researcher": "Market Research",

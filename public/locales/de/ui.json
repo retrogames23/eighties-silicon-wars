@@ -308,6 +308,8 @@
     "thinking": "denkt nach…",
     "inputPlaceholder": "Frage an {{label}}…",
     "unreachableTitle": "Berater nicht erreichbar",
+    "loginRequiredTitle": "Anmeldung erforderlich",
+    "loginRequiredDescription": "Melde dich an, um mit den Beratern zu sprechen.",
     "openAction": "Berater",
     "tabs": {
       "market_researcher": "Marktforschung",

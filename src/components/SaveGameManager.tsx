@@ -235,7 +235,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                 <Button 
                   onClick={() => {
                     onClose();
-                    navigate('/auth');
+                    navigate('/auth', { state: { from: location.pathname + location.search + location.hash } });
                   }}
                   size="sm"
                   className="mb-2"

@@ -701,11 +701,18 @@ export class GameMechanics {
     }
 
     // 6. ZENTRALE QUARTALSAUSGABEN (Periodenkosten — exakt EINMAL gebucht!).
-    //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten (Refactor v2),
-    //    deshalb hier sauber als Periodenkosten abziehen. Inflations-skalierte Gehälter.
+    //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten,
+    //    deshalb hier sauber als Periodenkosten abziehen.
+    //    Gehälter skalieren mit der Mitarbeiterzahl (kein doppelter Flat-Posten).
     const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
-    const baseSalaries = 60000; // Basisgehälter Quartal 1983
-    const salaries = Math.round(baseSalaries * inflation);
+    const employeeCount = Math.max(1, company.employees ?? 8);
+    const salaryPerEmployeePerQuarter = 7500; // $30k/Jahr Basis-Gehalt 1983
+    const salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
+    const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
+    const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
+    // Mindest-Overhead (Miete, Strom, Verwaltung), skaliert leicht mit Team.
+    const fixedOverhead = Math.round((15000 + employeeCount * 1200) * inflation);
 
     const quarterlyExpenses = {
       marketing: budget.marketing,
@@ -713,6 +720,8 @@ export class GameMechanics {
       research: budget.research,
       support: budget.support ?? 0,
       salaries,
+      portfolioMaintenance,
+      fixedOverhead,
     };
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
 
@@ -720,7 +729,7 @@ export class GameMechanics {
     const totalProfit = totalGrossProfit - totalExpenses;
     const netCashFlow = totalProfit;
 
-    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()}`);
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()} | Brand ${Math.round(newBrandAwareness)}`);
 
     // 8. Marktanteil und Reputation Updates
     const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
@@ -744,6 +753,7 @@ export class GameMechanics {
         cash: company.cash + netCashFlow,
         marketShare: newMarketShare,
         reputation: newReputation,
+        brandAwareness: newBrandAwareness,
         monthlyIncome: Math.round(totalRevenue / 3),
         monthlyExpenses: Math.round(totalExpenses / 3),
         quarterlyProfit: totalProfit,

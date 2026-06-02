@@ -100,6 +100,8 @@ const Index = () => {
     marketData: any;
   }>({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null });
   
+  const [advisorOpen, setAdvisorOpen] = useState(false);
+
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',

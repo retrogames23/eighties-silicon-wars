@@ -58,6 +58,60 @@ export type Database = {
           },
         ]
       }
+      ai_competitors: {
+        Row: {
+          archetype: string
+          cash_estimate: number
+          created_at: string
+          description: string
+          id: string
+          last_action: Json
+          last_action_quarter: number | null
+          last_action_year: number | null
+          market_share: number
+          name: string
+          persona_key: string
+          relationship_score: number
+          reputation: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archetype: string
+          cash_estimate?: number
+          created_at?: string
+          description?: string
+          id?: string
+          last_action?: Json
+          last_action_quarter?: number | null
+          last_action_year?: number | null
+          market_share?: number
+          name: string
+          persona_key: string
+          relationship_score?: number
+          reputation?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archetype?: string
+          cash_estimate?: number
+          created_at?: string
+          description?: string
+          id?: string
+          last_action?: Json
+          last_action_quarter?: number | null
+          last_action_year?: number | null
+          market_share?: number
+          name?: string
+          persona_key?: string
+          relationship_score?: number
+          reputation?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_press_articles: {
         Row: {
           body: string

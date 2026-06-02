@@ -293,6 +293,11 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="management" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <EmployeesPanel
+                year={gameState.year}
+                quarter={gameState.quarter}
+                cash={gameState.company.cash}
+              />
               <CompanyManagement 
                 budget={gameState.budget}
                 totalBudget={200000}

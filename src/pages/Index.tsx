@@ -14,6 +14,7 @@ import { MusicToggle } from "@/components/MusicToggle";
 import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
 import { AdvisorChat } from "@/components/AdvisorChat";
+import { AdvisorCompanion } from "@/components/AdvisorCompanion";
 import { Button } from "@/components/ui/button";
 import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
@@ -753,17 +754,19 @@ const Index = () => {
         />
       )}
 
-      {/* Advisor chat — only meaningful on the dashboard */}
+      {/* Floating advisor companion + full chat — only on the dashboard */}
       {currentScreen === 'dashboard' && (
         <>
-          <Button
-            onClick={() => setAdvisorOpen(true)}
-            className="fixed bottom-4 right-4 z-40 shadow-lg gap-2"
-            size="sm"
-          >
-            <MessagesSquare className="w-4 h-4" />
-            {(typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ? 'Advisors' : 'Berater'}
-          </Button>
+          <AdvisorCompanion
+            budget={gameState.budget}
+            cash={gameState.company.cash}
+            lastQuarterRevenue={gameState.company.monthlyIncome * 3}
+            hasActiveModels={(gameState.models ?? []).some((m: any) => m.status === 'development' || m.status === 'released')}
+            companyName={gameState.company.name}
+            quarter={gameState.quarter}
+            year={gameState.year}
+            onOpenChat={() => setAdvisorOpen(true)}
+          />
           <AdvisorChat
             isOpen={advisorOpen}
             onClose={() => setAdvisorOpen(false)}

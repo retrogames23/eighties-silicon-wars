@@ -13,6 +13,8 @@ interface CompanyAccountProps {
       monthlyIncome: number;
       monthlyExpenses: number;
       hardwareIncome?: number;
+      outstandingDebt?: number;
+      equityGivenAwayPct?: number;
       additionalRevenue?: {
         softwareLicenses: { games: number; office: number };
         supportService: { b2c: number; b2b: number };

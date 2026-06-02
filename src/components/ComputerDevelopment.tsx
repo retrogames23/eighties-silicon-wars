@@ -205,7 +205,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   // Mindest- und Maximalpreis (konsistent mit EconomicModel)
   const minPrice = Math.round(totalCost * 1.1); // 10% Mindestmarge
   const maxPrice = Math.round(totalCost * 4.0); // 300% Maximalmarge
-  
+
+  // Empfehlung muss mindestens die Standard-Marge (80%) abdecken und
+  // im erlaubten Band [minPrice, maxPrice] liegen. Vorher konnte der
+  // marktbasierte Vorschlag unter dem Mindestpreis landen.
+  const costBasedRecommended = Math.round(totalCost * 1.8); // 80% Standardmarge
+  suggestedPrice = Math.min(
+    maxPrice,
+    Math.max(minPrice, costBasedRecommended, suggestedPrice)
+  );
+
   // Setze Verkaufspreis automatisch auf empfohlenen Preis wenn noch nicht gesetzt
   if (sellingPrice === 0 && suggestedPrice > 0) {
     setSellingPrice(suggestedPrice);

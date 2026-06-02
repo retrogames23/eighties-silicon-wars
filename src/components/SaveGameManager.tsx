@@ -11,7 +11,7 @@ import type { User } from '@supabase/supabase-js';
 import { ComputerModel } from '@/types/ComputerModel';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Budget {
   marketing: number;

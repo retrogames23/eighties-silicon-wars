@@ -384,5 +384,11 @@
     "saveButton": "SPIELSTAND SPEICHERN",
     "allSlotsFull": "Alle 5 Speicherplätze sind belegt. Lösche einen Spielstand, um einen neuen zu speichern.",
     "defaultName": "Spielstand {slot}"
+  },
+  "music": {
+    "on": "Musik einschalten",
+    "off": "Musik ausschalten",
+    "next": "Nächster Titel",
+    "previous": "Vorheriger Titel"
   }
 }

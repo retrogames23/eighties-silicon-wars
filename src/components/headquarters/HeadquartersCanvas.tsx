@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 // so the result stays crisp on retina displays.
 // ============================================================================
 
+const S = 2;                     // resolution multiplier (backing buffer + drawing scale)
 const TILE = 8;                  // logical pixels per tile
 const FLOOR_TILES_W = 36;        // width of a floor in tiles
 const FLOOR_TILES_H = 6;         // height of a floor in tiles (room interior)
@@ -176,22 +177,22 @@ function rng(seed: number) {
 // ---------------------------------------------------------------------------
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  ctx.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(h * S));
 }
 
-function drawBackground(ctx: CanvasRenderingContext2D, W: number, H: number, p: Palette, quarter: number) {
-  // Sky gradient (faked with 4 bands for pixel feel)
-  const bands = 6;
+function drawBackground(ctx: CanvasRenderingContext2D, W: number, groundY: number, p: Palette, quarter: number) {
+  // Sky gradient fills the ENTIRE backdrop down to the ground line
+  const bands = 12;
   for (let i = 0; i < bands; i++) {
     const t = i / (bands - 1);
     const c = lerpColor(p.skyTop, p.skyBot, t);
-    px(ctx, 0, (SKY_H * i) / bands, W, SKY_H / bands + 1, c);
+    px(ctx, 0, (groundY * i) / bands, W, groundY / bands + 1, c);
   }
-  // Stars in Q4
+  // Stars in Q4 only in the upper portion
   if (quarter === 4) {
     const r = rng(42);
-    for (let i = 0; i < 30; i++) {
-      px(ctx, Math.floor(r() * W), Math.floor(r() * SKY_H), 1, 1, "#ffffff");
+    for (let i = 0; i < 50; i++) {
+      px(ctx, Math.floor(r() * W), Math.floor(r() * Math.min(SKY_H, groundY)), 1, 1, "#ffffff");
     }
   }
   // Sun/moon
@@ -226,16 +227,26 @@ function drawGround(ctx: CanvasRenderingContext2D, W: number, groundY: number, p
 }
 
 function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number, name: string, p: Palette) {
-  const text = name.slice(0, 14).toUpperCase();
-  const w = Math.max(40, text.length * 4 + 6);
-  px(ctx, x - w / 2, y, w, 9, p.signBg);
-  px(ctx, x - w / 2, y, w, 1, p.signFg);
-  px(ctx, x - w / 2, y + 8, w, 1, p.signFg);
-  ctx.fillStyle = p.signFg;
-  ctx.font = "6px monospace";
+  const text = name.slice(0, 18).toUpperCase();
+  // Sign sized for a readable font (canvas backing pixels via S multiplier)
+  const fontPx = 11; // backing pixels (after S scaling = 22)
+  // measure roughly
+  ctx.font = `bold ${fontPx * S}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
   ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  ctx.fillText(text, x, y + 2);
+  ctx.textBaseline = "middle";
+  const measured = ctx.measureText(text).width;
+  const padX = 8;
+  const wLogical = Math.max(40, measured / S + padX * 2);
+  const hLogical = 14;
+  // Plate + double trim
+  px(ctx, x - wLogical / 2, y, wLogical, hLogical, p.signBg);
+  px(ctx, x - wLogical / 2, y, wLogical, 1, p.signFg);
+  px(ctx, x - wLogical / 2, y + hLogical - 1, wLogical, 1, p.signFg);
+  px(ctx, x - wLogical / 2, y, 1, hLogical, p.signFg);
+  px(ctx, x + wLogical / 2 - 1, y, 1, hLogical, p.signFg);
+  // Text (raw ctx coords are in scaled space)
+  ctx.fillStyle = p.signFg;
+  ctx.fillText(text, x * S, (y + hLogical / 2) * S);
 }
 
 function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, p: Palette, lit: boolean) {
@@ -438,28 +449,33 @@ function drawRoom(
   const cx = x0 + 4;
   switch (room.kind) {
     case "reception": {
-      // desk + plant + sign
-      px(ctx, cx, baseY - 8, 20, 8, p.desk);
-      px(ctx, cx, baseY - 2, 20, 1, p.deskShade);
-      drawPlant(ctx, cx + 24, baseY);
-      // sign on wall
-      ctx.fillStyle = p.signFg;
-      ctx.font = "5px monospace";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
+      // counter + plant + couch for visitors
+      px(ctx, cx, baseY - 8, 26, 8, p.desk);
+      px(ctx, cx, baseY - 2, 26, 1, p.deskShade);
+      drawPlant(ctx, cx + 32, baseY);
+      drawCouch(ctx, x0 + w - 24, baseY);
       break;
     }
     case "office": {
-      drawDesk(ctx, cx, baseY, p, era);
-      drawDesk(ctx, cx + 18, baseY, p, era);
+      // realistic small office: 1 desk + chair + plant + cabinet, lots of empty space
+      drawDesk(ctx, cx + 4, baseY, p, era);
+      // chair behind desk
+      px(ctx, cx + 12, baseY - 6, 5, 6, "#3a3a3a");
       drawFilingCabinet(ctx, x0 + w - 12, baseY);
-      drawPlant(ctx, x0 + w - 22, baseY);
+      drawPlant(ctx, cx + 26, baseY);
       break;
     }
     case "openSpace": {
-      const slots = Math.floor(w / 16);
-      for (let i = 0; i < slots; i++) drawDesk(ctx, cx + i * 16, baseY, p, era);
-      drawPlant(ctx, x0 + w - 8, baseY);
+      // Max 3 well-spaced desks, with chairs and a plant
+      const slots = Math.min(3, Math.max(1, Math.floor((w - 12) / 28)));
+      const gap = Math.floor((w - 8 - slots * 14) / Math.max(1, slots));
+      for (let i = 0; i < slots; i++) {
+        const dx = cx + i * (14 + gap);
+        drawDesk(ctx, dx, baseY, p, era);
+        // chair
+        px(ctx, dx + 4, baseY - 5, 5, 5, "#3a3a3a");
+      }
+      drawPlant(ctx, x0 + w - 10, baseY);
       break;
     }
     case "meeting": {
@@ -481,11 +497,14 @@ function drawRoom(
       break;
     }
     case "dev": {
-      drawDesk(ctx, cx, baseY, p, era);
-      drawDesk(ctx, cx + 18, baseY, p, era);
-      // second monitor on first desk
-      px(ctx, cx + 16, baseY - 12, 6, 6, "#1a1a1a");
-      px(ctx, cx + 17, baseY - 11, 4, 4, "#39ff88");
+      // Two dev workstations with chairs, plenty of breathing room
+      drawDesk(ctx, cx + 4, baseY, p, era);
+      px(ctx, cx + 12, baseY - 5, 5, 5, "#2a2a2a");
+      // dual monitor on the second station
+      drawDesk(ctx, cx + 28, baseY, p, era);
+      px(ctx, cx + 40, baseY - 12, 6, 6, "#1a1a1a");
+      px(ctx, cx + 41, baseY - 11, 4, 4, "#39ff88");
+      px(ctx, cx + 36, baseY - 5, 5, 5, "#2a2a2a");
       drawServerRack(ctx, x0 + w - 12, baseY);
       break;
     }
@@ -496,10 +515,11 @@ function drawRoom(
       break;
     }
     case "arcade": {
-      drawArcade(ctx, cx, baseY, t, 0);
-      drawArcade(ctx, cx + 14, baseY, t, 1);
-      if (w >= 16 * TILE) drawArcade(ctx, cx + 28, baseY, t, 2);
+      // Two cabinets + couch, no third
+      drawArcade(ctx, cx + 4, baseY, t, 0);
+      drawArcade(ctx, cx + 20, baseY, t, 1);
       drawCouch(ctx, x0 + w - 22, baseY);
+      drawPlant(ctx, cx + 36, baseY);
       break;
     }
     case "executive": {
@@ -575,8 +595,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
     ctx.imageSmoothingEnabled = false;
 
     let raf = 0;
-    const W = canvas.width;
-    const H = canvas.height;
+    // Logical dimensions (px() multiplies by S when drawing to backing)
+    const W = BUILDING_W + STAIR_W + 80;
+    const H = SKY_H + MAX_FLOORS * FLOOR_H + GROUND_H + 10;
 
     const reconcileSprites = () => {
       const layout = layoutRef.current;
@@ -584,7 +605,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
         spritesRef.current = [];
         return;
       }
-      const target = Math.min(propsRef.current.employees, MAX_VISIBLE_SPRITES);
+      // Show roughly 2-3 sprites per floor — keeps small companies looking small
+      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 3));
+      const target = Math.min(propsRef.current.employees, visibleCap);
       const list = spritesRef.current;
 
       // Clamp existing sprites to existing floors
@@ -718,10 +741,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
       const palette = getPalette(yr, q);
       const era = yr < 1985 ? 0 : yr < 1992 ? 1 : 2;
 
-      ctx.clearRect(0, 0, W, H);
-      drawBackground(ctx, W, H, palette, q);
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const groundY = H - GROUND_H;
+      drawBackground(ctx, W, groundY, palette, q);
       drawGround(ctx, W, groundY, palette);
 
       const buildingX = (W - BUILDING_W - STAIR_W) / 2;
@@ -795,13 +817,13 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
   const H = SKY_H + MAX_FLOORS * FLOOR_H + GROUND_H + 10;
 
   return (
-    <div className="w-full overflow-hidden rounded-md bg-black/40">
+    <div className="w-full overflow-hidden rounded-md">
       <canvas
         ref={canvasRef}
-        width={W}
-        height={H}
+        width={W * S}
+        height={H * S}
         className="block w-full h-auto"
-        style={{ imageRendering: "pixelated", aspectRatio: `${W} / ${H}` }}
+        style={{ aspectRatio: `${W} / ${H}` }}
       />
     </div>
   );

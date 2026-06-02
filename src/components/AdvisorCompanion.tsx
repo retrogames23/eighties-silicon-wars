@@ -292,25 +292,23 @@ export const AdvisorCompanion = ({
             </button>
           </div>
 
-          {/* Mode switcher (hide during tour to keep onboarding linear) */}
-          {!inTour && (
-            <div className="flex gap-1 mb-3 text-xs">
-              <button
-                onClick={() => setMode('tips')}
-                className={`px-2 py-1 rounded ${mode === 'tips' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <Lightbulb className="w-3 h-3 inline mr-1" />
-                {t('advisor:companion.tabs.tips')}
-              </button>
-              <button
-                onClick={() => setMode('chat')}
-                className={`px-2 py-1 rounded ${mode === 'chat' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <MessageCircle className="w-3 h-3 inline mr-1" />
-                {t('advisor:companion.tabs.chat')}
-              </button>
-            </div>
-          )}
+          {/* Mode switcher — always visible so the chat is reachable, even mid-tour */}
+          <div className="flex gap-1 mb-3 text-xs">
+            <button
+              onClick={() => setMode('tips')}
+              className={`px-2 py-1 rounded ${mode !== 'chat' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Lightbulb className="w-3 h-3 inline mr-1" />
+              {t('advisor:companion.tabs.tips')}
+            </button>
+            <button
+              onClick={() => setMode('chat')}
+              className={`px-2 py-1 rounded ${mode === 'chat' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <MessageCircle className="w-3 h-3 inline mr-1" />
+              {t('advisor:companion.tabs.chat')}
+            </button>
+          </div>
 
           {/* Tour or Tip view */}
           {(inTour || mode === 'tips') && (

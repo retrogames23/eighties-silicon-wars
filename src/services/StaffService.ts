@@ -58,19 +58,22 @@ function mulberry32(seed: number) {
 
 // ------- Daten-Pools -------
 const FIRST_NAMES = [
-  "Anna","Karl","Sabine","Heinz","Petra","Wolfgang","Uli","Birgit","Klaus","Renate",
-  "Jürgen","Monika","Helga","Dieter","Ingrid","Bernd","Gisela","Hartmut","Christa","Rainer",
+  "James","Mary","John","Patricia","Robert","Jennifer","Michael","Linda","William","Elizabeth",
+  "David","Barbara","Richard","Susan","Joseph","Jessica","Thomas","Sarah","Charles","Karen",
+  "Christopher","Nancy","Daniel","Lisa","Matthew","Betty","Anthony","Margaret","Mark","Sandra",
 ];
 const LAST_NAMES = [
-  "Schneider","Wagner","Becker","Hoffmann","Krüger","Bauer","Lehmann","Fuchs","Vogel","Richter",
-  "Neumann","Schwarz","Zimmermann","Braun","Hartmann","Werner","Lange","Weiß","Frank","Köhler",
+  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+  "Hernandez","Lopez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee",
+  "Perez","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen",
 ];
 
+// Specialty values are stable English slugs; UI translates via i18n.
 const SPECIALTIES: Record<StaffRole, string[]> = {
-  engineer:   ["Hardware-Logik","BIOS / Firmware","Mainboard-Layout","Treiber","Storage-I/O"],
-  marketer:   ["Werbekampagnen","Händler-Netzwerk","Messepräsenz","Print-Anzeigen","Direktvertrieb"],
-  support:    ["Telefon-Hotline","Reparaturservice","Schulungen","Dokumentation","Reklamation"],
-  researcher: ["CPU-Architektur","Grafik-Forschung","Sound-Synthese","Speichertechnik","Vernetzung"],
+  engineer:   ["Hardware Logic","BIOS / Firmware","Mainboard Layout","Drivers","Storage I/O"],
+  marketer:   ["Ad Campaigns","Retailer Network","Trade Shows","Print Ads","Direct Sales"],
+  support:    ["Phone Hotline","Repair Service","Training","Documentation","Complaints"],
+  researcher: ["CPU Architecture","Graphics Research","Sound Synthesis","Memory Tech","Networking"],
 };
 
 // Era-skalierte Gehälter — 1983er Geld ist günstiger als 1995er Geld.

@@ -54,6 +54,8 @@ interface GameState {
     monthlyIncome: number;
     monthlyExpenses: number;
     brandAwareness?: number;
+    outstandingDebt?: number;
+    equityGivenAwayPct?: number;
     hardwareIncome?: number;
     additionalRevenue?: {
       softwareLicenses: { games: number; office: number };

@@ -20,6 +20,7 @@ import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
+import { StaffService } from "@/services/StaffService";
 import { AnnualMeeting } from "@/components/AnnualMeeting";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";

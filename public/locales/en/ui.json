@@ -251,5 +251,55 @@
     },
     "yearSuffix": "(for {{year}})",
     "expectedTestScore": "Expected test score"
+  },
+  "competitors": {
+    "title": "Live Competitors",
+    "market": "Share",
+    "reputation": "Rep",
+    "actions": {
+      "price_cut": "Price Cut",
+      "price_hike": "Price Hike",
+      "new_model_announce": "New Model",
+      "marketing_push": "Marketing Push",
+      "layoffs": "Layoffs",
+      "partnership": "Partnership",
+      "quiet_quarter": "Quiet Quarter"
+    }
+  },
+  "employees": {
+    "title": "Staff",
+    "headcountSuffix": "employees",
+    "salariesPerQ": "Salaries / Q",
+    "moraleAvg": "Morale avg.",
+    "devSpeed": "Dev Speed",
+    "research": "Research",
+    "sales": "Sales",
+    "reputation": "Reputation",
+    "currentTeam": "Current Team",
+    "emptyTeam": "Nobody hired yet. Check the applicant pool below.",
+    "applications": "Applications",
+    "noCandidates": "No open applications. New ones arrive next quarter.",
+    "fire": "Fire",
+    "hire": "Hire",
+    "tooExpensive": "Too expensive",
+    "skill": "Skill",
+    "morale": "Morale",
+    "since": "since",
+    "perQ": "$/Q",
+    "roles": {
+      "engineer": "Engineer",
+      "marketer": "Marketing",
+      "support": "Support",
+      "researcher": "Research"
+    },
+    "toasts": {
+      "notEnoughCash": "Not enough cash",
+      "tooExpensiveDesc": "{{name}} asks for ${{salary}} / quarter — too expensive.",
+      "hireFailed": "Hire failed",
+      "hired": "{{name}} is on board",
+      "hiredDesc": "{{role}} · Skill {{skill}} · ${{salary}} / Q",
+      "fireFailed": "Termination failed",
+      "fired": "{{name}} is leaving the company"
+    }
   }
 }

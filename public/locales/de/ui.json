@@ -251,5 +251,55 @@
     },
     "yearSuffix": "(für {{year}})",
     "expectedTestScore": "Erwarteter Test-Score"
+  },
+  "competitors": {
+    "title": "Lebende Konkurrenz",
+    "market": "Markt",
+    "reputation": "Ruf",
+    "actions": {
+      "price_cut": "Preissenkung",
+      "price_hike": "Preiserhöhung",
+      "new_model_announce": "Neues Modell",
+      "marketing_push": "Marketing-Offensive",
+      "layoffs": "Stellenabbau",
+      "partnership": "Partnerschaft",
+      "quiet_quarter": "Stilles Quartal"
+    }
+  },
+  "employees": {
+    "title": "Personal",
+    "headcountSuffix": "Mitarbeitende",
+    "salariesPerQ": "Gehälter / Q",
+    "moraleAvg": "Moral Ø",
+    "devSpeed": "Dev-Speed",
+    "research": "Forschung",
+    "sales": "Vertrieb",
+    "reputation": "Reputation",
+    "currentTeam": "Aktuelles Team",
+    "emptyTeam": "Noch niemand angestellt. Schau in den Bewerber-Pool unten.",
+    "applications": "Bewerbungsmappe",
+    "noCandidates": "Keine offenen Bewerbungen. Neue kommen mit dem nächsten Quartal.",
+    "fire": "Entlassen",
+    "hire": "Einstellen",
+    "tooExpensive": "Zu teuer",
+    "skill": "Skill",
+    "morale": "Moral",
+    "since": "seit",
+    "perQ": "$/Q",
+    "roles": {
+      "engineer": "Entwicklerin",
+      "marketer": "Marketing",
+      "support": "Support",
+      "researcher": "Forschung"
+    },
+    "toasts": {
+      "notEnoughCash": "Nicht genug Cash",
+      "tooExpensiveDesc": "{{name}} verlangt {{salary}} $ / Quartal — zu teuer.",
+      "hireFailed": "Einstellung fehlgeschlagen",
+      "hired": "{{name}} ist an Bord",
+      "hiredDesc": "{{role}} · Skill {{skill}} · {{salary}} $ / Q",
+      "fireFailed": "Entlassung fehlgeschlagen",
+      "fired": "{{name}} verlässt das Unternehmen"
+    }
   }
 }

@@ -183,7 +183,8 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    const locale = (i18n.language || 'de').toLowerCase().startsWith('en') ? 'en-US' : 'de-DE';
+    return new Date(dateString).toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

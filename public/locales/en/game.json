@@ -5,6 +5,9 @@
     "question": "Will you become the next Steve Jobs or Jack Tramiel?",
     "prompt": "> SYSTEM READY. PRESS START TO BEGIN YOUR JOURNEY...",
     "button": "Start Game",
+    "continueGame": "Continue Game",
+    "loadGame": "Load Game",
+    "noSavedGames": "No saved games found.",
     "switchToEnglish": "Switch to English",
     "switchToGerman": "Auf Deutsch umschalten"
   },

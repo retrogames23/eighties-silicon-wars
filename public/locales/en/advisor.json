@@ -1,0 +1,23 @@
+{
+  "companion": {
+    "title": "Your advisor",
+    "dismiss": "Got it",
+    "later": "Later",
+    "doNotShow": "Don't show again",
+    "openChat": "Ask the advisor",
+    "tour": {
+      "welcome": "Hi {name}! Let me walk you through the basics. Sound good?",
+      "personnel": "Nothing happens without a team. Hire at least one engineer first.",
+      "marketing": "Great products need to be heard of. For a start I suggest {amount} marketing budget.",
+      "development": "Active developments speed up with budget. Try {amount} per quarter.",
+      "research": "Research pays off long term. {amount} is a solid starting point."
+    },
+    "tips": {
+      "needRole": "You're spending {amount} on {area}, but you have no {role} on the team. The money is wasted.",
+      "revenueGrew": "Your revenue climbed to {revenue}. Marketing of ~{amount} would be appropriate now.",
+      "saturated": "Your {area} budget is past the saturation point. More team beats more money now.",
+      "lowMorale": "Team morale is at {morale}% — consider a bonus or a break.",
+      "cashLow": "Your cash reserve is shrinking. Lower unproductive budgets or pause research."
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "companion": {
+    "title": "Dein Berater",
+    "dismiss": "Verstanden",
+    "later": "Später",
+    "doNotShow": "Nicht mehr zeigen",
+    "openChat": "Frag den Berater",
+    "tour": {
+      "welcome": "Hi {name}! Ich begleite dich am Anfang ein bisschen. Klingt das gut?",
+      "personnel": "Ohne Team passiert nichts. Stell als erstes mindestens eine/n Entwickler:in ein.",
+      "marketing": "Gute Modelle verkaufen sich nur, wenn man sie kennt. Für den Anfang schlage ich {amount} Marketing-Budget vor.",
+      "development": "Aktive Entwicklungen werden mit Budget schneller. Probier {amount} pro Quartal.",
+      "research": "Forschung zahlt sich langfristig aus. {amount} sind ein guter Startwert."
+    },
+    "tips": {
+      "needRole": "Du gibst {amount} für {area} aus, hast aber keine/n {role} im Team. Das Geld verpufft.",
+      "revenueGrew": "Dein Umsatz ist auf {revenue} gestiegen. Marketing von ~{amount} wäre jetzt angemessen.",
+      "saturated": "Dein {area}-Budget ist über der Sättigung. Mehr Team bringt jetzt mehr als mehr Geld.",
+      "lowMorale": "Die Moral im Team liegt bei {morale}% — überlege Boni oder Pause.",
+      "cashLow": "Deine Cash-Reserve sinkt. Senke unproduktive Budgets oder pausiere Forschung."
+    }
+  }
+}

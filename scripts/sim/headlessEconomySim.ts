@@ -26,6 +26,11 @@ interface SimModel {
   unitsSold?: number;
 }
 
+interface LoanPlan {
+  principal: number; annualRate: number; quartersTotal: number;
+  takeYear: number; takeQuarter: number;
+}
+
 interface Strategy {
   id: string;
   label: string;
@@ -37,6 +42,8 @@ interface Strategy {
   releases: (year: number, quarter: number) => SimModel[];
   /** Initial employees. */
   employees: number;
+  /** Optional bank loan plan (Step-2-Validierung). */
+  loan?: LoanPlan;
 }
 
 // ---------- Strategy definitions ----------

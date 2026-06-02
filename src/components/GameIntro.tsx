@@ -10,9 +10,11 @@ import { User } from "@supabase/supabase-js";
 interface GameIntroProps {
   onComplete: () => void;
   user: User | null;
+  onContinueGame?: () => void;
+  onOpenLoadManager?: () => void;
 }
 
-export const GameIntro = ({ onComplete, user }: GameIntroProps) => {
+export const GameIntro = ({ onComplete, user, onContinueGame, onOpenLoadManager }: GameIntroProps) => {
   const { t } = useTranslation(['game']);
 
   return (

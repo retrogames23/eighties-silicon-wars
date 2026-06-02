@@ -70,6 +70,25 @@ export const GameIntro = ({ onComplete, user, onContinueGame, onOpenLoadManager 
                     <ChevronRight className="w-4 h-4 mr-2" />
                     {t('game:intro.button')}
                   </Button>
+
+                  {user && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <Button
+                        onClick={onContinueGame}
+                        variant="outline"
+                        className="w-full font-mono"
+                      >
+                        {t('game:intro.continueGame')}
+                      </Button>
+                      <Button
+                        onClick={onOpenLoadManager}
+                        variant="outline"
+                        className="w-full font-mono"
+                      >
+                        {t('game:intro.loadGame')}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 

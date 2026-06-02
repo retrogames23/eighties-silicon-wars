@@ -43,6 +43,7 @@ const EMPTY_AGG: StaffAggregate = {
   totalSalary: 0,
   headcount: 0,
   byRole: { engineer: 0, marketer: 0, support: 0, researcher: 0 },
+  byRoleSumSkill: { engineer: 0, marketer: 0, support: 0, researcher: 0 },
   engineerBonusPct: 0,
   marketerBonusPct: 0,
   supportBonusPct: 0,

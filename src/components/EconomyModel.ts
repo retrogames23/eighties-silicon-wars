@@ -260,9 +260,14 @@ export class EconomyModel {
       const aiPressure = context.aiCompetitorPressure?.[segment] ?? 0;
       competitionFactor *= Math.max(0.3, 1 - Math.min(0.5, aiPressure));
 
+      // Anti-Exploit: Preis-Sanity (Dumping unter BOM, Trust bei extrem niedrigem Preis).
+      const bomHint = context._bomCostHint ?? 0;
+      const sanity = priceSanityFactor(model.price, bomHint, maxPrice);
+
       const demandMultiplier =
         baseAppeal *
         priceElasticity *
+        sanity.multiplier *
         competitionFactor *
         obsolescenceFactor *
         seasonalityFactor *

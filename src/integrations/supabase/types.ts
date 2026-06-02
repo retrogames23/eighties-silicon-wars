@@ -362,6 +362,104 @@ export type Database = {
           },
         ]
       }
+      loan_payments: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          game_quarter: number
+          game_year: number
+          id: string
+          interest_portion: number
+          is_default: boolean
+          loan_id: string
+          principal_portion: number
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          game_quarter: number
+          game_year: number
+          id?: string
+          interest_portion: number
+          is_default?: boolean
+          loan_id: string
+          principal_portion: number
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          game_quarter?: number
+          game_year?: number
+          id?: string
+          interest_portion?: number
+          is_default?: boolean
+          loan_id?: string
+          principal_portion?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_payments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          annual_interest_rate: number
+          consecutive_defaults: number
+          created_at: string
+          id: string
+          outstanding_balance: number
+          principal: number
+          quarterly_payment: number
+          quarters_paid: number
+          quarters_total: number
+          status: string
+          taken_quarter: number
+          taken_year: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          annual_interest_rate: number
+          consecutive_defaults?: number
+          created_at?: string
+          id?: string
+          outstanding_balance: number
+          principal: number
+          quarterly_payment: number
+          quarters_paid?: number
+          quarters_total: number
+          status?: string
+          taken_quarter: number
+          taken_year: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          annual_interest_rate?: number
+          consecutive_defaults?: number
+          created_at?: string
+          id?: string
+          outstanding_balance?: number
+          principal?: number
+          quarterly_payment?: number
+          quarters_paid?: number
+          quarters_total?: number
+          status?: string
+          taken_quarter?: number
+          taken_year?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       market_events: {
         Row: {
           affected_categories: string[]
@@ -575,6 +673,101 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      vc_pitch_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          question_index: number | null
+          role: string
+          round_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          question_index?: number | null
+          role: string
+          round_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          question_index?: number | null
+          role?: string
+          round_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vc_pitch_messages_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "vc_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vc_rounds: {
+        Row: {
+          accepted: boolean | null
+          cash_received: number | null
+          created_at: string
+          feedback: string | null
+          game_quarter: number
+          game_year: number
+          id: string
+          negotiated_valuation_multiplier: number | null
+          offered_equity_pct: number
+          proposed_valuation: number
+          round_number: number
+          status: string
+          updated_at: string
+          use_of_funds: string
+          user_id: string
+          vc_persona: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          cash_received?: number | null
+          created_at?: string
+          feedback?: string | null
+          game_quarter: number
+          game_year: number
+          id?: string
+          negotiated_valuation_multiplier?: number | null
+          offered_equity_pct: number
+          proposed_valuation: number
+          round_number: number
+          status?: string
+          updated_at?: string
+          use_of_funds?: string
+          user_id: string
+          vc_persona?: string
+        }
+        Update: {
+          accepted?: boolean | null
+          cash_received?: number | null
+          created_at?: string
+          feedback?: string | null
+          game_quarter?: number
+          game_year?: number
+          id?: string
+          negotiated_valuation_multiplier?: number | null
+          offered_equity_pct?: number
+          proposed_valuation?: number
+          round_number?: number
+          status?: string
+          updated_at?: string
+          use_of_funds?: string
+          user_id?: string
+          vc_persona?: string
         }
         Relationships: []
       }

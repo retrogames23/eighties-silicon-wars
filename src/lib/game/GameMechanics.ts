@@ -547,6 +547,7 @@ export class GameMechanics {
     //    teile Marktanteile innerhalb des Segments (Kannibalisierung).
     let totalRevenue = 0;
     let totalGrossProfit = 0;
+    let totalProductCosts = 0;
     let totalUnitsSold = 0;
     const modelResults: any[] = [];
     const salesByModelId = new Map<string, { unitsSold: number; revenue: number; profit: number }>();
@@ -668,6 +669,7 @@ export class GameMechanics {
 
         totalRevenue += salesResult.revenue;
         totalGrossProfit += salesResult.profitBreakdown.netProfit;
+        totalProductCosts += Math.max(0, salesResult.revenue - salesResult.profitBreakdown.netProfit);
         totalUnitsSold += salesResult.unitsSold;
         salesByModelId.set(model.id, {
           unitsSold: salesResult.unitsSold,

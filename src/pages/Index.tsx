@@ -19,6 +19,7 @@ import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
+import { CompetitorsService } from "@/services/CompetitorsService";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 

@@ -12,7 +12,7 @@ interface GameIntroProps {
   user: User | null;
 }
 
-export const GameIntro = ({ onComplete }: GameIntroProps) => {
+export const GameIntro = ({ onComplete, user }: GameIntroProps) => {
   const { t } = useTranslation(['game']);
 
   return (

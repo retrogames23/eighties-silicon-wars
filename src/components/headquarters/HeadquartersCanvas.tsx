@@ -449,28 +449,33 @@ function drawRoom(
   const cx = x0 + 4;
   switch (room.kind) {
     case "reception": {
-      // desk + plant + sign
-      px(ctx, cx, baseY - 8, 20, 8, p.desk);
-      px(ctx, cx, baseY - 2, 20, 1, p.deskShade);
-      drawPlant(ctx, cx + 24, baseY);
-      // sign on wall
-      ctx.fillStyle = p.signFg;
-      ctx.font = "5px monospace";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
+      // counter + plant + couch for visitors
+      px(ctx, cx, baseY - 8, 26, 8, p.desk);
+      px(ctx, cx, baseY - 2, 26, 1, p.deskShade);
+      drawPlant(ctx, cx + 32, baseY);
+      drawCouch(ctx, x0 + w - 24, baseY);
       break;
     }
     case "office": {
-      drawDesk(ctx, cx, baseY, p, era);
-      drawDesk(ctx, cx + 18, baseY, p, era);
+      // realistic small office: 1 desk + chair + plant + cabinet, lots of empty space
+      drawDesk(ctx, cx + 4, baseY, p, era);
+      // chair behind desk
+      px(ctx, cx + 12, baseY - 6, 5, 6, "#3a3a3a");
       drawFilingCabinet(ctx, x0 + w - 12, baseY);
-      drawPlant(ctx, x0 + w - 22, baseY);
+      drawPlant(ctx, cx + 26, baseY);
       break;
     }
     case "openSpace": {
-      const slots = Math.floor(w / 16);
-      for (let i = 0; i < slots; i++) drawDesk(ctx, cx + i * 16, baseY, p, era);
-      drawPlant(ctx, x0 + w - 8, baseY);
+      // Max 3 well-spaced desks, with chairs and a plant
+      const slots = Math.min(3, Math.max(1, Math.floor((w - 12) / 28)));
+      const gap = Math.floor((w - 8 - slots * 14) / Math.max(1, slots));
+      for (let i = 0; i < slots; i++) {
+        const dx = cx + i * (14 + gap);
+        drawDesk(ctx, dx, baseY, p, era);
+        // chair
+        px(ctx, dx + 4, baseY - 5, 5, 5, "#3a3a3a");
+      }
+      drawPlant(ctx, x0 + w - 10, baseY);
       break;
     }
     case "meeting": {

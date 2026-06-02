@@ -251,6 +251,7 @@ export const GameTutorial = ({ onClose }: GameTutorialProps) => {
           {/* Konkurrenz */}
           <div className="space-y-3">
             <h3 className="text-xl font-bold text-neon-cyan">{t('tutorial:competitors.title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('tutorial:competitors.intro')}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               <div className="text-center p-2 bg-blue-500/10 rounded">
                 <div className="font-bold text-blue-400">{t('tutorial:competitors.apple.name')}</div>

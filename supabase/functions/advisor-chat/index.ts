@@ -85,6 +85,7 @@ Deno.serve(async (req) => {
       '\n\n' + contextHeader + '\n' +
       JSON.stringify(body.gameContext ?? {}, null, 2);
 
+    console.log('advisor-chat invoke', { advisor: body.advisor, lang, msgCount: body.messages.length });
     const upstream = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -99,6 +100,7 @@ Deno.serve(async (req) => {
         ],
       }),
     });
+    console.log('advisor-chat upstream status', upstream.status);
 
     if (!upstream.ok) {
       const errText = await upstream.text();

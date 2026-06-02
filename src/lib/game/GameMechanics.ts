@@ -814,6 +814,8 @@ export class GameMechanics {
         monthlyExpenses: Math.round((totalExpensesForReporting + loanCashOut) / 3),
         quarterlyProfit: totalProfit,
         quarterlyRevenue: totalRevenue,
+        lastQuarterExpenses: { ...quarterlyExpenses, loanPayments: loanCashOut },
+        lastQuarterNetCashFlow: netCashFlow,
       },
     };
 

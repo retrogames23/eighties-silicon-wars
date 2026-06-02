@@ -848,10 +848,10 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           </div>
                           {eraRelativeScore > 0 && (
                             <div className="flex justify-between text-sm items-center">
-                              <span className="text-muted-foreground">Erwarteter Test-Score:</span>
+                              <span className="text-muted-foreground">{t('ui:development.expectedTestScore')}:</span>
                               <div className="text-right">
                                 <span className="text-neon-cyan font-bold">{eraRelativeScore}/100</span>
-                                <span className="text-xs text-muted-foreground ml-1">(für {currentYear})</span>
+                                <span className="text-xs text-muted-foreground ml-1">{t('ui:development.yearSuffix', { year: currentYear })}</span>
                               </div>
                             </div>
                           )}

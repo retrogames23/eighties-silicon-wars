@@ -32,40 +32,52 @@ interface CompanyAccountProps {
 export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   const { t } = useTranslation(['ui', 'common']);
   const { formatRevenue, formatProfit } = useEconomyTranslation();
-  
-  // Nur die drei Budgets als monatliche Ausgaben
-  const monthlyMarketing = Math.round(gameState.budget.marketing / 3);
-  const monthlyDevelopment = Math.round(gameState.budget.development / 3);
-  const monthlyResearch = Math.round(gameState.budget.research / 3);
+
+  // Engine-Werte sind die Source of Truth (siehe GameMechanics.processQuarter)
+  const totalIncome = Math.max(0, Math.round(gameState.company.monthlyIncome ?? 0));
+  const totalExpenses = Math.max(0, Math.round(gameState.company.monthlyExpenses ?? 0));
+  const monthlyProfit = totalIncome - totalExpenses;
+
+  // Budgets sind Quartalswerte → /3 für Monatsansicht
+  const monthlyMarketing = Math.round((gameState.budget.marketing ?? 0) / 3);
+  const monthlyDevelopment = Math.round((gameState.budget.development ?? 0) / 3);
+  const monthlyResearch = Math.round((gameState.budget.research ?? 0) / 3);
+  const monthlySupport = Math.round((gameState.budget.support ?? 0) / 3);
+
+  // Zusätzliche Einnahmen (falls vom Engine geliefert)
+  const additionalRevenue = gameState.company.additionalRevenue || {
+    softwareLicenses: { games: 0, office: 0 },
+    supportService: { b2c: 0, b2b: 0 }
+  };
+  const softwareGamesMonthly = Math.round(additionalRevenue.softwareLicenses.games / 3);
+  const softwareOfficeMonthly = Math.round(additionalRevenue.softwareLicenses.office / 3);
+  const supportB2cMonthly = Math.round(additionalRevenue.supportService.b2c / 3);
+  const supportB2bMonthly = Math.round(additionalRevenue.supportService.b2b / 3);
+
+  // Hardware-Anteil als Rest aus Gesamt-Income (engine-authoritativ)
+  const otherIncomeSum = softwareGamesMonthly + softwareOfficeMonthly + supportB2cMonthly + supportB2bMonthly;
+  const hardwareIncome = Math.max(0, totalIncome - otherIncomeSum);
+
+  const income = [
+    { name: t('ui:account.income.computerSales'), amount: hardwareIncome, category: t('ui:account.categories.hardware') },
+    { name: t('ui:account.income.gameSoftwareLicenses'), amount: softwareGamesMonthly, category: t('ui:account.categories.software') },
+    { name: t('ui:account.income.officeSoftwareLicenses'), amount: softwareOfficeMonthly, category: t('ui:account.categories.software') },
+    { name: t('ui:account.income.b2cSupport'), amount: supportB2cMonthly, category: t('ui:account.categories.service') },
+    { name: t('ui:account.income.b2bSupport'), amount: supportB2bMonthly, category: t('ui:account.categories.service') },
+  ].filter(item => item.amount > 0);
+
+  // Bekannte Budget-Ausgaben + Rest als "Sonstige Betriebskosten" (Gehälter, Miete, Kredite, ...)
+  const knownBudgetExpenses = monthlyMarketing + monthlyDevelopment + monthlyResearch + monthlySupport;
+  const otherOperating = Math.max(0, totalExpenses - knownBudgetExpenses);
 
   const expenses = [
     { name: t('ui:account.expenses.marketingBudget'), amount: monthlyMarketing, category: t('ui:account.categories.marketing') },
     { name: t('ui:account.expenses.developmentCosts'), amount: monthlyDevelopment, category: t('ui:account.categories.rnd') },
     { name: t('ui:account.expenses.researchBudget'), amount: monthlyResearch, category: t('ui:account.categories.rnd') },
-  ];
+    { name: t('ui:account.expenses.supportBudget'), amount: monthlySupport, category: t('ui:account.categories.service') },
+    { name: t('ui:account.expenses.otherOperating'), amount: otherOperating, category: t('ui:account.categories.operations') },
+  ].filter(item => item.amount > 0);
 
-  // Berechne zusätzliche Einnahmen aus den Komponenten (falls vorhanden)
-  const additionalRevenue = gameState.company.additionalRevenue || {
-    softwareLicenses: { games: 0, office: 0 },
-    supportService: { b2c: 0, b2b: 0 }
-  };
-
-  const hardwareIncome = gameState.company.hardwareIncome ?? 0;
-  const softwareIncome = (additionalRevenue.softwareLicenses.games + additionalRevenue.softwareLicenses.office) / 3; // Quartalseinnahmen auf Monat
-  const serviceIncome = (additionalRevenue.supportService.b2c + additionalRevenue.supportService.b2b) / 3;
-
-  const income = [
-    { name: t('ui:account.income.computerSales'), amount: hardwareIncome, category: t('ui:account.categories.hardware') },
-    { name: t('ui:account.income.gameSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.games / 3), category: t('ui:account.categories.software') },
-    { name: t('ui:account.income.officeSoftwareLicenses'), amount: Math.round(additionalRevenue.softwareLicenses.office / 3), category: t('ui:account.categories.software') },
-    { name: t('ui:account.income.b2cSupport'), amount: Math.round(additionalRevenue.supportService.b2c / 3), category: t('ui:account.categories.service') },
-    { name: t('ui:account.income.b2bSupport'), amount: Math.round(additionalRevenue.supportService.b2b / 3), category: t('ui:account.categories.service') },
-  ];
-
-  // Korrekte Gewinnberechnung: Gesamteinnahmen minus Gesamtausgaben
-  const totalIncome = income.reduce((sum, item) => sum + item.amount, 0);
-  const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
-  const monthlyProfit = totalIncome - totalExpenses;
 
   return (
     <div className="space-y-6">

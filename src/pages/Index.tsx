@@ -588,6 +588,7 @@ const Index = () => {
           onDevelopNewModel={handleDevelopNewModel}
           onDiscontinueModel={handleDiscontinueModel}
           onOpenSaveManager={handleOpenSaveManager}
+          aiCompetitors={aiCompetitors}
         />
         );
       
@@ -670,6 +671,21 @@ const Index = () => {
         onClose={() => setShowSaveManager(false)}
         user={user}
       />
+
+      {/* Jahreshauptversammlung (Phase 3a) */}
+      {annualMeeting && (
+        <AnnualMeeting
+          isOpen={annualMeeting.isOpen}
+          onClose={() => setAnnualMeeting(null)}
+          year={annualMeeting.year}
+          yearRevenue={annualMeeting.yearRevenue}
+          cash={annualMeeting.cash}
+          reputation={annualMeeting.reputation}
+          marketShare={annualMeeting.marketShare}
+          modelsReleased={annualMeeting.modelsReleased}
+          competitors={aiCompetitors}
+        />
+      )}
 
       {/* Advisor chat — only meaningful on the dashboard */}
       {currentScreen === 'dashboard' && (

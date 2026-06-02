@@ -1,0 +1,85 @@
+{
+  "stats": {
+    "outstandingDebt": "Offene Schulden",
+    "equityGiven": "Equity vergeben",
+    "founderRemaining": "Verbleibend (Gründer)"
+  },
+  "tabs": {
+    "loan": "Bankkredit",
+    "vc": "VC-Pitch"
+  },
+  "loan": {
+    "title": "Bankkonditionen Q{{quarter}}/{{year}}",
+    "rateLabel": "Leitzins (Reputation {{reputation}}):",
+    "ratePa": "{{rate}} % p.a.",
+    "avgQuarterlyRevenue": "Ø Quartalsumsatz:",
+    "maxPrincipal": "Maximaler Kreditrahmen:",
+    "notEligible": "Nicht kreditwürdig: {{reason}}",
+    "reasonFallback": "Bonität unzureichend",
+    "amount": "Kreditsumme: ${{amount}}",
+    "term": "Laufzeit (Quartale)",
+    "termOption": "{{q}} Q",
+    "quarterlyPayment": "Quartalsrate:",
+    "totalPayback": "Gesamtrückzahlung:",
+    "totalInterest": "Zinsen gesamt:",
+    "take": "Kredit aufnehmen",
+    "toast": {
+      "takenTitle": "Kredit aufgenommen",
+      "takenDesc": "${{amount}} zu {{rate}} % p.a.",
+      "errorTitle": "Fehler",
+      "errorDesc": "Kredit konnte nicht angelegt werden."
+    },
+    "active": {
+      "title": "Aktive Kredite",
+      "summary": "${{principal}} @ {{rate}} %",
+      "progress": "{{paid}}/{{total}} Raten · ${{outstanding}} offen",
+      "rate": "Rate: ${{amount}}",
+      "defaults": "{{count}}/3 Ausfälle"
+    }
+  },
+  "vc": {
+    "title": "VC-Pitch ({{done}}/3 abgehalten)",
+    "todayPitch": "Heute pitchst du an",
+    "maxRoundsReached": "Maximum 3 VC-Runden erreicht.",
+    "notEnoughEquity": "Zu wenig Equity verfügbar (max. 75 % insgesamt vergeben).",
+    "setup": {
+      "offeredEquity": "Angebotener Equity-Anteil: {{pct}} %",
+      "valuation": "Vorgeschlagene Bewertung (Post-Money, $)",
+      "expectedCash": "Erwarteter Cash bei Akzeptanz: ~${{amount}}",
+      "useOfFunds": "Verwendung der Mittel",
+      "useOfFundsPlaceholder": "z.B. R&D für 32-Bit-Linie, Aufbau Vertrieb in Europa, ...",
+      "start": "Pitch starten (VC stellt 3 Fragen)"
+    },
+    "questions": {
+      "hint": "Beantworte alle 3 Fragen so konkret wie möglich. Vager Pitch = niedrigere Bewertung.",
+      "question": "Frage {{n}}: {{text}}",
+      "answerPlaceholder": "Deine Antwort...",
+      "submit": "Antworten einreichen",
+      "tooShortTitle": "Antworten zu kurz",
+      "tooShortDesc": "Mindestens 10 Zeichen je Frage."
+    },
+    "evaluating": "VC denkt nach...",
+    "result": {
+      "invested": "Investiert: ${{amount}}",
+      "rejected": "Investment abgelehnt",
+      "multiplier": "Bewertungs-Multiplikator: {{mult}}×",
+      "weaknesses": "Kritikpunkte:",
+      "close": "Schließen"
+    },
+    "toast": {
+      "unreachableTitle": "VC nicht erreichbar",
+      "investedTitle": "VC investiert!",
+      "investedDesc": "+${{amount}} für {{pct}} % Equity",
+      "rejectedTitle": "Abgelehnt",
+      "evalFailedTitle": "Bewertung fehlgeschlagen"
+    },
+    "history": {
+      "title": "VC-Historie",
+      "round": "Runde {{n}} · Q{{quarter}}/{{year}}",
+      "terms": "{{pct}}% @ ${{valuation}}",
+      "accepted": "+${{amount}}",
+      "rejected": "Abgelehnt",
+      "running": "Läuft"
+    }
+  }
+}

@@ -321,11 +321,7 @@ export const GameDashboard = ({
             <TabsContent value="financing" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
               <FinancingPanel
                 gameState={gameState}
-                onCashChange={(delta) => {
-                  // Cash-Delta wird durch Reload des GameState bei nächster Quartalsrunde gespiegelt.
-                  // Sofortige UI-Aktualisierung: GameState-Mutation hier vermeiden, stattdessen Reload-Toast.
-                  console.log('[Financing] cash delta', delta);
-                }}
+                onCashChange={(delta) => onCashChange?.(delta)}
               />
             </TabsContent>
 

@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 // so the result stays crisp on retina displays.
 // ============================================================================
 
-const S = 2;                     // resolution multiplier (backing buffer + drawing scale)
+const S = 4;                     // resolution multiplier (backing buffer + drawing scale) — higher = sharper
 const TILE = 8;                  // logical pixels per tile
 const FLOOR_TILES_W = 36;        // width of a floor in tiles
 const FLOOR_TILES_H = 6;         // height of a floor in tiles (room interior)
@@ -17,7 +17,7 @@ const GROUND_H = 16;
 const SKY_H = 40;
 const STAIR_W = 24;              // right-side stairs / elevator shaft
 const MAX_FLOORS = 7;
-const MAX_VISIBLE_SPRITES = 60;
+const MAX_VISIBLE_SPRITES = 30;
 
 // ---------------------------------------------------------------------------
 // Palettes (era-driven: 1980 → 2000+)

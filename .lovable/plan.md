@@ -1,80 +1,88 @@
-## Ziel
+## Audit-Ergebnis (Kurzfassung)
 
-`HeadquartersTab` komplett neu als Pixel-Art-Büro im Stil von Sim Tower / Theme Hospital. Wachstum richtet sich allein nach der Anzahl der eingestellten Mitarbeitenden. Sprites bewegen sich liebevoll animiert durch die Räume; Deko, Pflanzen, Poster, Kicker und Arcade-Automaten geben dem Ganzen Charakter.
+Die Codebase ist mechanisch reich, hat aber **drei strukturelle Probleme**, die alle drei Ziele (Realismus, Progression, Fairness) gleichzeitig untergraben.
 
-## Wachstums-Logik (mitarbeitergetrieben)
+### Kritische Befunde
 
-Jeder Mitarbeitende = 1 Sprite. Räume werden freigeschaltet, sobald genug Personal da ist (Richtwerte, im Code zentral und leicht justierbar):
+| # | Befund | Datei | Schwere |
+|---|---|---|---|
+| 1 | `calculateSegmentAppeal` ignoriert **CPU/RAM/GPU vollständig** — ein Z80 in 1990 ist genauso attraktiv wie ein 80486 | `src/components/EconomyModel.ts:353–356` | Kritisch |
+| 2 | Zwei **getrennte Konkurrenz-Systeme** (`CompetitorsService` ↔ `INITIAL_COMPETITORS`) — KI-Aktionen haben keinerlei Effekt auf Spieler-Verkäufe | `CompetitorsService.ts` vs `GameMechanics.ts:134–207` | Kritisch |
+| 3 | Kein **Generationen-Sprung** (8-bit → 16-bit → 32-bit). Nur Modell-Alter zählt, nicht Technologie-Generation | `EconomyModel.ts:259–267` | Hoch |
+| 4 | `PriceDecayManager.applyQuarterlyPriceDecay` ist ein **`console.log`-Stub** — der Aufruf in `processQuarterTurn` ist wirkungslos | `GameMechanics.ts:509–513` | Hoch |
+| 5 | **Save-Scumming**: `handleLoadGame` lädt ohne Validierung; 15–30 % Verkaufs-Varianz lässt sich beliebig würfeln | `Index.tsx:567` | Hoch |
 
-```text
-1–3   MA → 1 Etage:  Mini-Büro (2 Schreibtische), Empfang
-4–8   MA → +Etage:   Open-Space Büro (4–6 Plätze) + Pflanze
-9–15  MA → +Etage:   Meetingraum + Küche/Kaffeeecke
-16–25 MA → +Etage:   Entwicklerraum mit Multi-Monitor + Serverrack
-26–40 MA → +Etage:   Lounge mit Kicker
-41–60 MA → +Etage:   Arcade-Raum (Pac-Man-/Donkey-Kong-artige Automaten)
-61+   MA → +Etage:   Chef-Etage mit Aquarium + große Pflanze
-```
+### Weitere Befunde (Mittel/Niedrig)
 
-Etagenzahl, Raum-Layout pro Etage und Sprite-Verteilung leiten sich direkt aus `employees` ab — kein Revenue/Time-Mix mehr. Modernität (Monitor-Stil, Wandfarbe, Poster-Set) richtet sich rein nach dem aktuellen Jahr.
+- **$5 M Startkapital** = ~83 Quartale Burn ohne jede Aktivität → kein Druck im Early Game.
+- **Marketing-Cap 3.0×** mit `√(budget)` Skalierung wird ab Q1 mit $225 K/Quartal erreicht → Marketing-Snowball.
+- **Kein Portfolio-Cap**: Spieler kann mit 3 Modellen 24 % je Segment greifen, addiert >70 % Gesamtmarkt.
+- **Fallback-Sales-Pfad** in `GameMechanics.ts:641` ignoriert BOM und Elastizität → frei profitabel bei Import-Fehler.
+- **Staff-Gehälter doppelt geführt**: hartkodierte $60 K vs echte `staff`-Tabelle — Hire/Fire kostet nichts.
+- **Keine Paradigmen-Events** (IBM-Klone, GUI, Workstation-Boom) — keine Mid-/Late-Game-Disruption.
+- **Marktgröße-Formeln inkonsistent** (Einheiten vs. Dollar) zwischen `EconomyModel` und `GameMechanics`.
 
-## Visuelles Konzept
+### Was bereits gut ist
 
-Echte Pixelgrafik, nicht Vektor:
-- Festes Tile-Raster (z. B. 8 px / Tile), Canvas mit `imageSmoothingEnabled = false` und ganzzahliger Skalierung → knackige Pixel auch auf Retina.
-- Procedural gezeichnete Sprites (kein externes Asset), aber konsequent im Pixel-Stil: 16×24 Mitarbeiter-Sprites mit 2-Frame-Walkcycle, klarem Outline-Pixel und begrenzter Palette pro Rolle.
-- Räume aus wiederkehrenden Tiles: Boden, Wand, Fenster, Tür, Möbel-Sprites.
-- Dekoration als kleine 8×8/16×16-Sprites: Topfpflanzen (3 Varianten), Kaffeemaschine, Wasserspender, Whiteboard, Aktenschrank, CRT-Monitor, Tower-PC, Telefon.
-- Wand-Poster im 80er-Stil als kleine Pixel-Sprites: Synthwave-Sonnenuntergang, "I ♥ BASIC", Space-Invaders-Poster, Schachbrett-Grid, Tape-Recorder. Rotation pro Raum deterministisch über Seed (`floor*roomIdx`), damit sie nicht jeden Frame flackern.
-- Hintergrund: Tag-/Nachtwechsel je nach Quartal (Q1/Q2 Tag, Q3 Sonnenuntergang, Q4 Sternenhimmel) — dezent, kein Gameplay-Effekt.
-- Fassade außen mit kleinem Firmenschild (Firmenname) über dem Eingang.
+- Komponenten-Preisverfall korrekt exponentiell mit Inflation-Gegendruck (`EconomyModel.ts:138–168`).
+- Historisches Unlock-Timing der CPUs/Sound-Chips ist authentisch.
+- Marketing-Effektivität nutzt `sqrt` (statt linear) → grundsätzlich richtige Dämpfung.
+- Preis-Elastizität oberhalb `maxPrice` ist exponentiell.
+- Saisonalität (Q4 ×1.4, Q1 ×0.8) ist implementiert.
 
-## Sprites & Bewegung
+---
 
-- Pro Mitarbeitenden ein persistenter Sprite mit Rolle (worker/developer/manager) — Verteilung anhand vorhandener Personal-Aufteilung, falls verfügbar, sonst per Seed.
-- Bewegung tile-basiert: Sprite wählt zufälliges Ziel-Tile im erlaubten Etagen-Bereich, läuft horizontal, kurze Idle-Pausen am Schreibtisch (Tipp-Animation: Kopf nickt, Hände wackeln).
-- Etagenwechsel via Treppe rechts/Aufzug; Aufzug erscheint ab 3+ Etagen.
-- Im Kicker-/Arcade-Raum spielen 1–2 Sprites eine Loop-Animation (Kicker-Stangen drehen, Joystick-Wackeln).
-- Performance: max. ~60 sichtbare Sprites; bei mehr Mitarbeitenden werden zusätzliche als "im Außendienst" gewertet und nicht gezeichnet, Zähler zeigt Gesamtzahl.
+## Plan für Schritt 1 — "Realismus-Fundament reparieren"
 
-## Komponenten-Struktur
+Fokus auf die fünf kritischen/hohen Befunde, **bevor** wir an Balancing-Feinheiten gehen. Keine Änderung an UI oder Spielgefühl der bestehenden Buttons — nur Simulations-Backend.
 
-```text
-src/components/headquarters/
-  HeadquartersTab.tsx          (Card-Wrapper + Stats, Mount-Punkt)
-  HeadquartersCanvas.tsx       (Canvas + RAF-Loop, props: employees, year, quarter, companyName)
-  pixel/
-    palette.ts                 (Farbpaletten pro Ära)
-    tiles.ts                   (Tile-Zeichenfunktionen: wall, floor, window, door)
-    furniture.ts               (Schreibtisch, Kicker, Arcade, Pflanze, Poster …)
-    sprites.ts                 (Mitarbeiter-Sprite + Walkcycle)
-    layout.ts                  (employees → floors[] → rooms[] Mapping)
-```
+### 1.1 Hardware-Specs müssen Nachfrage beeinflussen
+- `calculateSegmentAppeal(model, segment, year, quarter)` umschreiben:
+  - Berechnet **Spec-Score** aus CPU-Performance, RAM, GPU, Sound, Storage (alle 0–100 normalisiert).
+  - **Segment-Gewichtung**: Gamer = GPU/Sound stark, Business = CPU/RAM/Display, Workstation = CPU/RAM/Storage.
+  - Vergleich gegen **„Stand der Technik" im aktuellen Jahr** (Median verfügbarer Komponenten via `HardwareManager`), nicht gegen fixen Baseline-Wert.
+  - Ergebnis: 30 % statisch (Marken-Appeal) + 70 % spec-getrieben.
 
-`HeadquartersTab.tsx` bleibt die einzige nach außen exportierte API; bestehende Props (`cash`, `employees`, `revenue`, `quarter`, `year`) bleiben kompatibel, damit `GameDashboard.tsx` unverändert bleibt.
+### 1.2 Generationen-Obsoleszenz (8/16/32-bit)
+- Neue Funktion `getTechGeneration(cpu, year)` → `8bit | 16bit | 32bit`.
+- In `calculateObsolescenceFactor` zusätzlich zur Quartals-Abnutzung einen **Generationen-Malus** (z. B. −25 % pro abgehängter Generation) anwenden, sobald die nächste Generation am Markt verfügbar ist.
+- Schwellen historisch korrekt: 16-bit ab Q2/1984 (68000), 32-bit ab Q1/1986 (80386).
 
-## i18n
+### 1.3 Konkurrenz-Systeme zusammenführen
+- `EconomyModel.calculateCompetitionImpact` liest jetzt die **aktive `AiCompetitor`-Liste** aus dem GameState (statt der toten `INITIAL_COMPETITORS`).
+- KI-Marktanteils-Bewegungen aus `CompetitorsService.applyActionEffects` reduzieren den verfügbaren Markt für Spieler-Modelle im jeweiligen Segment.
+- Keine doppelte Datenhaltung — `INITIAL_COMPETITORS` wird nur noch als Seed für neue Spiele verwendet.
 
-Neue Keys in `ui.json` (de/en), bestehende `headquarters.*` werden ersetzt:
-- `headquarters.title`, `description`, `era`
-- Stage-Namen: `garage`, `firstFloor`, `growing`, `established`, `corporation`, `empire`
-- Raum-Labels (für Tooltip beim Hover über Raum, optional Phase 2): `office`, `meeting`, `dev`, `kitchen`, `lounge`, `arcade`, `executive`
-- Sprite-Legende: `worker`, `developer`, `manager`
+### 1.4 Preis-Decay-Stub durch echte Anwendung ersetzen
+- `PriceDecayManager.applyQuarterlyPriceDecay` entfernen oder zur reinen Telemetrie-Funktion machen.
+- Korrekt-Pfad: `EconomyModel.calculateBOMCostsWithDecay` bleibt die Single Source of Truth — der unwirksame Call in `GameMechanics.ts:511` wird gelöscht, damit keine falsche „funktioniert"-Suggestion entsteht.
 
-## Technische Details
+### 1.5 Save-Scumming entschärfen (minimal-invasiv, kein Multiplayer-Zwang)
+- **Deterministisches RNG pro Quartal**: Seed = `hash(userId + year*4 + quarter)`. Re-Load reproduziert exakt dieselben Sales-Würfe → Save-Scum bringt nichts mehr.
+- Implementierung: kleiner Mulberry32-Seeded-RNG in `src/lib/game/rng.ts`, in `simulateMarketDemand` statt `Math.random()` verwenden.
 
-- Canvas-Auflösung: logische 320×200 Pixel, hochskaliert per CSS `image-rendering: pixelated` auf Container-Breite → garantiert sauberes Pixel-Bild.
-- Walkcycle: 2 Frames, Wechsel alle 180 ms gekoppelt an Bewegung (nicht an `Date.now` direkt, damit stehende Sprites still sind).
-- Re-Render nur via `requestAnimationFrame`; State der Sprites in `useRef` statt `useState` (kein React-Rerender pro Frame). Gemäß Core-Memory: `useEffect` nur für Mount/Cleanup.
-- Sprite-Liste wird beim Mitarbeiter-Wechsel diffed (neue hinzufügen, überzählige entfernen), Positionen bleiben für vorhandene erhalten.
-- Keine horizontalen Scrollbars auf Mobile (Core-Memory): Canvas skaliert per `width: 100%`, Höhe per `aspect-ratio`.
+### Test-Strategie
+- Headless-Simulation: `npm run test:sim` Skript, das 40 Quartale (1983 Q1 – 1992 Q4) mit drei festen Strategien (Billig-Z80-Spam, Mid-Tech-Premium, R&D-Heavy) durchspielt und Kennzahlen ausgibt (Cash-Verlauf, Marktanteil, Modell-Lebenszyklus).
+- Vorher/Nachher-Vergleich derselben Strategien → bestätigt, dass Z80-Spam in 1990 nicht mehr profitabel ist und 32-bit-Investitionen sich auszahlen.
 
-## Memory-Update
+### Bewusst NICHT in Schritt 1
 
-`mem://features/headquarters-visualization` wird auf den neuen Pixel-Art-/Sim-Tower-Ansatz aktualisiert (Wachstum = Mitarbeiterzahl, Tile-Raster, Sprite-Ref-State).
+Folgendes kommt in Schritt 2/3 (Progression-Tuning & Anti-Exploit), nach Freigabe von Schritt 1:
+- Startkapital-Reduktion / dynamische Anfangs-Loans
+- Marketing-Cap absenken + diminishing returns verschärfen
+- Portfolio-Marktanteils-Cap
+- Paradigmen-Events (IBM-Klone 1985, GUI 1989, Multimedia 1991)
+- Hire/Fire-Severance + Reconnect der staff-Tabelle an Quartals-Kosten
+- Fallback-Sales-Pfad härten oder entfernen
+- Marktgröße-Formeln vereinheitlichen
 
-## Nicht im Scope
+---
 
-- Klick-/Hover-Interaktion mit Räumen (kann später ergänzt werden).
-- Sound-Effekte.
-- Speicherung der individuellen Sprite-Positionen im Save-Game (Sprites werden beim Laden neu verteilt).
+## Erwartetes Ergebnis nach Schritt 1
+
+- Ein Spieler, der 1990 noch Z80-Maschinen verkauft, sieht den Umsatz einbrechen — wie historisch.
+- KI-Konkurrenten werden mechanisch spürbar (nicht nur narrativ in den News).
+- Save-Scumming verliert seinen Nutzen für RNG-Optimierung.
+- Code-Basis hat **eine** Wahrheit für Preisverfall und **eine** Wahrheit für Konkurrenz — Fundament für alle weiteren Balancing-Schritte.
+
+**Warte auf deine Freigabe, bevor ich Code ändere.**

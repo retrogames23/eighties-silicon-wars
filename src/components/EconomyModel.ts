@@ -18,6 +18,7 @@
 
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
+import { mulberry32 } from "@/lib/game/rng";
 
 // Preisverfall-Konstanten pro Komponententyp (pro Quartal)
 export const PRICE_DECAY_RATES = {
@@ -82,6 +83,16 @@ export interface EconomyContext {
   demandMultiplier?: number;
   /** Markt-Anteils-Verteilung pro Segment (kommt aus Portfolio-Sim). 0..1 */
   segmentShareOverride?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
+  /**
+   * Deterministischer Quartals-Seed (anti-save-scum). Wenn gesetzt, wird die
+   * stochastische Verkaufs-Varianz aus diesem Seed gezogen statt aus Math.random().
+   */
+  rngSeed?: number;
+  /**
+   * Vorberechneter KI-Druck pro Segment (0..1). 0 = kein Druck, 0.5 = halbierter
+   * verfügbarer Markt. Speist aktive AiCompetitor-Stati in die Sim.
+   */
+  aiCompetitorPressure?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
 }
 
 export class EconomyModel {
@@ -196,10 +207,14 @@ export class EconomyModel {
       model.releaseQuarter || quarter,
       year,
       quarter
-    );
+    ) * this.calculateGenerationFactor(model, year, quarter);
     const marketingBoost = this.calculateMarketingEffectiveness(marketingBudget, playerReputation, year);
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;
+
+    // Deterministisches RNG für Verkaufs-Varianz (Save-Scum-Schutz).
+    // Wenn kein Seed: Fallback auf Math.random für Abwärtskompatibilität.
+    const rand = context.rngSeed !== undefined ? mulberry32(context.rngSeed) : Math.random;
 
     segments.forEach(segment => {
       const segmentSize = segmentSizes[segment];
@@ -211,7 +226,11 @@ export class EconomyModel {
       const baseAppeal = this.calculateSegmentAppeal(model, segment, year) / 100;
       const maxPrice = this.getSegmentMaxPrice(segment, year);
       const priceElasticity = this.calculatePriceElasticity(model.price, maxPrice, segment);
-      const competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
+      let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
+
+      // KI-Druck zieht zusätzlich vom verfügbaren Markt ab.
+      const aiPressure = context.aiCompetitorPressure?.[segment] ?? 0;
+      competitionFactor *= Math.max(0.3, 1 - Math.min(0.5, aiPressure));
 
       const demandMultiplier =
         baseAppeal *
@@ -228,7 +247,7 @@ export class EconomyModel {
       const baseUnits = segmentSize * marketPenetration;
       const segmentUnits = Math.floor(
         (shareOverride !== undefined ? baseUnits * shareOverride : baseUnits) *
-        (0.85 + Math.random() * 0.3)
+        (0.85 + rand() * 0.3)
       );
 
       segmentBreakdown[segment] = {
@@ -350,10 +369,117 @@ export class EconomyModel {
     return cpu + gpu + ram + sound;
   }
 
+  /**
+   * Segment-Attraktivität getrieben von tatsächlichen Hardware-Specs.
+   * 30 % statischer Marken-Baseline + 70 % Spec-Score relativ zum
+   * "Stand der Technik" des aktuellen Jahres. Verschiedene Segmente gewichten
+   * Komponenten unterschiedlich (Gamer ≠ Business ≠ Workstation).
+   */
   static calculateSegmentAppeal(model: any, segment: string, year: number): number {
-    const baseAppeal = 50 + (year - 1983) * 5;
-    return Math.min(100, baseAppeal + Math.random() * 20);
+    const baselineBrand = 35; // Marken-/Marketing-Grundsockel
+    const yearBoost = (year - 1983) * 1.5;
+
+    // Segment-spezifische Gewichtungen (Summe = 1.0)
+    const weights: Record<string, Record<string, number>> = {
+      gamer:       { cpu: 0.20, gpu: 0.35, ram: 0.15, sound: 0.20, storage: 0.10 },
+      business:    { cpu: 0.30, gpu: 0.05, ram: 0.30, sound: 0.05, storage: 0.15, display: 0.15 },
+      workstation: { cpu: 0.35, gpu: 0.10, ram: 0.30, sound: 0.05, storage: 0.20 },
+    };
+    const w = weights[segment] || weights.business;
+
+    const perf = {
+      cpu: HardwareManager.getComponentByCPU(model.cpu)?.performance ?? 10,
+      gpu: HardwareManager.getComponentByGPU(model.gpu)?.performance ?? 10,
+      ram: HardwareManager.getComponentByRAM(model.ram)?.performance ?? 10,
+      sound: HardwareManager.getComponentBySound(model.sound)?.performance ?? 5,
+      storage: this.guessAccessoryPerformance(model, 'storage'),
+      display: this.guessAccessoryPerformance(model, 'display'),
+    };
+
+    // "Stand der Technik": maximale verfügbare Performance dieses Komponententyps
+    // im aktuellen Jahr — definiert den 100 %-Maßstab.
+    const sota = this.getSotaPerformance(year);
+
+    let specScore = 0;
+    for (const key of Object.keys(w)) {
+      const ratio = Math.min(1.2, (perf as any)[key] / Math.max(1, (sota as any)[key]));
+      specScore += w[key] * ratio;
+    }
+    // specScore liegt typischerweise in [0.1, 1.2].
+
+    const appeal = baselineBrand + yearBoost + specScore * 55;
+    return Math.max(5, Math.min(100, appeal));
   }
+
+  /** Liefert die jeweils stärkste verfügbare Performance je Komponententyp. */
+  private static sotaCache: Record<number, Record<string, number>> = {};
+  static getSotaPerformance(year: number): Record<string, number> {
+    if (this.sotaCache[year]) return this.sotaCache[year];
+    const comps = HardwareManager.getAvailableComponents(year, 4, []);
+    const max = (type: string) =>
+      comps.filter(c => c.type === type && c.available).reduce((m, c) => Math.max(m, c.performance), 10);
+    const sota = {
+      cpu: max('cpu'),
+      gpu: max('gpu'),
+      ram: max('memory'),
+      sound: max('sound'),
+      storage: max('storage'),
+      display: max('display'),
+    };
+    this.sotaCache[year] = sota;
+    return sota;
+  }
+
+  /** Storage/Display kommen aus model.accessories (Strings). Heuristik via HardwareManager. */
+  static guessAccessoryPerformance(model: any, type: 'storage' | 'display'): number {
+    if (!model.accessories || !Array.isArray(model.accessories)) return 15;
+    const candidates = (type === 'storage'
+      ? ['Kassettenlaufwerk', 'Diskettenlaufwerk 5.25"', 'Diskettenlaufwerk 3.5"',
+         'Festplatte 5MB', 'Festplatte 10MB', 'Festplatte 20MB', 'CD-ROM Drive']
+      : ['RF Modulator', 'Composite Monitor', 'RGB Monitor',
+         'EGA Monitor', 'VGA Monitor', 'Multisync Monitor']);
+    const present = model.accessories.filter((a: string) => candidates.includes(a));
+    if (present.length === 0) return 15;
+    // Performance-Score grob aus dem HardwareManager-Baseline (gleiche Reihenfolge → steigend).
+    const ranks: Record<string, number> = {
+      'Kassettenlaufwerk': 10, 'Diskettenlaufwerk 5.25"': 35, 'Diskettenlaufwerk 3.5"': 50,
+      'Festplatte 5MB': 60, 'Festplatte 10MB': 65, 'Festplatte 20MB': 70, 'CD-ROM Drive': 55,
+      'RF Modulator': 15, 'Composite Monitor': 35, 'RGB Monitor': 65,
+      'EGA Monitor': 75, 'VGA Monitor': 85, 'Multisync Monitor': 95,
+    };
+    return Math.max(...present.map((p: string) => ranks[p] ?? 15));
+  }
+
+  /**
+   * Generationen-Malus: ein 8-bit-Modell, das gegen verfügbare 32-bit-Konkurrenz
+   * antritt, verliert Attraktivität — unabhängig vom Modell-Alter.
+   * 25 % Abschlag pro Generation Rückstand.
+   */
+  static calculateGenerationFactor(model: any, year: number, quarter: number): number {
+    const modelGen = this.getCpuGeneration(model.cpu);
+    const marketGen = this.getMarketMaxGeneration(year, quarter);
+    const gap = Math.max(0, marketGen - modelGen);
+    return Math.pow(0.75, gap);
+  }
+
+  /** CPU → Tech-Generation (1=8-bit, 2=16-bit, 3=32-bit). */
+  static getCpuGeneration(cpu: string): 1 | 2 | 3 {
+    if (!cpu) return 1;
+    const gen32 = ['Intel 80386', 'Intel 80486'];
+    const gen16 = ['Intel 8086', 'Motorola 68000', 'Intel 80286'];
+    if (gen32.some(n => cpu.includes(n))) return 3;
+    if (gen16.some(n => cpu.includes(n))) return 2;
+    return 1;
+  }
+
+  /** Höchste am Markt verfügbare CPU-Generation zu (year, quarter). */
+  static getMarketMaxGeneration(year: number, quarter: number): 1 | 2 | 3 {
+    // 32-bit ab Q1/1986 (80386), 16-bit ab Q1/1984 (8086).
+    if (year > 1986 || (year === 1986 && quarter >= 1)) return 3;
+    if (year > 1984 || (year === 1984 && quarter >= 1)) return 2;
+    return 1;
+  }
+
 
   static getSegmentMaxPrice(segment: string, year: number): number {
     const basePrices = { gamer: 800, business: 2000, workstation: 5000 };

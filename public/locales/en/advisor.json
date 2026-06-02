@@ -36,6 +36,9 @@
       "thinking": "Norm's thinking...",
       "send": "Send",
       "switchToTips": "Back to tips"
+    },
+    "noTips": "No urgent tips right now. Want to walk through the basics again?",
+    "replayTour": "Replay tour"
     }
   }
 }

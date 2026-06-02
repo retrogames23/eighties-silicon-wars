@@ -15,19 +15,19 @@
     "tour": {
       "welcome": "Hi! Schön, dass du da bist. Ich begleite dich am Anfang ein bisschen. Klingt das gut?",
       "personnel": "Ohne Team passiert nichts. Stell als erstes mindestens eine/n Entwickler:in ein.",
-      "marketing": "Gute Modelle verkaufen sich nur, wenn man sie kennt. Für den Anfang schlage ich {amount} Marketing-Budget vor.",
-      "development": "Aktive Entwicklungen werden mit Budget schneller. Probier {amount} pro Quartal.",
-      "research": "Forschung zahlt sich langfristig aus. {amount} sind ein guter Startwert.",
+      "marketing": "Gute Modelle verkaufen sich nur, wenn man sie kennt. Für den Anfang schlage ich {{amount}} Marketing-Budget vor.",
+      "development": "Aktive Entwicklungen werden mit Budget schneller. Probier {{amount}} pro Quartal.",
+      "research": "Forschung zahlt sich langfristig aus. {{amount}} sind ein guter Startwert.",
       "financingIntro": "Last but not least: drei Wege, wie du dein Wachstum finanzierst — wähl klug, denn jeder hat seinen Preis.",
       "financingBootstrap": "1) Bootstrap: Aus dem Cashflow wachsen. Sicher, aber langsam. Klassische Mid-Tech-Strategie.",
       "financingLoan": "2) Bankkredit: Geld gegen Zinsen (7–11% in den 80ern). Bank gibt's aber nur, wenn du Umsatz vorweisen kannst.",
       "financingVc": "3) VC-Pitch: Großes Geld gegen Anteile. Du pitchst vor LLM-gesteuerten Investoren — überzeug sie und du bekommst $3–5M für deinen Moonshot."
     },
     "tips": {
-      "needRole": "Du gibst {amount} für {area} aus, hast aber keine/n {role} im Team. Das Geld verpufft.",
-      "revenueGrew": "Dein Umsatz ist auf {revenue} gestiegen. Marketing von ~{amount} wäre jetzt angemessen.",
-      "saturated": "Dein {area}-Budget ist über der Sättigung. Mehr Team bringt jetzt mehr als mehr Geld.",
-      "lowMorale": "Die Moral im Team liegt bei {morale}% — überlege Boni oder Pause.",
+      "needRole": "Du gibst {{amount}} für {{area}} aus, hast aber keine/n {{role}} im Team. Das Geld verpufft.",
+      "revenueGrew": "Dein Umsatz ist auf {{revenue}} gestiegen. Marketing von ~{{amount}} wäre jetzt angemessen.",
+      "saturated": "Dein {{area}}-Budget ist über der Sättigung. Mehr Team bringt jetzt mehr als mehr Geld.",
+      "lowMorale": "Die Moral im Team liegt bei {{morale}}% — überlege Boni oder Pause.",
       "cashLow": "Deine Cash-Reserve sinkt. Senke unproduktive Budgets oder pausiere Forschung."
     },
     "chat": {

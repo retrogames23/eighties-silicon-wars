@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Briefcase, Users, TrendingUp, HeartHandshake, Wrench, Megaphone, FlaskConical } from "lucide-react";
 
 interface Props {
@@ -24,13 +25,6 @@ interface Props {
   onTeamChanged?: (team: StaffMember[], agg: StaffAggregate) => void;
 }
 
-const ROLE_LABEL: Record<StaffMember["role"], string> = {
-  engineer:   "Entwicklerin",
-  marketer:   "Marketing",
-  support:    "Support",
-  researcher: "Forschung",
-};
-
 const ROLE_ICON: Record<StaffMember["role"], typeof Wrench> = {
   engineer:   Wrench,
   marketer:   Megaphone,
@@ -39,6 +33,10 @@ const ROLE_ICON: Record<StaffMember["role"], typeof Wrench> = {
 };
 
 export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: Props) {
+  const { t, i18n } = useTranslation();
+  const localeTag = i18n.language?.startsWith("en") ? "en-US" : "de-DE";
+  const fmt = (n: number) => n.toLocaleString(localeTag);
+
   const [team, setTeam] = useState<StaffMember[]>([]);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -51,9 +49,9 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
       const { data: { user } } = await supabase.auth.getUser();
       if (!active || !user) return;
       setUserId(user.id);
-      const t = await StaffService.list(user.id);
+      const tArr = await StaffService.list(user.id);
       if (!active) return;
-      setTeam(t);
+      setTeam(tArr);
       setCandidates(StaffService.generateCandidates(year, quarter, user.id, 5));
     })();
     return () => { active = false; };
@@ -65,12 +63,14 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
     onTeamChanged?.(team, agg);
   }, [team, agg, onTeamChanged]);
 
+  const roleLabel = (r: StaffMember["role"]) => t(`ui:employees.roles.${r}`);
+
   const handleHire = async (c: Candidate, idx: number) => {
     if (!userId) return;
     if (cash < c.salary_per_quarter) {
       toast({
-        title: "Nicht genug Cash",
-        description: `${c.name} verlangt ${c.salary_per_quarter.toLocaleString("de-DE")} $ / Quartal — zu teuer.`,
+        title: t("ui:employees.toasts.notEnoughCash"),
+        description: t("ui:employees.toasts.tooExpensiveDesc", { name: c.name, salary: fmt(c.salary_per_quarter) }),
         variant: "destructive",
       });
       return;
@@ -79,14 +79,18 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
     const hired = await StaffService.hire(userId, c, year, quarter);
     setBusy(null);
     if (!hired) {
-      toast({ title: "Einstellung fehlgeschlagen", variant: "destructive" });
+      toast({ title: t("ui:employees.toasts.hireFailed"), variant: "destructive" });
       return;
     }
     setTeam(prev => [...prev, hired]);
     setCandidates(prev => prev.filter((_, i) => i !== idx));
     toast({
-      title: `${hired.name} ist an Bord`,
-      description: `${ROLE_LABEL[hired.role]} · Skill ${hired.skill} · ${hired.salary_per_quarter.toLocaleString("de-DE")} $ / Q`,
+      title: t("ui:employees.toasts.hired", { name: hired.name }),
+      description: t("ui:employees.toasts.hiredDesc", {
+        role: roleLabel(hired.role),
+        skill: hired.skill,
+        salary: fmt(hired.salary_per_quarter),
+      }),
     });
   };
 
@@ -96,11 +100,11 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
     const ok = await StaffService.fire(userId, s.id);
     setBusy(null);
     if (!ok) {
-      toast({ title: "Entlassung fehlgeschlagen", variant: "destructive" });
+      toast({ title: t("ui:employees.toasts.fireFailed"), variant: "destructive" });
       return;
     }
-    setTeam(prev => prev.filter(t => t.id !== s.id));
-    toast({ title: `${s.name} verlässt das Unternehmen` });
+    setTeam(prev => prev.filter(x => x.id !== s.id));
+    toast({ title: t("ui:employees.toasts.fired", { name: s.name }) });
   };
 
   return (
@@ -109,29 +113,27 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
       <Card className="retro-border bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-mono">
-            <Users className="h-4 w-4" /> Personal — {agg.headcount} Mitarbeitende
+            <Users className="h-4 w-4" /> {t("ui:employees.title")} — {agg.headcount} {t("ui:employees.headcountSuffix")}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
-          <Stat label="Gehälter / Q" value={`${agg.totalSalary.toLocaleString("de-DE")} $`} />
-          <Stat label="Moral Ø" value={`${agg.averageMorale}%`} />
-          <Stat label="Dev-Speed" value={`+${agg.engineerBonusPct}%`} icon={<Wrench className="h-3 w-3" />} />
-          <Stat label="Forschung" value={`+${agg.researcherBonusPct}%`} icon={<FlaskConical className="h-3 w-3" />} />
-          <Stat label="Vertrieb"   value={`+${agg.marketerBonusPct}%`} icon={<Megaphone className="h-3 w-3" />} />
-          <Stat label="Reputation" value={`+${agg.supportBonusPct}%`} icon={<HeartHandshake className="h-3 w-3" />} />
+          <Stat label={t("ui:employees.salariesPerQ")} value={`${fmt(agg.totalSalary)} $`} />
+          <Stat label={t("ui:employees.moraleAvg")} value={`${agg.averageMorale}%`} />
+          <Stat label={t("ui:employees.devSpeed")} value={`+${agg.engineerBonusPct}%`} icon={<Wrench className="h-3 w-3" />} />
+          <Stat label={t("ui:employees.research")} value={`+${agg.researcherBonusPct}%`} icon={<FlaskConical className="h-3 w-3" />} />
+          <Stat label={t("ui:employees.sales")}    value={`+${agg.marketerBonusPct}%`}   icon={<Megaphone className="h-3 w-3" />} />
+          <Stat label={t("ui:employees.reputation")} value={`+${agg.supportBonusPct}%`}  icon={<HeartHandshake className="h-3 w-3" />} />
         </CardContent>
       </Card>
 
       {/* Team */}
       <Card className="retro-border bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-mono">Aktuelles Team</CardTitle>
+          <CardTitle className="text-sm font-mono">{t("ui:employees.currentTeam")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {team.length === 0 && (
-            <p className="text-xs text-muted-foreground font-mono">
-              Noch niemand angestellt. Schau in den Bewerber-Pool unten.
-            </p>
+            <p className="text-xs text-muted-foreground font-mono">{t("ui:employees.emptyTeam")}</p>
           )}
           {team.map(s => {
             const Icon = ROLE_ICON[s.role];
@@ -142,15 +144,15 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                   <div className="min-w-0">
                     <div className="text-sm font-mono truncate">{s.name}</div>
                     <div className="text-[10px] text-muted-foreground font-mono truncate">
-                      {ROLE_LABEL[s.role]} · {s.specialty} · seit Q{s.hired_quarter}/{s.hired_year}
+                      {roleLabel(s.role)} · {s.specialty} · {t("ui:employees.since")} Q{s.hired_quarter}/{s.hired_year}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="secondary" className="text-[10px] font-mono">Skill {s.skill}</Badge>
-                  <Badge variant="outline" className="text-[10px] font-mono">Moral {s.morale}</Badge>
+                  <Badge variant="secondary" className="text-[10px] font-mono">{t("ui:employees.skill")} {s.skill}</Badge>
+                  <Badge variant="outline" className="text-[10px] font-mono">{t("ui:employees.morale")} {s.morale}</Badge>
                   <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
-                    {s.salary_per_quarter.toLocaleString("de-DE")} $/Q
+                    {fmt(s.salary_per_quarter)} {t("ui:employees.perQ")}
                   </span>
                   <Button
                     size="sm"
@@ -158,7 +160,7 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                     disabled={busy === `fire-${s.id}`}
                     onClick={() => handleFire(s)}
                   >
-                    Entlassen
+                    {t("ui:employees.fire")}
                   </Button>
                 </div>
               </div>
@@ -171,14 +173,12 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
       <Card className="retro-border bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-mono">
-            <Briefcase className="h-4 w-4" /> Bewerbungsmappe Q{quarter}/{year}
+            <Briefcase className="h-4 w-4" /> {t("ui:employees.applications")} Q{quarter}/{year}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {candidates.length === 0 && (
-            <p className="text-xs text-muted-foreground font-mono">
-              Keine offenen Bewerbungen. Neue kommen mit dem nächsten Quartal.
-            </p>
+            <p className="text-xs text-muted-foreground font-mono">{t("ui:employees.noCandidates")}</p>
           )}
           {candidates.map((c, idx) => {
             const Icon = ROLE_ICON[c.role];
@@ -190,14 +190,14 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                   <div className="min-w-0">
                     <div className="text-sm font-mono truncate">{c.name}</div>
                     <div className="text-[10px] text-muted-foreground font-mono truncate">
-                      {ROLE_LABEL[c.role]} · {c.specialty}
+                      {roleLabel(c.role)} · {c.specialty}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="secondary" className="text-[10px] font-mono">Skill {c.skill}</Badge>
+                  <Badge variant="secondary" className="text-[10px] font-mono">{t("ui:employees.skill")} {c.skill}</Badge>
                   <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
-                    {c.salary_per_quarter.toLocaleString("de-DE")} $/Q
+                    {fmt(c.salary_per_quarter)} {t("ui:employees.perQ")}
                   </span>
                   <Button
                     size="sm"
@@ -205,7 +205,7 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                     disabled={busy === `hire-${idx}` || tooExpensive}
                     onClick={() => handleHire(c, idx)}
                   >
-                    {tooExpensive ? "Zu teuer" : "Einstellen"}
+                    {tooExpensive ? t("ui:employees.tooExpensive") : t("ui:employees.hire")}
                   </Button>
                 </div>
               </div>

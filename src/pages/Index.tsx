@@ -71,6 +71,10 @@ interface GameState {
   totalMarketSize: number;
   customChips: CustomChip[];
   totalRevenue: number;
+  /** Anti-Save-Scum: stabiler RNG-Salt pro Spielstart. */
+  seedSalt?: string;
+  /** Anti-Save-Scum: Lade-Zähler pro Quartal. */
+  loadGuard?: { loadCount: number; lastLoadedQuarterKey: string };
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';

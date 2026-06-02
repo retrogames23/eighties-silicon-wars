@@ -294,20 +294,56 @@ const Index = () => {
     setCurrentScreen('quarter-results');
   };
 
-  const handleContinueFromResults = () => {
+  const handleContinueFromResults = async () => {
     // Show newspaper after quarter results
     if (quarterResults && quarterResults.newsEvents && quarterResults.marketData) {
+      // Pull AI-generated press articles for this quarter and merge them into
+      // the newspaper feed so the player sees the lebendige Presse output.
+      let mergedNews = quarterResults.newsEvents;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: articles } = await supabase
+            .from('ai_press_articles')
+            .select('id, headline, body, category, kind, created_at')
+            .eq('user_id', user.id)
+            .eq('game_year', quarterResults.year)
+            .eq('game_quarter', quarterResults.quarter)
+            .order('created_at', { ascending: false });
+
+          if (articles && articles.length > 0) {
+            const mapCategory = (c: string): 'tech' | 'market' | 'world' | 'competitor' => {
+              if (c === 'tech' || c === 'market' || c === 'competitor' || c === 'world') return c;
+              return 'world';
+            };
+            const aiNews = articles.map((a) => ({
+              id: `ai-${a.id}`,
+              year: quarterResults.year,
+              quarter: quarterResults.quarter,
+              category: mapCategory(a.category),
+              headline: a.headline,
+              content: a.body,
+            }));
+            // AI-generated articles lead (they're event-driven and fresh).
+            mergedNews = [...aiNews, ...quarterResults.newsEvents];
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to fetch AI press articles', e);
+      }
+
       setNewspaper({
         isOpen: true,
         quarter: quarterResults.quarter,
         year: quarterResults.year,
-        newsEvents: quarterResults.newsEvents,
+        newsEvents: mergedNews,
         marketData: quarterResults.marketData
       });
     }
     setCurrentScreen('dashboard');
     setQuarterResults(null);
   };
+
 
   const handleDiscontinueModel = (modelId: string) => {
     setGameState(prev => ({

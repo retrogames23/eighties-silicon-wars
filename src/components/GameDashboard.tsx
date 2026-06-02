@@ -10,6 +10,7 @@ import type { AiCompetitor } from "@/services/CompetitorsService";
 import { CompanyManagement } from "@/components/CompanyManagement";
 import EmployeesPanel from "@/components/EmployeesPanel";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
+import { FinancingPanel } from "@/components/FinancingPanel";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";

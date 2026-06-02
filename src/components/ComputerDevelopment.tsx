@@ -789,7 +789,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                 {currentStep === 'testreport' && developedModel && (
                   <TestReport
                     model={{...developedModel, id: modelId}}
-                    testResult={EnhancedTestReportGenerator.generateTestReport({...developedModel, id: modelId}, currentYear)}
+                    testResult={EnhancedTestReportGenerator.generateTestReport({...developedModel, id: modelId}, currentYear, currentQuarter)}
                     onContinue={finalizeModel}
                     onRevise={() => setCurrentStep('pricing')}
                   />

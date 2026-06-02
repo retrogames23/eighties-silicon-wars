@@ -698,7 +698,7 @@ const Index = () => {
         ) : null;
       
       default:
-        return <GameIntro onComplete={handleIntroComplete} />;
+        return <GameIntro onComplete={handleIntroComplete} user={user} />;
     }
   };
 

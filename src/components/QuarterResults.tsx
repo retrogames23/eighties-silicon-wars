@@ -27,11 +27,18 @@ interface QuarterResultsProps {
     reputation: number;
     reputationChange: number;
     expenses: {
+      productCosts?: number;
       marketing: number;
       development: number;
       research: number;
+      support?: number;
+      salaries?: number;
+      portfolioMaintenance?: number;
+      fixedOverhead?: number;
+      loanPayments?: number;
     };
     netProfit: number;
+    netCashFlow?: number;
     competitorActions?: string[]; // Make optional
     marketEvent?: {
       title: string;
@@ -49,7 +56,18 @@ export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = 
   // Handle both old and new data structures from GameMechanics
   const modelSales = results.modelSales || results.modelResults || [];
   const competitorActions = results.competitorActions || [];
-  const expensesTotal = (results?.expenses?.marketing ?? 0) + (results?.expenses?.development ?? 0) + (results?.expenses?.research ?? 0);
+  const expenseRows = [
+    { key: 'productCosts', amount: results?.expenses?.productCosts ?? 0 },
+    { key: 'marketing', amount: results?.expenses?.marketing ?? 0 },
+    { key: 'development', amount: results?.expenses?.development ?? 0 },
+    { key: 'research', amount: results?.expenses?.research ?? 0 },
+    { key: 'support', amount: results?.expenses?.support ?? 0 },
+    { key: 'salaries', amount: results?.expenses?.salaries ?? 0 },
+    { key: 'portfolioMaintenance', amount: results?.expenses?.portfolioMaintenance ?? 0 },
+    { key: 'fixedOverhead', amount: results?.expenses?.fixedOverhead ?? 0 },
+    { key: 'loanPayments', amount: results?.expenses?.loanPayments ?? 0 },
+  ].filter(row => row.amount > 0);
+  const expensesTotal = expenseRows.reduce((sum, row) => sum + row.amount, 0);
   const revenue = results.totalRevenue ?? 0;
   const hasRevenue = typeof results.totalRevenue === 'number';
   const hasExpenses = !!results?.expenses;
@@ -132,17 +150,15 @@ export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>{t('financial.expenses.marketing')}:</span>
-                    <span className="font-mono text-red-400">{formatCurrency(results.expenses.marketing)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t('financial.expenses.development')}:</span>
-                    <span className="font-mono text-red-400">{formatCurrency(results.expenses.development)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t('financial.expenses.research')}:</span>
-                    <span className="font-mono text-red-400">{formatCurrency(results.expenses.research)}</span>
+                  {expenseRows.map(row => (
+                    <div key={row.key} className="flex justify-between gap-3">
+                      <span>{t(`financial.expenses.${row.key}`)}:</span>
+                      <span className="font-mono text-red-400">{formatCurrency(row.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between border-t border-border pt-2 font-semibold">
+                    <span>{t('financial.expenses.total')}:</span>
+                    <span className="font-mono text-red-400">{formatCurrency(expensesTotal)}</span>
                   </div>
                 </div>
               </CardContent>

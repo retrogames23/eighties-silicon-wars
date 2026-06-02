@@ -595,8 +595,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
     ctx.imageSmoothingEnabled = false;
 
     let raf = 0;
-    const W = canvas.width;
-    const H = canvas.height;
+    // Logical dimensions (px() multiplies by S when drawing to backing)
+    const W = BUILDING_W + STAIR_W + 80;
+    const H = SKY_H + MAX_FLOORS * FLOOR_H + GROUND_H + 10;
 
     const reconcileSprites = () => {
       const layout = layoutRef.current;
@@ -740,10 +741,9 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
       const palette = getPalette(yr, q);
       const era = yr < 1985 ? 0 : yr < 1992 ? 1 : 2;
 
-      ctx.clearRect(0, 0, W, H);
-      drawBackground(ctx, W, H, palette, q);
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const groundY = H - GROUND_H;
+      drawBackground(ctx, W, groundY, palette, q);
       drawGround(ctx, W, groundY, palette);
 
       const buildingX = (W - BUILDING_W - STAIR_W) / 2;
@@ -817,13 +817,13 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
   const H = SKY_H + MAX_FLOORS * FLOOR_H + GROUND_H + 10;
 
   return (
-    <div className="w-full overflow-hidden rounded-md bg-black/40">
+    <div className="w-full overflow-hidden rounded-md">
       <canvas
         ref={canvasRef}
-        width={W}
-        height={H}
+        width={W * S}
+        height={H * S}
         className="block w-full h-auto"
-        style={{ imageRendering: "pixelated", aspectRatio: `${W} / ${H}` }}
+        style={{ aspectRatio: `${W} / ${H}` }}
       />
     </div>
   );

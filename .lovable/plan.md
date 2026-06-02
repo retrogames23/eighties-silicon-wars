@@ -1,49 +1,84 @@
-# Schritt 2: Progression-Tuning
+# Finanzierung: Kredit & VC-Pitch
 
-Ziel: Spielfluss spürbar druckvoller machen, ohne Frust. Keine UI-Änderungen, nur Balancing & Logik.
+Zwei neue Finanzierungswege, beide an die bestehende Economy-Sim angedockt. Vorher-Freigabe nötig.
 
-## Änderungen
+## 1. Kreditfinanzierung (Bank)
 
-### 1. Startkapital & Burn-Rate
-- Startkapital von $5M → **$1.5M** (realistisch für 80er-Garagenfirma).
-- Quartalsweise Fixkosten leicht erhöhen (Miete/Verwaltung skaliert mit Mitarbeiterzahl, Minimum-Overhead).
-- Ergebnis: ~6–10 Quartale Runway ohne Verkäufe → echter Druck, Produkte zu launchen.
+**Voraussetzungen** (Bonitätsprüfung beim Klick):
+- Mindestens 2 abgeschlossene Quartale mit positivem Umsatz (`quarterlyRevenue > 0`).
+- Schuldenstand < 50 % des durchschnittlichen Quartalsumsatzes der letzten 4 Q.
+- Reputation ≥ 30.
+- Maximaler Kredit = 4 × Ø-Quartalsumsatz letzter 4 Q.
 
-### 2. Marketing mit Diminishing Returns + Cap
-- Aktuell: `sqrt(marketing)` skaliert unbegrenzt → Snowball.
-- Neu: **Cap pro Quartal** relativ zum Marktsegment-Umsatz (z.B. max 15% des adressierbaren Segments wirksam).
-- Zusätzlich **Sättigungskurve**: über $500k/Quartal nur noch log-Wachstum.
-- Brand Awareness als persistenter Wert (0–100), der über Zeit zerfällt (−5/Quartal ohne Marketing).
+**Konditionen** (historisch 80er, dynamisch):
+- Leitzins ab Jahr: 1983 = 11 %, 1984–86 = 9 %, 1987–88 = 7 %, 1989+ = 8 % p.a.
+- Aufschlag nach Reputation: Rep ≥ 70 → +1 %; Rep < 50 → +3 %; sonst +2 %.
+- Laufzeit: 8, 12 oder 16 Quartale (Spielerwahl).
+- Quartalsweise Annuität (Tilgung + Zins), abgezogen in `processQuarterTurn`.
 
-### 3. Portfolio-Cap & Komplexitätskosten
-- Max **8 aktive Modelle** gleichzeitig im Verkauf (mehr → Vertriebs-Malus −10% pro zusätzlichem Modell).
-- Pro aktivem Modell: kleine Wartungskosten/Quartal (Support, Lagerhaltung).
-- Verhindert "spam alle 12 Modelle gleichzeitig"-Strategie.
+**Default-Mechanik:**
+- Zahlungsausfall (Cash < Annuität): Reputation −15, Strafzinsen 5 % aufs Restdarlehen.
+- Bei 3 aufeinanderfolgenden Ausfällen: Reputation −30, Kredit gekündigt (alles fällig). Wenn nicht zahlbar → Game-Over-Pfad oder Insolvenz-Trigger (vorerst nur Warnung + Reputation-Schaden).
 
-### 4. Mitarbeiter-Realismus
-- Doppelte Verbuchung von Gehältern entfernen (Audit-Finding).
-- Hire/Fire: **Abfindung = 1 Quartalsgehalt** bei Kündigung.
-- Neueinstellungen brauchen 1 Quartal Einarbeitung (50% Produktivität im ersten Quartal).
+**Daten:** neue Tabelle `loans` (user_id, principal, rate, quartersTotal, quartersPaid, status). Plus `loan_payments` Log.
 
-### 5. Paradigm-Events (Markt-Schocks)
-- Vordefinierte historische Events als deterministische Trigger:
-  - 1983: Heimcomputer-Crash (Atari/Commodore-Preisschlacht) → Gamer-Segment −30% Preis-Toleranz.
-  - 1985: PC-Clones-Welle → Business-Segment +50% Volumen, aber +Wettbewerbsdruck.
-  - 1989: GUI-Erwartung (Mac/Windows) → Modelle ohne ausreichend RAM/GPU verlieren Appeal.
-- Implementiert in `EconomyModel` als Event-Liste, angewandt in `calculateSegmentAppeal`.
+## 2. VC-Pitch (LLM-gesteuert)
 
-### 6. Fallback-Sales-Pfad bereinigen
-- `simulateMarketDemand` Fallback (wenn kein BOM) ignoriert aktuell Elastizität → entfernen, stattdessen warn-log + 0 Sales.
-- Zwingt korrekte Modell-Definition.
+**Ablauf im UI:**
+1. Spieler öffnet "VC-Pitch" → wählt Pitch-Setup:
+   - Angebotener Anteil (1–40 %)
+   - Verwendung der Mittel (Freitext: "R&D", "Marketing", "Neue Modellreihe")
+   - Bewertungs-Vorschlag des Spielers (post-money valuation in $)
+2. LLM bekommt: Firmen-KPIs (Cash, Reputation, MarketShare, Modelle, Brand, Quartal/Jahr, Schulden) + Pitch.
+3. LLM stellt 3 kritische Nachfragen, eine nach der anderen — Spieler antwortet jeweils per Textinput.
+4. LLM bewertet (server-seitig, hidden Reasoning) Antworten anhand:
+   - Konsistenz mit den Zahlen
+   - Realismus für 80er-Jahre-Markt
+   - Klarheit der Wachstumsstory
+5. LLM gibt zurück: `accepted: bool`, `negotiatedValuationMultiplier ∈ [0.4, 1.3]`, `feedback: string`.
+6. **Ergebnis:** Falls accepted → Cash += `valuation × angebotenerAnteil`, `equityGivenAwayPct += angebotenerAnteil`. Falls abgelehnt → Reputation −5 (Markt erfährt davon), 4 Quartale Cooldown.
 
-## Nicht in Schritt 2
-- Anti-Exploit (Save-Scumming-Härtung, Preis-Elastizität-Edges) → Schritt 3.
-- UI/UX-Anpassungen.
-- Tutorial/Onboarding für neue Härte.
+**LLM-Integration:**
+- Edge Function `vc-pitch` mit Lovable AI Gateway (`google/gemini-3-flash-preview`).
+- Strukturierte Outputs (Zod-Schema): `questions[]` für Phase 1, dann `evaluation` für Phase 2.
+- System-Prompt definiert VC-Persona (skeptisch, branchenkundig, 80er-Kontext).
+- Anti-Prompt-Injection: User-Antworten klar markiert; LLM-Bewertungs-Regeln im System-Prompt fest.
+
+**Konsequenzen für Sim:**
+- `equityGivenAwayPct` reduziert späteren Player-Profit-Ausschüttungs-Anteil (vorerst nur als Display-Wert; bei Game-End wirkt es auf Final-Score: `finalScore *= (1 − equity)`).
+- Max 3 VC-Runden möglich (Verwässerungs-Schutz).
+- VCs werden über Quartale "skeptischer": wiederholte Pitches werden härter bewertet.
+
+**Daten:** neue Tabelle `vc_rounds` (user_id, round_no, offered_pct, proposed_valuation, accepted, negotiated_valuation, cash_received, created_at). Pitch-Transkript in `vc_pitch_messages`.
+
+## UI
+
+Neuer Tab/Modal "Finanzierung" im Dashboard, zwei Karten:
+- **Bankkredit**: aktueller Kreditstatus, neuer Antrag (Slider Betrag/Laufzeit, Live-Anzeige der Annuität).
+- **VC-Pitch**: Equity-Übersicht, "Neuen Pitch starten"-Button, In-Modal-Chat für die 3 Fragen.
+
+Beide Wege im `CompanyAccount`-Header gespiegelt: "Kredit: $X / Equity-frei: Y %".
+
+## Schritt-Reihenfolge
+
+1. **DB-Migration**: `loans`, `loan_payments`, `vc_rounds`, `vc_pitch_messages` (alle user-scoped, RLS).
+2. **GameMechanics**: Annuitäten-Abzug in `processQuarterTurn` + Cash-Aufschlag bei Kredit-/VC-Vergabe; Persistenz von `equityGivenAwayPct` und `outstandingDebt` auf `gameState.company`.
+3. **Edge Function `vc-pitch`** mit zwei Endpoints (Phase 1 Fragen, Phase 2 Evaluation).
+4. **Services**: `LoanService` (apply/repay), `VcPitchService` (LLM-Calls).
+5. **UI**: Finanzierungs-Modal mit Tabs, integriert in `GameDashboard`.
+
+## Nicht im ersten Wurf
+
+- Bond-Issuance, Re-Finanzierung bestehender Kredite.
+- VC-Anteile als handelbares Asset (Sekundärmarkt).
+- IPO als Game-End-Win-Bedingung (separates Feature).
+- Wechsel von Equity-Anteilen auf laufende Profit-Ausschüttung (vereinfacht: Final-Score-Multiplikator).
 
 ## Technische Details
-- Dateien: `EconomyModel.ts`, `GameMechanics.ts`, evtl. neue `src/lib/game/MarketEvents.ts`, `src/lib/game/BrandAwareness.ts`.
-- Keine DB-Migrationen nötig (alles in GameState-Snapshot).
-- Tests: Headless-Sim über 40 Quartale mit 3 Strategien vergleichen (vorher/nachher Bilanz, Marktanteil, Bankrott-Quote).
 
-Warte auf Freigabe vor Code-Änderungen.
+- Zinsformeln deterministisch (kein RNG); keine Math.random im Loan-Pfad.
+- VC-LLM-Antworten werden roh persistiert für Audit/Replay.
+- Reputation-Effekte gehen über die bestehenden Hooks (kein neuer Reputation-SOT).
+- TypeScript-Types in `src/types/financing.ts`.
+
+Warte auf Freigabe.

@@ -54,6 +54,8 @@ interface GameState {
     monthlyIncome: number;
     monthlyExpenses: number;
     brandAwareness?: number;
+    outstandingDebt?: number;
+    equityGivenAwayPct?: number;
     hardwareIncome?: number;
     additionalRevenue?: {
       softwareLicenses: { games: number; office: number };
@@ -682,6 +684,10 @@ const Index = () => {
           onDevelopNewModel={handleDevelopNewModel}
           onDiscontinueModel={handleDiscontinueModel}
           onOpenSaveManager={handleOpenSaveManager}
+          onCashChange={(delta) => setGameState(prev => ({
+            ...prev,
+            company: { ...prev.company, cash: prev.company.cash + delta },
+          }))}
           aiCompetitors={aiCompetitors}
         />
         );

@@ -10,6 +10,7 @@ import type { AiCompetitor } from "@/services/CompetitorsService";
 import { CompanyManagement } from "@/components/CompanyManagement";
 import EmployeesPanel from "@/components/EmployeesPanel";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
+import { FinancingPanel } from "@/components/FinancingPanel";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";
@@ -68,6 +69,7 @@ interface GameDashboardProps {
   onDevelopNewModel: () => void;
   onDiscontinueModel?: (modelId: string) => void;
   onOpenSaveManager?: () => void;
+  onCashChange?: (delta: number) => void;
   user?: any;
   aiCompetitors?: AiCompetitor[];
 }
@@ -79,6 +81,7 @@ export const GameDashboard = ({
   onDevelopNewModel,
   onDiscontinueModel,
   onOpenSaveManager,
+  onCashChange,
   user,
   aiCompetitors = [],
 }: GameDashboardProps) => {
@@ -92,7 +95,7 @@ export const GameDashboard = ({
   useRenderTracking('GameDashboard');
 
   // Tab navigation for swipe gestures
-  const tabs = ["account", "development", "market", "management", "headquarters"];
+  const tabs = ["account", "development", "market", "management", "financing", "headquarters"];
   
   const navigateToTab = useCallback((direction: 'left' | 'right') => {
     const currentIndex = tabs.indexOf(activeTab);
@@ -263,6 +266,12 @@ export const GameDashboard = ({
                   {isMobile ? 'Mgmt' : t('ui:dashboard.tabs.management')}
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="financing" 
+                  className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
+                >
+                  {isMobile ? '$' : 'Finanzierung'}
+                </TabsTrigger>
+                <TabsTrigger 
                   value="headquarters" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
@@ -307,6 +316,13 @@ export const GameDashboard = ({
                 hasActiveModels={(gameState.models ?? []).some(m => m.status === 'development' || m.status === 'released')}
               />
 
+            </TabsContent>
+
+            <TabsContent value="financing" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <FinancingPanel
+                gameState={gameState}
+                onCashChange={(delta) => onCashChange?.(delta)}
+              />
             </TabsContent>
 
             <TabsContent value="headquarters" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>

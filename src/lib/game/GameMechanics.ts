@@ -726,17 +726,41 @@ export class GameMechanics {
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
 
     // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.
-    const totalProfit = totalGrossProfit - totalExpenses;
-    const netCashFlow = totalProfit;
+    let totalProfit = totalGrossProfit - totalExpenses;
+    let cashAfterOps = company.cash + totalProfit;
 
-    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Net $${totalProfit.toLocaleString()} | Brand ${Math.round(newBrandAwareness)}`);
+    // 7b. Kredit-Annuitäten (LoanService) — ZIEHT vor Mitteilung, nutzt verfügbares Cash.
+    let loanReputationDelta = 0;
+    let loanCashOut = 0;
+    let loanDefaults = 0;
+    const loanLogs: string[] = [];
+    let outstandingDebt = 0;
+    if (userId) {
+      try {
+        const { LoanService } = await import('@/services/LoanService');
+        const loanResult = await LoanService.processQuarterPayments({
+          userId, availableCash: cashAfterOps, year: gameState.year, quarter: gameState.quarter,
+        });
+        loanCashOut = loanResult.totalPaid;
+        loanDefaults = loanResult.defaults;
+        loanReputationDelta = loanResult.reputationDelta;
+        loanLogs.push(...loanResult.logs);
+        cashAfterOps -= loanCashOut;
+        outstandingDebt = await LoanService.getOutstandingDebt(userId);
+      } catch (e) {
+        console.warn('Loan processing failed (anon mode?)', e);
+      }
+    }
+    const netCashFlow = cashAfterOps - company.cash;
 
-    // 8. Marktanteil und Reputation Updates
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
+
+    // 8. Marktanteil und Reputation Updates (inkl. Kredit-Default-Schaden).
     const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
     const marketShareChange = newMarketShare - (company.marketShare || 0);
 
     const newReputation = Math.min(100, Math.max(0,
-      company.reputation + (modelResults.length > 0 ? 2 : -1) + marketShareChange
+      company.reputation + (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta
     ));
     const reputationChange = newReputation - company.reputation;
 
@@ -750,12 +774,13 @@ export class GameMechanics {
       totalResearchSpent: totalResearchSpent,
       company: {
         ...company,
-        cash: company.cash + netCashFlow,
+        cash: cashAfterOps,
         marketShare: newMarketShare,
         reputation: newReputation,
         brandAwareness: newBrandAwareness,
+        outstandingDebt,
         monthlyIncome: Math.round(totalRevenue / 3),
-        monthlyExpenses: Math.round(totalExpenses / 3),
+        monthlyExpenses: Math.round((totalExpenses + loanCashOut) / 3),
         quarterlyProfit: totalProfit,
         quarterlyRevenue: totalRevenue,
       },
@@ -768,13 +793,14 @@ export class GameMechanics {
       totalUnitsSold,
       modelResults,
       profitMargin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0,
-      expenses: quarterlyExpenses,
+      expenses: { ...quarterlyExpenses, loanPayments: loanCashOut },
       netCashFlow,
       marketShare: newMarketShare,
       marketShareChange,
       reputation: newReputation,
       reputationChange,
       marketEventMultipliers: { bomMultiplier, demandMultiplier },
+      loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
     };
 
     return {

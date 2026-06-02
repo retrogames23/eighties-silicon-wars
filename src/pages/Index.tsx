@@ -755,7 +755,7 @@ const Index = () => {
             size="sm"
           >
             <MessagesSquare className="w-4 h-4" />
-            Berater
+            {(typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ? 'Advisors' : 'Berater'}
           </Button>
           <AdvisorChat
             isOpen={advisorOpen}

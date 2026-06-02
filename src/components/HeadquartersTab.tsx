@@ -109,26 +109,6 @@ export const HeadquartersTab = ({
             {t(`ui:headquarters.stage.${stageKey(employees)}`)}
           </p>
 
-          <div className="flex justify-center gap-4 mt-3 text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#4a7ad4] border border-gray-700" />
-              <span className="text-muted-foreground">
-                {t("ui:headquarters.roles.worker")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#7a4ad4] border border-gray-700" />
-              <span className="text-muted-foreground">
-                {t("ui:headquarters.roles.developer")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#d44a4a] border border-gray-700" />
-              <span className="text-muted-foreground">
-                {t("ui:headquarters.roles.manager")}
-              </span>
-            </div>
-          </div>
         </div>
       </Card>
     </div>

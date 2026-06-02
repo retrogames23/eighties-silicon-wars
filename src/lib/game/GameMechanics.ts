@@ -706,13 +706,15 @@ export class GameMechanics {
     //    Gehälter skalieren mit der Mitarbeiterzahl (kein doppelter Flat-Posten).
     const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
     const employeeCount = Math.max(1, company.employees ?? 8);
-    const salaryPerEmployeePerQuarter = 7500; // $30k/Jahr Basis-Gehalt 1983
+    // Step-2-Tuning: Garagenfirma 1983 darf nicht an Fixkosten ersticken.
+    // $24k/Jahr Basis-Gehalt (vorher $30k) — entspricht eher 80er-Junior-Engineer.
+    const salaryPerEmployeePerQuarter = 6000;
     const salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
     // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
     const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
     const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
-    // Mindest-Overhead (Miete, Strom, Verwaltung), skaliert leicht mit Team.
-    const fixedOverhead = Math.round((15000 + employeeCount * 1200) * inflation);
+    // Mindest-Overhead: gesenkt, damit kleine Teams überleben.
+    const fixedOverhead = Math.round((10000 + employeeCount * 1000) * inflation);
 
     const quarterlyExpenses = {
       marketing: budget.marketing,

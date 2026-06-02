@@ -1,52 +1,80 @@
 ## Ziel
 
-Auf dem Startscreen (`GameIntro`) sollen für eingeloggte Benutzer neben "Start Game" zwei zusätzliche Optionen erscheinen:
+`HeadquartersTab` komplett neu als Pixel-Art-Büro im Stil von Sim Tower / Theme Hospital. Wachstum richtet sich allein nach der Anzahl der eingestellten Mitarbeitenden. Sprites bewegen sich liebevoll animiert durch die Räume; Deko, Pflanzen, Poster, Kicker und Arcade-Automaten geben dem Ganzen Charakter.
 
-1. **"Continue Game"** – lädt automatisch den zuletzt gespeicherten Spielstand und springt ins Dashboard.
-2. **"Load Game"** – öffnet die bestehende `SaveGameManager`-Übersicht.
+## Wachstums-Logik (mitarbeitergetrieben)
 
-Beide Aktionen sollen nur sichtbar sein, wenn ein Benutzer eingeloggt ist. Die Texte werden i18n-konform in Deutsch und Englisch über `game.json` bereitgestellt.
+Jeder Mitarbeitende = 1 Sprite. Räume werden freigeschaltet, sobald genug Personal da ist (Richtwerte, im Code zentral und leicht justierbar):
 
----
-
-## Änderungen im Detail
-
-### 1. `src/components/GameIntro.tsx`
-- Eingabe-Props erweitern um `onContinueGame` und `onLoadGame` Callbacks.
-- Wenn `user` vorhanden ist:
-  - Zeige drei Buttons untereinander (oder als Button-Gruppe):
-    - **"Start Game"** (bestehend)
-    - **"Continue Game"** (neu)
-    - **"Load Game"** (neu)
-  - Optische Hervorhebung: "Start Game" bleibt Primary-Button, "Continue" und "Load" als Secondary/Outline-Buttons.
-- Wenn `user` nicht vorhanden ist: nur der bisherige "Start Game"-Button (keine Änderung).
-
-### 2. `src/pages/Index.tsx`
-- Neue Handler `handleContinueGame` und `handleOpenLoadManager` erstellen.
-- `handleContinueGame`:
-  - Query `save_games` Tabelle für den eingeloggten Benutzer, sortiert nach `updated_at DESC`, Limit 1.
-  - Falls ein Spielstand existiert: `setGameState` + `onLoadGame`-Logik + `setCurrentScreen('dashboard')`.
-  - Falls kein Spielstand: Toast-Fehlermeldung "No saved games found".
-- `handleOpenLoadManager`:
-  - Setzt `showSaveManager = true` (bereits vorhandener State).
-- Props an `GameIntro` durchreichen.
-
-### 3. i18n-Keys in `public/locales/{de,en}/game.json`
-Neue Schlüssel unter `intro`:
-```json
-"continueGame": "Continue Game",
-"loadGame": "Load Game",
-"noSavedGames": "No saved games found."
+```text
+1–3   MA → 1 Etage:  Mini-Büro (2 Schreibtische), Empfang
+4–8   MA → +Etage:   Open-Space Büro (4–6 Plätze) + Pflanze
+9–15  MA → +Etage:   Meetingraum + Küche/Kaffeeecke
+16–25 MA → +Etage:   Entwicklerraum mit Multi-Monitor + Serverrack
+26–40 MA → +Etage:   Lounge mit Kicker
+41–60 MA → +Etage:   Arcade-Raum (Pac-Man-/Donkey-Kong-artige Automaten)
+61+   MA → +Etage:   Chef-Etage mit Aquarium + große Pflanze
 ```
 
-### 4. UI-Schema in `public/locales/{de,en}/ui.json` (optional)
-Falls `noSavedGames` besser im `toast`- oder `ui`-Namespace aufgehoben ist, wird der Toast-Key stattdessen dort ergänzt.
+Etagenzahl, Raum-Layout pro Etage und Sprite-Verteilung leiten sich direkt aus `employees` ab — kein Revenue/Time-Mix mehr. Modernität (Monitor-Stil, Wandfarbe, Poster-Set) richtet sich rein nach dem aktuellen Jahr.
 
----
+## Visuelles Konzept
+
+Echte Pixelgrafik, nicht Vektor:
+- Festes Tile-Raster (z. B. 8 px / Tile), Canvas mit `imageSmoothingEnabled = false` und ganzzahliger Skalierung → knackige Pixel auch auf Retina.
+- Procedural gezeichnete Sprites (kein externes Asset), aber konsequent im Pixel-Stil: 16×24 Mitarbeiter-Sprites mit 2-Frame-Walkcycle, klarem Outline-Pixel und begrenzter Palette pro Rolle.
+- Räume aus wiederkehrenden Tiles: Boden, Wand, Fenster, Tür, Möbel-Sprites.
+- Dekoration als kleine 8×8/16×16-Sprites: Topfpflanzen (3 Varianten), Kaffeemaschine, Wasserspender, Whiteboard, Aktenschrank, CRT-Monitor, Tower-PC, Telefon.
+- Wand-Poster im 80er-Stil als kleine Pixel-Sprites: Synthwave-Sonnenuntergang, "I ♥ BASIC", Space-Invaders-Poster, Schachbrett-Grid, Tape-Recorder. Rotation pro Raum deterministisch über Seed (`floor*roomIdx`), damit sie nicht jeden Frame flackern.
+- Hintergrund: Tag-/Nachtwechsel je nach Quartal (Q1/Q2 Tag, Q3 Sonnenuntergang, Q4 Sternenhimmel) — dezent, kein Gameplay-Effekt.
+- Fassade außen mit kleinem Firmenschild (Firmenname) über dem Eingang.
+
+## Sprites & Bewegung
+
+- Pro Mitarbeitenden ein persistenter Sprite mit Rolle (worker/developer/manager) — Verteilung anhand vorhandener Personal-Aufteilung, falls verfügbar, sonst per Seed.
+- Bewegung tile-basiert: Sprite wählt zufälliges Ziel-Tile im erlaubten Etagen-Bereich, läuft horizontal, kurze Idle-Pausen am Schreibtisch (Tipp-Animation: Kopf nickt, Hände wackeln).
+- Etagenwechsel via Treppe rechts/Aufzug; Aufzug erscheint ab 3+ Etagen.
+- Im Kicker-/Arcade-Raum spielen 1–2 Sprites eine Loop-Animation (Kicker-Stangen drehen, Joystick-Wackeln).
+- Performance: max. ~60 sichtbare Sprites; bei mehr Mitarbeitenden werden zusätzliche als "im Außendienst" gewertet und nicht gezeichnet, Zähler zeigt Gesamtzahl.
+
+## Komponenten-Struktur
+
+```text
+src/components/headquarters/
+  HeadquartersTab.tsx          (Card-Wrapper + Stats, Mount-Punkt)
+  HeadquartersCanvas.tsx       (Canvas + RAF-Loop, props: employees, year, quarter, companyName)
+  pixel/
+    palette.ts                 (Farbpaletten pro Ära)
+    tiles.ts                   (Tile-Zeichenfunktionen: wall, floor, window, door)
+    furniture.ts               (Schreibtisch, Kicker, Arcade, Pflanze, Poster …)
+    sprites.ts                 (Mitarbeiter-Sprite + Walkcycle)
+    layout.ts                  (employees → floors[] → rooms[] Mapping)
+```
+
+`HeadquartersTab.tsx` bleibt die einzige nach außen exportierte API; bestehende Props (`cash`, `employees`, `revenue`, `quarter`, `year`) bleiben kompatibel, damit `GameDashboard.tsx` unverändert bleibt.
+
+## i18n
+
+Neue Keys in `ui.json` (de/en), bestehende `headquarters.*` werden ersetzt:
+- `headquarters.title`, `description`, `era`
+- Stage-Namen: `garage`, `firstFloor`, `growing`, `established`, `corporation`, `empire`
+- Raum-Labels (für Tooltip beim Hover über Raum, optional Phase 2): `office`, `meeting`, `dev`, `kitchen`, `lounge`, `arcade`, `executive`
+- Sprite-Legende: `worker`, `developer`, `manager`
 
 ## Technische Details
 
-- Datenbank-Zugriff für "Continue Game" via Supabase-Client direkt in `Index.tsx` (keine neue Tabelle).
-- Keine neuen Dependencies.
-- Der `SaveGameManager` wird unverändert wiederverwendet.
-- Keine Änderungen an Spielmechanik oder Budget-System.
+- Canvas-Auflösung: logische 320×200 Pixel, hochskaliert per CSS `image-rendering: pixelated` auf Container-Breite → garantiert sauberes Pixel-Bild.
+- Walkcycle: 2 Frames, Wechsel alle 180 ms gekoppelt an Bewegung (nicht an `Date.now` direkt, damit stehende Sprites still sind).
+- Re-Render nur via `requestAnimationFrame`; State der Sprites in `useRef` statt `useState` (kein React-Rerender pro Frame). Gemäß Core-Memory: `useEffect` nur für Mount/Cleanup.
+- Sprite-Liste wird beim Mitarbeiter-Wechsel diffed (neue hinzufügen, überzählige entfernen), Positionen bleiben für vorhandene erhalten.
+- Keine horizontalen Scrollbars auf Mobile (Core-Memory): Canvas skaliert per `width: 100%`, Höhe per `aspect-ratio`.
+
+## Memory-Update
+
+`mem://features/headquarters-visualization` wird auf den neuen Pixel-Art-/Sim-Tower-Ansatz aktualisiert (Wachstum = Mitarbeiterzahl, Tile-Raster, Sprite-Ref-State).
+
+## Nicht im Scope
+
+- Klick-/Hover-Interaktion mit Räumen (kann später ergänzt werden).
+- Sound-Effekte.
+- Speicherung der individuellen Sprite-Positionen im Save-Game (Sprites werden beim Laden neu verteilt).

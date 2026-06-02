@@ -563,8 +563,10 @@ export class EconomyModel {
     }
 
     // Reputation- und Brand-Awareness-Multiplikator.
+    // Step-2-Tuning: kleinere Brand-Strafe am Start (0.85 statt 0.7) — sonst killt
+    // der Brand=0-Malus jede Garagenfirma. Maximaler Brand-Bonus bleibt erhalten.
     const repMult = 0.8 + reputation / 100 * 0.4;
-    const brandMult = 0.7 + (brandAwareness / 100) * 0.7;
+    const brandMult = 0.85 + (brandAwareness / 100) * 0.55;
     effectiveness *= repMult * brandMult;
 
     // Hard-Cap bei 2.5 (vorher 3.0).

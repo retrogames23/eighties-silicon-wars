@@ -19,6 +19,7 @@ import {
 } from "@/types/financing";
 import { LoanService } from "@/services/LoanService";
 import { VcPitchService, type CompanySnapshot } from "@/services/VcPitchService";
+import { pickVcForRound, type VcCharacter } from "@/lib/vcCharacters";
 
 interface FinancingPanelProps {
   gameState: any;
@@ -281,6 +282,8 @@ function VcPitchCard({
   const [result, setResult] = useState<{ accepted: boolean; mult: number; cash: number; feedback: string; weaknesses: string[] } | null>(null);
 
   const roundsLeft = 3 - vcRounds.length;
+  const upcomingRoundNumber = vcRounds.length + 1;
+  const vc: VcCharacter = pickVcForRound(upcomingRoundNumber);
   const canPitch = roundsLeft > 0 && equityGivenAway + offered <= 75;
 
   const snapshot = (): CompanySnapshot => ({
@@ -304,7 +307,7 @@ function VcPitchCard({
     setBusy(true);
     try {
       const { round, questions } = await VcPitchService.startRound({
-        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds },
+        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
         company: snapshot(), language: "de",
       });
       setRoundId(round.id);
@@ -330,7 +333,7 @@ function VcPitchCard({
       const evalRes = await VcPitchService.submitAnswers({
         userId, roundId, roundNumber,
         qna: questions.map((q, i) => ({ question: q, answer: answers[i] })),
-        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds },
+        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
         company: snapshot(), language: "de",
       });
       const cash = evalRes.accepted
@@ -368,6 +371,27 @@ function VcPitchCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {canPitch && phase !== "result" && (
+            <div className={`flex gap-4 items-center p-3 rounded-lg bg-gradient-to-br from-background to-muted/40 border-2 ${vc.accentClass}`}>
+              <img
+                src={vc.image}
+                alt={vc.name}
+                width={96}
+                height={96}
+                loading="lazy"
+                className="w-24 h-24 rounded-md object-cover border-2 border-foreground/20 shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Heute pitchst du an
+                </div>
+                <div className="font-bold text-base leading-tight truncate">{vc.name}</div>
+                <div className="text-xs text-muted-foreground truncate">{vc.firm}</div>
+                <div className="text-xs italic mt-1">„{vc.tagline}"</div>
+              </div>
+            </div>
+          )}
+
           {!canPitch && (
             <div className="flex items-start gap-2 p-3 bg-destructive/10 text-destructive rounded text-xs">
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
@@ -443,6 +467,13 @@ function VcPitchCard({
 
           {phase === "result" && result && (
             <div className="space-y-3 text-sm">
+              <div className={`flex gap-3 items-start p-3 rounded-lg border-2 ${vc.accentClass} bg-gradient-to-br from-background to-muted/40`}>
+                <img src={vc.image} alt={vc.name} width={64} height={64} loading="lazy" className="w-16 h-16 rounded-md object-cover border border-foreground/20 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-sm">{vc.name}</div>
+                  <div className="text-xs italic text-muted-foreground">„{result.feedback}"</div>
+                </div>
+              </div>
               <div className={`flex items-center gap-2 p-3 rounded ${result.accepted ? "bg-green-500/10 text-green-700 dark:text-green-300" : "bg-destructive/10 text-destructive"}`}>
                 {result.accepted ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                 <div>
@@ -454,7 +485,6 @@ function VcPitchCard({
                   </div>
                 </div>
               </div>
-              <div className="p-3 bg-muted/30 rounded text-xs italic">"{result.feedback}"</div>
               {result.weaknesses.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold mb-1">Kritikpunkte:</div>

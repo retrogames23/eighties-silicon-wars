@@ -7,6 +7,7 @@ export interface PitchSetup {
   offeredEquityPct: number;
   proposedValuation: number;
   useOfFunds: string;
+  vcPersona?: string;
 }
 
 export interface CompanySnapshot {

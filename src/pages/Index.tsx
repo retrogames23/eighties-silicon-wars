@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { generateSeedSalt, registerLoad, SAVE_SCUM_REPUTATION_PENALTY, SAVE_SCUM_THRESHOLD } from '@/lib/game/AntiExploit';
 import { ComputerModel } from '@/types/ComputerModel';
 import { GameIntro } from "@/components/GameIntro";
 import { LanguageSelection } from "@/components/LanguageSelection";

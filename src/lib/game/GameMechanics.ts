@@ -781,7 +781,7 @@ export class GameMechanics {
     }
     const netCashFlow = cashAfterOps - company.cash;
 
-    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Expenses $${totalExpensesForReporting.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
 
     // 8. Marktanteil und Reputation Updates (inkl. Kredit-Default-Schaden).
     const stateWithSales = { ...gameState, models: modelsAfterSales };
@@ -811,7 +811,7 @@ export class GameMechanics {
         brandAwareness: newBrandAwareness,
         outstandingDebt,
         monthlyIncome: Math.round(totalRevenue / 3),
-        monthlyExpenses: Math.round((totalExpenses + loanCashOut) / 3),
+        monthlyExpenses: Math.round((totalExpensesForReporting + loanCashOut) / 3),
         quarterlyProfit: totalProfit,
         quarterlyRevenue: totalRevenue,
       },

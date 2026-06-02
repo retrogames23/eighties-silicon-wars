@@ -205,11 +205,25 @@ function runStrategy(mode: Mode, s: Strategy): QuarterRow[] {
   const employees = s.employees;
   let bankrupt = false;
 
+  // Kreditbuchhaltung
+  let loanOutstanding = 0;
+  let loanQuarterly = 0;
+  let loanQuartersLeft = 0;
+  const loanRate = s.loan?.annualRate ?? 0;
+
   let qIdx = 0;
   for (let year = 1983; year <= 1992; year++) {
     for (let q = 1; q <= 4; q++) {
       qIdx++;
       if (qIdx > 40) break;
+
+      // Kreditaufnahme zum vereinbarten Quartal
+      if (s.loan && year === s.loan.takeYear && q === s.loan.takeQuarter && loanOutstanding === 0) {
+        cash += s.loan.principal;
+        loanOutstanding = s.loan.principal;
+        loanQuarterly = calcQuarterlyAnnuity(s.loan.principal, s.loan.annualRate, s.loan.quartersTotal);
+        loanQuartersLeft = s.loan.quartersTotal;
+      }
 
       // Add new releases
       for (const m of s.releases(year, q)) {

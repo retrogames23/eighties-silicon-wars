@@ -78,9 +78,9 @@ const SPECIALTIES: Record<StaffRole, string[]> = {
 };
 
 // Era-skalierte Gehälter — 1983er Geld ist günstiger als 1995er Geld.
+// Steilere Kurve: 1983 ≈ 1.0, 1989 ≈ 1.5, 1995 ≈ 2.0 — Wachstum wird zur Entscheidung.
 function eraSalaryFactor(year: number): number {
-  // 1983 ≈ 1.0, 1990 ≈ 1.5, 1995 ≈ 1.9
-  return 1 + Math.max(0, year - 1983) * 0.07;
+  return 1 + Math.max(0, year - 1983) * 0.085;
 }
 
 function baseSalaryForRole(role: StaffRole): number {
@@ -111,18 +111,24 @@ export const StaffService = {
     const rng = mulberry32(hashSeed(`${userId}-${year}-${quarter}`));
     const factor = eraSalaryFactor(year);
     const roles: StaffRole[] = ["engineer","engineer","marketer","support","researcher"];
+    // Ab 1986 tauchen gelegentlich Senior-Bewerber:innen (Skill 70..95) auf.
+    const seniorChance = year >= 1986 ? 0.35 : 0.05;
     return Array.from({ length: count }).map((_, i) => {
       const role = roles[Math.floor(rng() * roles.length)] ?? "engineer";
       const first = FIRST_NAMES[Math.floor(rng() * FIRST_NAMES.length)];
       const last  = LAST_NAMES[Math.floor(rng() * LAST_NAMES.length)];
-      const skill = Math.round(30 + rng() * 65); // 30..95
+      const isSenior = rng() < seniorChance;
+      const skill = isSenior
+        ? Math.round(70 + rng() * 25)   // 70..95
+        : Math.round(30 + rng() * 50);  // 30..80
       const specs = SPECIALTIES[role];
       const specialty = specs[Math.floor(rng() * specs.length)];
-      // Gehalt skaliert mit Skill und Ära, plus ±10% Rauschen.
+      // Gehalt skaliert mit Skill und Ära, plus ±10% Rauschen. Seniors kosten extra.
       const base = baseSalaryForRole(role) * factor;
       const skillMul = 0.6 + (skill / 100) * 0.9;       // 0.6..1.5
+      const seniorMul = isSenior ? 1.15 : 1.0;
       const noise = 0.9 + rng() * 0.2;
-      const salary = Math.round((base * skillMul * noise) / 100) * 100;
+      const salary = Math.round((base * skillMul * seniorMul * noise) / 100) * 100;
       return { name: `${first} ${last}`, role, specialty, skill, salary_per_quarter: salary };
     });
   },
@@ -165,17 +171,14 @@ export const StaffService = {
 
   aggregate(staff: StaffMember[]): StaffAggregate {
     const byRole: Record<StaffRole, number> = { engineer:0, marketer:0, support:0, researcher:0 };
+    const byRoleSumSkill: Record<StaffRole, number> = { engineer:0, marketer:0, support:0, researcher:0 };
     let totalSalary = 0;
-    let sumSkillEng = 0, sumSkillMkt = 0, sumSkillSup = 0, sumSkillRes = 0;
     let moraleSum = 0;
     for (const s of staff) {
       byRole[s.role]++;
+      byRoleSumSkill[s.role] += s.skill;
       totalSalary += s.salary_per_quarter;
       moraleSum += s.morale;
-      if (s.role === "engineer")   sumSkillEng += s.skill;
-      if (s.role === "marketer")   sumSkillMkt += s.skill;
-      if (s.role === "support")    sumSkillSup += s.skill;
-      if (s.role === "researcher") sumSkillRes += s.skill;
     }
     // Boni: jede 100 Skill-Punkte ≈ 4 % Bonus, gedeckelt bei 40 %.
     const cap = (x: number) => Math.min(40, Math.round((x / 100) * 4));
@@ -183,10 +186,11 @@ export const StaffService = {
       headcount: staff.length,
       totalSalary,
       byRole,
-      engineerBonusPct:   cap(sumSkillEng),
-      marketerBonusPct:   cap(sumSkillMkt),
-      supportBonusPct:    cap(sumSkillSup),
-      researcherBonusPct: cap(sumSkillRes),
+      byRoleSumSkill,
+      engineerBonusPct:   cap(byRoleSumSkill.engineer),
+      marketerBonusPct:   cap(byRoleSumSkill.marketer),
+      supportBonusPct:    cap(byRoleSumSkill.support),
+      researcherBonusPct: cap(byRoleSumSkill.researcher),
       averageMorale: staff.length ? Math.round(moraleSum / staff.length) : 0,
     };
   },

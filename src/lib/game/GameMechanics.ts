@@ -550,14 +550,23 @@ export class GameMechanics {
     let totalUnitsSold = 0;
     const modelResults: any[] = [];
 
-    // 5a. Markt-Event-Multiplikatoren (BOM und Demand) holen
+    // 5a. User-ID einmalig holen (für Market-Events, AI-Konkurrenz, RNG-Seed).
+    let userId: string | null = null;
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+    } catch (e) {
+      console.log('⚠️ User lookup failed, sim runs in anon mode');
+    }
+
+    // 5b. Markt-Event-Multiplikatoren (BOM und Demand) holen
     let bomMultiplier = 1;
     let demandMultiplier = 1;
     try {
       const { MarketEventsService } = await import('@/services/MarketEventsService');
-      const { data: { user } } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getUser());
-      if (user?.id) {
-        const activeEvents = await MarketEventsService.getActiveMarketEvents(user.id);
+      if (userId) {
+        const activeEvents = await MarketEventsService.getActiveMarketEvents(userId);
         for (const ev of activeEvents) {
           const t = ev.event_details.event_type;
           if (t === 'shortage' || t === 'price_shock') {
@@ -572,6 +581,34 @@ export class GameMechanics {
     } catch (e) {
       console.log('⚠️ Market events not available, using neutral multipliers');
     }
+
+    // 5c. KI-Konkurrenz-Druck pro Segment (aus aktiven AiCompetitor-Stati).
+    //     Verbindet das CompetitorsService-System mit der Verkaufs-Sim, sodass
+    //     KI-Aktionen mechanisch (nicht nur narrativ in der Presse) wirken.
+    let aiCompetitorPressure: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {};
+    try {
+      if (userId) {
+        const { CompetitorsService } = await import('@/services/CompetitorsService');
+        const aiComps = await CompetitorsService.getAll(userId);
+        const segs = ['gamer', 'business', 'workstation'] as const;
+        for (const seg of segs) {
+          let pressure = 0;
+          for (const c of aiComps) {
+            const shareWeight = Math.min(0.4, (c.market_share || 0) / 100);
+            const targetsMe = c.last_action?.target_segment === seg ? 1.0 : 0.35;
+            const intensity = Math.min(3, c.last_action?.intensity ?? 1) / 3;
+            pressure += shareWeight * targetsMe * (0.5 + 0.5 * intensity);
+          }
+          aiCompetitorPressure[seg] = Math.min(0.5, pressure);
+        }
+      }
+    } catch (e) {
+      console.log('⚠️ AI competitors not available, pressure=0');
+    }
+
+    // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming).
+    const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter);
+
 
     try {
       const { EconomyModel } = await import('@/components/EconomyModel');

@@ -249,6 +249,7 @@
       "design": "Design",
       "price": "Price"
     },
-    "yearSuffix": "(for {{year}})"
+    "yearSuffix": "(for {{year}})",
+    "expectedTestScore": "Expected test score"
   }
 }

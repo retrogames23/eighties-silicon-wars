@@ -253,6 +253,7 @@ const Index = () => {
     
     // KI-Welt: neue Events generieren + alte runter-ticken (best effort, blockiert nicht bei Fehler)
     let aiEvents: AiWorldEvent[] = [];
+    const { data: { user } } = await supabase.auth.getUser();
     if (user?.id) {
       try {
         await LivingWorldService.tickActiveEvents(user.id);

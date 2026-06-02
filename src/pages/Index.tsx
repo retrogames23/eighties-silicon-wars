@@ -264,6 +264,24 @@ const Index = () => {
       } catch (err) {
         console.warn("[LivingWorld] quarter generation failed:", err);
       }
+
+      // Lebende Konkurrenz: pro Persona eine Aktion pro Quartal (best effort)
+      try {
+        const activeModels = (gameState.models ?? []).filter((m: any) => m.status === "released").length;
+        void CompetitorsService.runQuarter({
+          userId: user.id,
+          year: gameState.year,
+          quarter: gameState.quarter,
+          playerSnapshot: {
+            cash: gameState.company?.cash ?? 0,
+            reputation: gameState.company?.reputation ?? 50,
+            market_share: gameState.company?.marketShare ?? 0,
+            active_models: activeModels,
+          },
+        });
+      } catch (err) {
+        console.warn("[Competitors] quarter run failed:", err);
+      }
     }
 
     // Zeige Quartalsresultate

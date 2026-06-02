@@ -64,8 +64,22 @@ Headquarters-Visualisierung wird dynamisch über `google/gemini-3.1-flash-image-
 
 ---
 
-## Phase 4+ — Offen
-Mitarbeiter-System, Lizenz-Deals, internationaler Markt, Spielende-Bedingungen. Definition erst nach Phase 3.
+## Phase 4 — Mitarbeiter, Lizenzen, Internationalisierung, Spielende
+
+### 4a) Mitarbeiter-System ✅
+- Tabelle `staff` (RLS, eigene Reihen pro Spielerin) mit Rolle, Skill, Gehalt, Moral, Spezialgebiet.
+- `StaffService`: list / hire / fire, deterministischer Bewerber-Pool pro Quartal (Mulberry32-Seed aus user+year+quarter), Era-skalierte Gehälter, `runPayroll` mit Moral-Effekt bei Unterbezahlung.
+- `EmployeesPanel` im Management-Tab: Aggregat-Stats (Dev-Speed, Vertrieb, Forschung, Reputation-Boni, Moral-Ø), Team-Liste, Bewerbungsmappe.
+- Quartalsfluss in `Index.tsx`: Payroll zieht Cash, synchronisiert `company.employees` (Startteam 8 + Hires) → HQ-Visualisierung wächst sichtbar mit.
+
+### 4b–d) Lizenz-Deals · Internationaler Markt · Spielende-Bedingungen
+Offen — Definition folgt nach Spieltest von 4a.
+
+### Phase 3b) Lebendes Bürogebäude
+Weiterhin offen (Bildgenerierung via `gemini-3.1-flash-image-preview`).
+
+### Sicherheit ✅
+- Alle vier AI-Edge Functions (`advisor-chat`, `competitor-turn`, `press-write`, `world-director`) prüfen jetzt JWT via `supabase.auth.getClaims()` → keine Credit-Drainage durch anonyme Aufrufe.
 
 ---
 

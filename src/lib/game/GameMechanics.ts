@@ -506,13 +506,9 @@ export class GameMechanics {
     // 2. Entwicklungsfortschritt aktualisieren
     const updatedModels = this.updateModelDevelopment(models, budget.development);
     
-    // Wende Preisverfall-Manager an
-    try {
-      const { PriceDecayManager } = await import('@/components/PriceDecayManager');
-      PriceDecayManager.applyQuarterlyPriceDecay(gameState.year, gameState.quarter);
-    } catch (error) {
-      console.log('⚠️ PriceDecayManager not available, skipping price decay');
-    }
+    // Preisverfall: Single Source of Truth ist EconomyModel.calculateBOMCostsWithDecay
+    // (wird pro Modell in der Sales-Sim angewandt). Der frühere PriceDecayManager-Call
+    // war ein console.log-Stub und wurde entfernt.
     
     // Wende Obsoleszenz auf bestehende Modelle an
     const modelsWithObsolescence = updatedModels.map(model => {

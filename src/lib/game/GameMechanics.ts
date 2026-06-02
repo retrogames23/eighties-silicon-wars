@@ -667,6 +667,7 @@ export class GameMechanics {
       marketing: budget.marketing,
       development: budget.development,
       research: budget.research,
+      support: budget.support ?? 0,
       salaries,
     };
     const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);

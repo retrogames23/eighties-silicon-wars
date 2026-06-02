@@ -38,6 +38,7 @@ interface Budget {
   marketing: number;
   development: number;
   research: number;
+  support: number;
 }
 
 interface GameState {
@@ -298,11 +299,14 @@ export const GameDashboard = ({
                 quarter={gameState.quarter}
                 cash={gameState.company.cash}
               />
-              <CompanyManagement 
+              <CompanyManagement
                 budget={gameState.budget}
-                totalBudget={200000}
                 onBudgetChange={onBudgetChange}
+                cash={gameState.company.cash}
+                lastQuarterRevenue={gameState.company.monthlyIncome * 3}
+                hasActiveModels={(gameState.models ?? []).some(m => m.status === 'development' || m.status === 'released')}
               />
+
             </TabsContent>
 
             <TabsContent value="headquarters" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>

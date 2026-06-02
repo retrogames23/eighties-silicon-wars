@@ -333,7 +333,7 @@ function VcPitchCard({
       const evalRes = await VcPitchService.submitAnswers({
         userId, roundId, roundNumber,
         qna: questions.map((q, i) => ({ question: q, answer: answers[i] })),
-        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds },
+        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
         company: snapshot(), language: "de",
       });
       const cash = evalRes.accepted

@@ -17,6 +17,7 @@ import { StaffService, type StaffAggregate } from '@/services/StaffService';
 import advisorImg from '@/assets/advisor-dilbert.png';
 import {
   summarize,
+  recommendHiring,
   type Budget,
   type BudgetArea,
 } from '@/lib/game/BudgetRules';
@@ -31,6 +32,8 @@ interface AdvisorCompanionProps {
   year: number;
   reputation?: number;
   marketShare?: number;
+  activeModelsCount?: number;
+  competitorAvgMarketShare?: number;
 }
 
 interface Tip {
@@ -73,6 +76,7 @@ const EMPTY_AGG: StaffAggregate = {
 export const AdvisorCompanion = ({
   budget, cash, lastQuarterRevenue, hasActiveModels,
   companyName, quarter, year, reputation, marketShare,
+  activeModelsCount, competitorAvgMarketShare,
 }: AdvisorCompanionProps) => {
   const { t, i18n } = useTranslation(['advisor', 'economy']);
   const { toast } = useToast();

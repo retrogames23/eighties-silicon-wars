@@ -327,4 +327,66 @@ export class TestScoringMatrix {
       details: `Business: ${businessScore}, Gaming: ${gamingScore}, Overall: ${overallScore}, Rating: ${this.getQualityRating(overallScore)}`,
     };
   }
+
+  /**
+   * Quick preview: era-relative overall score for the selected components.
+   * Mirrors the test-report overall score without full report generation.
+   * Restores the previous era context when done.
+   */
+  static getEraRelativeOverallScore(
+    cpuName: string,
+    gpuName: string,
+    ramName: string,
+    soundName: string,
+    year: number,
+    quarter: number,
+  ): number {
+    const prev = this.eraContext;
+    this.setEraContext(year, quarter);
+
+    const gamingScore = this.calculateCategoryScore(
+      this.evaluateCPU(cpuName, 'gaming'),
+      this.evaluateGPU(gpuName, 'gaming'),
+      this.evaluateRAM(ramName, 'gaming'),
+      this.evaluateSound(soundName, 'gaming'),
+      'gaming',
+    );
+
+    const businessScore = this.calculateCategoryScore(
+      this.evaluateCPU(cpuName, 'business'),
+      this.evaluateGPU(gpuName, 'business'),
+      this.evaluateRAM(ramName, 'business'),
+      this.evaluateSound(soundName, 'business'),
+      'business',
+    );
+
+    const hasWorkstation = year >= 1987;
+    let overall: number;
+    if (hasWorkstation) {
+      const workstationScore = this.calculateCategoryScore(
+        this.evaluateCPU(cpuName, 'workstation'),
+        this.evaluateGPU(gpuName, 'workstation'),
+        this.evaluateRAM(ramName, 'workstation'),
+        this.evaluateSound(soundName, 'workstation'),
+        'workstation',
+      );
+      overall = Math.round(
+        gamingScore * 0.25 +
+        businessScore * 0.35 +
+        workstationScore * 0.20 +
+        70 * 0.10 + // estimated compatibility placeholder
+        70 * 0.10,  // estimated build quality placeholder
+      );
+    } else {
+      overall = Math.round(
+        gamingScore * 0.35 +
+        businessScore * 0.45 +
+        70 * 0.10 + // estimated compatibility placeholder
+        70 * 0.10,  // estimated build quality placeholder
+      );
+    }
+
+    this.eraContext = prev;
+    return Math.min(100, Math.max(0, overall));
+  }
 }

@@ -28,6 +28,7 @@ import { EnhancedTestReportGenerator } from "./EnhancedTestReportGenerator";
 import { GameMechanics } from "@/lib/game";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
+import { TestScoringMatrix } from "@/services/TestScoringMatrix";
 import { useTranslation } from 'react-i18next';
 
 // Use HardwareComponent from HardwareManager instead of local Component interface
@@ -152,6 +153,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const totalCost = selectedComponents.reduce((sum, comp) => sum + comp.cost, 0) + (selectedCase?.price || 0);
   const averagePerformance = selectedComponents.length > 0 
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
+    : 0;
+    
+  // Era-relative preview score (what the test report will likely show)
+  const cpuName = selectedComponents.find(c => c.type === 'cpu')?.name || '';
+  const gpuName = selectedComponents.find(c => c.type === 'gpu')?.name || '';
+  const ramName = selectedComponents.find(c => c.type === 'memory')?.name || '';
+  const soundName = selectedComponents.find(c => c.type === 'sound')?.name || 'PC Speaker';
+  
+  const eraRelativeScore = cpuName && gpuName && ramName
+    ? TestScoringMatrix.getEraRelativeOverallScore(cpuName, gpuName, ramName, soundName, currentYear, currentQuarter)
     : 0;
     
   // Preisempfehlung auf Basis der Test-Logik (ohne Testlauf)
@@ -835,6 +846,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                             <span className="text-muted-foreground">{t('ui:development.labels.averagePerformance')}:</span>
                             <span className="text-neon-green font-bold">{averagePerformance}/100</span>
                           </div>
+                          {eraRelativeScore > 0 && (
+                            <div className="flex justify-between text-sm items-center">
+                              <span className="text-muted-foreground">Erwarteter Test-Score:</span>
+                              <div className="text-right">
+                                <span className="text-neon-cyan font-bold">{eraRelativeScore}/100</span>
+                                <span className="text-xs text-muted-foreground ml-1">(für {currentYear})</span>
+                              </div>
+                            </div>
+                          )}
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">{t('ui:development.labels.complexity')}:</span>
                             <span className="text-neon-cyan font-bold">

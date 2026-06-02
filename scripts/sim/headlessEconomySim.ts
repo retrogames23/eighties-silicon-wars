@@ -10,6 +10,7 @@
 import { EconomyModel } from "@/components/EconomyModel";
 import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
 import { quarterSeed } from "@/lib/game/rng";
+import { calcQuarterlyAnnuity } from "@/types/financing";
 import { writeFileSync, mkdirSync } from "node:fs";
 
 type Mode = "before" | "after";
@@ -25,6 +26,11 @@ interface SimModel {
   unitsSold?: number;
 }
 
+interface LoanPlan {
+  principal: number; annualRate: number; quartersTotal: number;
+  takeYear: number; takeQuarter: number;
+}
+
 interface Strategy {
   id: string;
   label: string;
@@ -36,6 +42,8 @@ interface Strategy {
   releases: (year: number, quarter: number) => SimModel[];
   /** Initial employees. */
   employees: number;
+  /** Optional bank loan plan (Step-2-Validierung). */
+  loan?: LoanPlan;
 }
 
 // ---------- Strategy definitions ----------
@@ -133,7 +141,23 @@ const stratC: Strategy = {
   },
 };
 
-const STRATEGIES = [stratA, stratB, stratC];
+// Step-2-Validierung: gleiche Strategie wie C, aber mit Bankkrediten.
+const stratD: Strategy = {
+  ...stratC,
+  id: "rnd_with_loan_800k",
+  label: "R&D-heavy + $800k Kredit (Q2)",
+  description: "Wie R&D-heavy, aber $800k Kredit in 1983 Q2 (9.5% p.a., 20 Quartale).",
+  loan: { principal: 800_000, annualRate: 0.095, quartersTotal: 20, takeYear: 1983, takeQuarter: 2 },
+};
+const stratE: Strategy = {
+  ...stratC,
+  id: "rnd_with_loan_2m",
+  label: "R&D-heavy + $2M Kredit (Q2)",
+  description: "Wie R&D-heavy, aber $2M Kredit in 1983 Q2 (9.5% p.a., 24 Quartale).",
+  loan: { principal: 2_000_000, annualRate: 0.095, quartersTotal: 24, takeYear: 1983, takeQuarter: 2 },
+};
+
+const STRATEGIES = [stratA, stratB, stratC, stratD, stratE];
 
 // ---------- Pre-Step-2 monkey patches ----------
 
@@ -187,11 +211,25 @@ function runStrategy(mode: Mode, s: Strategy): QuarterRow[] {
   const employees = s.employees;
   let bankrupt = false;
 
+  // Kreditbuchhaltung
+  let loanOutstanding = 0;
+  let loanQuarterly = 0;
+  let loanQuartersLeft = 0;
+  const loanRate = s.loan?.annualRate ?? 0;
+
   let qIdx = 0;
   for (let year = 1983; year <= 1992; year++) {
     for (let q = 1; q <= 4; q++) {
       qIdx++;
       if (qIdx > 40) break;
+
+      // Kreditaufnahme zum vereinbarten Quartal
+      if (s.loan && year === s.loan.takeYear && q === s.loan.takeQuarter && loanOutstanding === 0) {
+        cash += s.loan.principal;
+        loanOutstanding = s.loan.principal;
+        loanQuarterly = calcQuarterlyAnnuity(s.loan.principal, s.loan.annualRate, s.loan.quartersTotal);
+        loanQuartersLeft = s.loan.quartersTotal;
+      }
 
       // Add new releases
       for (const m of s.releases(year, q)) {
@@ -256,7 +294,19 @@ function runStrategy(mode: Mode, s: Strategy): QuarterRow[] {
         portfolioMaintenance = Math.round(activeModelCount * 3000 * infl);
         fixedOverhead = Math.round((10000 + employees * 1000) * infl);
       }
-      const expenses = marketing + development + research + support + salaries + portfolioMaintenance + fixedOverhead;
+      // Kredit-Annuität als zusätzliche Periodenausgabe (vereinfacht: keine Zins/Tilgung-Trennung im Sim-Report).
+      let loanPayment = 0;
+      if (loanQuartersLeft > 0) {
+        loanPayment = Math.round(loanQuarterly);
+        loanQuartersLeft--;
+        // Vereinfachte Restschuld-Fortschreibung: Zins auf Restschuld, Rest = Tilgung.
+        const quarterlyRate = loanRate / 4;
+        const interest = loanOutstanding * quarterlyRate;
+        const principalPaid = Math.max(0, loanPayment - interest);
+        loanOutstanding = Math.max(0, loanOutstanding - principalPaid);
+        if (loanQuartersLeft === 0) loanOutstanding = 0;
+      }
+      const expenses = marketing + development + research + support + salaries + portfolioMaintenance + fixedOverhead + loanPayment;
       const net = grossProfit - expenses;
       cash += net;
 

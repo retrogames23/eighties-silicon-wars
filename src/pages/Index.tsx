@@ -326,36 +326,24 @@ const Index = () => {
         console.warn("[Competitors] quarter run failed:", err);
       }
 
-      // Phase 4a — Payroll: Gehälter abziehen, Headcount synchronisieren.
+      // Phase 4a — Payroll ist bereits in GameMechanics verbucht; hier nur Team-Zahl synchronisieren.
       try {
-        const preCash = result.updatedGameState.company?.cash ?? 0;
-        const pay = await StaffService.runPayroll(user.id, preCash);
-        if (result.updatedGameState.company) {
-          result.updatedGameState.company.cash = pay.newCash;
-        }
         const team = await StaffService.list(user.id);
         if (result.updatedGameState.company) {
           // gameState.company.employees ist eine Zahl (HQ-Visualisierung).
           // Single Source of Truth = StaffService Team-Größe.
           result.updatedGameState.company.employees = team.length;
         }
+        const payroll = result.quarterResults?.expenses?.salaries ?? 0;
         const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
-        if (pay.underpaid && team.length > 0) {
-          toast({
-            title: isEn ? "⚠️ Payroll shortfall" : "⚠️ Gehälter nicht gedeckt",
-            description: isEn
-              ? `Only $${Math.round(pay.paid).toLocaleString('en-US')} paid — morale drops by 15 points.`
-              : `Nur ${Math.round(pay.paid).toLocaleString("de-DE")} $ ausgezahlt — Moral fällt um 15 Punkte.`,
-            variant: "destructive",
-          });
-        } else if (pay.paid > 0) {
+        if (payroll > 0) {
           toast({
             title: isEn
               ? `💼 Payroll Q${gameState.quarter}/${gameState.year}`
               : `💼 Payroll Q${gameState.quarter}/${gameState.year}`,
             description: isEn
-              ? `$${pay.paid.toLocaleString('en-US')} in salaries paid to ${team.length} employees.`
-              : `${pay.paid.toLocaleString("de-DE")} $ Gehälter an ${team.length} Mitarbeitende ausgezahlt.`,
+              ? `$${Math.round(payroll).toLocaleString('en-US')} in salaries booked for ${team.length} employees.`
+              : `${Math.round(payroll).toLocaleString("de-DE")} $ Gehälter für ${team.length} Mitarbeitende verbucht.`,
           });
         }
       } catch (err) {

@@ -51,7 +51,7 @@ export function FinancingPanel({ gameState, onCashChange }: FinancingPanelProps)
   // Letzte bis zu 4 Quartalsumsätze: vereinfacht aus aktuellem Quartalsumsatz.
   // (In voller Version aus Quarter-Log; vorerst nehmen wir den aktuellen × Faktor.)
   useEffect(() => {
-    const q = gameState.company?.quarterlyRevenue ?? gameState.company?.monthlyIncome * 3 ?? 0;
+    const q = gameState.company?.quarterlyRevenue ?? (gameState.company?.monthlyIncome ?? 0) * 3;
     setRecentRevenues(q > 0 ? [q, q * 0.9, q * 0.8, q * 0.7] : []);
   }, [gameState.company?.quarterlyRevenue, gameState.company?.monthlyIncome]);
 

@@ -19,6 +19,7 @@ interface CompanyAccountProps {
         softwareLicenses: { games: number; office: number };
         supportService: { b2c: number; b2b: number };
       };
+      lastQuarterExpenses?: Record<string, number>;
     };
     budget: {
       marketing: number;
@@ -66,15 +67,31 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
     { name: t('ui:account.income.b2bSupport'), amount: supportB2bMonthly, category: t('ui:account.categories.service') },
   ].filter(item => item.amount > 0);
 
-  // Bekannte Budget-Ausgaben + Rest als "Sonstige Betriebskosten" (Gehälter, Miete, Kredite, ...)
-  const knownBudgetExpenses = monthlyMarketing + monthlyDevelopment + monthlyResearch + monthlySupport;
-  const otherOperating = Math.max(0, totalExpenses - knownBudgetExpenses);
+  const lastQuarterExpenses = gameState.company.lastQuarterExpenses;
+  const monthlyExpense = (key: string, fallback = 0) => Math.round((lastQuarterExpenses?.[key] ?? fallback) / 3);
+
+  const productCosts = monthlyExpense('productCosts');
+  const salaries = monthlyExpense('salaries');
+  const portfolioMaintenance = monthlyExpense('portfolioMaintenance');
+  const fixedOverhead = monthlyExpense('fixedOverhead');
+  const loanPayments = monthlyExpense('loanPayments');
+  const reportedBudgetExpenses = monthlyExpense('marketing', gameState.budget.marketing)
+    + monthlyExpense('development', gameState.budget.development)
+    + monthlyExpense('research', gameState.budget.research)
+    + monthlyExpense('support', gameState.budget.support ?? 0);
+  const knownExpenseBreakdown = productCosts + reportedBudgetExpenses + salaries + portfolioMaintenance + fixedOverhead + loanPayments;
+  const otherOperating = Math.max(0, totalExpenses - knownExpenseBreakdown);
 
   const expenses = [
-    { name: t('ui:account.expenses.marketingBudget'), amount: monthlyMarketing, category: t('ui:account.categories.marketing') },
-    { name: t('ui:account.expenses.developmentCosts'), amount: monthlyDevelopment, category: t('ui:account.categories.rnd') },
-    { name: t('ui:account.expenses.researchBudget'), amount: monthlyResearch, category: t('ui:account.categories.rnd') },
-    { name: t('ui:account.expenses.supportBudget'), amount: monthlySupport, category: t('ui:account.categories.service') },
+    { name: t('ui:account.expenses.productCosts'), amount: productCosts, category: t('ui:account.categories.hardware') },
+    { name: t('ui:account.expenses.marketingBudget'), amount: monthlyExpense('marketing', gameState.budget.marketing), category: t('ui:account.categories.marketing') },
+    { name: t('ui:account.expenses.developmentCosts'), amount: monthlyExpense('development', gameState.budget.development), category: t('ui:account.categories.rnd') },
+    { name: t('ui:account.expenses.researchBudget'), amount: monthlyExpense('research', gameState.budget.research), category: t('ui:account.categories.rnd') },
+    { name: t('ui:account.expenses.supportBudget'), amount: monthlyExpense('support', gameState.budget.support ?? 0), category: t('ui:account.categories.service') },
+    { name: t('ui:account.expenses.salaries'), amount: salaries, category: t('ui:account.categories.operations') },
+    { name: t('ui:account.expenses.portfolioMaintenance'), amount: portfolioMaintenance, category: t('ui:account.categories.operations') },
+    { name: t('ui:account.expenses.fixedOverhead'), amount: fixedOverhead, category: t('ui:account.categories.operations') },
+    { name: t('ui:account.expenses.loanPayments'), amount: loanPayments, category: t('ui:account.categories.operations') },
     { name: t('ui:account.expenses.otherOperating'), amount: otherOperating, category: t('ui:account.categories.operations') },
   ].filter(item => item.amount > 0);
 

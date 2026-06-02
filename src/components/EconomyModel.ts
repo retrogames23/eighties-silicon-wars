@@ -207,10 +207,14 @@ export class EconomyModel {
       model.releaseQuarter || quarter,
       year,
       quarter
-    );
+    ) * this.calculateGenerationFactor(model, year, quarter);
     const marketingBoost = this.calculateMarketingEffectiveness(marketingBudget, playerReputation, year);
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;
+
+    // Deterministisches RNG für Verkaufs-Varianz (Save-Scum-Schutz).
+    // Wenn kein Seed: Fallback auf Math.random für Abwärtskompatibilität.
+    const rand = context.rngSeed !== undefined ? mulberry32(context.rngSeed) : Math.random;
 
     segments.forEach(segment => {
       const segmentSize = segmentSizes[segment];
@@ -222,7 +226,11 @@ export class EconomyModel {
       const baseAppeal = this.calculateSegmentAppeal(model, segment, year) / 100;
       const maxPrice = this.getSegmentMaxPrice(segment, year);
       const priceElasticity = this.calculatePriceElasticity(model.price, maxPrice, segment);
-      const competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
+      let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
+
+      // KI-Druck zieht zusätzlich vom verfügbaren Markt ab.
+      const aiPressure = context.aiCompetitorPressure?.[segment] ?? 0;
+      competitionFactor *= Math.max(0.3, 1 - Math.min(0.5, aiPressure));
 
       const demandMultiplier =
         baseAppeal *
@@ -239,7 +247,7 @@ export class EconomyModel {
       const baseUnits = segmentSize * marketPenetration;
       const segmentUnits = Math.floor(
         (shareOverride !== undefined ? baseUnits * shareOverride : baseUnits) *
-        (0.85 + Math.random() * 0.3)
+        (0.85 + rand() * 0.3)
       );
 
       segmentBreakdown[segment] = {

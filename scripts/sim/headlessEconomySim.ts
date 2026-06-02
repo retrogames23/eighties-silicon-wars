@@ -252,9 +252,9 @@ function runStrategy(mode: Mode, s: Strategy): QuarterRow[] {
         portfolioMaintenance = 0;
         fixedOverhead = 0;
       } else {
-        salaries = Math.round(employees * 7500 * infl);
+        salaries = Math.round(employees * 6000 * infl);
         portfolioMaintenance = Math.round(activeModelCount * 3000 * infl);
-        fixedOverhead = Math.round((15000 + employees * 1200) * infl);
+        fixedOverhead = Math.round((10000 + employees * 1000) * infl);
       }
       const expenses = marketing + development + research + support + salaries + portfolioMaintenance + fixedOverhead;
       const net = grossProfit - expenses;

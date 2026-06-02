@@ -311,6 +311,28 @@
       "hiredDesc": "{{role}} · Skill {{skill}} · {{salary}} $ / Q",
       "fireFailed": "Entlassung fehlgeschlagen",
       "fired": "{{name}} verlässt das Unternehmen"
+    },
+    "specialties": {
+      "hardware_logic": "Hardware-Logik",
+      "bios___firmware": "BIOS / Firmware",
+      "mainboard_layout": "Mainboard-Layout",
+      "drivers": "Treiber",
+      "storage_i_o": "Storage-I/O",
+      "ad_campaigns": "Werbekampagnen",
+      "retailer_network": "Händler-Netzwerk",
+      "trade_shows": "Messepräsenz",
+      "print_ads": "Print-Anzeigen",
+      "direct_sales": "Direktvertrieb",
+      "phone_hotline": "Telefon-Hotline",
+      "repair_service": "Reparaturservice",
+      "training": "Schulungen",
+      "documentation": "Dokumentation",
+      "complaints": "Reklamation",
+      "cpu_architecture": "CPU-Architektur",
+      "graphics_research": "Grafik-Forschung",
+      "sound_synthesis": "Sound-Synthese",
+      "memory_tech": "Speichertechnik",
+      "networking": "Vernetzung"
     }
   },
   "advisor": {

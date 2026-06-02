@@ -22,16 +22,43 @@
   "gameplay": {
     "title": "⚡ Spielablauf (1983-1992)",
     "step1": {
-      "title": "Computer entwickeln",
-      "description": "Wähle CPU, RAM, Grafik und ein stylisches Case. Dauert 1-2 Quartale."
+      "title": "Hardware entwickeln",
+      "description": "Wähle CPU, RAM, Grafik, Sound, Speicher und ein passendes Case. Jede Entwicklung dauert 1-2 Quartale und kostet Geld."
     },
     "step2": {
-      "title": "Budget verteilen",
-      "description": "Marketing = mehr Verkäufe | Entwicklung = schnellere Computer | Forschung = Custom Chips"
+      "title": "Budgets verteilen",
+      "description": "Marketing, Entwicklung, Forschung und Support haben jeweils eigene Budgets — verteile dein Geld klug."
     },
     "step3": {
+      "title": "Personal einstellen",
+      "description": "Engineers, Marketer, Researcher und Support-Kräfte beschleunigen und verbessern jeden Bereich."
+    },
+    "step4": {
+      "title": "Finanzierung sichern",
+      "description": "Reicht das Geld nicht? Nimm einen Bankkredit auf oder pitche bei einem VC für Wachstumskapital."
+    },
+    "step5": {
       "title": "Quartale abschließen",
-      "description": "Schaue deine Verkäufe, Marktposition und Konkurrenz-Moves an."
+      "description": "Beobachte Verkäufe, Marktanteil und die Züge der Konkurrenz — und passe deine Strategie an."
+    }
+  },
+  "hardware": {
+    "title": "🛠️ Hardware-Entwicklung",
+    "intro": "Jeder Computer ist eine Kombination aus Komponenten. Die richtige Mischung entscheidet, wer kauft.",
+    "components": {
+      "title": "Komponenten",
+      "points": [
+        "CPU — Geschwindigkeit (z.B. 6502, 68000, 80286)",
+        "RAM — Multitasking & Business-Tauglichkeit",
+        "Grafik — Wichtig für Gamer (VIC-II, GTIA)",
+        "Sound — SID, YM2149 ziehen Gamer an",
+        "Speicher — Diskette/Festplatte für Business",
+        "Case — Look & Zielgruppen-Signal"
+      ]
+    },
+    "tip": {
+      "title": "Tipp",
+      "description": "Mehr Entwicklungs-Budget und mehr Engineers = kürzere Entwicklungszeit. Custom Chips aus der Forschung geben einen langfristigen Vorteil."
     }
   },
   "strategies": {
@@ -60,40 +87,53 @@
   "budget": {
     "title": "💰 Budget-Management",
     "marketing": {
-      "title": "Marketing-Budget",
-      "description": "Direkt proportional zu Verkäufen. Mehr Marketing = mehr Kunden erreichen."
+      "title": "Marketing",
+      "description": "Direkt proportional zu Verkäufen. Mehr Marketing = mehr Reichweite und Markenbekanntheit."
     },
     "development": {
-      "title": "Entwicklung Budget",
-      "description": "Beschleunigt Computer-Entwicklung. 2x Budget = 2x schneller."
+      "title": "Entwicklung",
+      "description": "Beschleunigt Hardware-Entwicklung. Doppeltes Budget = etwa doppelt so schnell."
     },
     "research": {
-      "title": "Forschung Budget",
-      "description": "5% Chance pro Quartal auf Custom Chip. Mehr Budget = höhere Chance."
+      "title": "Forschung",
+      "description": "Erhöht die Chance auf Custom Chips pro Quartal. Researcher im Team verstärken den Effekt."
+    },
+    "support": {
+      "title": "Support",
+      "description": "Senkt Retouren, hebt Zufriedenheit und schützt deinen Ruf bei wachsender Kundenbasis."
+    }
+  },
+  "staff": {
+    "title": "👥 Personal & Rollen",
+    "intro": "Im Management-Tab stellst du dein Team aus 4 Rollen zusammen. Jede Rolle wirkt auf einen Budget-Bereich.",
+    "roles": {
+      "engineer": "Engineers — beschleunigen Hardware-Entwicklung",
+      "marketer": "Marketer — verstärken Marketing-Ausgaben",
+      "researcher": "Researcher — erhöhen Chance auf Custom Chips",
+      "support": "Support — verbessern Kundenzufriedenheit"
+    },
+    "tip": "Gehälter laufen jedes Quartal weiter — stelle nur ein, wenn du es dir leisten kannst."
+  },
+  "financing": {
+    "title": "🏦 Finanzierung",
+    "intro": "Drei Wege, um an Kapital zu kommen, wenn deine Kasse leer wird:",
+    "options": {
+      "bootstrap": "Bootstrap — wachse aus eigenen Einnahmen. Maximale Kontrolle, langsames Tempo.",
+      "loan": "Bankkredit — feste Annuität, vorhersehbar, aber bei Zahlungsausfall droht das Spielende.",
+      "vc": "Venture Capital — pitche bei einem VC. Großer Geldzufluss gegen Anteile an deinem Unternehmen."
     }
   },
   "warning": {
     "title": "⚠️ Achtung!",
-    "description": "Du startest mit $5M und hast laufende Kosten von $30k/Monat. Ohne Einnahmen gehst du nach ~13 Jahren bankrott. Entwickle schnell profitable Computer!"
+    "description": "Du startest mit begrenztem Kapital und hast laufende Kosten (Gehälter, Miete, Budgets). Ohne profitable Verkäufe oder Finanzierung gehst du bankrott — beobachte deine Cash-Flow-Anzeige!"
   },
   "competitors": {
     "title": "🏆 Deine Konkurrenz",
-    "apple": {
-      "name": "Apple",
-      "focus": "Premium, Business"
-    },
-    "commodore": {
-      "name": "Commodore",
-      "focus": "Masse, Gamer"
-    },
-    "ibm": {
-      "name": "IBM",
-      "focus": "Teuer, Professional"
-    },
-    "atari": {
-      "name": "Atari",
-      "focus": "Günstig, Gaming"
-    }
+    "intro": "Vier KI-Gegner kämpfen um denselben Markt. Sie reagieren auf deine Preise und Innovationen.",
+    "apple": { "name": "Apple", "focus": "Premium, Business" },
+    "commodore": { "name": "Commodore", "focus": "Masse, Gamer" },
+    "ibm": { "name": "IBM", "focus": "Teuer, Professional" },
+    "atari": { "name": "Atari", "focus": "Günstig, Gaming" }
   },
   "startButton": "Los geht's! 🚀"
 }

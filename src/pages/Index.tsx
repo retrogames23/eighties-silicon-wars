@@ -157,7 +157,8 @@ const Index = () => {
     marketEvents: [],
     totalMarketSize: 1000000, // 1 Million $ Gesamtmarkt 1983
     customChips: [],
-    totalRevenue: 0
+    totalRevenue: 0,
+    seedSalt: generateSeedSalt(),
   });
 
   const handleIntroComplete = () => {

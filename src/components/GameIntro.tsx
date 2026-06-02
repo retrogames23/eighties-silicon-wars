@@ -4,9 +4,12 @@ import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { IntroFooter } from "./IntroFooter";
+import { UserProfile } from "./UserProfile";
+import { User } from "@supabase/supabase-js";
 
 interface GameIntroProps {
   onComplete: () => void;
+  user: User | null;
 }
 
 export const GameIntro = ({ onComplete }: GameIntroProps) => {

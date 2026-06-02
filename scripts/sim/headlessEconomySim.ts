@@ -10,6 +10,7 @@
 import { EconomyModel } from "@/components/EconomyModel";
 import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
 import { quarterSeed } from "@/lib/game/rng";
+import { calcQuarterlyAnnuity } from "@/types/financing";
 import { writeFileSync, mkdirSync } from "node:fs";
 
 type Mode = "before" | "after";

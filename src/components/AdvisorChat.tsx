@@ -98,8 +98,8 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl w-[95vw] h-[85vh] flex flex-col gap-3">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{t('advisor.title')}</DialogTitle>
         </DialogHeader>
 
@@ -108,7 +108,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
           onValueChange={(v) => setActiveAdvisor(v as Advisor)}
           className="flex-1 flex flex-col min-h-0"
         >
-          <TabsList className="grid grid-cols-3">
+          <TabsList className="grid grid-cols-3 shrink-0">
             {ADVISOR_KEYS.map((a) => (
               <TabsTrigger key={a} value={a}>
                 {t(`advisor.tabs.${a}`)}
@@ -117,8 +117,12 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
           </TabsList>
 
           {ADVISOR_KEYS.map((a) => (
-            <TabsContent key={a} value={a} className="flex-1 flex flex-col min-h-0 mt-3">
-              <ScrollArea className="flex-1 border rounded-md p-3 bg-muted/30">
+            <TabsContent
+              key={a}
+              value={a}
+              className="flex-1 min-h-0 mt-3 data-[state=inactive]:hidden"
+            >
+              <ScrollArea className="h-full border rounded-md p-3 bg-muted/30">
                 <div className="space-y-3 text-sm">
                   {threads[a].length === 0 && (
                     <p className="text-muted-foreground italic">{t(`advisor.intros.${a}`)}</p>
@@ -146,7 +150,7 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
           ))}
         </Tabs>
 
-        <div className="flex gap-2 pt-3 border-t">
+        <div className="flex gap-2 pt-3 border-t shrink-0">
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

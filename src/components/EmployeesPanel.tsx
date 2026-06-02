@@ -59,6 +59,18 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
 
   const agg = useMemo(() => StaffService.aggregate(team), [team]);
 
+  // Simple in-panel hiring hint: which roles are still missing?
+  // (Detailed budget-aware suggestions live in the floating advisor.)
+  const missingRoles = useMemo(() => {
+    const order: Array<{ role: StaffMember["role"]; rationale: string }> = [
+      { role: "engineer",   rationale: "design" },
+      { role: "marketer",   rationale: "sales" },
+      { role: "support",    rationale: "reputation" },
+      { role: "researcher", rationale: "innovation" },
+    ];
+    return order.filter(({ role }) => (agg.byRole[role] ?? 0) === 0);
+  }, [agg]);
+
   useEffect(() => {
     onTeamChanged?.(team, agg);
   }, [team, agg, onTeamChanged]);

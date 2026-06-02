@@ -98,12 +98,15 @@
       "rnd": "F&E",
       "hardware": "Hardware",
       "software": "Software",
-      "service": "Service"
+      "service": "Service",
+      "operations": "Betrieb"
     },
     "expenses": {
       "marketingBudget": "Marketing-Budget",
       "developmentCosts": "Entwicklungskosten",
-      "researchBudget": "Forschungsbudget"
+      "researchBudget": "Forschungsbudget",
+      "supportBudget": "Support-Budget",
+      "otherOperating": "Sonstige Betriebskosten"
     },
     "income": {
       "computerSales": "Computer-Verkäufe",

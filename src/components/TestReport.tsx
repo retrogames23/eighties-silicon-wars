@@ -207,19 +207,19 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-neon-cyan">
                     <Cpu className="w-5 h-5" />
-                    Workstation-Fähigkeiten
+                    {t('reviews:testReport.workstationTitle')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Bewertung:</span>
+                    <span className="text-lg font-semibold">{t('reviews:testReport.rating')}:</span>
                     <span className={`text-lg font-bold ${getRatingColor(testResult.categories.workstation.rating)}`}>
-                      {testResult.categories.workstation.rating}
+                      {translateText(testResult.categories.workstation.rating)}
                     </span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Leistung:</span>
+                    <span>{t('reviews:testReport.performance')}:</span>
                     <div className="flex items-center gap-2">
                       {getScoreIcon(testResult.categories.workstation.score)}
                       <span className="font-mono">{testResult.categories.workstation.score}/100</span>
@@ -227,7 +227,7 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Preis-Leistung:</span>
+                    <span>{t('reviews:testReport.priceValue')}:</span>
                     <span className={`font-mono ${testResult.categories.workstation.priceValue >= 80 ? 'text-green-400' : 
                       testResult.categories.workstation.priceValue >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
                       {testResult.categories.workstation.priceValue}/100
@@ -238,7 +238,7 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   
                   <div className="text-sm space-y-1">
                     {testResult.categories.workstation.comments.map((comment, idx) => (
-                      <p key={idx} className="text-muted-foreground">• {comment}</p>
+                      <p key={idx} className="text-muted-foreground">• {translateText(comment)}</p>
                     ))}
                   </div>
                 </CardContent>

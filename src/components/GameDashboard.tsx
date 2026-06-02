@@ -269,7 +269,7 @@ export const GameDashboard = ({
                   value="financing" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >
-                  {isMobile ? '$' : 'Finanzierung'}
+                  {isMobile ? '$' : t('ui:dashboard.tabs.financing')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="headquarters" 

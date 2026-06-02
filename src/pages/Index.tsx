@@ -19,7 +19,9 @@ import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
-import { CompetitorsService } from "@/services/CompetitorsService";
+import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
+import { AnnualMeeting } from "@/components/AnnualMeeting";
+import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -102,6 +104,23 @@ const Index = () => {
   }>({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null });
   
   const [advisorOpen, setAdvisorOpen] = useState(false);
+
+  // Lebende KI-Konkurrenz (DB-gestützt, ergänzt die statischen INITIAL_COMPETITORS)
+  const [aiCompetitors, setAiCompetitors] = useState<AiCompetitor[]>([]);
+
+  // Jahreshauptversammlung
+  const [annualMeeting, setAnnualMeeting] = useState<{
+    isOpen: boolean;
+    year: number;
+    yearRevenue: number;
+    cash: number;
+    reputation: number;
+    marketShare: number;
+    modelsReleased: number;
+  } | null>(null);
+
+  // Akkumuliert Jahresumsatz für die Jahreshauptversammlung
+  const yearRevenueRef = useState({ year: 1983, total: 0 })[0];
 
   const [gameState, setGameState] = useState<GameState>({
     company: {

@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 // so the result stays crisp on retina displays.
 // ============================================================================
 
+const S = 2;                     // resolution multiplier (backing buffer + drawing scale)
 const TILE = 8;                  // logical pixels per tile
 const FLOOR_TILES_W = 36;        // width of a floor in tiles
 const FLOOR_TILES_H = 6;         // height of a floor in tiles (room interior)
@@ -176,22 +177,22 @@ function rng(seed: number) {
 // ---------------------------------------------------------------------------
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  ctx.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(h * S));
 }
 
-function drawBackground(ctx: CanvasRenderingContext2D, W: number, H: number, p: Palette, quarter: number) {
-  // Sky gradient (faked with 4 bands for pixel feel)
-  const bands = 6;
+function drawBackground(ctx: CanvasRenderingContext2D, W: number, groundY: number, p: Palette, quarter: number) {
+  // Sky gradient fills the ENTIRE backdrop down to the ground line
+  const bands = 12;
   for (let i = 0; i < bands; i++) {
     const t = i / (bands - 1);
     const c = lerpColor(p.skyTop, p.skyBot, t);
-    px(ctx, 0, (SKY_H * i) / bands, W, SKY_H / bands + 1, c);
+    px(ctx, 0, (groundY * i) / bands, W, groundY / bands + 1, c);
   }
-  // Stars in Q4
+  // Stars in Q4 only in the upper portion
   if (quarter === 4) {
     const r = rng(42);
-    for (let i = 0; i < 30; i++) {
-      px(ctx, Math.floor(r() * W), Math.floor(r() * SKY_H), 1, 1, "#ffffff");
+    for (let i = 0; i < 50; i++) {
+      px(ctx, Math.floor(r() * W), Math.floor(r() * Math.min(SKY_H, groundY)), 1, 1, "#ffffff");
     }
   }
   // Sun/moon

@@ -93,7 +93,7 @@ export const GameDashboard = ({
   useRenderTracking('GameDashboard');
 
   // Tab navigation for swipe gestures
-  const tabs = ["account", "development", "market", "management", "headquarters"];
+  const tabs = ["account", "development", "market", "management", "financing", "headquarters"];
   
   const navigateToTab = useCallback((direction: 'left' | 'right') => {
     const currentIndex = tabs.indexOf(activeTab);

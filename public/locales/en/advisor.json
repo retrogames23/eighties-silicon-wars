@@ -30,9 +30,13 @@
       "wrapUp": "That's it for the basics. Situational tips will pop up automatically in the \"Tips\" tab. And I'm always one click away in chat. Good luck out there!"
     },
     "tips": {
-      "needRole": "You're spending {{amount}} on {{area}}, but you have no {{role}} on the team. The money is wasted.",
+      "needRole": "You're spending {{amount}} on {{area}}, but you have no {{role}} on the team. The money is wasted — hire someone or stop spending.",
       "revenueGrew": "Your revenue climbed to {{revenue}}. Marketing of ~{{amount}} would be appropriate now.",
       "saturated": "Your {{area}} budget is past the saturation point. More team beats more money now.",
+      "nearCap": "Your {{area}} budget is hitting the ceiling ({{util}}% utilization). One more {{role}} would unlock about {{unlock}} of extra effective spend.",
+      "multiModelUnderstaffed": "You have {{count}} active models but only {{engineers}} engineer(s) on staff. Hire — your products are going to rust.",
+      "supportMissing": "Reputation slipped to {{rep}}. Without a support team customers won't come back — hire a support pro.",
+      "competitionGrowing": "Competitors average {{avg}}% market share, you only have {{own}}%. You need a bigger team to keep up — start with a {{role}}.",
       "lowMorale": "Team morale is at {{morale}}% — consider a bonus or a break.",
       "cashLow": "Your cash reserve is shrinking. Lower unproductive budgets or pause research."
     },

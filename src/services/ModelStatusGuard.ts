@@ -39,7 +39,7 @@ export class ModelStatusGuard {
    */
   static calculateTotalRevenue(models: ComputerModel[]): number {
     return this.getRevenueModels(models)
-      .reduce((sum, model) => sum + (model.unitsSold * model.price), 0);
+      .reduce((sum, model) => sum + (model.lifetimeRevenue ?? model.unitsSold * model.price), 0);
   }
 
   /**

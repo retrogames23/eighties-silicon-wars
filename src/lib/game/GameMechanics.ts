@@ -547,8 +547,10 @@ export class GameMechanics {
     //    teile Marktanteile innerhalb des Segments (Kannibalisierung).
     let totalRevenue = 0;
     let totalGrossProfit = 0;
+    let totalProductCosts = 0;
     let totalUnitsSold = 0;
     const modelResults: any[] = [];
+    const salesByModelId = new Map<string, { unitsSold: number; revenue: number; profit: number }>();
 
     // 5a. User-ID einmalig holen (für Market-Events, AI-Konkurrenz, RNG-Seed).
     let userId: string | null = null;
@@ -667,9 +669,16 @@ export class GameMechanics {
 
         totalRevenue += salesResult.revenue;
         totalGrossProfit += salesResult.profitBreakdown.netProfit;
+        totalProductCosts += Math.max(0, salesResult.revenue - salesResult.profitBreakdown.netProfit);
         totalUnitsSold += salesResult.unitsSold;
+        salesByModelId.set(model.id, {
+          unitsSold: salesResult.unitsSold,
+          revenue: salesResult.revenue,
+          profit: salesResult.profitBreakdown.netProfit,
+        });
 
         modelResults.push({
+          modelId: model.id,
           modelName: model.name,
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,
@@ -700,16 +709,44 @@ export class GameMechanics {
       }
     }
 
+    const modelsAfterSales = modelsWithObsolescence.map(model => {
+      const sales = salesByModelId.get(model.id);
+      if (!sales) return model;
+
+      return {
+        ...model,
+        unitsSold: (model.unitsSold || 0) + sales.unitsSold,
+        lifetimeRevenue: (model.lifetimeRevenue || 0) + sales.revenue,
+        lifetimeProfit: (model.lifetimeProfit || 0) + sales.profit,
+        lastQuarterUnitsSold: sales.unitsSold,
+        lastQuarterRevenue: sales.revenue,
+        lastQuarterProfit: sales.profit,
+      };
+    });
+
     // 6. ZENTRALE QUARTALSAUSGABEN (Periodenkosten — exakt EINMAL gebucht!).
     //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten,
     //    deshalb hier sauber als Periodenkosten abziehen.
     //    Gehälter skalieren mit der Mitarbeiterzahl (kein doppelter Flat-Posten).
     const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
-    const employeeCount = Math.max(1, company.employees ?? 8);
+    let employeeCount = Math.max(1, company.employees ?? 8);
     // Step-2-Tuning: Garagenfirma 1983 darf nicht an Fixkosten ersticken.
     // $24k/Jahr Basis-Gehalt (vorher $30k) — entspricht eher 80er-Junior-Engineer.
     const salaryPerEmployeePerQuarter = 6000;
-    const salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    let salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    if (userId) {
+      try {
+        const { StaffService } = await import('@/services/StaffService');
+        const team = await StaffService.list(userId);
+        const staff = StaffService.aggregate(team);
+        if (staff.headcount > 0) {
+          employeeCount = staff.headcount;
+          salaries = staff.totalSalary;
+        }
+      } catch (e) {
+        console.warn('[Staff] salary lookup failed, using estimated payroll', e);
+      }
+    }
     // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
     const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
     const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
@@ -717,6 +754,7 @@ export class GameMechanics {
     const fixedOverhead = Math.round((10000 + employeeCount * 1000) * inflation);
 
     const quarterlyExpenses = {
+      productCosts: Math.round(totalProductCosts),
       marketing: budget.marketing,
       development: budget.development,
       research: budget.research,
@@ -725,10 +763,11 @@ export class GameMechanics {
       portfolioMaintenance,
       fixedOverhead,
     };
-    const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
+    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts;
+    const totalExpensesForReporting = Math.round(totalProductCosts + totalPeriodExpenses);
 
     // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.
-    let totalProfit = totalGrossProfit - totalExpenses;
+    let totalProfit = totalGrossProfit - totalPeriodExpenses;
     let cashAfterOps = company.cash + totalProfit;
 
     // 7b. Kredit-Annuitäten (LoanService) — ZIEHT vor Mitteilung, nutzt verfügbares Cash.
@@ -755,10 +794,11 @@ export class GameMechanics {
     }
     const netCashFlow = cashAfterOps - company.cash;
 
-    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
+    console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Expenses $${totalExpensesForReporting.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
 
     // 8. Marktanteil und Reputation Updates (inkl. Kredit-Default-Schaden).
-    const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
+    const stateWithSales = { ...gameState, models: modelsAfterSales };
+    const newMarketShare = this.calculatePlayerMarketShare(stateWithSales, competitors);
     const marketShareChange = newMarketShare - (company.marketShare || 0);
 
     // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
@@ -771,7 +811,7 @@ export class GameMechanics {
     // 9. Aktualisierter Spielzustand
     const updatedGameState = {
       ...gameState,
-      models: modelsWithObsolescence,
+      models: modelsAfterSales,
       customChips: newCustomChip
         ? [...gameState.customChips, newCustomChip]
         : gameState.customChips,
@@ -784,9 +824,11 @@ export class GameMechanics {
         brandAwareness: newBrandAwareness,
         outstandingDebt,
         monthlyIncome: Math.round(totalRevenue / 3),
-        monthlyExpenses: Math.round((totalExpenses + loanCashOut) / 3),
+        monthlyExpenses: Math.round((totalExpensesForReporting + loanCashOut) / 3),
         quarterlyProfit: totalProfit,
         quarterlyRevenue: totalRevenue,
+        lastQuarterExpenses: { ...quarterlyExpenses, loanPayments: loanCashOut },
+        lastQuarterNetCashFlow: netCashFlow,
       },
     };
 
@@ -813,7 +855,7 @@ export class GameMechanics {
       updatedCompetitors: this.updateCompetitorsForYear(competitors, gameState.year),
       newCustomChip,
       newsEvents,
-      marketData: this.generateMarketData(gameState, competitors, modelResults),
+      marketData: this.generateMarketData(stateWithSales, competitors, modelResults),
     };
   }
 

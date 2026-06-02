@@ -14,9 +14,16 @@
     },
     "expenses": {
       "title": "Ausgaben",
+      "productCosts": "Produktkosten",
       "marketing": "Marketing",
       "development": "Entwicklung",
-      "research": "Forschung"
+      "research": "Forschung",
+      "support": "Support",
+      "salaries": "Gehälter",
+      "portfolioMaintenance": "Portfolio-Wartung",
+      "fixedOverhead": "Fixkosten",
+      "loanPayments": "Kreditraten",
+      "total": "Gesamt"
     },
     "netProfit": "Nettogewinn"
   },

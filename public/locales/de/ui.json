@@ -102,10 +102,15 @@
       "operations": "Betrieb"
     },
     "expenses": {
+      "productCosts": "Produktkosten",
       "marketingBudget": "Marketing-Budget",
       "developmentCosts": "Entwicklungskosten",
       "researchBudget": "Forschungsbudget",
       "supportBudget": "Support-Budget",
+      "salaries": "Gehälter",
+      "portfolioMaintenance": "Portfolio-Wartung",
+      "fixedOverhead": "Fixkosten",
+      "loanPayments": "Kreditraten",
       "otherOperating": "Sonstige Betriebskosten"
     },
     "income": {

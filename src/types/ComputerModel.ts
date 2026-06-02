@@ -50,6 +50,11 @@ export interface ComputerModel {
   
   // Sales data
   unitsSold: number;
+  lifetimeRevenue?: number;
+  lifetimeProfit?: number;
+  lastQuarterUnitsSold?: number;
+  lastQuarterRevenue?: number;
+  lastQuarterProfit?: number;
   releaseQuarter: number;
   releaseYear: number;
   

@@ -102,10 +102,15 @@
       "operations": "Operations"
     },
     "expenses": {
+      "productCosts": "Product Costs",
       "marketingBudget": "Marketing Budget",
       "developmentCosts": "Development Costs",
       "researchBudget": "Research Budget",
       "supportBudget": "Support Budget",
+      "salaries": "Salaries",
+      "portfolioMaintenance": "Portfolio Maintenance",
+      "fixedOverhead": "Fixed Overhead",
+      "loanPayments": "Loan Payments",
       "otherOperating": "Other Operating Costs"
     },
     "income": {

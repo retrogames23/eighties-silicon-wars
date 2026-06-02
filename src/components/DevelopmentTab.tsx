@@ -197,7 +197,12 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
               </div>
 
               {/* Zusätzliche Details für Released/Discontinued Modelle */}
-              {model.status !== 'development' && (
+              {model.status !== 'development' && (() => {
+                const lifetimeRevenue = model.lifetimeRevenue ?? model.unitsSold * model.price;
+                const lifetimeProfit = model.lifetimeProfit ?? lifetimeRevenue - model.developmentCost;
+                const roi = model.developmentCost > 0 ? (lifetimeProfit / model.developmentCost) * 100 : null;
+
+                return (
                 <div className="border-t border-border pt-4 mt-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
@@ -209,7 +214,7 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                     <div>
                       <span className="text-muted-foreground">{t('ui:development.labels.revenue')}:</span>
                       <span className="ml-2 font-mono text-neon-cyan">
-                        {formatCurrency(model.unitsSold * model.price)}
+                        {formatCurrency(lifetimeRevenue)}
                       </span>
                     </div>
                     <div>
@@ -221,17 +226,15 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
                     <div>
                       <span className="text-muted-foreground">ROI:</span>
                       <span className={`ml-2 font-mono font-bold ${
-                        (model.unitsSold * model.price) > model.developmentCost ? 'text-neon-green' : 'text-red-400'
+                        (roi ?? 0) >= 0 ? 'text-neon-green' : 'text-red-400'
                       }`}>
-                        {model.developmentCost > 0 ? 
-                          `${(((model.unitsSold * model.price) / model.developmentCost - 1) * 100).toFixed(1)}%` 
-                          : 'N/A'
-                        }
+                        {roi !== null ? `${roi.toFixed(1)}%` : 'N/A'}
                       </span>
                     </div>
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </Card>
           ))
         )}

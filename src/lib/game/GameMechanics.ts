@@ -780,7 +780,8 @@ export class GameMechanics {
     console.log(`💰 [Q${gameState.quarter}/${gameState.year}] Revenue $${totalRevenue.toLocaleString()} | GrossProfit $${totalGrossProfit.toLocaleString()} | Period $${totalExpenses.toLocaleString()} | Loans $${loanCashOut.toLocaleString()} | Net $${netCashFlow.toLocaleString()} | Brand ${Math.round(newBrandAwareness)} | Debt $${outstandingDebt.toLocaleString()}`);
 
     // 8. Marktanteil und Reputation Updates (inkl. Kredit-Default-Schaden).
-    const newMarketShare = this.calculatePlayerMarketShare(gameState, competitors);
+    const stateWithSales = { ...gameState, models: modelsAfterSales };
+    const newMarketShare = this.calculatePlayerMarketShare(stateWithSales, competitors);
     const marketShareChange = newMarketShare - (company.marketShare || 0);
 
     // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
@@ -793,7 +794,7 @@ export class GameMechanics {
     // 9. Aktualisierter Spielzustand
     const updatedGameState = {
       ...gameState,
-      models: modelsWithObsolescence,
+      models: modelsAfterSales,
       customChips: newCustomChip
         ? [...gameState.customChips, newCustomChip]
         : gameState.customChips,
@@ -835,7 +836,7 @@ export class GameMechanics {
       updatedCompetitors: this.updateCompetitorsForYear(competitors, gameState.year),
       newCustomChip,
       newsEvents,
-      marketData: this.generateMarketData(gameState, competitors, modelResults),
+      marketData: this.generateMarketData(stateWithSales, competitors, modelResults),
     };
   }
 

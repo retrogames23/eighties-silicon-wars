@@ -119,7 +119,18 @@
     "registering": "Registering...",
     "backToGame": "Back to Game",
     "redirecting": "Already signed in. Redirecting...",
-    "description": "Create an account or sign in to save your game progress"
+    "description": "Create an account or sign in to save your game progress",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "sendResetLink": "Send reset link",
+    "sending": "Sending...",
+    "resetEmailSent": "Email sent! Check your inbox.",
+    "backToSignIn": "Back to Sign In",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "setNewPassword": "Set new password",
+    "passwordResetSuccess": "Password successfully changed!",
+    "passwordMismatch": "Passwords do not match."
   },
   "development": {
     "labels": {

@@ -174,6 +174,16 @@ export default function Auth() {
                 >
                   {loading ? t('ui:auth.signingIn') : t('ui:auth.signIn')}
                 </Button>
+                <div className="text-center pt-2">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => navigate('/reset-password')}
+                    className="text-sm text-muted-foreground"
+                  >
+                    {t('ui:auth.forgotPassword')}
+                  </Button>
+                </div>
               </form>
             </TabsContent>
             

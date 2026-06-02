@@ -563,6 +563,40 @@ const Index = () => {
         onClose={() => setShowSaveManager(false)}
         user={user}
       />
+
+      {/* Advisor chat — only meaningful on the dashboard */}
+      {currentScreen === 'dashboard' && (
+        <>
+          <Button
+            onClick={() => setAdvisorOpen(true)}
+            className="fixed bottom-4 right-4 z-40 shadow-lg gap-2"
+            size="sm"
+          >
+            <MessagesSquare className="w-4 h-4" />
+            Berater
+          </Button>
+          <AdvisorChat
+            isOpen={advisorOpen}
+            onClose={() => setAdvisorOpen(false)}
+            gameContext={{
+              year: gameState.year,
+              quarter: gameState.quarter,
+              company: {
+                name: gameState.company.name,
+                cash: gameState.company.cash,
+                reputation: gameState.company.reputation,
+                marketShare: gameState.company.marketShare,
+              },
+              budget: gameState.budget,
+              activeModels: (gameState.models || []).map((m: any) => ({
+                name: m.name,
+                price: m.price,
+                status: m.status,
+              })),
+            }}
+          />
+        </>
+      )}
     </>
   );
 };

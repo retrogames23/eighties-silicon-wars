@@ -345,20 +345,20 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-neon-cyan">
                     <TrendingUp className="w-5 h-5" />
-                    Marktauswirkungen
+                    {t('reviews:testReport.marketImpact')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground">Reputation</p>
+                      <p className="text-sm text-muted-foreground">{t('reviews:testReport.reputation')}</p>
                       <p className={`font-bold text-lg ${testResult.marketImpact.reputationChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {testResult.marketImpact.reputationChange >= 0 ? '+' : ''}{testResult.marketImpact.reputationChange}
                       </p>
                     </div>
                     
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground">Verkaufsbonus</p>
+                      <p className="text-sm text-muted-foreground">{t('reviews:testReport.salesBoost')}</p>
                       <p className={`font-bold text-lg ${testResult.marketImpact.expectedSalesBoost >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {testResult.marketImpact.expectedSalesBoost >= 0 ? '+' : ''}{testResult.marketImpact.expectedSalesBoost}%
                       </p>
@@ -367,13 +367,13 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   
                   <div className="space-y-2">
                     <p className="text-sm">
-                      <span className="text-muted-foreground">Marktposition: </span>
-                      <span className="text-neon-green font-semibold">{testResult.marketImpact.marketPosition}</span>
+                      <span className="text-muted-foreground">{t('reviews:testReport.marketPosition')}</span>
+                      <span className="text-neon-green font-semibold">{translateText(testResult.marketImpact.marketPosition)}</span>
                     </p>
                     
                     <p className="text-sm">
-                      <span className="text-muted-foreground">Konkurrenz-Reaktion: </span>
-                      <span className="text-neon-cyan">{testResult.marketImpact.competitorResponse}</span>
+                      <span className="text-muted-foreground">{t('reviews:testReport.competitorResponse')}</span>
+                      <span className="text-neon-cyan">{translateText(testResult.marketImpact.competitorResponse)}</span>
                     </p>
                   </div>
                 </CardContent>
@@ -385,20 +385,20 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-yellow-400">
                       <DollarSign className="w-5 h-5" />
-                      Preisempfehlung
+                      {t('reviews:testReport.priceRecommendation')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Aktueller Preis</p>
+                        <p className="text-sm text-muted-foreground">{t('reviews:testReport.currentPrice')}</p>
                         <p className="font-bold text-lg font-mono text-neon-cyan">
                           {formatCurrency(testResult.priceRecommendation.currentPrice)}
                         </p>
                       </div>
                       
                       <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Empfohlener Preis</p>
+                        <p className="text-sm text-muted-foreground">{t('reviews:testReport.recommendedPrice')}</p>
                         <p className="font-bold text-lg font-mono text-yellow-400">
                           {formatCurrency(testResult.priceRecommendation.recommendedPrice)}
                         </p>
@@ -406,7 +406,7 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                     </div>
                     
                     <p className="text-sm text-muted-foreground bg-card/50 p-3 rounded">
-                      {testResult.priceRecommendation.reasoning}
+                      {translateText(testResult.priceRecommendation.reasoning)}
                     </p>
                   </CardContent>
                 </Card>
@@ -418,12 +418,12 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
           <Card className="retro-border bg-card/90 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-neon-green text-center">
-                Testfazit
+                {t('reviews:testReport.verdictTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-lg text-center text-neon-cyan bg-card/50 p-6 rounded-lg font-medium">
-                {testResult.finalVerdict}
+                {translateText(testResult.finalVerdict)}
               </p>
               
               <div className="flex justify-center gap-4 mt-6">
@@ -433,14 +433,14 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   className="text-lg px-8 py-3"
                 >
                   <Cpu className="w-5 h-5 mr-2" />
-                  Computer überarbeiten
+                  {t('reviews:testReport.actionRevise')}
                 </Button>
                 <Button
                   onClick={onContinue}
                   className="glow-button text-lg px-8 py-3"
                 >
                   <TrendingUp className="w-5 h-5 mr-2" />
-                  Computer veröffentlichen
+                  {t('reviews:testReport.actionPublish')}
                 </Button>
               </div>
             </CardContent>

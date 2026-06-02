@@ -301,5 +301,23 @@
       "fireFailed": "Termination failed",
       "fired": "{{name}} is leaving the company"
     }
+  },
+  "advisor": {
+    "buttonLabel": "Advisors",
+    "title": "Speak with advisors",
+    "thinking": "thinking…",
+    "inputPlaceholder": "Question for {{label}}…",
+    "unreachableTitle": "Advisor unreachable",
+    "openAction": "Advisors",
+    "tabs": {
+      "market_researcher": "Market Research",
+      "head_of_development": "Development",
+      "shareholder": "Shareholders"
+    },
+    "intros": {
+      "market_researcher": "Dr. Helga Brandt, market research. What would you like to know?",
+      "head_of_development": "K.J. Jordan, development. What's on the agenda?",
+      "shareholder": "Margarete Vogel, shareholder spokesperson. Let's talk straight."
+    }
   }
 }

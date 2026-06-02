@@ -138,7 +138,7 @@ const Index = () => {
       name: '',
       logo: '',
     cash: 1500000, // Startkapital 1.5M (realistisch für 80er-Garagenfirma)
-    employees: 8, // Kleines Team
+    employees: 0, // Synchronisiert mit Team-Größe (StaffService)
     reputation: 50, // Startwert für Reputation
     marketShare: 0, // Kein Marktanteil
     monthlyIncome: 0, // Noch keine Einnahmen
@@ -336,8 +336,8 @@ const Index = () => {
         const team = await StaffService.list(user.id);
         if (result.updatedGameState.company) {
           // gameState.company.employees ist eine Zahl (HQ-Visualisierung).
-          // Sync mit echter Teamgröße + Startteam (8).
-          result.updatedGameState.company.employees = 8 + team.length;
+          // Single Source of Truth = StaffService Team-Größe.
+          result.updatedGameState.company.employees = team.length;
         }
         const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
         if (pay.underpaid && team.length > 0) {
@@ -551,7 +551,7 @@ const Index = () => {
         name: '',
         logo: '',
       cash: 1500000,
-      employees: 8,
+      employees: 0,
       reputation: 50,
       marketShare: 0,
       monthlyIncome: 0,

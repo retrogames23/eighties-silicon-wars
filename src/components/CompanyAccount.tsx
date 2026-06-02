@@ -39,12 +39,6 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
   const totalExpenses = Math.max(0, Math.round(gameState.company.monthlyExpenses ?? 0));
   const monthlyProfit = totalIncome - totalExpenses;
 
-  // Budgets sind Quartalswerte → /3 für Monatsansicht
-  const monthlyMarketing = Math.round((gameState.budget.marketing ?? 0) / 3);
-  const monthlyDevelopment = Math.round((gameState.budget.development ?? 0) / 3);
-  const monthlyResearch = Math.round((gameState.budget.research ?? 0) / 3);
-  const monthlySupport = Math.round((gameState.budget.support ?? 0) / 3);
-
   // Zusätzliche Einnahmen (falls vom Engine geliefert)
   const additionalRevenue = gameState.company.additionalRevenue || {
     softwareLicenses: { games: 0, office: 0 },

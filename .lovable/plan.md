@@ -1,84 +1,65 @@
-# Finanzierung: Kredit & VC-Pitch
+# Mitarbeitende als Wirtschaftssimulation
 
-Zwei neue Finanzierungswege, beide an die bestehende Economy-Sim angedockt. Vorher-Freigabe nötig.
+## Befund
 
-## 1. Kreditfinanzierung (Bank)
+Heute koppelt `BudgetRules.ts` Budgets an Rollen (Gate + Soft-Cap), aber:
 
-**Voraussetzungen** (Bonitätsprüfung beim Klick):
-- Mindestens 2 abgeschlossene Quartale mit positivem Umsatz (`quarterlyRevenue > 0`).
-- Schuldenstand < 50 % des durchschnittlichen Quartalsumsatzes der letzten 4 Q.
-- Reputation ≥ 30.
-- Maximaler Kredit = 4 × Ø-Quartalsumsatz letzter 4 Q.
+- **Cap pro Kopf ist fix (50.000 $/Quartal)** und wächst pro zusätzlicher Person nur um +50 %. Skalierung läuft zu schnell aus.
+- **Recommendation skaliert nur an Cash/Revenue**, nicht an Teamgröße. Wer wächst, bekommt keinen Push, größer einzustellen.
+- **Berater warnt nur bei** (a) Budget ohne passende Rolle, (b) `saturated`-Cap, (c) Marketing < 50 % Empfehlung, (d) Cash, (e) Moral. **Es fehlt:** „Du bist nah am Cap → noch ein Engineer würde X $ zusätzlich produktiv machen", „Konkurrenz hat größeres Team", „Mehrere Modelle, nur 1 Engineer", „Support fehlt trotz aktiver Reputation-Verluste".
+- **Wachstumsdruck** durch Konkurrenz wird nirgends sichtbar — der Spieler weiß nicht, dass er einstellen *muss*, um Marktanteil zu halten.
 
-**Konditionen** (historisch 80er, dynamisch):
-- Leitzins ab Jahr: 1983 = 11 %, 1984–86 = 9 %, 1987–88 = 7 %, 1989+ = 8 % p.a.
-- Aufschlag nach Reputation: Rep ≥ 70 → +1 %; Rep < 50 → +3 %; sonst +2 %.
-- Laufzeit: 8, 12 oder 16 Quartale (Spielerwahl).
-- Quartalsweise Annuität (Tilgung + Zins), abgezogen in `processQuarterTurn`.
+## Zieländerungen
 
-**Default-Mechanik:**
-- Zahlungsausfall (Cash < Annuität): Reputation −15, Strafzinsen 5 % aufs Restdarlehen.
-- Bei 3 aufeinanderfolgenden Ausfällen: Reputation −30, Kredit gekündigt (alles fällig). Wenn nicht zahlbar → Game-Over-Pfad oder Insolvenz-Trigger (vorerst nur Warnung + Reputation-Schaden).
+### 1) `BudgetRules.ts` — bessere Headcount-Mathematik
 
-**Daten:** neue Tabelle `loans` (user_id, principal, rate, quartersTotal, quartersPaid, status). Plus `loan_payments` Log.
+- Cap-Formel umstellen, damit zusätzliche Mitarbeitende spürbarer skalieren und ein einzelner Senior nicht alles abdeckt:
+  - `cap = BASE * sum_skill_factor(role)` mit `sum_skill_factor = Σ(0.5 + skill/100)` über alle Personen der Rolle.
+  - Moral wirkt linear (0.5–1.1) statt harter Schwelle.
+- Neue Felder in `AreaState`:
+  - `utilizationPct` = `currentBudget / cap` (auch ohne Sättigung sichtbar).
+  - `hireWouldUnlock` (in $): geschätzter zusätzlicher *effective spend*, wenn ein zweiter Engineer/Marketer/… mit Median-Skill dazukäme. Wird genutzt, um den Tipp „jetzt einstellen" zu rechtfertigen.
+- `recommendBudget` zusätzlich an Headcount skalieren (mehr Team → höhere Empfehlung), nicht nur an Cash.
+- Neue Hilfsfunktion `recommendHiring(summary, agg, ctx)` liefert pro Rolle `{ shouldHire: bool, reason: 'gate'|'utilization'|'growth'|'multi-model', priority }`.
 
-## 2. VC-Pitch (LLM-gesteuert)
+### 2) `StaffService.ts` — Wachstums-Signal & Senior-Profile
 
-**Ablauf im UI:**
-1. Spieler öffnet "VC-Pitch" → wählt Pitch-Setup:
-   - Angebotener Anteil (1–40 %)
-   - Verwendung der Mittel (Freitext: "R&D", "Marketing", "Neue Modellreihe")
-   - Bewertungs-Vorschlag des Spielers (post-money valuation in $)
-2. LLM bekommt: Firmen-KPIs (Cash, Reputation, MarketShare, Modelle, Brand, Quartal/Jahr, Schulden) + Pitch.
-3. LLM stellt 3 kritische Nachfragen, eine nach der anderen — Spieler antwortet jeweils per Textinput.
-4. LLM bewertet (server-seitig, hidden Reasoning) Antworten anhand:
-   - Konsistenz mit den Zahlen
-   - Realismus für 80er-Jahre-Markt
-   - Klarheit der Wachstumsstory
-5. LLM gibt zurück: `accepted: bool`, `negotiatedValuationMultiplier ∈ [0.4, 1.3]`, `feedback: string`.
-6. **Ergebnis:** Falls accepted → Cash += `valuation × angebotenerAnteil`, `equityGivenAwayPct += angebotenerAnteil`. Falls abgelehnt → Reputation −5 (Markt erfährt davon), 4 Quartale Cooldown.
+- Candidate-Pool: ab Jahr ≥ 1986 gelegentlich „Senior"-Bewerber (Skill 70–95) zu höherem Gehalt einstreuen, damit späte Phasen sinnvolle Skalierungs-Hires bieten.
+- Era-Salary-Factor leicht steiler (1.0 → 2.0 bis 1995) — passt zur Inflation und macht Wachstum zu einer Entscheidung, nicht zu einer Selbstverständlichkeit.
+- `aggregate` zusätzlich `byRoleSumSkill` mitliefern, damit BudgetRules ohne Inverse-Heuristik arbeiten kann.
 
-**LLM-Integration:**
-- Edge Function `vc-pitch` mit Lovable AI Gateway (`google/gemini-3-flash-preview`).
-- Strukturierte Outputs (Zod-Schema): `questions[]` für Phase 1, dann `evaluation` für Phase 2.
-- System-Prompt definiert VC-Persona (skeptisch, branchenkundig, 80er-Kontext).
-- Anti-Prompt-Injection: User-Antworten klar markiert; LLM-Bewertungs-Regeln im System-Prompt fest.
+### 3) `AdvisorCompanion.tsx` — Hiring-Tipps
 
-**Konsequenzen für Sim:**
-- `equityGivenAwayPct` reduziert späteren Player-Profit-Ausschüttungs-Anteil (vorerst nur als Display-Wert; bei Game-End wirkt es auf Final-Score: `finalScore *= (1 − equity)`).
-- Max 3 VC-Runden möglich (Verwässerungs-Schutz).
-- VCs werden über Quartale "skeptischer": wiederholte Pitches werden härter bewertet.
+Neue Tipps in Prioritätsreihenfolge:
 
-**Daten:** neue Tabelle `vc_rounds` (user_id, round_no, offered_pct, proposed_valuation, accepted, negotiated_valuation, cash_received, created_at). Pitch-Transkript in `vc_pitch_messages`.
+| Trigger | Tipp |
+|---|---|
+| `utilizationPct ≥ 80 %` und `hireWouldUnlock ≥ 10k` | „Dein {Bereich}-Budget läuft am Limit. Ein weiterer {Rolle} würde ca. {X} $ zusätzlich produktiv machen." |
+| Aktive Modelle ≥ 2, Engineers ≤ 1 | „Du hast {N} aktive Modelle, aber nur einen Engineer. Wartung und Weiterentwicklung leiden." |
+| Marketing-Budget > 0, keine Marketer | bereits vorhanden (gate) — Text präzisieren |
+| Reputation < 50 oder Verkäufe gefallen, kein Support | „Reputation rutscht — ohne Support-Team kommen die Kunden nicht zurück." |
+| Eigener Marktanteil < Median der KI-Konkurrenten und Headcount < `avgCompetitorTeamProxy` | „Konkurrenz wächst schneller als du. Zeit für ein größeres Team." |
 
-## UI
+Tipps zeigen konkrete Zahlen (Cap, hireWouldUnlock, ungefähres Gehaltsfenster aus Candidate-Pool).
 
-Neuer Tab/Modal "Finanzierung" im Dashboard, zwei Karten:
-- **Bankkredit**: aktueller Kreditstatus, neuer Antrag (Slider Betrag/Laufzeit, Live-Anzeige der Annuität).
-- **VC-Pitch**: Equity-Übersicht, "Neuen Pitch starten"-Button, In-Modal-Chat für die 3 Fragen.
+### 4) Übersetzungen
 
-Beide Wege im `CompanyAccount`-Header gespiegelt: "Kredit: $X / Equity-frei: Y %".
+Neue Keys in `advisor.json` (DE/EN): `tips.nearCap`, `tips.multiModelUnderstaffed`, `tips.supportMissing`, `tips.competitionGrowing`. Bestehende `needRole`-Texte um konkretes Hire-Beispiel ergänzen.
 
-## Schritt-Reihenfolge
+### 5) Sichtbarkeit im UI
 
-1. **DB-Migration**: `loans`, `loan_payments`, `vc_rounds`, `vc_pitch_messages` (alle user-scoped, RLS).
-2. **GameMechanics**: Annuitäten-Abzug in `processQuarterTurn` + Cash-Aufschlag bei Kredit-/VC-Vergabe; Persistenz von `equityGivenAwayPct` und `outstandingDebt` auf `gameState.company`.
-3. **Edge Function `vc-pitch`** mit zwei Endpoints (Phase 1 Fragen, Phase 2 Evaluation).
-4. **Services**: `LoanService` (apply/repay), `VcPitchService` (LLM-Calls).
-5. **UI**: Finanzierungs-Modal mit Tabs, integriert in `GameDashboard`.
+- `EmployeesPanel`: oberhalb des Bewerber-Pools eine kompakte Hinweiszeile „Empfohlen jetzt: +1 Engineer, +1 Marketer" (kommt aus `recommendHiring`). Kein Pflicht-Modal — nur Information.
+- Keine Änderungen am Spielablauf außerhalb dieser Bereiche.
 
-## Nicht im ersten Wurf
+## Out of Scope
 
-- Bond-Issuance, Re-Finanzierung bestehender Kredite.
-- VC-Anteile als handelbares Asset (Sekundärmarkt).
-- IPO als Game-End-Win-Bedingung (separates Feature).
-- Wechsel von Equity-Anteilen auf laufende Profit-Ausschüttung (vereinfacht: Final-Score-Multiplikator).
+- Keine Änderung an Verkaufs-/Preisformel, Cash-Buchhaltung, Loan-Flow oder Tutorial.
+- Keine DB-Migrationen — alles ableitbar aus bestehenden Tabellen.
 
-## Technische Details
+## Betroffene Dateien
 
-- Zinsformeln deterministisch (kein RNG); keine Math.random im Loan-Pfad.
-- VC-LLM-Antworten werden roh persistiert für Audit/Replay.
-- Reputation-Effekte gehen über die bestehenden Hooks (kein neuer Reputation-SOT).
-- TypeScript-Types in `src/types/financing.ts`.
-
-Warte auf Freigabe.
+- `src/lib/game/BudgetRules.ts` (Cap-Formel, neue Felder, `recommendHiring`)
+- `src/services/StaffService.ts` (Senior-Pool, Era-Skalierung, `byRoleSumSkill`)
+- `src/components/AdvisorCompanion.tsx` (neue Tipps + Daten)
+- `src/components/EmployeesPanel.tsx` (Hinweiszeile)
+- `public/locales/de/advisor.json`, `public/locales/en/advisor.json`

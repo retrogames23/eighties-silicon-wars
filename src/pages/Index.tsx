@@ -816,6 +816,12 @@ const Index = () => {
             cash={gameState.company.cash}
             lastQuarterRevenue={gameState.company.monthlyIncome * 3}
             hasActiveModels={(gameState.models ?? []).some((m: any) => m.status === 'development' || m.status === 'released')}
+            activeModelsCount={(gameState.models ?? []).filter((m: any) => m.status === 'development' || m.status === 'released').length}
+            competitorAvgMarketShare={
+              aiCompetitors.length > 0
+                ? aiCompetitors.reduce((s, c) => s + (c.market_share ?? 0), 0) / aiCompetitors.length
+                : undefined
+            }
             companyName={gameState.company.name}
             quarter={gameState.quarter}
             year={gameState.year}

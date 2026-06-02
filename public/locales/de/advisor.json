@@ -30,9 +30,13 @@
       "wrapUp": "Das war's für den Anfang. Spezielle Tipps tauchen automatisch im „Tipps\"-Tab auf, wenn die Situation es verlangt. Und ich bin immer im Chat für dich da. Viel Erfolg!"
     },
     "tips": {
-      "needRole": "Du gibst {{amount}} für {{area}} aus, hast aber keine/n {{role}} im Team. Das Geld verpufft.",
+      "needRole": "Du gibst {{amount}} für {{area}} aus, hast aber keine/n {{role}} im Team. Das Geld verpufft — stell jemanden ein, sonst war's nix.",
       "revenueGrew": "Dein Umsatz ist auf {{revenue}} gestiegen. Marketing von ~{{amount}} wäre jetzt angemessen.",
       "saturated": "Dein {{area}}-Budget ist über der Sättigung. Mehr Team bringt jetzt mehr als mehr Geld.",
+      "nearCap": "Dein {{area}}-Budget läuft am Limit ({{util}}% Auslastung). Ein/e weitere/r {{role}} würde ca. {{unlock}} zusätzlich produktiv machen.",
+      "multiModelUnderstaffed": "Du hast {{count}} aktive Modelle, aber nur {{engineers}} Engineer im Team. Stell jemanden ein — sonst rosten deine Produkte ein.",
+      "supportMissing": "Reputation rutscht auf {{rep}}. Ohne Support-Team kommen die Kunden nicht zurück — Zeit für eine/n Support-Profi.",
+      "competitionGrowing": "Die Konkurrenz hat im Schnitt {{avg}}% Marktanteil, du nur {{own}}%. Wer mithalten will, braucht mehr Leute — fang mit eine/m {{role}} an.",
       "lowMorale": "Die Moral im Team liegt bei {{morale}}% — überlege Boni oder Pause.",
       "cashLow": "Deine Cash-Reserve sinkt. Senke unproduktive Budgets oder pausiere Forschung."
     },

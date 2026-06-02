@@ -701,27 +701,27 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                   <CardHeader>
                     <CardTitle className="text-neon-cyan flex items-center gap-2">
                       <DollarSign className="w-5 h-5" />
-                      Verkaufspreis festlegen
+                      {t('ui:development.pricing.title')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Card className="p-4 border border-terminal-green/30">
-                        <h4 className="font-semibold text-red-400 mb-2">Mindestpreis</h4>
+                        <h4 className="font-semibold text-red-400 mb-2">{t('ui:development.pricing.minPrice')}</h4>
                         <p className="text-2xl font-mono text-red-400">${minPrice.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">10% Marge</p>
+                        <p className="text-xs text-muted-foreground">{t('ui:development.pricing.marginPct', { pct: 10 })}</p>
                       </Card>
                       
                       <Card className="p-4 border border-neon-green">
-                        <h4 className="font-semibold text-neon-green mb-2">Empfohlen</h4>
+                        <h4 className="font-semibold text-neon-green mb-2">{t('ui:development.pricing.recommended')}</h4>
                         <p className="text-2xl font-mono text-neon-green">${suggestedPrice.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">80% Marge (Standard)</p>
+                        <p className="text-xs text-muted-foreground">{t('ui:development.pricing.marginPctStandard', { pct: 80 })}</p>
                       </Card>
                       
                       <Card className="p-4 border border-terminal-green/30">
-                        <h4 className="font-semibold text-yellow-400 mb-2">Maximaler Preis</h4>
+                        <h4 className="font-semibold text-yellow-400 mb-2">{t('ui:development.pricing.maxPrice')}</h4>
                         <p className="text-2xl font-mono text-yellow-400">${maxPrice.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">300% Marge</p>
+                        <p className="text-xs text-muted-foreground">{t('ui:development.pricing.marginPct', { pct: 300 })}</p>
                       </Card>
                     </div>
                     
@@ -732,13 +732,13 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                           className="glow-button"
                           variant={sellingPrice === suggestedPrice ? "default" : "outline"}
                         >
-                          Empfohlenen Preis übernehmen
+                          {t('ui:development.pricing.applyRecommended')}
                         </Button>
                       </div>
                       
                       <div className="space-y-2">
                         <Label htmlFor="custom-price" className="text-muted-foreground">
-                          Oder eigenen Preis festlegen:
+                          {t('ui:development.pricing.orCustom')}
                         </Label>
                         <div className="flex items-center gap-2">
                           <span className="text-terminal-green font-mono">$</span>
@@ -756,16 +756,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                         
                         {sellingPrice > 0 && (
                           <div className="mt-4 p-4 border rounded-lg">
-                            <h4 className="font-semibold text-neon-cyan mb-3">Preisanalyse</h4>
+                            <h4 className="font-semibold text-neon-cyan mb-3">{t('ui:development.pricing.analysisTitle')}</h4>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <span className="text-muted-foreground">Gewinn pro Einheit:</span>
+                                <span className="text-muted-foreground">{t('ui:development.pricing.profitPerUnit')}</span>
                                 <p className="font-mono text-neon-green">
                                   ${(sellingPrice - totalCost).toLocaleString()}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Gewinnmarge:</span>
+                                <span className="text-muted-foreground">{t('ui:development.pricing.profitMargin')}</span>
                                 <p className="font-mono text-neon-green">
                                   {Math.round(((sellingPrice - totalCost) / totalCost) * 100)}%
                                 </p>
@@ -775,16 +775,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                             <div className="mt-3 pt-3 border-t">
                               <div className="text-xs text-muted-foreground">
                                 {sellingPrice < minPrice && (
-                                  <p className="text-red-400">⚠️ Preis unter Mindestmarge - Verlustrisiko!</p>
+                                  <p className="text-red-400">{t('ui:development.pricing.hintBelowMin')}</p>
                                 )}
                                 {sellingPrice >= minPrice && sellingPrice <= suggestedPrice && (
-                                  <p className="text-yellow-400">💡 Aggressiver Preis - Mehr Verkäufe, weniger Gewinn</p>
+                                  <p className="text-yellow-400">{t('ui:development.pricing.hintAggressive')}</p>
                                 )}
                                 {sellingPrice > suggestedPrice && sellingPrice <= maxPrice && (
-                                  <p className="text-neon-green">🎯 Premium-Preis - Weniger Verkäufe, höhere Marge</p>
+                                  <p className="text-neon-green">{t('ui:development.pricing.hintPremium')}</p>
                                 )}
                                 {sellingPrice > maxPrice && (
-                                  <p className="text-red-400">⚠️ Sehr hoher Preis - Verkaufsrisiko!</p>
+                                  <p className="text-red-400">{t('ui:development.pricing.hintTooHigh')}</p>
                                  )}
                                </div>
                              </div>

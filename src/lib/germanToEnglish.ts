@@ -116,12 +116,87 @@ const DE_TO_EN: Record<string, string> = {
 
   // ----- Section / verdict labels used as data -----
   "Büro-Leistung": "Office performance",
+  "Spiele-Performance": "Gaming performance",
   "Workstation-Tauglichkeit": "Workstation suitability",
   "Standard-Gehäuse": "Standard case",
   "Für Büro-Anwendungen ist dieser Computer eine ausgezeichnete Wahl.": "An excellent choice for office applications.",
   "Für professionelle Büro-Anwendungen eine ausgezeichnete Wahl.": "An excellent choice for professional office applications.",
   "Als Workstation für professionelle Anwendungen ist er top geeignet.": "Top-tier suitability as a workstation for professional applications.",
   "Als High-End-Workstation für anspruchsvollste Aufgaben uneingeschränkt empfehlenswert.": "Unreservedly recommended as a high-end workstation for the most demanding tasks.",
+  "Besonders Gaming-Enthusiasten kommen hier auf ihre Kosten.": "Gaming enthusiasts in particular will get their money's worth here.",
+  "Die ausgewogene Leistung macht ihn zum idealen Allrounder.": "Its balanced performance makes it the ideal all-rounder.",
+  "Die ausgewogene Leistung macht ihn zum starken Allrounder.": "Its balanced performance makes it a strong all-rounder.",
+  "Die solide Auslegung macht ihn zum brauchbaren Allrounder.": "Its solid layout makes it a serviceable all-rounder.",
+  "In allen Disziplinen bleibt deutlich Verbesserungspotenzial.": "There's clear room for improvement across all disciplines.",
+
+  // ----- Market position labels -----
+  "Gaming-Champion": "Gaming champion",
+  "Business-Champion": "Business champion",
+  "Workstation-Spezialist": "Workstation specialist",
+  "Allround-Favorit": "All-round favorite",
+  "Solider Mitbewerber": "Solid contender",
+  "Nischen-Produkt": "Niche product",
+
+  // ----- Component detail nouns (after rating) -----
+  "Prozessor": "Processor",
+  "Grafikleistung": "Graphics",
+  "Speicher": "Memory",
+  "Premium Verarbeitung": "Premium build",
+  "Solide Verarbeitung": "Solid build",
+  "Basic Verarbeitung": "Basic build",
+};
+
+// Category labels in lowercase (for `${label.toLowerCase()}` interpolations).
+const LOWERCASE_LABELS: Record<string, string> = {
+  "spiele-performance": "gaming performance",
+  "büro-leistung": "office performance",
+  "workstation-tauglichkeit": "workstation suitability",
+};
+
+// Verdict templates with placeholders. `$N` refers to the matched group, which
+// is re-translated via translateText so ratings/labels inside also localize.
+const VERDICT_PATTERNS: Array<{ re: RegExp; en: string }> = [
+  {
+    re: /^Der (.+?) ist ein außergewöhnlicher Computer, der in allen Kategorien überzeugt\. (.+)$/,
+    en: "The $1 is an exceptional computer that excels in every category. $2",
+  },
+  {
+    re: /^Der (.+?) bietet sehr gute Leistung und ist eine empfehlenswerte Wahl\. (.+)$/,
+    en: "The $1 offers very good performance and is a recommended choice. $2",
+  },
+  {
+    re: /^Der (.+?) liefert sehr gute Gesamtleistung und ist eine empfehlenswerte Wahl\. (.+)$/,
+    en: "The $1 delivers very good overall performance and is a recommended choice. $2",
+  },
+  {
+    re: /^Der (.+?) ist ein solider Computer mit ausgewogenen Eigenschaften\. (.+)$/,
+    en: "The $1 is a solid computer with well-balanced characteristics. $2",
+  },
+  {
+    re: /^Der (.+?) erfüllt die Grundanforderungen, zeigt aber spürbare Schwächen\. (.+)$/,
+    en: "The $1 meets the basics but shows noticeable weaknesses. $2",
+  },
+  {
+    re: /^Der (.+?) zeigt deutliche Schwächen und ist nur für sehr eingeschränkte Einsätze geeignet\. Vor allem die (.+?) enttäuscht — eine Überarbeitung der Komponenten ist dringend zu empfehlen\.$/,
+    en: "The $1 has clear weaknesses and is only suitable for very limited use. The $2 in particular disappoints — a component revision is strongly recommended.",
+  },
+  {
+    re: /^Besonders in der Kategorie (.+?) zeigt er seine Stärken\.$/,
+    en: "It particularly shows its strengths in the $1 category.",
+  },
+  {
+    re: /^Am ehesten lohnt er sich für (.+?)\.$/,
+    en: "It's most worthwhile for $1.",
+  },
+  // Component detail lines: "CPU: Sehr gut — Prozessor"
+  {
+    re: /^(CPU|GPU|RAM|Sound|Gehäuse): (.+?) — (.+)$/,
+    en: "$1: $2 — $3",
+  },
+];
+
+const LABEL_RENAMES: Record<string, string> = {
+  "Gehäuse": "Case",
 };
 
 /**
@@ -134,11 +209,24 @@ export function translateText(text: string | undefined | null): string {
   if (lang === "de") return text;
   // Exact match first
   if (DE_TO_EN[text]) return DE_TO_EN[text];
-  // Try trimmed
   const trimmed = text.trim();
   if (DE_TO_EN[trimmed]) return DE_TO_EN[trimmed];
-  // Handle prefix/suffix patterns: "<CPU>: Solide CPU mit guter Qualität"
-  const m = text.match(/^(.+?:\s*)(.+)$/);
+  // Lowercase label lookup (used inside interpolations)
+  const lower = trimmed.toLowerCase();
+  if (LOWERCASE_LABELS[lower]) return LOWERCASE_LABELS[lower];
+  // Verdict / component templates
+  for (const { re, en } of VERDICT_PATTERNS) {
+    const m = trimmed.match(re);
+    if (m) {
+      return en.replace(/\$(\d+)/g, (_, idx) => {
+        const raw = m[Number(idx)] ?? "";
+        const renamed = LABEL_RENAMES[raw] ?? raw;
+        return translateText(renamed);
+      });
+    }
+  }
+  // Prefix/suffix patterns: "<CPU>: Solide CPU mit guter Qualität"
+  const m = trimmed.match(/^(.+?:\s*)(.+)$/);
   if (m && DE_TO_EN[m[2]]) return m[1] + DE_TO_EN[m[2]];
   return text;
 }

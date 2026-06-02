@@ -264,6 +264,12 @@ export const GameDashboard = ({
                   {isMobile ? 'Mgmt' : t('ui:dashboard.tabs.management')}
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="financing" 
+                  className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
+                >
+                  {isMobile ? '$' : 'Finanzierung'}
+                </TabsTrigger>
+                <TabsTrigger 
                   value="headquarters" 
                   className={`retro-tab ${isMobile ? 'mobile-touch-button text-xs px-3' : ''}`}
                 >

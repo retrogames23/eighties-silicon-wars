@@ -194,6 +194,20 @@ export const AdvisorCompanion = ({
   }, [t, summary]);
 
   const inTour = mode === 'tour' && tourStep >= 0 && tourStep < tourSteps.length;
+
+  // Auto-advance tour when the player has actually completed the step's action.
+  // Steps: 0 welcome, 1 personnel, 2 marketing, 3 development, 4 research, 5+ financing (informational).
+  useEffect(() => {
+    if (mode !== 'tour' || tourStep < 0 || tourStep >= tourSteps.length) return;
+    const done =
+      (tourStep === 1 && agg.headcount >= 1) ||
+      (tourStep === 2 && budget.marketing > 0) ||
+      (tourStep === 3 && budget.development > 0) ||
+      (tourStep === 4 && budget.research > 0);
+    if (done) {
+      setTourStep(s => s + 1);
+    }
+  }, [mode, tourStep, tourSteps.length, agg.headcount, budget.marketing, budget.development, budget.research]);
   const activeTip = mode === 'tips' && tips.length > 0 ? tips[0] : null;
   const hasBubble = inTour || activeTip || mode === 'chat';
 

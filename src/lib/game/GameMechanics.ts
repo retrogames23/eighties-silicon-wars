@@ -729,11 +729,24 @@ export class GameMechanics {
     //    deshalb hier sauber als Periodenkosten abziehen.
     //    Gehälter skalieren mit der Mitarbeiterzahl (kein doppelter Flat-Posten).
     const inflation = Math.pow(1.03, Math.max(0, gameState.year - 1983));
-    const employeeCount = Math.max(1, company.employees ?? 8);
+    let employeeCount = Math.max(1, company.employees ?? 8);
     // Step-2-Tuning: Garagenfirma 1983 darf nicht an Fixkosten ersticken.
     // $24k/Jahr Basis-Gehalt (vorher $30k) — entspricht eher 80er-Junior-Engineer.
     const salaryPerEmployeePerQuarter = 6000;
-    const salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    let salaries = Math.round(employeeCount * salaryPerEmployeePerQuarter * inflation);
+    if (userId) {
+      try {
+        const { StaffService } = await import('@/services/StaffService');
+        const team = await StaffService.list(userId);
+        const staff = StaffService.aggregate(team);
+        if (staff.headcount > 0) {
+          employeeCount = staff.headcount;
+          salaries = staff.totalSalary;
+        }
+      } catch (e) {
+        console.warn('[Staff] salary lookup failed, using estimated payroll', e);
+      }
+    }
     // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
     const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
     const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);

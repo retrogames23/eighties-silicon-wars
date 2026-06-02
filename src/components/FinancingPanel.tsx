@@ -19,6 +19,7 @@ import {
 } from "@/types/financing";
 import { LoanService } from "@/services/LoanService";
 import { VcPitchService, type CompanySnapshot } from "@/services/VcPitchService";
+import { pickVcForRound, type VcCharacter } from "@/lib/vcCharacters";
 
 interface FinancingPanelProps {
   gameState: any;

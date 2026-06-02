@@ -51,7 +51,7 @@ export const HeadquartersTab = ({
                 {t("ui:headquarters.buildingSize")}
               </p>
               <p className="text-2xl font-bold text-neon-green">
-                {t("ui:headquarters.floors", { count: floors })}
+                {floors === 1 ? t("ui:headquarters.floor", { count: floors }) : t("ui:headquarters.floors", { count: floors })}
               </p>
             </div>
           </div>

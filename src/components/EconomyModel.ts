@@ -99,6 +99,17 @@ export interface EconomyContext {
    * verfügbarer Markt. Speist aktive AiCompetitor-Stati in die Sim.
    */
   aiCompetitorPressure?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
+  /**
+   * Persistenter Marken-Bekanntheitsgrad 0..100. Wird über Quartale aufgebaut/zerfällt
+   * und multipliziert die effektive Marketing-Wirkung. Verhindert Snowball aus reinem
+   * Cash-Marketing in einem einzelnen Quartal.
+   */
+  brandAwareness?: number;
+  /**
+   * Anzahl aktiver Modelle im Verkauf. >8 löst Komplexitäts-Malus aus
+   * (Vertriebs-Overhead, Verwirrung im Kanal): −10 % je zusätzlichem Modell.
+   */
+  activeModelCount?: number;
 }
 
 export class EconomyModel {

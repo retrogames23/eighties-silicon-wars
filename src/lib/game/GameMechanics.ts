@@ -654,7 +654,7 @@ export class GameMechanics {
           gameState.year,
           gameState.quarter,
           1000000,
-          { bomMultiplier, demandMultiplier, segmentShareOverride }
+          { bomMultiplier, demandMultiplier, segmentShareOverride, rngSeed, aiCompetitorPressure }
         );
 
         totalRevenue += salesResult.revenue;

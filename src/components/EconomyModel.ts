@@ -144,8 +144,11 @@ export class EconomyModel {
   ): SalesSimulationResult {
     const bomCosts = this.calculateBOMCostsWithDecay(model, year, quarter, context.bomMultiplier ?? 1);
 
+    // Anti-Exploit: Preis-Sanity (Dumping unter BOM, Trust-Schwelle nach unten).
+    const contextWithBom: EconomyContext = { ...context, _bomCostHint: bomCosts };
+
     const demandSimulation = this.simulateMarketDemand(
-      model, competitors, year, quarter, marketSize, marketingBudget, playerReputation, context
+      model, competitors, year, quarter, marketSize, marketingBudget, playerReputation, contextWithBom
     );
 
     const profitBreakdown = this.calculateProfitBreakdown(

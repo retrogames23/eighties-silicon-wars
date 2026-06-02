@@ -624,34 +624,43 @@ export class TestReportGenerator {
     businessResult: any,
     workstationResult: any
   ): string {
-    const bestCategory = Math.max(gamingResult.score, businessResult.score, workstationResult.score);
-    let verdict = '';
-    
+    const name = model.name;
+    const scores = [
+      { score: gamingResult.score, label: 'Spiele-Performance', strong: 'Besonders Gaming-Enthusiasten kommen hier auf ihre Kosten.' },
+      { score: businessResult.score, label: 'Büro-Leistung', strong: 'Für Büro-Anwendungen ist dieser Computer eine ausgezeichnete Wahl.' },
+      { score: workstationResult.score, label: 'Workstation-Tauglichkeit', strong: 'Als Workstation für professionelle Anwendungen ist er top geeignet.' },
+    ];
+    const best = scores.reduce((a, b) => (b.score > a.score ? b : a));
+    const balanced =
+      overallScore >= 70 &&
+      Math.abs(gamingResult.score - businessResult.score) < 10 &&
+      gamingResult.score >= 65 &&
+      businessResult.score >= 65;
+
     if (overallScore >= 90) {
-      verdict = `Der ${model.name} ist ein außergewöhnlicher Computer, der in allen Kategorien überzeugt. `;
-    } else if (overallScore >= 80) {
-      verdict = `Der ${model.name} bietet sehr gute Leistung und stellt eine empfehlenswerte Wahl dar. `;
-    } else if (overallScore >= 70) {
-      verdict = `Der ${model.name} ist ein solider Computer mit ausgewogenen Eigenschaften. `;
-    } else if (overallScore >= 60) {
-      verdict = `Der ${model.name} erfüllt die Grundanforderungen, hat aber Verbesserungspotential. `;
-    } else {
-      verdict = `Der ${model.name} zeigt deutliche Schwächen und ist nur für spezielle Anwendungen geeignet. `;
+      const tail = balanced ? 'Die ausgewogene Leistung macht ihn zum idealen Allrounder.' : best.strong;
+      return `Der ${name} ist ein außergewöhnlicher Computer, der in allen Kategorien überzeugt. ${tail}`;
     }
-    
-    // Spezialisierung erwähnen
-    if (bestCategory === gamingResult.score && gamingResult.score >= 75) {
-      verdict += 'Besonders Gaming-Enthusiasten kommen hier auf ihre Kosten.';
-    } else if (bestCategory === businessResult.score && businessResult.score >= 75) {
-      verdict += 'Für Büro-Anwendungen ist dieser Computer eine ausgezeichnete Wahl.';
-    } else if (bestCategory === workstationResult.score && workstationResult.score >= 75) {
-      verdict += 'Als Workstation für professionelle Anwendungen ist er top geeignet.';
-    } else if (Math.abs(gamingResult.score - businessResult.score) < 10) {
-      verdict += 'Die ausgewogene Leistung macht ihn zum idealen Allrounder.';
+    if (overallScore >= 80) {
+      const tail = balanced ? 'Die ausgewogene Leistung macht ihn zum starken Allrounder.' : best.strong;
+      return `Der ${name} bietet sehr gute Leistung und ist eine empfehlenswerte Wahl. ${tail}`;
     }
-    
-    return verdict;
+    if (overallScore >= 70) {
+      const tail = balanced
+        ? 'Die solide Auslegung macht ihn zum brauchbaren Allrounder.'
+        : `Besonders in der Kategorie ${best.label} zeigt er seine Stärken.`;
+      return `Der ${name} ist ein solider Computer mit ausgewogenen Eigenschaften. ${tail}`;
+    }
+    if (overallScore >= 60) {
+      const focus = best.score >= 65
+        ? `Am ehesten lohnt er sich für ${best.label.toLowerCase()}.`
+        : 'In allen Disziplinen bleibt deutlich Verbesserungspotenzial.';
+      return `Der ${name} erfüllt die Grundanforderungen, zeigt aber spürbare Schwächen. ${focus}`;
+    }
+    const weakest = scores.reduce((a, b) => (b.score < a.score ? b : a));
+    return `Der ${name} zeigt deutliche Schwächen und ist nur für sehr eingeschränkte Einsätze geeignet. Vor allem die ${weakest.label.toLowerCase()} enttäuscht — eine Überarbeitung der Komponenten ist dringend zu empfehlen.`;
   }
+
   
   // Helper Functions
   private static getScoreRating(score: number): string {

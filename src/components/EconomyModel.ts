@@ -111,6 +111,8 @@ export interface EconomyContext {
    * (Vertriebs-Overhead, Verwirrung im Kanal): −10 % je zusätzlichem Modell.
    */
   activeModelCount?: number;
+  /** Intern: BOM-Cost-Hint zur Preis-Sanity-Berechnung in der Segment-Schleife. */
+  _bomCostHint?: number;
 }
 
 export class EconomyModel {

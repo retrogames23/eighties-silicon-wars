@@ -606,8 +606,8 @@ export class GameMechanics {
       console.log('⚠️ AI competitors not available, pressure=0');
     }
 
-    // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming).
-    const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter);
+    // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
+    const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);
 
 
     // Brand-Awareness aus Vorquartal (Persistent), 0 falls erstes Quartal.

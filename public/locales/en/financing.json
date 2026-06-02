@@ -1,0 +1,85 @@
+{
+  "stats": {
+    "outstandingDebt": "Outstanding debt",
+    "equityGiven": "Equity given away",
+    "founderRemaining": "Remaining (founder)"
+  },
+  "tabs": {
+    "loan": "Bank loan",
+    "vc": "VC pitch"
+  },
+  "loan": {
+    "title": "Bank terms Q{{quarter}}/{{year}}",
+    "rateLabel": "Base rate (reputation {{reputation}}):",
+    "ratePa": "{{rate}} % p.a.",
+    "avgQuarterlyRevenue": "Avg quarterly revenue:",
+    "maxPrincipal": "Maximum credit line:",
+    "notEligible": "Not creditworthy: {{reason}}",
+    "reasonFallback": "Insufficient credit standing",
+    "amount": "Loan amount: ${{amount}}",
+    "term": "Term (quarters)",
+    "termOption": "{{q}} Q",
+    "quarterlyPayment": "Quarterly payment:",
+    "totalPayback": "Total repayment:",
+    "totalInterest": "Total interest:",
+    "take": "Take out loan",
+    "toast": {
+      "takenTitle": "Loan taken",
+      "takenDesc": "${{amount}} at {{rate}} % p.a.",
+      "errorTitle": "Error",
+      "errorDesc": "Loan could not be created."
+    },
+    "active": {
+      "title": "Active loans",
+      "summary": "${{principal}} @ {{rate}} %",
+      "progress": "{{paid}}/{{total}} payments · ${{outstanding}} outstanding",
+      "rate": "Payment: ${{amount}}",
+      "defaults": "{{count}}/3 defaults"
+    }
+  },
+  "vc": {
+    "title": "VC pitch ({{done}}/3 held)",
+    "todayPitch": "Today you are pitching to",
+    "maxRoundsReached": "Maximum of 3 VC rounds reached.",
+    "notEnoughEquity": "Not enough equity available (max. 75 % given away in total).",
+    "setup": {
+      "offeredEquity": "Offered equity stake: {{pct}} %",
+      "valuation": "Proposed valuation (post-money, $)",
+      "expectedCash": "Expected cash on acceptance: ~${{amount}}",
+      "useOfFunds": "Use of funds",
+      "useOfFundsPlaceholder": "e.g. R&D for the 32-bit line, build out sales in Europe, ...",
+      "start": "Start pitch (VC asks 3 questions)"
+    },
+    "questions": {
+      "hint": "Answer all 3 questions as concretely as possible. Vague pitch = lower valuation.",
+      "question": "Question {{n}}: {{text}}",
+      "answerPlaceholder": "Your answer...",
+      "submit": "Submit answers",
+      "tooShortTitle": "Answers too short",
+      "tooShortDesc": "At least 10 characters per question."
+    },
+    "evaluating": "VC is thinking...",
+    "result": {
+      "invested": "Invested: ${{amount}}",
+      "rejected": "Investment rejected",
+      "multiplier": "Valuation multiplier: {{mult}}×",
+      "weaknesses": "Concerns:",
+      "close": "Close"
+    },
+    "toast": {
+      "unreachableTitle": "VC unreachable",
+      "investedTitle": "VC invested!",
+      "investedDesc": "+${{amount}} for {{pct}} % equity",
+      "rejectedTitle": "Rejected",
+      "evalFailedTitle": "Evaluation failed"
+    },
+    "history": {
+      "title": "VC history",
+      "round": "Round {{n}} · Q{{quarter}}/{{year}}",
+      "terms": "{{pct}}% @ ${{valuation}}",
+      "accepted": "+${{amount}}",
+      "rejected": "Rejected",
+      "running": "Running"
+    }
+  }
+}

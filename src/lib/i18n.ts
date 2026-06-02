@@ -10,7 +10,7 @@ import '@formatjs/intl-pluralrules/locale-data/en';
 
 // Define supported languages and namespaces
 const SUPPORTED_LANGUAGES = ['de', 'en'] as const;
-const NAMESPACES = ['common', 'ui', 'economy', 'toast', 'news', 'hardware', 'products', 'reviews', 'events', 'charts', 'game', 'company', 'advisor'] as const;
+const NAMESPACES = ['common', 'ui', 'economy', 'toast', 'news', 'hardware', 'products', 'reviews', 'events', 'charts', 'game', 'company', 'advisor', 'financing'] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 export type Namespace = typeof NAMESPACES[number];

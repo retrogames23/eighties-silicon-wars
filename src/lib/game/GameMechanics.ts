@@ -793,13 +793,14 @@ export class GameMechanics {
       totalUnitsSold,
       modelResults,
       profitMargin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0,
-      expenses: quarterlyExpenses,
+      expenses: { ...quarterlyExpenses, loanPayments: loanCashOut },
       netCashFlow,
       marketShare: newMarketShare,
       marketShareChange,
       reputation: newReputation,
       reputationChange,
       marketEventMultipliers: { bomMultiplier, demandMultiplier },
+      loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
     };
 
     return {

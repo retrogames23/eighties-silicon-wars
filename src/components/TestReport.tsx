@@ -98,9 +98,9 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
           <Card className="retro-border bg-card/90 backdrop-blur-sm">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold neon-text text-neon-green">
-                Computer Test Magazin
+                {t('reviews:testReport.magazinTitle')}
               </CardTitle>
-              <p className="text-neon-cyan font-mono">Unabhängiger Testbericht</p>
+              <p className="text-neon-cyan font-mono">{t('reviews:testReport.subtitle')}</p>
               <div className="flex items-center justify-center gap-4 mt-4">
                 <Badge variant="outline" className="text-lg px-4 py-2">
                   {model.name}

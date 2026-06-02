@@ -155,6 +155,16 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     ? Math.round(selectedComponents.reduce((sum, comp) => sum + comp.performance, 0) / selectedComponents.length)
     : 0;
     
+  // Era-relative preview score (what the test report will likely show)
+  const cpuName = selectedComponents.find(c => c.type === 'cpu')?.name || '';
+  const gpuName = selectedComponents.find(c => c.type === 'gpu')?.name || '';
+  const ramName = selectedComponents.find(c => c.type === 'memory')?.name || '';
+  const soundName = selectedComponents.find(c => c.type === 'sound')?.name || 'PC Speaker';
+  
+  const eraRelativeScore = cpuName && gpuName && ramName
+    ? TestScoringMatrix.getEraRelativeOverallScore(cpuName, gpuName, ramName, soundName, currentYear, currentQuarter)
+    : 0;
+    
   // Preisempfehlung auf Basis der Test-Logik (ohne Testlauf)
   const modelId = editingModel?.id || `temp_${currentYear}_${currentQuarter}`;
   const existingRecommendation = PriceRecommendationManager.getPriceRecommendation(modelId);

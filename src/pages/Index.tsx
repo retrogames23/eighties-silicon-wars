@@ -307,7 +307,40 @@ const Index = () => {
         setAiCompetitors(refreshed);
       } catch (err) {
         console.warn("[Competitors] quarter run failed:", err);
+    }
+
+    // Phase 4a — Payroll: Gehälter abziehen, Headcount synchronisieren.
+    let payroll = { paid: 0, underpaid: false, headcount: 0 };
+    if (user?.id) {
+      try {
+        const preCash = result.updatedGameState.company?.cash ?? 0;
+        const pay = await StaffService.runPayroll(user.id, preCash);
+        if (result.updatedGameState.company) {
+          result.updatedGameState.company.cash = pay.newCash;
+        }
+        const team = await StaffService.list(user.id);
+        if (result.updatedGameState.company) {
+          // gameState.company.employees ist eine Zahl (HQ-Visualisierung).
+          // Sync mit echter Teamgröße + Startteam (8).
+          result.updatedGameState.company.employees = 8 + team.length;
+        }
+        payroll = { paid: pay.paid, underpaid: pay.underpaid, headcount: team.length };
+        if (pay.underpaid && team.length > 0) {
+          toast({
+            title: "⚠️ Gehälter nicht gedeckt",
+            description: `Nur ${Math.round(pay.paid).toLocaleString("de-DE")} $ von ${Math.round(pay.paid + Math.max(0, -pay.newCash)).toLocaleString("de-DE")} $ bezahlt — Moral fällt um 15 Punkte.`,
+            variant: "destructive",
+          });
+        } else if (pay.paid > 0) {
+          toast({
+            title: `💼 Payroll Q${gameState.quarter}/${gameState.year}`,
+            description: `${pay.paid.toLocaleString("de-DE")} $ Gehälter an ${team.length} Mitarbeitende ausgezahlt.`,
+          });
+        }
+      } catch (err) {
+        console.warn("[Staff] payroll failed:", err);
       }
+    }
     }
 
     // Jahresumsatz aufaddieren (für die Jahreshauptversammlung)

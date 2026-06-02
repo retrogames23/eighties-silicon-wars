@@ -28,6 +28,7 @@ import { EnhancedTestReportGenerator } from "./EnhancedTestReportGenerator";
 import { GameMechanics } from "@/lib/game";
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
+import { TestScoringMatrix } from "@/services/TestScoringMatrix";
 import { useTranslation } from 'react-i18next';
 
 // Use HardwareComponent from HardwareManager instead of local Component interface

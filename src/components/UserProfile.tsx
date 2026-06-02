@@ -17,6 +17,7 @@ export const UserProfile = ({ user }: UserProfileProps) => {
   const { t } = useTranslation(['ui', 'toast']);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const handleSignOut = async () => {
     setLoading(true);
     try {

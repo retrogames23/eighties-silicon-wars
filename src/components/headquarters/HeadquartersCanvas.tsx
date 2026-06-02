@@ -462,16 +462,20 @@ function drawRoom(
   // floor strip
   px(ctx, x0, baseY - 1, w, 1, p.floorShade);
 
-  // windows (2 per room)
-  const winY = topY + 4;
-  const lit = false;
-  drawWindow(ctx, x0 + 4, winY, p, lit);
-  if (w >= 12 * TILE) drawWindow(ctx, x0 + w - 14, winY, p, lit);
+  // Fenster auf Augenhöhe (vertikal mittig im oberen Raumdrittel)
+  const winH = 18;
+  const winY = topY + Math.round((FLOOR_H - winH) / 2) - 6;
+  // gleichmäßig verteilen: 1 Fenster pro ~10 Tiles, mind. 1, max. 3
+  const winCount = Math.max(1, Math.min(3, Math.floor(w / (10 * TILE))));
+  const winSpacing = w / (winCount + 1);
+  for (let i = 0; i < winCount; i++) {
+    drawWindow(ctx, x0 + winSpacing * (i + 1) - 9, winY, p, false);
+  }
 
-  // posters between/above windows
+  // Poster knapp über den Fenstern (nahe Decke), klein und dekorativ
   const r = rng(floorIdx * 31 + room.startTile);
   const posterX = x0 + Math.floor(w / 2) - 5;
-  drawPoster(ctx, posterX, topY + 3, Math.floor(r() * 4));
+  drawPoster(ctx, posterX, topY + 2, Math.floor(r() * 4));
 
   // Room-specific furniture (baseY = floor surface)
   const cx = x0 + 4;

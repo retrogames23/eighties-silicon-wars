@@ -21,6 +21,7 @@ interface GameState {
     marketing: number;
     development: number;
     research: number;
+    support?: number;
   };
   models: any[];
   [key: string]: any;

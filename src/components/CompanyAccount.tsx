@@ -22,6 +22,7 @@ interface CompanyAccountProps {
       marketing: number;
       development: number;
       research: number;
+      support?: number;
     };
   };
 }

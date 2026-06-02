@@ -171,12 +171,14 @@ export const AdvisorCompanion = ({
       .sort((a, b) => b.priority - a.priority);
   }, [summary, budget, lastQuarterRevenue, cash, agg, year, quarter, t, dismissed]);
 
-  // Tour steps — now includes financing modes intro (Step 2 validation outcome).
+  // Tour steps — onboarding walks through team, hardware, all budgets,
+  // competition, the quarter loop, and finally the three financing modes.
   const tourSteps = useMemo(() => {
     const rec = summary.areas;
     return [
       t('advisor:companion.tour.welcome'),
       t('advisor:companion.tour.personnel'),
+      t('advisor:companion.tour.hardwareDev'),
       t('advisor:companion.tour.marketing', {
         amount: formatCurrency(rec.marketing.recommended || 10_000),
       }),
@@ -186,28 +188,39 @@ export const AdvisorCompanion = ({
       t('advisor:companion.tour.research', {
         amount: formatCurrency(rec.research.recommended || 5_000),
       }),
+      t('advisor:companion.tour.supportBudget'),
+      t('advisor:companion.tour.moreRoles'),
+      t('advisor:companion.tour.competition'),
+      t('advisor:companion.tour.quarterAdvance'),
       t('advisor:companion.tour.financingIntro'),
       t('advisor:companion.tour.financingBootstrap'),
       t('advisor:companion.tour.financingLoan'),
       t('advisor:companion.tour.financingVc'),
+      t('advisor:companion.tour.wrapUp'),
     ];
   }, [t, summary]);
 
   const inTour = mode === 'tour' && tourStep >= 0 && tourStep < tourSteps.length;
 
   // Auto-advance tour when the player has actually completed the step's action.
-  // Steps: 0 welcome, 1 personnel, 2 marketing, 3 development, 4 research, 5+ financing (informational).
+  // Step index: 0 welcome, 1 personnel, 2 hardwareDev (manual),
+  // 3 marketing, 4 development, 5 research, 6 supportBudget,
+  // 7 moreRoles (auto when 2+ hires), 8 competition (manual),
+  // 9 quarterAdvance (auto when a quarter passes), 10+ financing & wrap-up (manual).
   useEffect(() => {
     if (mode !== 'tour' || tourStep < 0 || tourStep >= tourSteps.length) return;
     const done =
       (tourStep === 1 && agg.headcount >= 1) ||
-      (tourStep === 2 && budget.marketing > 0) ||
-      (tourStep === 3 && budget.development > 0) ||
-      (tourStep === 4 && budget.research > 0);
+      (tourStep === 3 && budget.marketing > 0) ||
+      (tourStep === 4 && budget.development > 0) ||
+      (tourStep === 5 && budget.research > 0) ||
+      (tourStep === 6 && budget.support > 0) ||
+      (tourStep === 7 && agg.headcount >= 2);
     if (done) {
       setTourStep(s => s + 1);
     }
-  }, [mode, tourStep, tourSteps.length, agg.headcount, budget.marketing, budget.development, budget.research]);
+  }, [mode, tourStep, tourSteps.length, agg.headcount, budget.marketing, budget.development, budget.research, budget.support]);
+
   const activeTip = mode === 'tips' && tips.length > 0 ? tips[0] : null;
   const hasBubble = inTour || activeTip || mode === 'chat';
 

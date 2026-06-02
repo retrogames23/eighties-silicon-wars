@@ -15,13 +15,19 @@
     "tour": {
       "welcome": "Hi! Glad you're here. Let me walk you through the basics. Sound good?",
       "personnel": "Nothing happens without a team. Hire at least one engineer first.",
+      "hardwareDev": "Now the core business: in the \"Development\" tab you build your computer models. Pick a CPU, RAM, case and target segment (Gamer, Office, Workstation). Higher specs = higher price, but also higher dev cost.",
       "marketing": "Great products need to be heard of. For a start I suggest {{amount}} marketing budget.",
-      "development": "Active developments speed up with budget. Try {{amount}} per quarter.",
-      "research": "Research pays off long term. {{amount}} is a solid starting point.",
+      "development": "Active developments speed up with budget. Try {{amount}} per quarter — your models hit the market sooner.",
+      "research": "Research pays off long term. {{amount}} is a solid starting point. R&D unlocks exclusive parts the competition doesn't have yet.",
+      "supportBudget": "Don't forget support! A support specialist plus budget protects your reputation and brings customers back. No support means returns, bad reviews, and falling sales.",
+      "moreRoles": "You need more than engineers. Hire a marketer (boosts marketing impact), a researcher (speeds up R&D) and a support specialist. Each role raises the efficiency cap of its budget area.",
+      "competition": "The \"Market\" tab shows your rivals and their models. Watch prices, specs and market share. Find the gap — weak price/performance from a competitor is your opening.",
+      "quarterAdvance": "When you're done, end the quarter (top right). Sales get simulated, salaries paid, research progresses — and you'll see the quarterly report.",
       "financingIntro": "Last but not least: three ways to finance your growth — pick wisely, each has its price.",
       "financingBootstrap": "1) Bootstrap: Grow from cashflow. Safe but slow. Classic mid-tech play.",
       "financingLoan": "2) Bank loan: Cash against interest (7–11% in the 80s). Bank only lends when you can show revenue.",
-      "financingVc": "3) VC pitch: Big money for equity. Pitch to LLM-driven investors — convince them and you bag $3–5M for your moonshot."
+      "financingVc": "3) VC pitch: Big money for equity. Pitch to LLM-driven investors — convince them and you bag $3–5M for your moonshot.",
+      "wrapUp": "That's it for the basics. Situational tips will pop up automatically in the \"Tips\" tab. And I'm always one click away in chat. Good luck out there!"
     },
     "tips": {
       "needRole": "You're spending {{amount}} on {{area}}, but you have no {{role}} on the team. The money is wasted.",
@@ -39,6 +45,5 @@
     },
     "noTips": "No urgent tips right now. Want to walk through the basics again?",
     "replayTour": "Replay tour"
-    }
   }
 }

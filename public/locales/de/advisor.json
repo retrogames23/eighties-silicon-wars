@@ -14,14 +14,20 @@
     },
     "tour": {
       "welcome": "Hi! Schön, dass du da bist. Ich begleite dich am Anfang ein bisschen. Klingt das gut?",
-      "personnel": "Ohne Team passiert nichts. Stell als erstes mindestens eine/n Entwickler:in ein.",
+      "personnel": "Ohne Team passiert nichts. Stell als erstes mindestens eine/n Entwickler:in (Engineer) ein.",
+      "hardwareDev": "Jetzt zum Kerngeschäft: Im Tab „Entwicklung\" baust du deine Computer-Modelle. Wähle CPU, RAM, Gehäuse und Zielsegment (Gamer, Office, Workstation). Höhere Specs = höherer Preis, aber auch höhere Entwicklungskosten.",
       "marketing": "Gute Modelle verkaufen sich nur, wenn man sie kennt. Für den Anfang schlage ich {{amount}} Marketing-Budget vor.",
-      "development": "Aktive Entwicklungen werden mit Budget schneller. Probier {{amount}} pro Quartal.",
-      "research": "Forschung zahlt sich langfristig aus. {{amount}} sind ein guter Startwert.",
+      "development": "Aktive Entwicklungen werden mit Budget schneller. Probier {{amount}} pro Quartal — so kommen deine Modelle früher auf den Markt.",
+      "research": "Forschung zahlt sich langfristig aus. {{amount}} sind ein guter Startwert. Forschung schaltet exklusive Komponenten frei, die Konkurrenz noch nicht hat.",
+      "supportBudget": "Vergiss den Support nicht! Ein Support-Spezialist plus Budget schützt deine Reputation und sorgt dafür, dass Kunden wiederkommen. Ohne Support: Reklamationen, schlechte Reviews, sinkende Verkäufe.",
+      "moreRoles": "Du brauchst nicht nur Engineers. Stell auch eine/n Marketer (verstärkt Marketing-Wirkung), Researcher (beschleunigt Forschung) und Support-Spezialist:in ein. Jede Rolle hebt das Effizienz-Cap ihres Budget-Bereichs.",
+      "competition": "Im Tab „Markt\" siehst du deine Konkurrenten und ihre Modelle. Beobachte Preise, Specs und Marktanteile. Wer wachsen will, muss wissen, wo die Lücke im Markt ist — schlechtes Preis-Leistungs-Verhältnis der Konkurrenz ist deine Chance.",
+      "quarterAdvance": "Wenn du fertig bist, beende das Quartal oben rechts. Dann werden Verkäufe simuliert, Gehälter gezahlt, Forschung läuft weiter — und du siehst den Quartalsbericht.",
       "financingIntro": "Last but not least: drei Wege, wie du dein Wachstum finanzierst — wähl klug, denn jeder hat seinen Preis.",
       "financingBootstrap": "1) Bootstrap: Aus dem Cashflow wachsen. Sicher, aber langsam. Klassische Mid-Tech-Strategie.",
       "financingLoan": "2) Bankkredit: Geld gegen Zinsen (7–11% in den 80ern). Bank gibt's aber nur, wenn du Umsatz vorweisen kannst.",
-      "financingVc": "3) VC-Pitch: Großes Geld gegen Anteile. Du pitchst vor LLM-gesteuerten Investoren — überzeug sie und du bekommst $3–5M für deinen Moonshot."
+      "financingVc": "3) VC-Pitch: Großes Geld gegen Anteile. Du pitchst vor LLM-gesteuerten Investoren — überzeug sie und du bekommst $3–5M für deinen Moonshot.",
+      "wrapUp": "Das war's für den Anfang. Spezielle Tipps tauchen automatisch im „Tipps\"-Tab auf, wenn die Situation es verlangt. Und ich bin immer im Chat für dich da. Viel Erfolg!"
     },
     "tips": {
       "needRole": "Du gibst {{amount}} für {{area}} aus, hast aber keine/n {{role}} im Team. Das Geld verpufft.",
@@ -39,6 +45,5 @@
     },
     "noTips": "Gerade keine dringenden Tipps. Soll ich die Basics nochmal durchgehen?",
     "replayTour": "Tour erneut starten"
-    }
   }
 }

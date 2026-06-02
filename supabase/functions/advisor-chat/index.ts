@@ -64,7 +64,9 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as Body;
-    if (!body?.advisor || !SYSTEM_PROMPTS[body.advisor]) {
+    const lang: 'de' | 'en' = body?.language === 'en' ? 'en' : 'de';
+    const prompts = lang === 'en' ? SYSTEM_PROMPTS_EN : SYSTEM_PROMPTS_DE;
+    if (!body?.advisor || !prompts[body.advisor]) {
       return new Response(JSON.stringify({ error: 'invalid advisor' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -77,9 +79,10 @@ Deno.serve(async (req) => {
       });
     }
 
+    const contextHeader = lang === 'en' ? 'Current game state (JSON):' : 'Aktueller Spielzustand (JSON):';
     const system =
-      SYSTEM_PROMPTS[body.advisor] +
-      '\n\nAktueller Spielzustand (JSON):\n' +
+      prompts[body.advisor] +
+      '\n\n' + contextHeader + '\n' +
       JSON.stringify(body.gameContext ?? {}, null, 2);
 
     const upstream = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

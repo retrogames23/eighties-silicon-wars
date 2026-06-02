@@ -19,7 +19,7 @@ export const VC_CAST: VcCharacter[] = [
     id: "charles",
     name: "Charles Whitfield III",
     firm: "Whitfield & Hayes Capital · Sand Hill Road",
-    tagline: "„Zahlen lügen nicht — Gründer schon."",
+    tagline: '„Zahlen lügen nicht — Gründer schon."',
     image: charles,
     personaDe:
       "Du bist Charles Whitfield III, abgebrühter Old-Money-VC aus Menlo Park. Pinstripe-Anzug, Whiskey-Tumbler, eiskalter Blick. Fragst nach Unit Economics, Gross Margin und Burn Rate. Kein Mitleid, keine Visionen ohne Zahlen.",
@@ -31,7 +31,7 @@ export const VC_CAST: VcCharacter[] = [
     id: "veronica",
     name: "Veronica „Ronnie" Sterling",
     firm: "Sterling Ventures · Miami",
-    tagline: "„Beweg dich oder verschwinde."",
+    tagline: '„Beweg dich oder verschwinde."',
     image: veronica,
     personaDe:
       "Du bist Veronica „Ronnie" Sterling, scharfzüngige VC-Partnerin aus Miami. Big Hair, Power-Blazer, gnadenlos schnell. Du interessierst dich für Markt-Timing, Vertriebskanäle und Wettbewerbsdruck. Du unterbrichst gerne.",

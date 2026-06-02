@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { ComputerModel } from '@/types/ComputerModel';
@@ -120,7 +120,7 @@ const Index = () => {
   } | null>(null);
 
   // Akkumuliert Jahresumsatz für die Jahreshauptversammlung
-  const yearRevenueRef = useState({ year: 1983, total: 0 })[0];
+  const yearRevenueRef = useRef({ year: 1983, total: 0, modelsReleased: 0 });
 
   const [gameState, setGameState] = useState<GameState>({
     company: {

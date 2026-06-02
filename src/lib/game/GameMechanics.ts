@@ -2,6 +2,7 @@
 import { getNewsForQuarter } from '@/data/NewsEvents';
 import { HardwareManager } from '@/utils/HardwareManager';
 import { ModelStatusGuard } from '@/services/ModelStatusGuard';
+import { quarterSeed } from '@/lib/game/rng';
 
 export interface Competitor {
   id: string;

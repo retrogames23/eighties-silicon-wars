@@ -3,9 +3,12 @@ import { TestScoringMatrix } from "@/services/TestScoringMatrix";
 
 export class EnhancedTestReportGenerator {
   
-  static generateTestReport(model: any, year: number): TestResult {
-    // Validate top 1988 configuration in regression test
-    if (year === 1988) {
+  static generateTestReport(model: any, year: number, quarter: number = 1): TestResult {
+    // Era-relative scoring: judge components against the era's best available
+    // hardware so a top-of-1983 build doesn't get rated against late-80s gear.
+    TestScoringMatrix.setEraContext(year, quarter);
+
+    if (year === 1988 && quarter === 2) {
       const validationResult = TestScoringMatrix.validateTopConfiguration1988Q2();
       console.log('1988 Q2 Top Config Validation:', validationResult);
     }

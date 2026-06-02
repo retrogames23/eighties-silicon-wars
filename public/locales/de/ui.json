@@ -306,6 +306,7 @@
     "currentTeam": "Aktuelles Team",
     "emptyTeam": "Noch niemand angestellt. Schau in den Bewerber-Pool unten.",
     "applications": "Bewerbungsmappe",
+    "hiringHint": "Empfohlen jetzt einstellen:",
     "noCandidates": "Keine offenen Bewerbungen. Neue kommen mit dem nächsten Quartal.",
     "fire": "Entlassen",
     "hire": "Einstellen",

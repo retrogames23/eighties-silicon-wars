@@ -306,6 +306,7 @@
     "currentTeam": "Current Team",
     "emptyTeam": "Nobody hired yet. Check the applicant pool below.",
     "applications": "Applications",
+    "hiringHint": "Recommended hires now:",
     "noCandidates": "No open applications. New ones arrive next quarter.",
     "fire": "Fire",
     "hire": "Hire",

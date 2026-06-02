@@ -1,4 +1,5 @@
-import hqImage from "@/assets/hq-building-5floor.jpg";
+import hqImageAsset from "@/assets/hq-building-5floor.jpg.asset.json";
+const hqImage = hqImageAsset.url;
 
 // ============================================================================
 // Headquarters illustration

@@ -18,6 +18,7 @@
 
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
+import { mulberry32 } from "@/lib/game/rng";
 
 // Preisverfall-Konstanten pro Komponententyp (pro Quartal)
 export const PRICE_DECAY_RATES = {

@@ -53,6 +53,7 @@ interface GameState {
     marketShare: number;
     monthlyIncome: number;
     monthlyExpenses: number;
+    brandAwareness?: number;
     hardwareIncome?: number;
     additionalRevenue?: {
       softwareLicenses: { games: number; office: number };

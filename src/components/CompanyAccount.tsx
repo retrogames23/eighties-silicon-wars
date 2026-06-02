@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, TrendingUp, TrendingDown, Calculator } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Calculator, Landmark, PieChart } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { useTranslation } from 'react-i18next';
 import { useEconomyTranslation } from '@/utils/i18nHelpers';

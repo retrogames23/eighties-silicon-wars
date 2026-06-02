@@ -177,7 +177,8 @@ function rng(seed: number) {
 // ---------------------------------------------------------------------------
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(h * S));
+  // Sub-pixel-Rendering: kein Math.round → glattere Kanten, weniger "klotzig"
+  ctx.fillRect(x * S, y * S, w * S, h * S);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, W: number, groundY: number, p: Palette, quarter: number) {

@@ -593,7 +593,7 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
           s.floor = layout.length - 1;
           s.targetFloor = s.floor;
           s.y = floorBaselineY(s.floor, layout.length);
-          s.targetY = s.y;
+          s.targetFloor = s.floor;
         }
       }
 

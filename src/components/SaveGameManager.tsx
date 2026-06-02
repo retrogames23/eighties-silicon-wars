@@ -121,7 +121,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
       const saveData = {
         user_id: user.id,
         slot_number: slotNumber,
-        save_name: name || `Spielstand ${slotNumber}`,
+        save_name: name || tSgm('defaultName', { slot: slotNumber }),
         game_state: gameState as any,
         updated_at: new Date().toISOString()
       };

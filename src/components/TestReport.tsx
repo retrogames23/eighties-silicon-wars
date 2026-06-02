@@ -304,19 +304,19 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-neon-cyan">
                     <Award className="w-5 h-5" />
-                    Verarbeitungsqualität
+                    {t('reviews:testReport.buildQuality')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Qualität:</span>
+                    <span className="text-lg font-semibold">{t('reviews:testReport.quality')}:</span>
                     <span className={`text-lg font-bold ${getRatingColor(testResult.buildQuality.rating)}`}>
-                      {testResult.buildQuality.rating}
+                      {translateText(testResult.buildQuality.rating)}
                     </span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Gesamtwertung:</span>
+                    <span>{t('reviews:testReport.overallScore')}:</span>
                     <div className="flex items-center gap-2">
                       {getScoreIcon(testResult.buildQuality.score)}
                       <span className="font-mono">{testResult.buildQuality.score}/100</span>
@@ -326,15 +326,15 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   <Progress value={testResult.buildQuality.score} className="h-2" />
                   
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-neon-cyan">Komponenten-Details:</h4>
+                    <h4 className="font-semibold text-neon-cyan">{t('reviews:testReport.componentDetails')}</h4>
                     {testResult.buildQuality.components.map((component, idx) => (
-                      <p key={idx} className="text-sm text-muted-foreground">• {component}</p>
+                      <p key={idx} className="text-sm text-muted-foreground">• {translateText(component)}</p>
                     ))}
                     
                     {testResult.buildQuality.caseMatch ? (
-                      <p className="text-sm text-green-400">✓ Gehäuse passt perfekt zur Zielgruppe</p>
+                      <p className="text-sm text-green-400">{t('reviews:testReport.caseFits')}</p>
                     ) : (
-                      <p className="text-sm text-yellow-400">⚠ Gehäuse-Design könnte besser zur Hardware passen</p>
+                      <p className="text-sm text-yellow-400">{t('reviews:testReport.caseMismatch')}</p>
                     )}
                   </div>
                 </CardContent>

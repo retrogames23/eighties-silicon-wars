@@ -57,7 +57,8 @@ interface SaveGameManagerProps {
 type SaveGame = Database['public']['Tables']['save_games']['Row'];
 
 export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }: SaveGameManagerProps) => {
-  const { t } = useTranslation(['toast', 'common']);
+  const { t, i18n } = useTranslation(['toast', 'common', 'ui']);
+  const tSgm = (key: string, opts?: Record<string, unknown>) => t(`ui:saveGameManager.${key}`, opts);
   const [saves, setSaves] = useState<SaveGame[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveName, setSaveName] = useState('');
@@ -120,7 +121,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
       const saveData = {
         user_id: user.id,
         slot_number: slotNumber,
-        save_name: name || `Spielstand ${slotNumber}`,
+        save_name: name || tSgm('defaultName', { slot: slotNumber }),
         game_state: gameState as any,
         updated_at: new Date().toISOString()
       };
@@ -182,7 +183,8 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    const locale = (i18n.language || 'de').toLowerCase().startsWith('en') ? 'en-US' : 'de-DE';
+    return new Date(dateString).toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -207,7 +209,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="font-mono text-xl text-primary">
-            SPIELSTAND VERWALTUNG
+            {tSgm('title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -216,18 +218,18 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
           {!supabaseReady ? (
             <Card className="p-4 border border-destructive/50 bg-destructive/10">
               <div className="text-center text-sm font-mono">
-                <p className="text-destructive mb-2">SUPABASE NICHT KONFIGURIERT</p>
+                <p className="text-destructive mb-2">{tSgm('notConfigured')}</p>
                 <p className="text-muted-foreground text-xs">
-                  Bitte konfiguriere deine Supabase-Verbindung, um Spielstände zu speichern.
+                  {tSgm('notConfiguredDesc')}
                 </p>
               </div>
             </Card>
           ) : !user ? (
             <Card className="p-4 border border-amber-500/50 bg-amber-500/10">
               <div className="text-center text-sm font-mono">
-                <p className="text-amber-600 mb-2">ANMELDUNG ERFORDERLICH</p>
+                <p className="text-amber-600 mb-2">{tSgm('loginRequired')}</p>
                 <p className="text-muted-foreground text-xs mb-4">
-                  Sie müssen sich anmelden, um Spielstände zu speichern und zu laden.
+                  {tSgm('loginRequiredDesc')}
                 </p>
                 <Button 
                   onClick={() => {
@@ -237,10 +239,10 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                   size="sm"
                   className="mb-2"
                 >
-                  Jetzt anmelden
+                  {tSgm('signInNow')}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Haben Sie noch kein Konto? Sie können sich auf der Anmeldeseite registrieren.
+                  {tSgm('noAccountHint')}
                 </p>
               </div>
             </Card>
@@ -250,12 +252,12 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
           {user && (
             <div className="space-y-2">
               <h3 className="font-mono text-sm text-muted-foreground">
-                GESPEICHERTE SPIELSTÄNDE
+                {tSgm('savedGames')}
               </h3>
             
             {saves.length === 0 ? (
               <Card className="p-4 text-center text-muted-foreground font-mono text-sm">
-                Keine Spielstände vorhanden
+                {tSgm('noSaves')}
               </Card>
             ) : (
               saves.map((save) => (
@@ -264,7 +266,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="outline" className="font-mono text-xs">
-                          SLOT {save.slot_number}
+                          {tSgm('slot')} {save.slot_number}
                         </Badge>
                         <span className="font-mono text-sm text-primary">
                           {save.save_name}
@@ -272,9 +274,9 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                       </div>
                       
                       <div className="flex items-center gap-4 text-xs text-muted-familyname font-mono">
-                        <span>Firma: {(save.game_state as unknown as GameState).company?.name}</span>
-                        <span>Runde: Q{(save.game_state as unknown as GameState).quarter}/{(save.game_state as unknown as GameState).year}</span>
-                        <span>Geld: ${(save.game_state as unknown as GameState).company?.cash?.toLocaleString()}</span>
+                        <span>{tSgm('company')}: {(save.game_state as unknown as GameState).company?.name}</span>
+                        <span>{tSgm('round')}: Q{(save.game_state as unknown as GameState).quarter}/{(save.game_state as unknown as GameState).year}</span>
+                        <span>{tSgm('money')}: ${(save.game_state as unknown as GameState).company?.cash?.toLocaleString()}</span>
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(save.updated_at)}
@@ -291,7 +293,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                         className="font-mono"
                       >
                         <Upload className="w-3 h-3 mr-1" />
-                        LADEN
+                        {tSgm('load')}
                       </Button>
                       <Button
                         size="sm"
@@ -314,13 +316,13 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
           {user && getEmptySlots().length > 0 && (
             <div className="space-y-2">
               <h3 className="font-mono text-sm text-muted-foreground">
-                NEUEN SPIELSTAND SPEICHERN
+                {tSgm('saveNew')}
               </h3>
               
               <Card className="p-4 bg-card/50 border border-primary/20">
                 <div className="space-y-3">
                   <Input
-                    placeholder="Name für den Spielstand (optional)"
+                    placeholder={tSgm('namePlaceholder')}
                     value={saveName}
                     onChange={(e) => setSaveName(e.target.value)}
                     className="font-mono"
@@ -335,7 +337,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                         onClick={() => setSelectedSlot(slot)}
                         className="font-mono"
                       >
-                        SLOT {slot}
+                        {tSgm('slot')} {slot}
                       </Button>
                     ))}
                   </div>
@@ -346,7 +348,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
                     className="w-full font-mono"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    SPIELSTAND SPEICHERN
+                    {tSgm('saveButton')}
                   </Button>
                 </div>
               </Card>
@@ -355,7 +357,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
 
           {saves.length >= 5 && getEmptySlots().length === 0 && (
             <Card className="p-4 text-center text-muted-foreground font-mono text-sm bg-card/30">
-              Alle 5 Speicherplätze sind belegt. Lösche einen Spielstand, um einen neuen zu speichern.
+              {tSgm('allSlotsFull')}
             </Card>
           )}
         </div>

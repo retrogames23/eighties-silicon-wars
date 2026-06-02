@@ -332,5 +332,26 @@
       "head_of_development": "K.J. Jordan, development. What's on the agenda?",
       "shareholder": "Margarete Vogel, shareholder spokesperson. Let's talk straight."
     }
+  },
+  "saveGameManager": {
+    "title": "SAVE GAME MANAGER",
+    "notConfigured": "SUPABASE NOT CONFIGURED",
+    "notConfiguredDesc": "Please configure your Supabase connection to save games.",
+    "loginRequired": "LOGIN REQUIRED",
+    "loginRequiredDesc": "You must sign in to save and load games.",
+    "signInNow": "Sign in now",
+    "noAccountHint": "Don't have an account yet? You can register on the sign-in page.",
+    "savedGames": "SAVED GAMES",
+    "noSaves": "No saved games",
+    "slot": "SLOT",
+    "company": "Company",
+    "round": "Round",
+    "money": "Cash",
+    "load": "LOAD",
+    "saveNew": "SAVE NEW GAME",
+    "namePlaceholder": "Name for the save (optional)",
+    "saveButton": "SAVE GAME",
+    "allSlotsFull": "All 5 save slots are full. Delete a save to create a new one.",
+    "defaultName": "Save {slot}"
   }
 }

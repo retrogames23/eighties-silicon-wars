@@ -724,7 +724,13 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                       <Card className="p-4 border border-neon-green">
                         <h4 className="font-semibold text-neon-green mb-2">{t('ui:development.pricing.recommended')}</h4>
                         <p className="text-2xl font-mono text-neon-green">${suggestedPrice.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">{t('ui:development.pricing.marginPctStandard', { pct: 80 })}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {totalCost > 0
+                            ? t('ui:development.pricing.marginPctStandard', {
+                                pct: Math.round(((suggestedPrice - totalCost) / totalCost) * 100),
+                              })
+                            : t('ui:development.pricing.marginPctStandard', { pct: 80 })}
+                        </p>
                       </Card>
                       
                       <Card className="p-4 border border-terminal-green/30">

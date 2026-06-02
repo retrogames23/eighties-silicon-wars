@@ -221,9 +221,13 @@ const Index = () => {
     }));
     setCurrentScreen('dashboard');
     
+    const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
+    const q = model.developmentTime;
     toast({
-      title: "🔧 Entwicklung gestartet",
-      description: `${model.name} wird entwickelt! Dauert ${model.developmentTime} Quartal${model.developmentTime > 1 ? 'e' : ''}.`
+      title: isEn ? "🔧 Development started" : "🔧 Entwicklung gestartet",
+      description: isEn
+        ? `${model.name} is now in development! Takes ${q} quarter${q > 1 ? 's' : ''}.`
+        : `${model.name} wird entwickelt! Dauert ${q} Quartal${q > 1 ? 'e' : ''}.`
     });
   };
 

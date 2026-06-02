@@ -13,6 +13,9 @@ import { GameEnd } from "@/components/GameEnd";
 import { MusicToggle } from "@/components/MusicToggle";
 import { HardwareAnnouncement } from "@/components/HardwareAnnouncement";
 import { Newspaper } from "@/components/Newspaper";
+import { AdvisorChat } from "@/components/AdvisorChat";
+import { Button } from "@/components/ui/button";
+import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
@@ -97,6 +100,8 @@ const Index = () => {
     marketData: any;
   }>({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null });
   
+  const [advisorOpen, setAdvisorOpen] = useState(false);
+
   const [gameState, setGameState] = useState<GameState>({
     company: {
       name: '',
@@ -558,6 +563,40 @@ const Index = () => {
         onClose={() => setShowSaveManager(false)}
         user={user}
       />
+
+      {/* Advisor chat — only meaningful on the dashboard */}
+      {currentScreen === 'dashboard' && (
+        <>
+          <Button
+            onClick={() => setAdvisorOpen(true)}
+            className="fixed bottom-4 right-4 z-40 shadow-lg gap-2"
+            size="sm"
+          >
+            <MessagesSquare className="w-4 h-4" />
+            Berater
+          </Button>
+          <AdvisorChat
+            isOpen={advisorOpen}
+            onClose={() => setAdvisorOpen(false)}
+            gameContext={{
+              year: gameState.year,
+              quarter: gameState.quarter,
+              company: {
+                name: gameState.company.name,
+                cash: gameState.company.cash,
+                reputation: gameState.company.reputation,
+                marketShare: gameState.company.marketShare,
+              },
+              budget: gameState.budget,
+              activeModels: (gameState.models || []).map((m: any) => ({
+                name: m.name,
+                price: m.price,
+                status: m.status,
+              })),
+            }}
+          />
+        </>
+      )}
     </>
   );
 };

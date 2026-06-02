@@ -3,8 +3,10 @@ import { TestScoringMatrix } from "@/services/TestScoringMatrix";
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 
 export class TestReportGenerator {
-  static generateTestReport(model: any, year: number): TestResult {
-    // Use enhanced scoring matrix for more accurate results
+  static generateTestReport(model: any, year: number, quarter: number = 1): TestResult {
+    // Era-relative scoring: rate components against era-appropriate hardware.
+    TestScoringMatrix.setEraContext(year, quarter);
+
     const cpuScore = TestScoringMatrix.evaluateCPU(model.cpu, 'business');
     const gpuScore = TestScoringMatrix.evaluateGPU(model.gpu, 'gaming');
     const ramScore = TestScoringMatrix.evaluateRAM(model.ram, 'business');

@@ -227,16 +227,26 @@ function drawGround(ctx: CanvasRenderingContext2D, W: number, groundY: number, p
 }
 
 function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number, name: string, p: Palette) {
-  const text = name.slice(0, 14).toUpperCase();
-  const w = Math.max(40, text.length * 4 + 6);
-  px(ctx, x - w / 2, y, w, 9, p.signBg);
-  px(ctx, x - w / 2, y, w, 1, p.signFg);
-  px(ctx, x - w / 2, y + 8, w, 1, p.signFg);
-  ctx.fillStyle = p.signFg;
-  ctx.font = "6px monospace";
+  const text = name.slice(0, 18).toUpperCase();
+  // Sign sized for a readable font (canvas backing pixels via S multiplier)
+  const fontPx = 11; // backing pixels (after S scaling = 22)
+  // measure roughly
+  ctx.font = `bold ${fontPx * S}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
   ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  ctx.fillText(text, x, y + 2);
+  ctx.textBaseline = "middle";
+  const measured = ctx.measureText(text).width;
+  const padX = 8;
+  const wLogical = Math.max(40, measured / S + padX * 2);
+  const hLogical = 14;
+  // Plate + double trim
+  px(ctx, x - wLogical / 2, y, wLogical, hLogical, p.signBg);
+  px(ctx, x - wLogical / 2, y, wLogical, 1, p.signFg);
+  px(ctx, x - wLogical / 2, y + hLogical - 1, wLogical, 1, p.signFg);
+  px(ctx, x - wLogical / 2, y, 1, hLogical, p.signFg);
+  px(ctx, x + wLogical / 2 - 1, y, 1, hLogical, p.signFg);
+  // Text (raw ctx coords are in scaled space)
+  ctx.fillStyle = p.signFg;
+  ctx.fillText(text, x * S, (y + hLogical / 2) * S);
 }
 
 function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, p: Palette, lit: boolean) {

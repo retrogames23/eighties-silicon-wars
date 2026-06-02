@@ -31,6 +31,7 @@ export interface StaffAggregate {
   totalSalary: number;
   headcount: number;
   byRole: Record<StaffRole, number>;
+  byRoleSumSkill: Record<StaffRole, number>;
   engineerBonusPct: number;   // Dev-Speed bonus
   marketerBonusPct: number;   // Sales bonus
   supportBonusPct: number;    // Reputation upkeep

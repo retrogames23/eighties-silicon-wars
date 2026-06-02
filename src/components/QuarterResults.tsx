@@ -69,12 +69,8 @@ export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = 
   ].filter(row => row.amount > 0);
   const expensesTotal = expenseRows.reduce((sum, row) => sum + row.amount, 0);
   const revenue = results.totalRevenue ?? 0;
-  const hasRevenue = typeof results.totalRevenue === 'number';
-  const hasExpenses = !!results?.expenses;
   const computedProfit = revenue - expensesTotal;
-  const totalProfit = (hasRevenue || hasExpenses)
-    ? computedProfit
-    : (results.totalProfit ?? results.netProfit ?? 0);
+  const totalProfit = results.netCashFlow ?? results.totalProfit ?? results.netProfit ?? computedProfit;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

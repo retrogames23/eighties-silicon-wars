@@ -252,19 +252,19 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-neon-cyan">
                     <Zap className="w-5 h-5" />
-                    Komponentenabstimmung
+                    {t('reviews:testReport.harmony')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Harmonie:</span>
+                    <span className="text-lg font-semibold">{t('reviews:testReport.harmonyShort')}:</span>
                     <span className={`text-lg font-bold ${getRatingColor(testResult.compatibility.rating)}`}>
-                      {testResult.compatibility.rating}
+                      {translateText(testResult.compatibility.rating)}
                     </span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Abstimmung:</span>
+                    <span>{t('reviews:testReport.tuning')}:</span>
                     <div className="flex items-center gap-2">
                       {getScoreIcon(testResult.compatibility.score)}
                       <span className="font-mono">{testResult.compatibility.score}/100</span>
@@ -277,10 +277,10 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                     <div className="space-y-2">
                       <h4 className="font-semibold text-green-400 flex items-center gap-1">
                         <CheckCircle className="w-4 h-4" />
-                        Synergien
+                        {t('reviews:testReport.synergies')}
                       </h4>
                       {testResult.compatibility.synergies.map((synergy, idx) => (
-                        <p key={idx} className="text-sm text-green-300">• {synergy}</p>
+                        <p key={idx} className="text-sm text-green-300">• {translateText(synergy)}</p>
                       ))}
                     </div>
                   )}
@@ -289,10 +289,10 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                     <div className="space-y-2">
                       <h4 className="font-semibold text-red-400 flex items-center gap-1">
                         <AlertTriangle className="w-4 h-4" />
-                        Engpässe
+                        {t('reviews:testReport.bottlenecks')}
                       </h4>
                       {testResult.compatibility.bottlenecks.map((bottleneck, idx) => (
-                        <p key={idx} className="text-sm text-red-300">• {bottleneck}</p>
+                        <p key={idx} className="text-sm text-red-300">• {translateText(bottleneck)}</p>
                       ))}
                     </div>
                   )}

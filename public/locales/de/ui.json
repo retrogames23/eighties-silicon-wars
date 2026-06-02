@@ -119,7 +119,18 @@
     "registering": "Wird registriert...",
     "backToGame": "Zurück zum Spiel",
     "redirecting": "Bereits angemeldet. Weiterleitung...",
-    "description": "Erstellen Sie ein Konto oder melden Sie sich an, um Ihre Spielstände zu speichern"
+    "description": "Erstellen Sie ein Konto oder melden Sie sich an, um Ihre Spielstände zu speichern",
+    "forgotPassword": "Passwort vergessen?",
+    "resetPassword": "Passwort zurücksetzen",
+    "sendResetLink": "Reset-Link senden",
+    "sending": "Wird gesendet...",
+    "resetEmailSent": "E-Mail gesendet! Prüfe deinen Posteingang.",
+    "backToSignIn": "Zurück zur Anmeldung",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "setNewPassword": "Neues Passwort setzen",
+    "passwordResetSuccess": "Passwort erfolgreich geändert!",
+    "passwordMismatch": "Die Passwörter stimmen nicht überein."
   },
   "development": {
     "labels": {

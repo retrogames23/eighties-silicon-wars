@@ -11,7 +11,12 @@
     "invalidCredentials": "Invalid credentials. Please check email and password.",
     "emailExists": "This email address is already registered. Please log in.",
     "passwordTooShort": "Password must be at least 6 characters long",
-    "missingFields": "Please enter email and password"
+    "missingFields": "Please enter email and password",
+    "resetEmailSent": "Reset link sent to your email",
+    "resetEmailError": "Error sending reset link: {{error}}",
+    "passwordResetSuccess": "Password reset successfully!",
+    "passwordResetError": "Error resetting password: {{error}}",
+    "passwordMismatch": "Passwords do not match."
   },
   "saveGame": {
     "saved": "Game saved!",

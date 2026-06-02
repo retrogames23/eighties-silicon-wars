@@ -11,7 +11,12 @@
     "invalidCredentials": "Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.",
     "emailExists": "Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.",
     "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein",
-    "missingFields": "Bitte E-Mail und Passwort eingeben"
+    "missingFields": "Bitte E-Mail und Passwort eingeben",
+    "resetEmailSent": "Reset-Link wurde an deine E-Mail gesendet",
+    "resetEmailError": "Fehler beim Senden: {{error}}",
+    "passwordResetSuccess": "Passwort erfolgreich zurückgesetzt!",
+    "passwordResetError": "Fehler beim Zurücksetzen: {{error}}",
+    "passwordMismatch": "Die Passwörter stimmen nicht überein."
   },
   "saveGame": {
     "saved": "Spielstand gespeichert!",

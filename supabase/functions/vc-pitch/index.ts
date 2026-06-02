@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const system = vcPersona(lang) + (lang === 'en'
+    const system = vcPersona(lang, body.setup?.vcPersona) + (lang === 'en'
       ? `\n\nReturn ONLY valid JSON matching the provided schema. Do not include prose outside the JSON.`
       : `\n\nGib NUR gültiges JSON nach Schema zurück. Keine Prosa außerhalb des JSON.`);
 

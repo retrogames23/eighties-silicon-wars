@@ -69,6 +69,7 @@ interface GameDashboardProps {
   onDevelopNewModel: () => void;
   onDiscontinueModel?: (modelId: string) => void;
   onOpenSaveManager?: () => void;
+  onCashChange?: (delta: number) => void;
   user?: any;
   aiCompetitors?: AiCompetitor[];
 }
@@ -80,6 +81,7 @@ export const GameDashboard = ({
   onDevelopNewModel,
   onDiscontinueModel,
   onOpenSaveManager,
+  onCashChange,
   user,
   aiCompetitors = [],
 }: GameDashboardProps) => {

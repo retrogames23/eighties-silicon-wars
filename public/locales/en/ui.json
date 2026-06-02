@@ -57,17 +57,25 @@
   },
   "headquarters": {
     "title": "Company Headquarters",
-    "description": "Your headquarters grows with your success. More revenue and employees lead to larger, more modern offices.",
+    "description": "Your headquarters grows with every new hire. Floors and rooms unlock automatically — including foosball tables and arcade machines.",
     "buildingSize": "Building Size",
-    "level": "Level {{level}}",
+    "floors": "{{count}} Floor",
+    "floors_other": "{{count}} Floors",
     "employees": "Employees",
     "revenue": "Revenue",
     "era": "Year {{year}}",
     "stage": {
-      "startup": "Small startup offices - The beginning of a great journey",
-      "growing": "Growing company - Headquarters expanding",
-      "established": "Established company - Modern office spaces",
-      "corporation": "Large corporation - Impressive headquarters"
+      "garage": "Garage startup — the very first steps",
+      "firstFloor": "First real office — the team is growing",
+      "growing": "Growing company — meeting room & kitchen",
+      "established": "Established company — dedicated dev department",
+      "corporation": "Major player — lounge with foosball",
+      "empire": "Empire — executive floor and arcade room"
+    },
+    "roles": {
+      "worker": "Worker",
+      "developer": "Developer",
+      "manager": "Manager"
     }
   },
   "account": {

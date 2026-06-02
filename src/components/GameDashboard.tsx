@@ -316,6 +316,7 @@ export const GameDashboard = ({
                 revenue={gameState.company.monthlyIncome}
                 quarter={gameState.quarter}
                 year={gameState.year}
+                companyName={gameState.company.name}
               />
             </TabsContent>
 

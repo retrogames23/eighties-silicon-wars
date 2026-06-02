@@ -57,17 +57,25 @@
   },
   "headquarters": {
     "title": "Unternehmenszentrale",
-    "description": "Ihre Zentrale wächst mit Ihrem Erfolg. Mehr Umsatz und Mitarbeiter führen zu größeren, moderneren Büros.",
+    "description": "Deine Zentrale wächst mit jedem neuen Mitarbeitenden. Neue Etagen und Räume werden automatisch freigeschaltet – inklusive Kicker und Arcade-Automaten.",
     "buildingSize": "Gebäudegröße",
-    "level": "Stufe {{level}}",
-    "employees": "Mitarbeiter",
+    "floors": "{{count}} Etage",
+    "floors_other": "{{count}} Etagen",
+    "employees": "Mitarbeitende",
     "revenue": "Umsatz",
     "era": "Jahr {{year}}",
     "stage": {
-      "startup": "Kleine Start-up-Büros - Der Anfang einer großen Reise",
-      "growing": "Wachsendes Unternehmen - Die Zentrale expandiert",
-      "established": "Etabliertes Unternehmen - Moderne Büroräume",
-      "corporation": "Großkonzern - Imposante Firmenzentrale"
+      "garage": "Garagen-Startup – die ersten Schritte",
+      "firstFloor": "Erstes echtes Büro – das Team wächst",
+      "growing": "Wachsendes Unternehmen – Meetingraum & Küche",
+      "established": "Etabliertes Unternehmen – eigene Entwicklerabteilung",
+      "corporation": "Großer Player – Lounge mit Kicker",
+      "empire": "Imperium – Chef-Etage und Arcade-Raum"
+    },
+    "roles": {
+      "worker": "Mitarbeiter",
+      "developer": "Entwickler",
+      "manager": "Manager"
     }
   },
   "account": {

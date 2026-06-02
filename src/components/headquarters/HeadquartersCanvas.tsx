@@ -251,10 +251,37 @@ function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number, name: str
 }
 
 function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, p: Palette, lit: boolean) {
-  px(ctx, x, y, 10, 8, p.windowFrame);
-  px(ctx, x + 1, y + 1, 8, 6, lit ? "#ffe49a" : p.windowGlass);
-  px(ctx, x + 5, y + 1, 1, 6, p.windowFrame);
-  px(ctx, x + 1, y + 3, 8, 1, p.windowFrame);
+  // Größeres, realistischeres Fenster (18 x 18): Rahmen, Glas mit Himmel-
+  // Verlauf, Mittelkreuz, Sims unten.
+  const W = 18, H = 18;
+  // Sims (sill) leicht überstehend
+  px(ctx, x - 1, y + H, W + 2, 1.5, p.facadeDark);
+  // Rahmen
+  px(ctx, x, y, W, H, p.windowFrame);
+  // Glas
+  const glass = lit ? "#ffe49a" : p.windowGlass;
+  px(ctx, x + 1.5, y + 1.5, W - 3, H - 3, glass);
+  // Himmel-Reflexion (heller oberer Streifen)
+  px(ctx, x + 1.5, y + 1.5, W - 3, (H - 3) * 0.45, lit ? "#fff1b8" : lighten(glass, 0.25));
+  // Mittelkreuz (Sprossen) — dünner als vorher
+  px(ctx, x + W / 2 - 0.5, y + 1.5, 1, H - 3, p.windowFrame);
+  px(ctx, x + 1.5, y + H / 2 - 0.5, W - 3, 1, p.windowFrame);
+}
+
+function lighten(hex: string, t: number): string {
+  // Akzeptiert #rrggbb oder rgb(...)
+  let r: number, g: number, b: number;
+  if (hex.startsWith("#")) {
+    [r, g, b] = parseHex(hex);
+  } else {
+    const m = hex.match(/\d+/g);
+    if (!m) return hex;
+    [r, g, b] = [parseInt(m[0]), parseInt(m[1]), parseInt(m[2])];
+  }
+  r = Math.round(r + (255 - r) * t);
+  g = Math.round(g + (255 - g) * t);
+  b = Math.round(b + (255 - b) * t);
+  return `rgb(${r},${g},${b})`;
 }
 
 function drawDesk(ctx: CanvasRenderingContext2D, x: number, baseY: number, p: Palette, era: number) {

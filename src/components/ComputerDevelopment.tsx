@@ -598,15 +598,15 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
                             <h4 className="font-semibold text-neon-cyan mb-2">{computerCase.name}</h4>
                             <div className="space-y-1 text-sm">
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Qualität:</span>
+                                <span className="text-muted-foreground">{t('ui:development.caseAttrs.quality')}:</span>
                                 <span className="text-neon-green">{computerCase.quality}/100</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Design:</span>
+                                <span className="text-muted-foreground">{t('ui:development.caseAttrs.design')}:</span>
                                 <span className="text-purple-400">{computerCase.design}/100</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Preis:</span>
+                                <span className="text-muted-foreground">{t('ui:development.caseAttrs.price')}:</span>
                                 <span className="text-yellow-400">${computerCase.price}</span>
                               </div>
                             </div>

@@ -194,7 +194,7 @@ export default function EmployeesPanel({ year, quarter, cash, onTeamChanged }: P
                   <div className="min-w-0">
                     <div className="text-sm font-mono truncate">{c.name}</div>
                     <div className="text-[10px] text-muted-foreground font-mono truncate">
-                      {roleLabel(c.role)} · {c.specialty}
+                      {roleLabel(c.role)} · {specialtyLabel(c.specialty)}
                     </div>
                   </div>
                 </div>

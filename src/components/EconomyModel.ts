@@ -19,6 +19,12 @@
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
 import { mulberry32 } from "@/lib/game/rng";
+import {
+  getParadigmMaxPriceMultiplier,
+  getParadigmSegmentSizeMultiplier,
+  getParadigmAppealDelta,
+  type Segment,
+} from "@/lib/game/ParadigmEvents";
 
 // Preisverfall-Konstanten pro Komponententyp (pro Quartal)
 export const PRICE_DECAY_RATES = {

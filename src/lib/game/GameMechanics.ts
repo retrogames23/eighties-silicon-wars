@@ -631,6 +631,7 @@ export class GameMechanics {
           modelName: model.name,
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,
+          price: model.price,
           profit: salesResult.profitBreakdown.netProfit,
           profitBreakdown: salesResult.profitBreakdown,
           demandFactors: salesResult.demandFactors,

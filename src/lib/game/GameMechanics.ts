@@ -549,6 +549,7 @@ export class GameMechanics {
     let totalGrossProfit = 0;
     let totalUnitsSold = 0;
     const modelResults: any[] = [];
+    const salesByModelId = new Map<string, { unitsSold: number; revenue: number; profit: number }>();
 
     // 5a. User-ID einmalig holen (für Market-Events, AI-Konkurrenz, RNG-Seed).
     let userId: string | null = null;
@@ -668,8 +669,14 @@ export class GameMechanics {
         totalRevenue += salesResult.revenue;
         totalGrossProfit += salesResult.profitBreakdown.netProfit;
         totalUnitsSold += salesResult.unitsSold;
+        salesByModelId.set(model.id, {
+          unitsSold: salesResult.unitsSold,
+          revenue: salesResult.revenue,
+          profit: salesResult.profitBreakdown.netProfit,
+        });
 
         modelResults.push({
+          modelId: model.id,
           modelName: model.name,
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,
@@ -699,6 +706,21 @@ export class GameMechanics {
         });
       }
     }
+
+    const modelsAfterSales = modelsWithObsolescence.map(model => {
+      const sales = salesByModelId.get(model.id);
+      if (!sales) return model;
+
+      return {
+        ...model,
+        unitsSold: (model.unitsSold || 0) + sales.unitsSold,
+        lifetimeRevenue: (model.lifetimeRevenue || 0) + sales.revenue,
+        lifetimeProfit: (model.lifetimeProfit || 0) + sales.profit,
+        lastQuarterUnitsSold: sales.unitsSold,
+        lastQuarterRevenue: sales.revenue,
+        lastQuarterProfit: sales.profit,
+      };
+    });
 
     // 6. ZENTRALE QUARTALSAUSGABEN (Periodenkosten — exakt EINMAL gebucht!).
     //    Marketing/F&E sind schon im Modell-NetProfit NICHT enthalten,

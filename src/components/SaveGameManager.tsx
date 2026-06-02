@@ -65,6 +65,7 @@ export const SaveGameManager = ({ gameState, onLoadGame, isOpen, onClose, user }
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Check if Supabase is properly configured
   const supabaseReady = !!supabase;

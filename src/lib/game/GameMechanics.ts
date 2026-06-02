@@ -650,6 +650,7 @@ export class GameMechanics {
           modelName: model.name,
           unitsSold: simpleUnits,
           revenue: simpleRevenue,
+          price: model.price,
           profit: simpleProfit,
         });
       }

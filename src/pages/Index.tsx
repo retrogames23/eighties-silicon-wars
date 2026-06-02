@@ -285,10 +285,12 @@ const Index = () => {
         console.warn("[LivingWorld] quarter generation failed:", err);
       }
 
-      // Lebende Konkurrenz: pro Persona eine Aktion pro Quartal (best effort)
+      // Lebende Konkurrenz: pro Persona eine Aktion pro Quartal.
+      // WICHTIG: awaiten, damit die Presseartikel in der DB stehen, bevor
+      // die Newspaper sie nach den Quartalsresultaten anzeigt.
       try {
         const activeModels = (gameState.models ?? []).filter((m: any) => m.status === "released").length;
-        void CompetitorsService.runQuarter({
+        await CompetitorsService.runQuarter({
           userId: user.id,
           year: gameState.year,
           quarter: gameState.quarter,
@@ -299,8 +301,54 @@ const Index = () => {
             active_models: activeModels,
           },
         });
+        // Aktualisierte Konkurrenz-Stände für das Dashboard nachladen
+        const refreshed = await CompetitorsService.getAll(user.id);
+        setAiCompetitors(refreshed);
       } catch (err) {
         console.warn("[Competitors] quarter run failed:", err);
+      }
+    }
+
+    // Jahresumsatz aufaddieren (für die Jahreshauptversammlung)
+    const quarterRevenue = result.quarterResults?.totalRevenue ?? 0;
+    const newlyReleasedCount = (result.updatedGameState.models ?? []).filter((model: any) =>
+      model.status === 'released' &&
+      gameState.models.find((oldModel: any) => oldModel.id === model.id)?.status === 'development'
+    ).length;
+    if (yearRevenueRef.current.year !== gameState.year) {
+      yearRevenueRef.current = { year: gameState.year, total: 0, modelsReleased: 0 };
+    }
+    yearRevenueRef.current.total += quarterRevenue;
+    yearRevenueRef.current.modelsReleased += newlyReleasedCount;
+
+    // Proaktive Berater-Trigger (Phase 3c)
+    const nextCash = result.updatedGameState.company?.cash ?? gameState.company.cash;
+    const monthlyBurn = (gameState.company.monthlyExpenses ?? 0) || 30000;
+    const runwayMonths = monthlyBurn > 0 ? nextCash / monthlyBurn : Infinity;
+    if (runwayMonths < 3 && runwayMonths > 0) {
+      toast({
+        title: '💸 Margarete Vogel klopft an',
+        description: `Liquidität reicht nur noch ~${runwayMonths.toFixed(1)} Monate. Ein Gespräch mit den Aktionärinnen wäre klug.`,
+        action: (
+          <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
+            Berater
+          </ToastAction>
+        ),
+      });
+    }
+    if (user?.id) {
+      const top = (await CompetitorsService.getAll(user.id))[0];
+      const playerRep = result.updatedGameState.company?.reputation ?? 50;
+      if (top && top.reputation > playerRep + 15) {
+        toast({
+          title: `📈 ${top.name} zieht vorbei`,
+          description: 'K.J. Jordan empfiehlt einen Strategie-Check in der Entwicklung.',
+          action: (
+            <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
+              Berater
+            </ToastAction>
+          ),
+        });
       }
     }
 

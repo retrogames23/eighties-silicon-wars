@@ -741,6 +741,7 @@ export class GameMechanics {
     const fixedOverhead = Math.round((10000 + employeeCount * 1000) * inflation);
 
     const quarterlyExpenses = {
+      productCosts: Math.round(totalProductCosts),
       marketing: budget.marketing,
       development: budget.development,
       research: budget.research,
@@ -749,10 +750,11 @@ export class GameMechanics {
       portfolioMaintenance,
       fixedOverhead,
     };
-    const totalExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0);
+    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts;
+    const totalExpensesForReporting = Math.round(totalProductCosts + totalPeriodExpenses);
 
     // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.
-    let totalProfit = totalGrossProfit - totalExpenses;
+    let totalProfit = totalGrossProfit - totalPeriodExpenses;
     let cashAfterOps = company.cash + totalProfit;
 
     // 7b. Kredit-Annuitäten (LoanService) — ZIEHT vor Mitteilung, nutzt verfügbares Cash.

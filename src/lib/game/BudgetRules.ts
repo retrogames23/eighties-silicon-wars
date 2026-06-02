@@ -1,12 +1,12 @@
-// Budget Rules — V1 of the new budget allocation system.
+// Budget Rules — V2.
 //
 // - Each area (development, research, marketing, support) has an independent budget.
 // - Each area is *gated* by a matching staff role; without that role budget has no effect.
-// - Each area has a soft cap proportional to team size & skill.
+// - Soft cap scales with the SUM of role skill points (so growing the team really grows the cap).
 // - Spending above the cap suffers diminishing returns (sqrt curve).
 // - Personnel salaries are a separate line item, not part of these budgets.
-// - A heuristic produces a "recommended" budget per area based on revenue and cash —
-//   the advisor uses these numbers to nudge the player.
+// - Heuristics expose: recommended budget, utilization %, and how much extra effective spend
+//   ONE additional hire would unlock — used by the advisor to push the player to scale the team.
 
 import type { StaffAggregate, StaffRole } from "@/services/StaffService";
 
@@ -33,8 +33,11 @@ export const AREA_TO_ROLE: Record<BudgetArea, StaffRole> = {
   support: "support",
 };
 
-// Base cap a single expert can effectively spend per quarter ($).
-const BASE_CAP_PER_AREA = 50_000;
+// Effective $-throughput per "skill point" inside a role (per quarter).
+// 50 skill ≈ a junior → 50 * 700 = 35k cap; two juniors ≈ 70k; one senior (85) ≈ 60k.
+const CAP_PER_SKILL_POINT = 700;
+// Assumed skill of a hypothetical new mid-level hire — used for "hireWouldUnlock" math.
+const MEDIAN_NEW_HIRE_SKILL = 55;
 
 export interface AreaState {
   area: BudgetArea;
@@ -46,6 +49,8 @@ export interface AreaState {
   currentBudget: number;
   effectiveSpend: number;    // budget converted into "useful" spend
   efficiencyPct: number;     // 0..100, share of currentBudget that's effective
+  utilizationPct: number;    // currentBudget / cap, capped 999
+  hireWouldUnlock: number;   // extra effective spend if one median hire joined this role
   saturation: "below" | "in-cap" | "saturated";
 }
 
@@ -56,36 +61,17 @@ export interface BudgetSummary {
   totalOutflow: number; // budgets + salaries
 }
 
-// avgSkillFactor: skill 50 ≈ 1.0, scales 0.6..1.4
-function avgSkillFactor(avgSkillPct: number): number {
-  return 0.6 + Math.max(0, Math.min(100, avgSkillPct)) / 100 * 0.8;
-}
-
-// Approx. avg skill for a role from aggregate bonus (4% bonus per 100 skill points, capped 40%).
-// Inverse heuristic — good enough for cap sizing.
-function approxAvgSkill(bonusPct: number, headcount: number): number {
-  if (headcount === 0) return 0;
-  // bonusPct ≈ min(40, (sumSkill/100)*4) → sumSkill ≈ bonusPct/4*100
-  const sumSkill = (bonusPct / 4) * 100;
-  return Math.min(100, sumSkill / headcount);
+function moraleMultiplier(avgMorale: number): number {
+  if (avgMorale <= 0) return 1.0; // no team yet → don't penalize
+  // 0 → 0.5, 50 → 0.85, 100 → 1.1 (linear)
+  return Math.max(0.5, Math.min(1.1, 0.5 + (avgMorale / 100) * 0.6));
 }
 
 export function capForArea(area: BudgetArea, agg: StaffAggregate): number {
-  const headcount = agg.byRole[AREA_TO_ROLE[area]] ?? 0;
-  if (headcount === 0) return 0;
-  const bonusPct =
-    area === "marketing"   ? agg.marketerBonusPct :
-    area === "development" ? agg.engineerBonusPct :
-    area === "research"    ? agg.researcherBonusPct :
-                             agg.supportBonusPct;
-  const moraleMul = agg.averageMorale < 40 ? 0.6 : 1.0;
-  const skillFactor = avgSkillFactor(approxAvgSkill(bonusPct, headcount));
-  return Math.round(
-    BASE_CAP_PER_AREA *
-    (1 + 0.5 * (headcount - 1)) *
-    skillFactor *
-    moraleMul
-  );
+  const role = AREA_TO_ROLE[area];
+  const sumSkill = agg.byRoleSumSkill?.[role] ?? 0;
+  if (sumSkill <= 0) return 0;
+  return Math.round(sumSkill * CAP_PER_SKILL_POINT * moraleMultiplier(agg.averageMorale));
 }
 
 /**
@@ -109,30 +95,58 @@ export interface RecommendationContext {
 }
 
 /**
- * Suggest sensible per-area budgets. Numbers are conservative defaults
- * — the player can always go higher.
+ * Suggest sensible per-area budgets. Numbers scale with cash, revenue and team size,
+ * so a growing company gets nudged toward bigger budgets (and bigger teams).
  */
 export function recommendBudget(ctx: RecommendationContext): Budget {
   const { cash, lastQuarterRevenue, hasActiveModels, agg } = ctx;
   const safeCash = Math.max(0, cash);
-  const cashShare = Math.round(safeCash * 0.05); // up to 5% of cash per area as floor
-  const revenueFloor = Math.round(lastQuarterRevenue * 0.08); // ~8% of last revenue
+  const cashShare = Math.round(safeCash * 0.05);
+  const revenueFloor = Math.round(lastQuarterRevenue * 0.08);
 
   const baseSuggestion = Math.max(5_000, Math.min(cashShare, 80_000));
-  const marketing = lastQuarterRevenue > 0
-    ? clamp(revenueFloor, 5_000, Math.min(safeCash * 0.1, 200_000))
-    : baseSuggestion;
 
-  const development = hasActiveModels
-    ? clamp(Math.round(safeCash * 0.08), 10_000, 150_000)
-    : 0;
+  // Pull recommendation toward the team's current cap, so adding people actually
+  // shifts the advisor's idea of "sensible spend".
+  const aimAtCap = (area: BudgetArea, share: number) => {
+    const c = capForArea(area, agg);
+    return Math.round(c * share);
+  };
+
+  const marketing = agg.byRole.marketer > 0
+    ? clamp(
+        Math.max(revenueFloor, aimAtCap("marketing", 0.9)),
+        5_000,
+        Math.min(safeCash * 0.15, 250_000),
+      )
+    : lastQuarterRevenue > 0
+      ? clamp(revenueFloor, 5_000, Math.min(safeCash * 0.1, 200_000))
+      : baseSuggestion;
+
+  const development = hasActiveModels && agg.byRole.engineer > 0
+    ? clamp(
+        Math.max(Math.round(safeCash * 0.08), aimAtCap("development", 0.9)),
+        10_000,
+        200_000,
+      )
+    : hasActiveModels
+      ? clamp(Math.round(safeCash * 0.08), 10_000, 150_000)
+      : 0;
 
   const research = agg.byRole.researcher > 0
-    ? clamp(Math.round(safeCash * 0.03), 5_000, 80_000)
+    ? clamp(
+        Math.max(Math.round(safeCash * 0.03), aimAtCap("research", 0.8)),
+        5_000,
+        120_000,
+      )
     : 0;
 
   const support = agg.byRole.support > 0 && lastQuarterRevenue > 0
-    ? clamp(Math.round(lastQuarterRevenue * 0.03), 3_000, 60_000)
+    ? clamp(
+        Math.max(Math.round(lastQuarterRevenue * 0.03), aimAtCap("support", 0.7)),
+        3_000,
+        80_000,
+      )
     : 0;
 
   return {
@@ -157,6 +171,7 @@ export function summarize(
 ): BudgetSummary {
   const recommended = recommendBudget({ ...ctx, agg });
   const areas = {} as Record<BudgetArea, AreaState>;
+  const moraleMul = moraleMultiplier(agg.averageMorale);
   (Object.keys(AREA_TO_ROLE) as BudgetArea[]).forEach(area => {
     const role = AREA_TO_ROLE[area];
     const headcountInRole = agg.byRole[role] ?? 0;
@@ -165,6 +180,15 @@ export function summarize(
     const currentBudget = budget[area] ?? 0;
     const eff = effectiveSpend(currentBudget, cap, hasGate);
     const efficiencyPct = currentBudget > 0 ? Math.round((eff / currentBudget) * 100) : 0;
+    const utilizationPct = cap > 0
+      ? Math.min(999, Math.round((currentBudget / cap) * 100))
+      : (currentBudget > 0 ? 999 : 0);
+    // What would one extra median-skill hire unlock?
+    const capWithHire = Math.round(
+      ((agg.byRoleSumSkill?.[role] ?? 0) + MEDIAN_NEW_HIRE_SKILL) * CAP_PER_SKILL_POINT * moraleMul
+    );
+    const effWithHire = effectiveSpend(currentBudget, capWithHire, true);
+    const hireWouldUnlock = Math.max(0, effWithHire - eff);
     const saturation: AreaState["saturation"] =
       !hasGate || currentBudget === 0 ? "below" :
       currentBudget <= cap ? "in-cap" : "saturated";
@@ -174,6 +198,8 @@ export function summarize(
       currentBudget,
       effectiveSpend: eff,
       efficiencyPct,
+      utilizationPct,
+      hireWouldUnlock,
       saturation,
     };
   });
@@ -185,4 +211,86 @@ export function summarize(
     totalSalaries: agg.totalSalary,
     totalOutflow: totalBudget + agg.totalSalary,
   };
+}
+
+// ---------- Hiring recommendation ----------
+
+export type HireReason = "gate" | "utilization" | "growth" | "multi-model" | "support-missing";
+
+export interface HireSuggestion {
+  role: StaffRole;
+  reason: HireReason;
+  priority: number;       // higher = more urgent
+  /** Extra effective $ a median hire would unlock for the matching area (if applicable). */
+  unlockEstimate: number;
+}
+
+export interface HiringContext {
+  activeModelsCount: number;
+  reputation?: number;
+  competitorAvgMarketShare?: number;   // average share among AI competitors (0..100)
+  ownMarketShare?: number;             // 0..100
+}
+
+export function recommendHiring(
+  summary: BudgetSummary,
+  agg: StaffAggregate,
+  ctx: HiringContext,
+): HireSuggestion[] {
+  const out: HireSuggestion[] = [];
+
+  // 1) Gate missing but money already budgeted there.
+  (Object.keys(summary.areas) as BudgetArea[]).forEach(area => {
+    const s = summary.areas[area];
+    if (!s.hasGate && s.currentBudget > 0) {
+      out.push({ role: s.role, reason: "gate", priority: 100, unlockEstimate: s.currentBudget });
+    }
+  });
+
+  // 2) Near-cap utilization with meaningful unlock potential.
+  (Object.keys(summary.areas) as BudgetArea[]).forEach(area => {
+    const s = summary.areas[area];
+    if (s.hasGate && s.utilizationPct >= 80 && s.hireWouldUnlock >= 10_000) {
+      out.push({
+        role: s.role,
+        reason: "utilization",
+        priority: 70 + Math.min(20, Math.round(s.hireWouldUnlock / 5_000)),
+        unlockEstimate: s.hireWouldUnlock,
+      });
+    }
+  });
+
+  // 3) Many active models, too few engineers.
+  if (ctx.activeModelsCount >= 2 && agg.byRole.engineer <= 1) {
+    out.push({ role: "engineer", reason: "multi-model", priority: 85, unlockEstimate: 0 });
+  }
+
+  // 4) Reputation rutscht und kein Support-Team.
+  if ((ctx.reputation ?? 100) < 55 && agg.byRole.support === 0) {
+    out.push({ role: "support", reason: "support-missing", priority: 75, unlockEstimate: 0 });
+  }
+
+  // 5) Konkurrenz wächst stärker — eigener Marktanteil unter dem Schnitt.
+  if (
+    ctx.competitorAvgMarketShare != null &&
+    ctx.ownMarketShare != null &&
+    ctx.ownMarketShare + 1 < ctx.competitorAvgMarketShare &&
+    agg.headcount < 4
+  ) {
+    // Empfehle die noch fehlende oder schwächste Rolle.
+    const weakestRole: StaffRole = ((): StaffRole => {
+      const order: StaffRole[] = ["engineer", "marketer", "support", "researcher"];
+      return order.sort((a, b) => agg.byRole[a] - agg.byRole[b])[0];
+    })();
+    out.push({ role: weakestRole, reason: "growth", priority: 60, unlockEstimate: 0 });
+  }
+
+  // Deduplicate by (role, reason): keep highest priority.
+  const seen = new Map<string, HireSuggestion>();
+  for (const s of out) {
+    const k = `${s.role}-${s.reason}`;
+    const prev = seen.get(k);
+    if (!prev || prev.priority < s.priority) seen.set(k, s);
+  }
+  return [...seen.values()].sort((a, b) => b.priority - a.priority);
 }

@@ -422,6 +422,51 @@ export type Database = {
         }
         Relationships: []
       }
+      staff: {
+        Row: {
+          created_at: string
+          hired_quarter: number
+          hired_year: number
+          id: string
+          morale: number
+          name: string
+          role: string
+          salary_per_quarter: number
+          skill: number
+          specialty: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hired_quarter: number
+          hired_year: number
+          id?: string
+          morale?: number
+          name: string
+          role: string
+          salary_per_quarter?: number
+          skill?: number
+          specialty?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hired_quarter?: number
+          hired_year?: number
+          id?: string
+          morale?: number
+          name?: string
+          role?: string
+          salary_per_quarter?: number
+          skill?: number
+          specialty?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

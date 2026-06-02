@@ -92,11 +92,11 @@ export const CompanySetup = ({ onSetupComplete }: CompanySetupProps) => {
                     >
                       <div className="text-center">
                         <IconComponent 
-                          className={`w-12 h-12 mx-auto mb-2 ${
+                          className={`w-12 h-12 mx-auto ${
                             selectedLogo === logo.id ? 'text-neon-green' : 'text-muted-foreground'
-                          }`} 
+                          }`}
+                          aria-label={logo.name}
                         />
-                        <p className="text-sm font-mono">{logo.name}</p>
                       </div>
                     </Card>
                   );

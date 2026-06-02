@@ -19,6 +19,7 @@
 import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager";
 import { type Competitor, type CompetitorModel } from "@/lib/game";
 import { mulberry32 } from "@/lib/game/rng";
+import { priceSanityFactor } from "@/lib/game/AntiExploit";
 import {
   getParadigmMaxPriceMultiplier,
   getParadigmSegmentSizeMultiplier,

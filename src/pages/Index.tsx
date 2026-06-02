@@ -130,12 +130,13 @@ const Index = () => {
     company: {
       name: '',
       logo: '',
-    cash: 5000000, // Erhöht auf 5M für bessere Balance
+    cash: 1500000, // Startkapital 1.5M (realistisch für 80er-Garagenfirma)
     employees: 8, // Kleines Team
     reputation: 50, // Startwert für Reputation
     marketShare: 0, // Kein Marktanteil
     monthlyIncome: 0, // Noch keine Einnahmen
-    monthlyExpenses: 30000 // Reduziert auf 30k für bessere Überlebenschancen
+    monthlyExpenses: 30000,
+    brandAwareness: 0
     },
     quarter: 1,
     year: 1983,

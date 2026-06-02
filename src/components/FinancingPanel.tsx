@@ -307,7 +307,7 @@ function VcPitchCard({
     setBusy(true);
     try {
       const { round, questions } = await VcPitchService.startRound({
-        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds },
+        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
         company: snapshot(), language: "de",
       });
       setRoundId(round.id);

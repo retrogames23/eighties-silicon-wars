@@ -45,16 +45,22 @@ Floating-Button auf Dashboard, kontext-aware (year, quarter, cash, reputation, m
 
 ---
 
-## Phase 3 — Tiefe & Atmosphäre (geplant)
+## Phase 3 — Tiefe & Atmosphäre 🚧 (in Arbeit)
 
-### 3a) Jahreshauptversammlung
-Am Jahresende: zusammenfassender Report (Umsatz, Marktanteil, Reputation, Konkurrenz), Aktionärs-Bewertung, optionale strategische Weichenstellungen.
+### 3a) Jahreshauptversammlung ✅
+- Nach Q4 öffnet `AnnualMeeting`-Modal mit Jahresumsatz, Cash, Reputation, Marktanteil, Anzahl neu veröffentlichter Modelle und stärkstem Konkurrenten.
+- Aktionärs-Verdikt (Margarete Vogel) abgeleitet aus Reputation, Marktanteil und Jahresumsatz.
 
-### 3b) Lebendes Bürogebäude (Banana-Pro / Gemini-Image)
-Headquarters-Visualisierung wird dynamisch: Fenster leuchten je nach Aktivität, Erweiterungen bei R&D-Investitionen, jahreszeitliche/zeitalter-spezifische Stilanpassung. Bildgenerierung über `google/gemini-3.1-flash-image-preview`, cached.
+### 3c) Proaktive Berater-Trigger ✅
+- Cash-Runway < 3 Monate → Toast „Margarete Vogel klopft an" mit Direkt-Action zum Berater.
+- KI-Konkurrent zieht in Reputation > Spieler + 15 → Toast „K.J. Jordan empfiehlt Strategie-Check".
 
-### 3c) Weitere Berater-Trigger
-Proaktive Berater-Pings bei kritischen Ereignissen (Cash < 30 Tage Runway, Konkurrent veröffentlicht überlegenes Modell, Reputation fällt > 20 %).
+### Lebende Konkurrenz im Dashboard ✅
+- `AiCompetitorsPanel` auf dem Markt-Tab zeigt die 3 KI-Personas mit Marktanteil, Ruf und letzter Aktion.
+- `CompetitorsService.runQuarter` wird jetzt **awaited**, damit Presseartikel direkt in der Newspaper desselben Quartals erscheinen.
+
+### 3b) Lebendes Bürogebäude (offen)
+Headquarters-Visualisierung wird dynamisch über `google/gemini-3.1-flash-image-preview`, cached. Folgt im nächsten Schritt.
 
 ---
 

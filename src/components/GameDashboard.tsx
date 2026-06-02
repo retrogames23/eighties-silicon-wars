@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompanyAccount } from "@/components/CompanyAccount";
 import { DevelopmentTab } from "@/components/DevelopmentTab";
 import { MarketTab } from "@/components/MarketTab";
+import { AiCompetitorsPanel } from "@/components/AiCompetitorsPanel";
+import type { AiCompetitor } from "@/services/CompetitorsService";
 import { CompanyManagement } from "@/components/CompanyManagement";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
 import { GameTutorial } from "@/components/GameTutorial";
@@ -65,6 +67,7 @@ interface GameDashboardProps {
   onDiscontinueModel?: (modelId: string) => void;
   onOpenSaveManager?: () => void;
   user?: any;
+  aiCompetitors?: AiCompetitor[];
 }
 
 export const GameDashboard = ({ 
@@ -74,7 +77,8 @@ export const GameDashboard = ({
   onDevelopNewModel,
   onDiscontinueModel,
   onOpenSaveManager,
-  user
+  user,
+  aiCompetitors = [],
 }: GameDashboardProps) => {
   const { t } = useTranslation(['ui', 'common']);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -278,6 +282,7 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="market" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <AiCompetitorsPanel competitors={aiCompetitors} />
               <MarketTab 
                 competitors={gameState.competitors}
                 marketEvents={gameState.marketEvents}

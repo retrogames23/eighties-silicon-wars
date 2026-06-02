@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { ComputerModel } from '@/types/ComputerModel';
@@ -19,7 +19,9 @@ import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
-import { CompetitorsService } from "@/services/CompetitorsService";
+import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
+import { AnnualMeeting } from "@/components/AnnualMeeting";
+import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -102,6 +104,23 @@ const Index = () => {
   }>({ isOpen: false, quarter: 1, year: 1983, newsEvents: [], marketData: null });
   
   const [advisorOpen, setAdvisorOpen] = useState(false);
+
+  // Lebende KI-Konkurrenz (DB-gestützt, ergänzt die statischen INITIAL_COMPETITORS)
+  const [aiCompetitors, setAiCompetitors] = useState<AiCompetitor[]>([]);
+
+  // Jahreshauptversammlung
+  const [annualMeeting, setAnnualMeeting] = useState<{
+    isOpen: boolean;
+    year: number;
+    yearRevenue: number;
+    cash: number;
+    reputation: number;
+    marketShare: number;
+    modelsReleased: number;
+  } | null>(null);
+
+  // Akkumuliert Jahresumsatz für die Jahreshauptversammlung
+  const yearRevenueRef = useRef({ year: 1983, total: 0, modelsReleased: 0 });
 
   const [gameState, setGameState] = useState<GameState>({
     company: {
@@ -266,10 +285,12 @@ const Index = () => {
         console.warn("[LivingWorld] quarter generation failed:", err);
       }
 
-      // Lebende Konkurrenz: pro Persona eine Aktion pro Quartal (best effort)
+      // Lebende Konkurrenz: pro Persona eine Aktion pro Quartal.
+      // WICHTIG: awaiten, damit die Presseartikel in der DB stehen, bevor
+      // die Newspaper sie nach den Quartalsresultaten anzeigt.
       try {
         const activeModels = (gameState.models ?? []).filter((m: any) => m.status === "released").length;
-        void CompetitorsService.runQuarter({
+        await CompetitorsService.runQuarter({
           userId: user.id,
           year: gameState.year,
           quarter: gameState.quarter,
@@ -280,8 +301,54 @@ const Index = () => {
             active_models: activeModels,
           },
         });
+        // Aktualisierte Konkurrenz-Stände für das Dashboard nachladen
+        const refreshed = await CompetitorsService.getAll(user.id);
+        setAiCompetitors(refreshed);
       } catch (err) {
         console.warn("[Competitors] quarter run failed:", err);
+      }
+    }
+
+    // Jahresumsatz aufaddieren (für die Jahreshauptversammlung)
+    const quarterRevenue = result.quarterResults?.totalRevenue ?? 0;
+    const newlyReleasedCount = (result.updatedGameState.models ?? []).filter((model: any) =>
+      model.status === 'released' &&
+      gameState.models.find((oldModel: any) => oldModel.id === model.id)?.status === 'development'
+    ).length;
+    if (yearRevenueRef.current.year !== gameState.year) {
+      yearRevenueRef.current = { year: gameState.year, total: 0, modelsReleased: 0 };
+    }
+    yearRevenueRef.current.total += quarterRevenue;
+    yearRevenueRef.current.modelsReleased += newlyReleasedCount;
+
+    // Proaktive Berater-Trigger (Phase 3c)
+    const nextCash = result.updatedGameState.company?.cash ?? gameState.company.cash;
+    const monthlyBurn = (gameState.company.monthlyExpenses ?? 0) || 30000;
+    const runwayMonths = monthlyBurn > 0 ? nextCash / monthlyBurn : Infinity;
+    if (runwayMonths < 3 && runwayMonths > 0) {
+      toast({
+        title: '💸 Margarete Vogel klopft an',
+        description: `Liquidität reicht nur noch ~${runwayMonths.toFixed(1)} Monate. Ein Gespräch mit den Aktionärinnen wäre klug.`,
+        action: (
+          <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
+            Berater
+          </ToastAction>
+        ),
+      });
+    }
+    if (user?.id) {
+      const top = (await CompetitorsService.getAll(user.id))[0];
+      const playerRep = result.updatedGameState.company?.reputation ?? 50;
+      if (top && top.reputation > playerRep + 15) {
+        toast({
+          title: `📈 ${top.name} zieht vorbei`,
+          description: 'K.J. Jordan empfiehlt einen Strategie-Check in der Entwicklung.',
+          action: (
+            <ToastAction altText="Berater öffnen" onClick={() => setAdvisorOpen(true)}>
+              Berater
+            </ToastAction>
+          ),
+        });
       }
     }
 
@@ -365,6 +432,26 @@ const Index = () => {
         marketData: quarterResults.marketData
       });
     }
+
+    // Jahreshauptversammlung am Jahresende: gerade abgelaufenes Quartal war Q4
+    if (quarterResults && quarterResults.quarter === 4) {
+      const closedYear = quarterResults.year;
+      const summary = yearRevenueRef.current.year === closedYear
+        ? yearRevenueRef.current
+        : { year: closedYear, total: 0, modelsReleased: 0 };
+      setAnnualMeeting({
+        isOpen: true,
+        year: closedYear,
+        yearRevenue: summary.total,
+        cash: gameState.company.cash,
+        reputation: gameState.company.reputation,
+        marketShare: gameState.company.marketShare,
+        modelsReleased: summary.modelsReleased,
+      });
+      // Reset für das neue Jahr
+      yearRevenueRef.current = { year: closedYear + 1, total: 0, modelsReleased: 0 };
+    }
+
     setCurrentScreen('dashboard');
     setQuarterResults(null);
   };
@@ -484,6 +571,21 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // KI-Konkurrenten seeden + initial laden, sobald der User eingeloggt ist
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const seeded = await CompetitorsService.ensureSeeded(user.id);
+        if (!cancelled) setAiCompetitors(seeded);
+      } catch (e) {
+        console.warn('[Competitors] initial seed failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -501,6 +603,7 @@ const Index = () => {
           onDevelopNewModel={handleDevelopNewModel}
           onDiscontinueModel={handleDiscontinueModel}
           onOpenSaveManager={handleOpenSaveManager}
+          aiCompetitors={aiCompetitors}
         />
         );
       
@@ -583,6 +686,21 @@ const Index = () => {
         onClose={() => setShowSaveManager(false)}
         user={user}
       />
+
+      {/* Jahreshauptversammlung (Phase 3a) */}
+      {annualMeeting && (
+        <AnnualMeeting
+          isOpen={annualMeeting.isOpen}
+          onClose={() => setAnnualMeeting(null)}
+          year={annualMeeting.year}
+          yearRevenue={annualMeeting.yearRevenue}
+          cash={annualMeeting.cash}
+          reputation={annualMeeting.reputation}
+          marketShare={annualMeeting.marketShare}
+          modelsReleased={annualMeeting.modelsReleased}
+          competitors={aiCompetitors}
+        />
+      )}
 
       {/* Advisor chat — only meaningful on the dashboard */}
       {currentScreen === 'dashboard' && (

@@ -116,7 +116,7 @@ The project runs on **Lovable Cloud** (managed Supabase). The database schema, a
 
 This project is built and maintained with [Lovable](https://lovable.dev). Changes pushed to GitHub sync back to Lovable automatically; edits in Lovable push to GitHub.
 
-- **Lovable project:** https://lovable.dev/projects/0ee1e412-4b5a-447c-9bc4-ffbad11fef2d
+- **Lovable project:** https://lovable.dev/invite/LN0I260
 - **Publish:** Open the project in Lovable → Share → Publish
 
 ## License

@@ -106,17 +106,20 @@ i18n
     
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
-      
+      // Cache-Busting: verhindert, dass veraltete Übersetzungen aus dem
+      // HTTP-Cache geladen werden, wenn JSON-Dateien aktualisiert wurden.
+      queryStringParams: { v: import.meta.env.DEV ? String(Date.now()) : '20260602' },
+
       // Lazy loading configuration
       allowMultiLoading: false,
       parse: (data: string) => JSON.parse(data),
       crossDomain: false,
-      
+
       // Request options
       requestOptions: {
         mode: 'cors',
         credentials: 'same-origin',
-        cache: 'default'
+        cache: 'no-cache'
       }
     },
     

@@ -22,16 +22,43 @@
   "gameplay": {
     "title": "⚡ Gameplay (1983-1992)",
     "step1": {
-      "title": "Develop Computers",
-      "description": "Choose CPU, RAM, Graphics and a stylish case. Takes 1-2 quarters."
+      "title": "Develop hardware",
+      "description": "Pick CPU, RAM, graphics, sound, storage and a matching case. Each build takes 1-2 quarters and costs money."
     },
     "step2": {
-      "title": "Distribute Budget",
-      "description": "Marketing = more sales | Development = faster computers | Research = custom chips"
+      "title": "Allocate budgets",
+      "description": "Marketing, Development, Research and Support each have their own budget — spend wisely."
     },
     "step3": {
-      "title": "Complete Quarters",
-      "description": "View your sales, market position and competitor moves."
+      "title": "Hire staff",
+      "description": "Engineers, marketers, researchers and support staff speed up and amplify each area."
+    },
+    "step4": {
+      "title": "Secure financing",
+      "description": "Running low on cash? Take a bank loan or pitch a VC for growth capital."
+    },
+    "step5": {
+      "title": "Close quarters",
+      "description": "Watch sales, market share and competitor moves — then adjust your strategy."
+    }
+  },
+  "hardware": {
+    "title": "🛠️ Hardware Development",
+    "intro": "Every computer is a mix of components. The right combination decides who buys.",
+    "components": {
+      "title": "Components",
+      "points": [
+        "CPU — raw speed (e.g. 6502, 68000, 80286)",
+        "RAM — multitasking & business viability",
+        "Graphics — crucial for gamers (VIC-II, GTIA)",
+        "Sound — SID, YM2149 attract gamers",
+        "Storage — floppy/hard disk for business",
+        "Case — look & target-audience signal"
+      ]
+    },
+    "tip": {
+      "title": "Tip",
+      "description": "Higher development budget and more engineers = shorter dev time. Custom chips from research give a long-term edge."
     }
   },
   "strategies": {
@@ -60,40 +87,53 @@
   "budget": {
     "title": "💰 Budget Management",
     "marketing": {
-      "title": "Marketing Budget",
-      "description": "Directly proportional to sales. More marketing = reach more customers."
+      "title": "Marketing",
+      "description": "Directly drives sales. More marketing = more reach and brand awareness."
     },
     "development": {
-      "title": "Development Budget",
-      "description": "Speeds up computer development. 2x budget = 2x faster."
+      "title": "Development",
+      "description": "Speeds up hardware builds. Double the budget ≈ twice as fast."
     },
     "research": {
-      "title": "Research Budget",
-      "description": "5% chance per quarter for custom chip. More budget = higher chance."
+      "title": "Research",
+      "description": "Raises the chance of unlocking custom chips per quarter. Researchers amplify the effect."
+    },
+    "support": {
+      "title": "Support",
+      "description": "Cuts returns, lifts satisfaction and protects your reputation as the customer base grows."
+    }
+  },
+  "staff": {
+    "title": "👥 Staff & Roles",
+    "intro": "In the Management tab you build a team from 4 roles. Each role boosts one budget area.",
+    "roles": {
+      "engineer": "Engineers — speed up hardware development",
+      "marketer": "Marketers — amplify marketing spend",
+      "researcher": "Researchers — raise custom-chip chance",
+      "support": "Support — improve customer satisfaction"
+    },
+    "tip": "Salaries are paid every quarter — only hire what you can afford."
+  },
+  "financing": {
+    "title": "🏦 Financing",
+    "intro": "Three ways to raise capital when cash gets tight:",
+    "options": {
+      "bootstrap": "Bootstrap — grow from your own revenue. Full control, slow pace.",
+      "loan": "Bank loan — fixed annuity, predictable, but defaulting can end the game.",
+      "vc": "Venture capital — pitch a VC. Big cash injection in exchange for equity."
     }
   },
   "warning": {
     "title": "⚠️ Warning!",
-    "description": "You start with $5M and have ongoing costs of $30k/month. Without income you'll go bankrupt after ~13 years. Develop profitable computers quickly!"
+    "description": "You start with limited capital and recurring costs (salaries, rent, budgets). Without profitable sales or financing you'll go bankrupt — watch your cash flow!"
   },
   "competitors": {
     "title": "🏆 Your Competition",
-    "apple": {
-      "name": "Apple",
-      "focus": "Premium, Business"
-    },
-    "commodore": {
-      "name": "Commodore",
-      "focus": "Mass market, Gamer"
-    },
-    "ibm": {
-      "name": "IBM",
-      "focus": "Expensive, Professional"
-    },
-    "atari": {
-      "name": "Atari",
-      "focus": "Cheap, Gaming"
-    }
+    "intro": "Four AI rivals compete for the same market. They react to your pricing and innovations.",
+    "apple": { "name": "Apple", "focus": "Premium, Business" },
+    "commodore": { "name": "Commodore", "focus": "Mass market, Gamer" },
+    "ibm": { "name": "IBM", "focus": "Expensive, Professional" },
+    "atari": { "name": "Atari", "focus": "Cheap, Gaming" }
   },
   "startButton": "Let's go! 🚀"
 }

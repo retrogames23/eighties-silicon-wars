@@ -8,6 +8,7 @@ import { MarketTab } from "@/components/MarketTab";
 import { AiCompetitorsPanel } from "@/components/AiCompetitorsPanel";
 import type { AiCompetitor } from "@/services/CompetitorsService";
 import { CompanyManagement } from "@/components/CompanyManagement";
+import EmployeesPanel from "@/components/EmployeesPanel";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";

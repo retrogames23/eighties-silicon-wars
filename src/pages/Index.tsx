@@ -574,6 +574,30 @@ const Index = () => {
     setShowSaveManager(true);
   };
 
+  const handleContinueGame = async () => {
+    if (!user) {
+      toast({ title: t('game:intro.noSavedGames'), variant: 'destructive' });
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('save_games')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast({ title: t('game:intro.noSavedGames'), variant: 'destructive' });
+        return;
+      }
+      handleLoadGame(data[0].game_state as unknown as GameState);
+    } catch (err) {
+      console.error('[ContinueGame] failed:', err);
+      toast({ title: t('game:intro.noSavedGames'), variant: 'destructive' });
+    }
+  };
+
   // Auth state management
   useEffect(() => {
     // Use ModelRevisionManager to migrate existing models on first load
@@ -641,7 +665,7 @@ const Index = () => {
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
-        return <GameIntro onComplete={handleIntroComplete} user={user} />;
+        return <GameIntro onComplete={handleIntroComplete} user={user} onContinueGame={handleContinueGame} onOpenLoadManager={handleOpenSaveManager} />;
       
       case 'company-setup':
         return <CompanySetup onSetupComplete={handleCompanySetup} />;
@@ -702,7 +726,7 @@ const Index = () => {
         ) : null;
       
       default:
-        return <GameIntro onComplete={handleIntroComplete} user={user} />;
+        return <GameIntro onComplete={handleIntroComplete} user={user} onContinueGame={handleContinueGame} onOpenLoadManager={handleOpenSaveManager} />;
     }
   };
 

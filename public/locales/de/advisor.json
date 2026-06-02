@@ -36,6 +36,9 @@
       "thinking": "Norm denkt nach...",
       "send": "Senden",
       "switchToTips": "Zurück zu Tipps"
+    },
+    "noTips": "Gerade keine dringenden Tipps. Soll ich die Basics nochmal durchgehen?",
+    "replayTour": "Tour erneut starten"
     }
   }
 }

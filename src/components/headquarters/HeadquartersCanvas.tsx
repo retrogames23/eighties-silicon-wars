@@ -32,15 +32,15 @@ type Tier = {
 };
 
 const TIERS: Tier[] = [
-  { src: hqGarage,           totalFloors: 1,  minEmployees: 0,   maxEmployees: 3,   aspect: 0.80 },
+  { src: hqGarage,           totalFloors: 1,  minEmployees: 0,   maxEmployees: 3,   aspect: 1.00 },
   { src: hqSmallOffice,      totalFloors: 2,  minEmployees: 4,   maxEmployees: 8,   aspect: 1.00 },
   { src: hq3Floor,           totalFloors: 3,  minEmployees: 9,   maxEmployees: 15,  aspect: 1.00 },
   { src: hqMidriseAsset.url, totalFloors: 5,  minEmployees: 16,  maxEmployees: 28,  aspect: 1.00 },
-  { src: hq7Floor,           totalFloors: 7,  minEmployees: 29,  maxEmployees: 45,  aspect: 1.36 },
-  { src: hqHighrise,         totalFloors: 10, minEmployees: 46,  maxEmployees: 70,  aspect: 1.83 },
-  { src: hq15Floor,          totalFloors: 15, minEmployees: 71,  maxEmployees: 110, aspect: 2.18 },
-  { src: hqSkyscraper,       totalFloors: 20, minEmployees: 111, maxEmployees: 170, aspect: 2.60 },
-  { src: hqMegatower,        totalFloors: 30, minEmployees: 171, maxEmployees: 350, aspect: 3.33 },
+  { src: hq7Floor,           totalFloors: 7,  minEmployees: 29,  maxEmployees: 45,  aspect: 1.34 },
+  { src: hqHighrise,         totalFloors: 10, minEmployees: 46,  maxEmployees: 70,  aspect: 1.00 },
+  { src: hq15Floor,          totalFloors: 15, minEmployees: 71,  maxEmployees: 110, aspect: 1.78 },
+  { src: hqSkyscraper,       totalFloors: 20, minEmployees: 111, maxEmployees: 170, aspect: 1.78 },
+  { src: hqMegatower,        totalFloors: 30, minEmployees: 171, maxEmployees: 350, aspect: 1.78 },
 ];
 
 function pickTier(employees: number): Tier {

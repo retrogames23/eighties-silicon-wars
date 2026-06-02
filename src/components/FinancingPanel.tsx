@@ -1,5 +1,6 @@
-// Finanzierungs-Panel: Bankkredit & VC-Pitch in einem Tab.
+// Financing panel: bank loan & VC pitch in one tab. Fully i18n via "financing" namespace.
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ interface FinancingPanelProps {
 }
 
 export function FinancingPanel({ gameState, onCashChange }: FinancingPanelProps) {
+  const { t } = useTranslation('financing');
   const [userId, setUserId] = useState<string | null>(null);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [vcRounds, setVcRounds] = useState<VcRound[]>([]);
@@ -49,8 +51,6 @@ export function FinancingPanel({ gameState, onCashChange }: FinancingPanelProps)
     })();
   }, []);
 
-  // Letzte bis zu 4 Quartalsumsätze: vereinfacht aus aktuellem Quartalsumsatz.
-  // (In voller Version aus Quarter-Log; vorerst nehmen wir den aktuellen × Faktor.)
   useEffect(() => {
     const q = gameState.company?.quarterlyRevenue ?? (gameState.company?.monthlyIncome ?? 0) * 3;
     setRecentRevenues(q > 0 ? [q, q * 0.9, q * 0.8, q * 0.7] : []);
@@ -75,19 +75,19 @@ export function FinancingPanel({ gameState, onCashChange }: FinancingPanelProps)
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="retro-border">
           <CardContent className="pt-6">
-            <div className="text-xs text-muted-foreground">Offene Schulden</div>
+            <div className="text-xs text-muted-foreground">{t('stats.outstandingDebt')}</div>
             <div className="text-2xl font-bold">${Math.round(outstandingDebt).toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card className="retro-border">
           <CardContent className="pt-6">
-            <div className="text-xs text-muted-foreground">Equity vergeben</div>
+            <div className="text-xs text-muted-foreground">{t('stats.equityGiven')}</div>
             <div className="text-2xl font-bold">{equityGivenAway.toFixed(1)} %</div>
           </CardContent>
         </Card>
         <Card className="retro-border">
           <CardContent className="pt-6">
-            <div className="text-xs text-muted-foreground">Verbleibend (Gründer)</div>
+            <div className="text-xs text-muted-foreground">{t('stats.founderRemaining')}</div>
             <div className="text-2xl font-bold">{(100 - equityGivenAway).toFixed(1)} %</div>
           </CardContent>
         </Card>
@@ -96,10 +96,10 @@ export function FinancingPanel({ gameState, onCashChange }: FinancingPanelProps)
       <Tabs defaultValue="loan" className="w-full">
         <TabsList className="retro-border bg-card/50">
           <TabsTrigger value="loan" className="retro-tab">
-            <Landmark className="h-4 w-4 mr-2" />Bankkredit
+            <Landmark className="h-4 w-4 mr-2" />{t('tabs.loan')}
           </TabsTrigger>
           <TabsTrigger value="vc" className="retro-tab">
-            <TrendingUp className="h-4 w-4 mr-2" />VC-Pitch
+            <TrendingUp className="h-4 w-4 mr-2" />{t('tabs.vc')}
           </TabsTrigger>
         </TabsList>
 
@@ -140,6 +140,7 @@ function BankLoanCard({
   recentRevenues: number[]; outstandingDebt: number; activeLoans: Loan[];
   onLoanTaken: (cash: number) => void;
 }) {
+  const { t } = useTranslation('financing');
   const offer = calculateLoanOffer(reputation, year, recentRevenues, outstandingDebt);
   const [amount, setAmount] = useState(0);
   const [term, setTerm] = useState(12);
@@ -162,10 +163,20 @@ function BankLoanCard({
     });
     setBusy(false);
     if (loan) {
-      toast({ title: "Kredit aufgenommen", description: `$${amount.toLocaleString()} zu ${(offer.annualRate * 100).toFixed(1)} % p.a.` });
+      toast({
+        title: t('loan.toast.takenTitle'),
+        description: t('loan.toast.takenDesc', {
+          amount: amount.toLocaleString(),
+          rate: (offer.annualRate * 100).toFixed(1),
+        }),
+      });
       onLoanTaken(amount);
     } else {
-      toast({ title: "Fehler", description: "Kredit konnte nicht angelegt werden.", variant: "destructive" });
+      toast({
+        title: t('loan.toast.errorTitle'),
+        description: t('loan.toast.errorDesc'),
+        variant: "destructive",
+      });
     }
   };
 
@@ -174,22 +185,22 @@ function BankLoanCard({
       <Card className="retro-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Landmark className="h-5 w-5" />Bankkonditionen Q{quarter}/{year}
+            <Landmark className="h-5 w-5" />{t('loan.title', { quarter, year })}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-3">
-            <div>Leitzins (Reputation {reputation}):</div>
-            <div className="font-semibold">{(offer.annualRate * 100).toFixed(1)} % p.a.</div>
-            <div>Ø Quartalsumsatz:</div>
+            <div>{t('loan.rateLabel', { reputation })}</div>
+            <div className="font-semibold">{t('loan.ratePa', { rate: (offer.annualRate * 100).toFixed(1) })}</div>
+            <div>{t('loan.avgQuarterlyRevenue')}</div>
             <div className="font-semibold">${offer.avgQuarterlyRevenue.toLocaleString()}</div>
-            <div>Maximaler Kreditrahmen:</div>
+            <div>{t('loan.maxPrincipal')}</div>
             <div className="font-semibold">${offer.maxPrincipal.toLocaleString()}</div>
           </div>
           {!offer.eligible && (
             <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded text-destructive text-xs">
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-              <span>Nicht kreditwürdig: {offer.reason ?? "Bonität unzureichend"}</span>
+              <span>{t('loan.notEligible', { reason: offer.reason ?? t('loan.reasonFallback') })}</span>
             </div>
           )}
 
@@ -198,35 +209,35 @@ function BankLoanCard({
               <Separator className="my-2" />
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs">Kreditsumme: ${amount.toLocaleString()}</Label>
+                  <Label className="text-xs">{t('loan.amount', { amount: amount.toLocaleString() })}</Label>
                   <Slider
                     min={50_000} max={offer.maxPrincipal} step={10_000}
                     value={[amount]} onValueChange={(v) => setAmount(v[0])}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Laufzeit (Quartale)</Label>
+                  <Label className="text-xs">{t('loan.term')}</Label>
                   <div className="flex gap-2 mt-1">
                     {offer.quartersOptions.map(q => (
                       <Button
                         key={q} size="sm"
                         variant={term === q ? "default" : "outline"}
                         onClick={() => setTerm(q)}
-                      >{q} Q</Button>
+                      >{t('loan.termOption', { q })}</Button>
                     ))}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs p-3 bg-muted/30 rounded">
-                  <div>Quartalsrate:</div>
+                  <div>{t('loan.quarterlyPayment')}</div>
                   <div className="font-mono">${Math.round(quarterlyPayment).toLocaleString()}</div>
-                  <div>Gesamtrückzahlung:</div>
+                  <div>{t('loan.totalPayback')}</div>
                   <div className="font-mono">${Math.round(totalPayback).toLocaleString()}</div>
-                  <div>Zinsen gesamt:</div>
+                  <div>{t('loan.totalInterest')}</div>
                   <div className="font-mono">${Math.round(totalInterest).toLocaleString()}</div>
                 </div>
                 <Button onClick={apply} disabled={busy || amount < 50_000} className="w-full">
                   {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Kredit aufnehmen
+                  {t('loan.take')}
                 </Button>
               </div>
             </>
@@ -237,19 +248,32 @@ function BankLoanCard({
       {activeLoans.length > 0 && (
         <Card className="retro-border">
           <CardHeader>
-            <CardTitle className="text-base">Aktive Kredite</CardTitle>
+            <CardTitle className="text-base">{t('loan.active.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             {activeLoans.map(l => (
               <div key={l.id} className="flex justify-between items-center p-2 bg-muted/20 rounded">
                 <div>
-                  <div className="font-semibold">${Math.round(Number(l.principal)).toLocaleString()} @ {(Number(l.annual_interest_rate) * 100).toFixed(1)} %</div>
-                  <div className="text-muted-foreground">{l.quarters_paid}/{l.quarters_total} Raten · ${Math.round(Number(l.outstanding_balance)).toLocaleString()} offen</div>
+                  <div className="font-semibold">
+                    {t('loan.active.summary', {
+                      principal: Math.round(Number(l.principal)).toLocaleString(),
+                      rate: (Number(l.annual_interest_rate) * 100).toFixed(1),
+                    })}
+                  </div>
+                  <div className="text-muted-foreground">
+                    {t('loan.active.progress', {
+                      paid: l.quarters_paid,
+                      total: l.quarters_total,
+                      outstanding: Math.round(Number(l.outstanding_balance)).toLocaleString(),
+                    })}
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div>Rate: ${Math.round(Number(l.quarterly_payment)).toLocaleString()}</div>
+                  <div>{t('loan.active.rate', { amount: Math.round(Number(l.quarterly_payment)).toLocaleString() })}</div>
                   {l.consecutive_defaults > 0 && (
-                    <Badge variant="destructive" className="text-xs">{l.consecutive_defaults}/3 Ausfälle</Badge>
+                    <Badge variant="destructive" className="text-xs">
+                      {t('loan.active.defaults', { count: l.consecutive_defaults })}
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -270,6 +294,8 @@ function VcPitchCard({
   equityGivenAway: number; outstandingDebt: number;
   onPitchSuccess: (cash: number) => void;
 }) {
+  const { t, i18n } = useTranslation('financing');
+  const language = (i18n.language || 'de').toLowerCase().startsWith('en') ? 'en' : 'de';
   const [phase, setPhase] = useState<"setup" | "questions" | "evaluating" | "result">("setup");
   const [offered, setOffered] = useState(15);
   const [valuation, setValuation] = useState(3_000_000);
@@ -284,6 +310,8 @@ function VcPitchCard({
   const roundsLeft = 3 - vcRounds.length;
   const upcomingRoundNumber = vcRounds.length + 1;
   const vc: VcCharacter = pickVcForRound(upcomingRoundNumber);
+  const tagline = language === 'en' ? vc.taglineEn : vc.tagline;
+  const persona = language === 'en' ? vc.personaEn : vc.personaDe;
   const canPitch = roundsLeft > 0 && equityGivenAway + offered <= 75;
 
   const snapshot = (): CompanySnapshot => ({
@@ -307,8 +335,8 @@ function VcPitchCard({
     setBusy(true);
     try {
       const { round, questions } = await VcPitchService.startRound({
-        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
-        company: snapshot(), language: "de",
+        userId, setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: persona },
+        company: snapshot(), language,
       });
       setRoundId(round.id);
       setRoundNumber(round.round_number);
@@ -316,7 +344,7 @@ function VcPitchCard({
       setAnswers(["", "", ""]);
       setPhase("questions");
     } catch (e: any) {
-      toast({ title: "VC nicht erreichbar", description: e?.message ?? String(e), variant: "destructive" });
+      toast({ title: t('vc.toast.unreachableTitle'), description: e?.message ?? String(e), variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -325,7 +353,11 @@ function VcPitchCard({
   const submit = async () => {
     if (!userId || !roundId) return;
     if (answers.some(a => a.trim().length < 10)) {
-      toast({ title: "Antworten zu kurz", description: "Mindestens 10 Zeichen je Frage.", variant: "destructive" });
+      toast({
+        title: t('vc.questions.tooShortTitle'),
+        description: t('vc.questions.tooShortDesc'),
+        variant: "destructive",
+      });
       return;
     }
     setBusy(true); setPhase("evaluating");
@@ -333,8 +365,8 @@ function VcPitchCard({
       const evalRes = await VcPitchService.submitAnswers({
         userId, roundId, roundNumber,
         qna: questions.map((q, i) => ({ question: q, answer: answers[i] })),
-        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: vc.personaDe },
-        company: snapshot(), language: "de",
+        setup: { offeredEquityPct: offered, proposedValuation: valuation, useOfFunds, vcPersona: persona },
+        company: snapshot(), language,
       });
       const cash = evalRes.accepted
         ? Math.round(valuation * evalRes.negotiated_valuation_multiplier * (offered / 100))
@@ -346,12 +378,15 @@ function VcPitchCard({
       setPhase("result");
       if (evalRes.accepted) {
         onPitchSuccess(cash);
-        toast({ title: "VC investiert!", description: `+$${cash.toLocaleString()} für ${offered} % Equity` });
+        toast({
+          title: t('vc.toast.investedTitle'),
+          description: t('vc.toast.investedDesc', { amount: cash.toLocaleString(), pct: offered }),
+        });
       } else {
-        toast({ title: "Abgelehnt", description: evalRes.feedback, variant: "destructive" });
+        toast({ title: t('vc.toast.rejectedTitle'), description: evalRes.feedback, variant: "destructive" });
       }
     } catch (e: any) {
-      toast({ title: "Bewertung fehlgeschlagen", description: e?.message ?? String(e), variant: "destructive" });
+      toast({ title: t('vc.toast.evalFailedTitle'), description: e?.message ?? String(e), variant: "destructive" });
       setPhase("questions");
     } finally {
       setBusy(false);
@@ -367,7 +402,7 @@ function VcPitchCard({
       <Card className="retro-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />VC-Pitch ({3 - roundsLeft}/3 abgehalten)
+            <TrendingUp className="h-5 w-5" />{t('vc.title', { done: 3 - roundsLeft })}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -383,11 +418,11 @@ function VcPitchCard({
               />
               <div className="min-w-0">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Heute pitchst du an
+                  {t('vc.todayPitch')}
                 </div>
                 <div className="font-bold text-base leading-tight truncate">{vc.name}</div>
                 <div className="text-xs text-muted-foreground truncate">{vc.firm}</div>
-                <div className="text-xs italic mt-1">„{vc.tagline}"</div>
+                <div className="text-xs italic mt-1">„{tagline}"</div>
               </div>
             </div>
           )}
@@ -397,8 +432,8 @@ function VcPitchCard({
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
               <span>
                 {roundsLeft <= 0
-                  ? "Maximum 3 VC-Runden erreicht."
-                  : "Zu wenig Equity verfügbar (max. 75 % insgesamt vergeben)."}
+                  ? t('vc.maxRoundsReached')
+                  : t('vc.notEnoughEquity')}
               </span>
             </div>
           )}
@@ -406,30 +441,30 @@ function VcPitchCard({
           {phase === "setup" && canPitch && (
             <div className="space-y-3 text-sm">
               <div>
-                <Label className="text-xs">Angebotener Equity-Anteil: {offered} %</Label>
+                <Label className="text-xs">{t('vc.setup.offeredEquity', { pct: offered })}</Label>
                 <Slider min={1} max={Math.min(40, 75 - equityGivenAway)} value={[offered]} onValueChange={v => setOffered(v[0])} />
               </div>
               <div>
-                <Label className="text-xs">Vorgeschlagene Bewertung (Post-Money, $)</Label>
+                <Label className="text-xs">{t('vc.setup.valuation')}</Label>
                 <Input
                   type="number" value={valuation}
                   onChange={e => setValuation(Math.max(0, Number(e.target.value) || 0))}
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  Erwarteter Cash bei Akzeptanz: ~${Math.round(valuation * offered / 100).toLocaleString()}
+                  {t('vc.setup.expectedCash', { amount: Math.round(valuation * offered / 100).toLocaleString() })}
                 </div>
               </div>
               <div>
-                <Label className="text-xs">Verwendung der Mittel</Label>
+                <Label className="text-xs">{t('vc.setup.useOfFunds')}</Label>
                 <Textarea
                   rows={3} value={useOfFunds}
                   onChange={e => setUseOfFunds(e.target.value.slice(0, 500))}
-                  placeholder="z.B. R&D für 32-Bit-Linie, Aufbau Vertrieb in Europa, ..."
+                  placeholder={t('vc.setup.useOfFundsPlaceholder')}
                 />
               </div>
               <Button onClick={startPitch} disabled={busy || useOfFunds.length < 20} className="w-full">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Pitch starten (VC stellt 3 Fragen)
+                {t('vc.setup.start')}
               </Button>
             </div>
           )}
@@ -437,23 +472,23 @@ function VcPitchCard({
           {phase === "questions" && (
             <div className="space-y-4 text-sm">
               <div className="text-xs text-muted-foreground">
-                Beantworte alle 3 Fragen so konkret wie möglich. Vager Pitch = niedrigere Bewertung.
+                {t('vc.questions.hint')}
               </div>
               {questions.map((q, i) => (
                 <div key={i} className="space-y-1">
-                  <div className="font-semibold">Frage {i + 1}: {q}</div>
+                  <div className="font-semibold">{t('vc.questions.question', { n: i + 1, text: q })}</div>
                   <Textarea
                     rows={3} value={answers[i]}
                     onChange={e => {
                       const next = [...answers]; next[i] = e.target.value.slice(0, 1500); setAnswers(next);
                     }}
-                    placeholder="Deine Antwort..."
+                    placeholder={t('vc.questions.answerPlaceholder')}
                   />
                 </div>
               ))}
               <Button onClick={submit} disabled={busy} className="w-full">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Antworten einreichen
+                {t('vc.questions.submit')}
               </Button>
             </div>
           )}
@@ -461,7 +496,7 @@ function VcPitchCard({
           {phase === "evaluating" && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <span className="text-sm">VC denkt nach...</span>
+              <span className="text-sm">{t('vc.evaluating')}</span>
             </div>
           )}
 
@@ -478,22 +513,24 @@ function VcPitchCard({
                 {result.accepted ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                 <div>
                   <div className="font-semibold">
-                    {result.accepted ? `Investiert: $${result.cash.toLocaleString()}` : "Investment abgelehnt"}
+                    {result.accepted
+                      ? t('vc.result.invested', { amount: result.cash.toLocaleString() })
+                      : t('vc.result.rejected')}
                   </div>
                   <div className="text-xs">
-                    Bewertungs-Multiplikator: {result.mult.toFixed(2)}×
+                    {t('vc.result.multiplier', { mult: result.mult.toFixed(2) })}
                   </div>
                 </div>
               </div>
               {result.weaknesses.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold mb-1">Kritikpunkte:</div>
+                  <div className="text-xs font-semibold mb-1">{t('vc.result.weaknesses')}</div>
                   <ul className="list-disc list-inside text-xs space-y-1">
                     {result.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
                   </ul>
                 </div>
               )}
-              <Button onClick={reset} variant="outline" className="w-full">Schließen</Button>
+              <Button onClick={reset} variant="outline" className="w-full">{t('vc.result.close')}</Button>
             </div>
           )}
         </CardContent>
@@ -502,22 +539,24 @@ function VcPitchCard({
       {vcRounds.length > 0 && (
         <Card className="retro-border">
           <CardHeader>
-            <CardTitle className="text-base">VC-Historie</CardTitle>
+            <CardTitle className="text-base">{t('vc.history.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             {vcRounds.map(r => (
               <div key={r.id} className="flex justify-between p-2 bg-muted/20 rounded">
                 <div>
-                  <div className="font-semibold">Runde {r.round_number} · Q{r.game_quarter}/{r.game_year}</div>
-                  <div className="text-muted-foreground">{r.offered_equity_pct}% @ ${Number(r.proposed_valuation).toLocaleString()}</div>
+                  <div className="font-semibold">{t('vc.history.round', { n: r.round_number, quarter: r.game_quarter, year: r.game_year })}</div>
+                  <div className="text-muted-foreground">{t('vc.history.terms', { pct: r.offered_equity_pct, valuation: Number(r.proposed_valuation).toLocaleString() })}</div>
                 </div>
                 <div className="text-right">
                   {r.status === "accepted" ? (
-                    <Badge className="bg-green-500/20 text-green-700 dark:text-green-300">+${Math.round(Number(r.cash_received || 0)).toLocaleString()}</Badge>
+                    <Badge className="bg-green-500/20 text-green-700 dark:text-green-300">
+                      {t('vc.history.accepted', { amount: Math.round(Number(r.cash_received || 0)).toLocaleString() })}
+                    </Badge>
                   ) : r.status === "rejected" ? (
-                    <Badge variant="destructive">Abgelehnt</Badge>
+                    <Badge variant="destructive">{t('vc.history.rejected')}</Badge>
                   ) : (
-                    <Badge variant="outline">Läuft</Badge>
+                    <Badge variant="outline">{t('vc.history.running')}</Badge>
                   )}
                 </div>
               </div>

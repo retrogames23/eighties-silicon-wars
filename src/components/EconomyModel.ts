@@ -398,7 +398,7 @@ export class EconomyModel {
    * "Stand der Technik" des aktuellen Jahres. Verschiedene Segmente gewichten
    * Komponenten unterschiedlich (Gamer ≠ Business ≠ Workstation).
    */
-  static calculateSegmentAppeal(model: any, segment: string, year: number): number {
+  static calculateSegmentAppeal(model: any, segment: string, year: number, quarter: number = 1): number {
     const baselineBrand = 35; // Marken-/Marketing-Grundsockel
     const yearBoost = (year - 1983) * 1.5;
 
@@ -430,7 +430,9 @@ export class EconomyModel {
     }
     // specScore liegt typischerweise in [0.1, 1.2].
 
-    const appeal = baselineBrand + yearBoost + specScore * 55;
+    let appeal = baselineBrand + yearBoost + specScore * 55;
+    // Paradigm-Events (z.B. GUI-Erwartung 1989) addieren/subtrahieren Appeal.
+    appeal += getParadigmAppealDelta(model, segment as Segment, year, quarter, perf.ram, perf.gpu);
     return Math.max(5, Math.min(100, appeal));
   }
 

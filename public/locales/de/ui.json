@@ -301,5 +301,23 @@
       "fireFailed": "Entlassung fehlgeschlagen",
       "fired": "{{name}} verlässt das Unternehmen"
     }
+  },
+  "advisor": {
+    "buttonLabel": "Berater",
+    "title": "Berater sprechen",
+    "thinking": "denkt nach…",
+    "inputPlaceholder": "Frage an {{label}}…",
+    "unreachableTitle": "Berater nicht erreichbar",
+    "openAction": "Berater",
+    "tabs": {
+      "market_researcher": "Marktforschung",
+      "head_of_development": "Entwicklung",
+      "shareholder": "Aktionäre"
+    },
+    "intros": {
+      "market_researcher": "Dr. Helga Brandt, Marktforschung. Was möchten Sie wissen?",
+      "head_of_development": "K.J. Jordan, Entwicklung. Was steht an?",
+      "shareholder": "Margarete Vogel, Aktionärssprecherin. Reden wir Klartext."
+    }
   }
 }

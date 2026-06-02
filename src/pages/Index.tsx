@@ -432,6 +432,26 @@ const Index = () => {
         marketData: quarterResults.marketData
       });
     }
+
+    // Jahreshauptversammlung am Jahresende: gerade abgelaufenes Quartal war Q4
+    if (quarterResults && quarterResults.quarter === 4) {
+      const closedYear = quarterResults.year;
+      const summary = yearRevenueRef.current.year === closedYear
+        ? yearRevenueRef.current
+        : { year: closedYear, total: 0, modelsReleased: 0 };
+      setAnnualMeeting({
+        isOpen: true,
+        year: closedYear,
+        yearRevenue: summary.total,
+        cash: gameState.company.cash,
+        reputation: gameState.company.reputation,
+        marketShare: gameState.company.marketShare,
+        modelsReleased: summary.modelsReleased,
+      });
+      // Reset für das neue Jahr
+      yearRevenueRef.current = { year: closedYear + 1, total: 0, modelsReleased: 0 };
+    }
+
     setCurrentScreen('dashboard');
     setQuarterResults(null);
   };

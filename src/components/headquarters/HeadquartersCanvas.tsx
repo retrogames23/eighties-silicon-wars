@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 // so the result stays crisp on retina displays.
 // ============================================================================
 
-const S = 2;                     // resolution multiplier (backing buffer + drawing scale)
+const S = 4;                     // resolution multiplier (backing buffer + drawing scale) — higher = sharper
 const TILE = 8;                  // logical pixels per tile
 const FLOOR_TILES_W = 36;        // width of a floor in tiles
 const FLOOR_TILES_H = 6;         // height of a floor in tiles (room interior)
@@ -17,7 +17,7 @@ const GROUND_H = 16;
 const SKY_H = 40;
 const STAIR_W = 24;              // right-side stairs / elevator shaft
 const MAX_FLOORS = 7;
-const MAX_VISIBLE_SPRITES = 60;
+const MAX_VISIBLE_SPRITES = 30;
 
 // ---------------------------------------------------------------------------
 // Palettes (era-driven: 1980 → 2000+)
@@ -605,9 +605,11 @@ export const HeadquartersCanvas = ({ employees, year, quarter, companyName }: Pr
         spritesRef.current = [];
         return;
       }
-      // Show roughly 2-3 sprites per floor — keeps small companies looking small
-      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 3));
-      const target = Math.min(propsRef.current.employees, visibleCap);
+      // Sprites repräsentieren Mitarbeitende (nicht 1:1) — kleine Firmen bleiben ruhig.
+      // 1 MA → 1 Sprite, 2–3 → 1, 4–6 → 2, 7–9 → 3, ...  (≈ ceil(em/3), min 1)
+      const representative = Math.max(1, Math.ceil(propsRef.current.employees / 3));
+      const visibleCap = Math.min(MAX_VISIBLE_SPRITES, Math.max(1, layout.length * 2));
+      const target = Math.min(representative, visibleCap);
       const list = spritesRef.current;
 
       // Clamp existing sprites to existing floors

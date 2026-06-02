@@ -14,9 +14,16 @@
     },
     "expenses": {
       "title": "Expenses",
+      "productCosts": "Product Costs",
       "marketing": "Marketing",
       "development": "Development",
-      "research": "Research"
+      "research": "Research",
+      "support": "Support",
+      "salaries": "Salaries",
+      "portfolioMaintenance": "Portfolio Maintenance",
+      "fixedOverhead": "Fixed Overhead",
+      "loanPayments": "Loan Payments",
+      "total": "Total"
     },
     "netProfit": "Net profit"
   },

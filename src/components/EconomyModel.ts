@@ -293,10 +293,17 @@ export class EconomyModel {
       totalUnitsSold += segmentUnits;
     });
 
+    // Korrekte Segment-gewichtete Mittelwerte (vorher: hartcodiert business + maxPrice=1500).
+    const segs = ['gamer', 'business', 'workstation'] as const;
+    const avgElasticity = segs.reduce((sum, s) =>
+      sum + this.calculatePriceElasticity(model.price, this.getSegmentMaxPrice(s, year, quarter), s), 0) / segs.length;
+    const avgCompetition = segs.reduce((sum, s) =>
+      sum + this.calculateCompetitionImpact(model, competitors, s), 0) / segs.length;
+
     const averageDemandFactors: DemandFactors = {
       baseAppeal: Object.values(segmentBreakdown).reduce((sum, seg) => sum + seg.appeal, 0) / 3,
-      priceElasticity: this.calculatePriceElasticity(model.price, 1500, 'business'),
-      competitionFactor: this.calculateCompetitionImpact(model, competitors, 'business'),
+      priceElasticity: avgElasticity,
+      competitionFactor: avgCompetition,
       obsolescenceFactor,
       seasonalityFactor,
       marketingBoost,

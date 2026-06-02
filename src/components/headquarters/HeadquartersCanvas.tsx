@@ -177,7 +177,8 @@ function rng(seed: number) {
 // ---------------------------------------------------------------------------
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x * S), Math.round(y * S), Math.round(w * S), Math.round(h * S));
+  // Sub-pixel-Rendering: kein Math.round → glattere Kanten, weniger "klotzig"
+  ctx.fillRect(x * S, y * S, w * S, h * S);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, W: number, groundY: number, p: Palette, quarter: number) {
@@ -250,10 +251,37 @@ function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number, name: str
 }
 
 function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, p: Palette, lit: boolean) {
-  px(ctx, x, y, 10, 8, p.windowFrame);
-  px(ctx, x + 1, y + 1, 8, 6, lit ? "#ffe49a" : p.windowGlass);
-  px(ctx, x + 5, y + 1, 1, 6, p.windowFrame);
-  px(ctx, x + 1, y + 3, 8, 1, p.windowFrame);
+  // Größeres, realistischeres Fenster (18 x 18): Rahmen, Glas mit Himmel-
+  // Verlauf, Mittelkreuz, Sims unten.
+  const W = 18, H = 18;
+  // Sims (sill) leicht überstehend
+  px(ctx, x - 1, y + H, W + 2, 1.5, p.facadeDark);
+  // Rahmen
+  px(ctx, x, y, W, H, p.windowFrame);
+  // Glas
+  const glass = lit ? "#ffe49a" : p.windowGlass;
+  px(ctx, x + 1.5, y + 1.5, W - 3, H - 3, glass);
+  // Himmel-Reflexion (heller oberer Streifen)
+  px(ctx, x + 1.5, y + 1.5, W - 3, (H - 3) * 0.45, lit ? "#fff1b8" : lighten(glass, 0.25));
+  // Mittelkreuz (Sprossen) — dünner als vorher
+  px(ctx, x + W / 2 - 0.5, y + 1.5, 1, H - 3, p.windowFrame);
+  px(ctx, x + 1.5, y + H / 2 - 0.5, W - 3, 1, p.windowFrame);
+}
+
+function lighten(hex: string, t: number): string {
+  // Akzeptiert #rrggbb oder rgb(...)
+  let r: number, g: number, b: number;
+  if (hex.startsWith("#")) {
+    [r, g, b] = parseHex(hex);
+  } else {
+    const m = hex.match(/\d+/g);
+    if (!m) return hex;
+    [r, g, b] = [parseInt(m[0]), parseInt(m[1]), parseInt(m[2])];
+  }
+  r = Math.round(r + (255 - r) * t);
+  g = Math.round(g + (255 - g) * t);
+  b = Math.round(b + (255 - b) * t);
+  return `rgb(${r},${g},${b})`;
 }
 
 function drawDesk(ctx: CanvasRenderingContext2D, x: number, baseY: number, p: Palette, era: number) {
@@ -434,16 +462,20 @@ function drawRoom(
   // floor strip
   px(ctx, x0, baseY - 1, w, 1, p.floorShade);
 
-  // windows (2 per room)
-  const winY = topY + 4;
-  const lit = false;
-  drawWindow(ctx, x0 + 4, winY, p, lit);
-  if (w >= 12 * TILE) drawWindow(ctx, x0 + w - 14, winY, p, lit);
+  // Fenster auf Augenhöhe (vertikal mittig im oberen Raumdrittel)
+  const winH = 18;
+  const winY = topY + Math.round((FLOOR_H - winH) / 2) - 6;
+  // gleichmäßig verteilen: 1 Fenster pro ~10 Tiles, mind. 1, max. 3
+  const winCount = Math.max(1, Math.min(3, Math.floor(w / (10 * TILE))));
+  const winSpacing = w / (winCount + 1);
+  for (let i = 0; i < winCount; i++) {
+    drawWindow(ctx, x0 + winSpacing * (i + 1) - 9, winY, p, false);
+  }
 
-  // posters between/above windows
+  // Poster knapp über den Fenstern (nahe Decke), klein und dekorativ
   const r = rng(floorIdx * 31 + room.startTile);
   const posterX = x0 + Math.floor(w / 2) - 5;
-  drawPoster(ctx, posterX, topY + 3, Math.floor(r() * 4));
+  drawPoster(ctx, posterX, topY + 2, Math.floor(r() * 4));
 
   // Room-specific furniture (baseY = floor surface)
   const cx = x0 + 4;

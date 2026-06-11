@@ -290,20 +290,21 @@ export class EconomyModel {
         tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
                               { floor: 0.003, cap: 0.032 };
 
-      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch deutlich bestraft.
+      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch stark bestraft.
       //   Premium gehört in die Workstation (zahlungskräftige Profis).
       //   Mid-Range ins Business (Standard-Bürorechner).
       //   Budget zu Gamern (Mass-Market-Heimcomputer).
-      // Premium darf im Business existieren, aber nicht dominieren.
+      // Premium-Produkte verkaufen sich kaum an Mainstream-Business: Einkäufer
+      // wollen Standard-PCs, keine teuren Spezialmaschinen.
       const fit =
-        (tier === 'premium'  && segment === 'gamer')       ? 0.35 :
-        (tier === 'premium'  && segment === 'business')    ? 0.45 :
-        (tier === 'premium'  && segment === 'workstation') ? 1.30 :
-        (tier === 'midrange' && segment === 'workstation') ? 0.65 :
-        (tier === 'midrange' && segment === 'business')    ? 1.15 :
-        (tier === 'budget'   && segment === 'workstation') ? 0.25 :
-        (tier === 'budget'   && segment === 'business')    ? 0.55 :
-        (tier === 'budget'   && segment === 'gamer')       ? 1.20 :
+        (tier === 'premium'  && segment === 'gamer')       ? 0.25 :
+        (tier === 'premium'  && segment === 'business')    ? 0.25 :
+        (tier === 'premium'  && segment === 'workstation') ? 1.35 :
+        (tier === 'midrange' && segment === 'workstation') ? 0.55 :
+        (tier === 'midrange' && segment === 'business')    ? 1.20 :
+        (tier === 'budget'   && segment === 'workstation') ? 0.20 :
+        (tier === 'budget'   && segment === 'business')    ? 0.45 :
+        (tier === 'budget'   && segment === 'gamer')       ? 1.25 :
         1.0;
 
       const cap = band.cap * fit;

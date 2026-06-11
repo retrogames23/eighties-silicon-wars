@@ -1,0 +1,57 @@
+[
+  {
+    "year": 1983, "quarter": 3,
+    "category": "market",
+    "headline": "Heimcomputer-Preiskrieg eskaliert",
+    "body": "Commodore und Atari unterbieten sich. Margen im Gamer-Segment schrumpfen.",
+    "affected_segments": ["gaming", "home"],
+    "magnitude": 4,
+    "duration_quarters": 4,
+    "effect_kind": "price_down",
+    "rationale": "Historisch: Heimcomputer-Crash 1983/84"
+  },
+  {
+    "year": 1985, "quarter": 1,
+    "category": "tech",
+    "headline": "IBM-PC-Klone überfluten den Business-Markt",
+    "body": "Kompatible Hardware aus Taiwan drückt die Preise und vergrößert das Volumen.",
+    "affected_segments": ["business"],
+    "magnitude": 3,
+    "duration_quarters": 8,
+    "effect_kind": "demand_up",
+    "rationale": "PC-Clones-Welle"
+  },
+  {
+    "year": 1987, "quarter": 2,
+    "category": "world",
+    "headline": "Speicherchip-Knappheit treibt RAM-Preise",
+    "body": "Lieferengpässe bei DRAM. Build-Kosten steigen kurzfristig.",
+    "affected_segments": ["all"],
+    "magnitude": 3,
+    "duration_quarters": 2,
+    "effect_kind": "price_up",
+    "rationale": "DRAM shortage 1987–88"
+  },
+  {
+    "year": 1989, "quarter": 1,
+    "category": "tech",
+    "headline": "GUI wird Pflicht im Business",
+    "body": "Windows 2.x und Mac OS setzen neue Erwartungen.",
+    "affected_segments": ["business", "workstation"],
+    "magnitude": 4,
+    "duration_quarters": 6,
+    "effect_kind": "tech_unlock",
+    "rationale": "GUI expectation"
+  },
+  {
+    "year": 1991, "quarter": 3,
+    "category": "competitor",
+    "headline": "Großhändler senken Margen",
+    "body": "Konsolidierung im Retail drückt die Verkaufspreise.",
+    "affected_segments": ["all"],
+    "magnitude": 2,
+    "duration_quarters": 4,
+    "effect_kind": "price_down",
+    "rationale": "Retail consolidation"
+  }
+]

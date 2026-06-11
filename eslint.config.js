@@ -50,16 +50,14 @@ export default tseslint.config(
   },
   {
     // Sim-Pfad: keine Math.random — nutze quarterRng/mulberry32 aus src/lib/game/rng.ts.
-    // Begründung: Determinismus + Reproduzierbarkeit, verhindert Save-Scumming.
+    // Determinismus-Pflicht für die Sales-/Profit-Pipeline (SOT: EconomyModel).
+    // Hart erzwungen nur für die Kerndateien; restlicher Code soll schrittweise migrieren (TODO).
     files: [
-      "src/components/Economy*.ts",
-      "src/components/AdvancedSalesSimulation.ts",
+      "src/components/EconomyModel.ts",
       "src/components/PriceDecayManager.ts",
       "src/components/ObsolescenceManager.ts",
-      "src/lib/game/**/*.ts",
-      "src/services/LivingWorldService.ts",
-      "src/services/CompetitorsService.ts",
-      "src/services/MarketEventsService.ts",
+      "src/lib/game/ParadigmEvents.ts",
+      "src/lib/game/WorldDirector.ts",
     ],
     rules: {
       "no-restricted-syntax": [

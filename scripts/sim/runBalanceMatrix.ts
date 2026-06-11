@@ -157,6 +157,7 @@ const STRATEGIES: Strategy[] = [
 
 interface RunResult {
   strategy: string;
+  scenario: ScenarioId;
   seed: number;
   finalCash: number;
   peakCash: number;
@@ -167,7 +168,7 @@ interface RunResult {
   lossQuarters: number;
 }
 
-async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
+async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<RunResult> {
   const director = new ScriptedWorldDirector(FIXTURE);
   const competitors: Competitor[] = INITIAL_COMPETITORS as unknown as Competitor[];
   const models: Model[] = [];
@@ -183,14 +184,25 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
       for (const m of s.releases(year, q)) { cash -= m.developmentCost; models.push(m); }
       if (bankruptQ !== null) continue;
 
-      // Welt-Events (scripted) — beeinflussen Marketing-Effektivität als grobe Annäherung.
+      // Welt-Events (scripted) + Stress-Shocks.
       const events = await director.generate({ userId: seedSalt, year, quarter: q });
       let demandBoost = 0;
       for (const ev of events) demandBoost += ev.applied_effects?.demand_delta ?? 0;
-      const marketingEffective = Math.round(s.marketing * (1 + Math.max(-0.2, Math.min(0.2, demandBoost))));
 
-      const rngSeed = quarterSeed(seedSalt + "-" + s.id, year, q);
+      // Pflicht-Shocks aus dem Szenario obendrauf (Rezession, RAM-Knappheit, …).
+      const shocks = activeShocks(sc, year, q);
+      let bomMult = 1;
+      let shockDemand = 0;
+      for (const sh of shocks) {
+        shockDemand += sh.demandDeltaPerQ;
+        if (sh.bomMultiplier) bomMult *= sh.bomMultiplier;
+      }
+      const combinedDemand = Math.max(-0.35, Math.min(0.20, demandBoost + shockDemand));
+      const marketingEffective = Math.round(s.marketing * (1 + combinedDemand));
+
+      const rngSeed = quarterSeed(seedSalt + "-" + s.id + "-" + sc.id, year, q);
       const activeModelCount = models.length;
+      const aiPressure = sc.aiPressureAt(year, q);
 
       // Portfolio-Shares pro Segment
       const appealTotals: Record<string, { m: Model; a: number }[]> = { gamer: [], business: [], workstation: [] };
@@ -212,7 +224,13 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
         }
         const res = EconomyModel.simulateModelSales(
           m as never, marketingEffective, reputation, competitors, year, q, 1_000_000,
-          { rngSeed, brandAwareness, activeModelCount, segmentShareOverride: shareOverride } as never,
+          {
+            rngSeed, brandAwareness, activeModelCount,
+            segmentShareOverride: shareOverride,
+            bomMultiplier: bomMult,
+            demandMultiplier: 1 + combinedDemand,
+            aiCompetitorPressure: aiPressure,
+          } as never,
         );
         revenue += res.revenue;
         profit += res.profitBreakdown.netProfit;
@@ -233,7 +251,9 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
       const buildup = Math.min(8, (marketingEffective / (200_000 * infl)) * 4);
       const decay = marketingEffective < 50_000 * infl ? 5 : 0;
       brandAwareness = Math.max(0, Math.min(100, brandAwareness + buildup - decay));
-      reputation = Math.max(0, Math.min(100, reputation + (units > 0 ? 2 : -1)));
+      // Im Stress-Profil bestraft Verlust die Reputation stärker.
+      const repHit = sc.id === "stress" && net < -500_000 ? -3 : (units > 0 ? 2 : -1);
+      reputation = Math.max(0, Math.min(100, reputation + repHit));
 
       if (cash > peak) peak = cash;
       if (cash < min) min = cash;
@@ -242,7 +262,7 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
   }
 
   return {
-    strategy: s.id, seed: parseInt(seedSalt.replace(/\D/g, "")) || 0,
+    strategy: s.id, scenario: sc.id, seed: parseInt(seedSalt.replace(/\D/g, "")) || 0,
     finalCash: Math.round(cash), peakCash: Math.round(peak), minCash: Math.round(min),
     totalRevenue: Math.round(totalRev), totalUnits, bankruptQuarter: bankruptQ, lossQuarters: lossQ,
   };

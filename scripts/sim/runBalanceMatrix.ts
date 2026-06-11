@@ -29,6 +29,63 @@ const QUARTERS = 40;
 const START_CASH = 1_500_000;
 const SEGMENTS = ["gamer", "business", "workstation"] as const;
 
+/**
+ * Stress-Profile: simulieren reale historische Härten + KI-Konkurrenz.
+ * - baseline:  ruhige Welt, keine KI-Konkurrenz — Sanity-Check.
+ * - stress:    Rezession 1985, Tech-Disruption 1986 (32-bit), RAM-Knappheit 1988,
+ *              plus stetig wachsender KI-Druck pro Segment (0 → 0.5 über 10 Jahre).
+ *              Eine Strategie muss hier nicht reich werden, aber sie sollte überleben.
+ */
+type ScenarioId = "baseline" | "stress";
+
+interface ForcedShock {
+  yearQ: [number, number];                // [year, quarter] inklusiv
+  durationQ: number;
+  demandDeltaPerQ: number;                // -0.2 .. +0.2 (wird hart geclamped)
+  bomMultiplier?: number;                 // RAM-Knappheit etc.
+  label: string;
+}
+
+interface Scenario {
+  id: ScenarioId;
+  label: string;
+  shocks: ForcedShock[];
+  /** KI-Druck pro Segment, wachsend über Zeit. 0 = aus, 0.5 = halber TAM weg. */
+  aiPressureAt: (year: number, quarter: number) => Partial<Record<"gamer"|"business"|"workstation", number>>;
+}
+
+const SCENARIOS: Scenario[] = [
+  {
+    id: "baseline",
+    label: "Baseline (ruhig)",
+    shocks: [],
+    aiPressureAt: () => ({}),
+  },
+  {
+    id: "stress",
+    label: "Stress (Rezession + KI-Konkurrenz)",
+    shocks: [
+      { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
+      { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit (Altgeräte verlieren Nachfrage)" },
+      { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0,    bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
+      { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
+    ],
+    // Linearer Anstieg: 1983 = 0, 1992 = 0.5 in gamer/business, 0.35 in workstation.
+    aiPressureAt: (year) => {
+      const t = Math.max(0, Math.min(1, (year - 1983) / 9));
+      return { gamer: 0.50 * t, business: 0.50 * t, workstation: 0.35 * t };
+    },
+  },
+];
+
+function activeShocks(sc: Scenario, year: number, quarter: number): ForcedShock[] {
+  return sc.shocks.filter(sh => {
+    const startIdx = (sh.yearQ[0] - 1983) * 4 + (sh.yearQ[1] - 1);
+    const nowIdx = (year - 1983) * 4 + (quarter - 1);
+    return nowIdx >= startIdx && nowIdx < startIdx + sh.durationQ;
+  });
+}
+
 interface Model {
   name: string;
   cpu: string; gpu: string; ram: string; sound: string;

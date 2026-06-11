@@ -11,6 +11,27 @@
     "computer": "Computer",
     "innovation": "Innovation"
   },
+  "difficulty": {
+    "label": "Schwierigkeitsgrad",
+    "startingCash": "Startkapital",
+    "aiPressure": "KI-Konkurrenz",
+    "aiPressureNone": "keine",
+    "bankruptcy": "Bei Bankrott",
+    "bankruptcyLoan": "einmaliger Notkredit",
+    "bankruptcyOver": "Game Over",
+    "easy": {
+      "label": "Leicht",
+      "tagline": "Entspannt aufbauen, jeder Fehler ist verzeihbar."
+    },
+    "normal": {
+      "label": "Normal",
+      "tagline": "Klassische Marktwirtschaft mit echter Konkurrenz und einem Rettungsnetz."
+    },
+    "hard": {
+      "label": "Schwer",
+      "tagline": "Hardcore: wenig Kapital, harte KI, häufige Krisen, kein Rettungsnetz."
+    }
+  },
   "selection": {
     "title": "COMPUTER WARS",
     "subtitle": "Die 80er Heimcomputer Revolution",

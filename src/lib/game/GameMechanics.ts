@@ -605,7 +605,8 @@ export class GameMechanics {
             const intensity = Math.min(3, c.last_action?.intensity ?? 1) / 3;
             pressure += shareWeight * targetsMe * (0.5 + 0.5 * intensity);
           }
-          aiCompetitorPressure[seg] = Math.min(0.5, pressure);
+          // Cap aus Schwierigkeits-Profil (easy=0, normal=0.4, hard=0.7).
+          aiCompetitorPressure[seg] = Math.min(diff.aiPressureCeiling, pressure);
         }
       }
     } catch (e) {

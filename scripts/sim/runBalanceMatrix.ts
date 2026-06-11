@@ -179,7 +179,7 @@ const STRATEGIES: Strategy[] = [
 
 interface RunResult {
   strategy: string;
-  scenario: ScenarioId;
+  scenario: DifficultyId;
   seed: number;
   finalCash: number;
   peakCash: number;
@@ -188,16 +188,21 @@ interface RunResult {
   totalUnits: number;
   bankruptQuarter: number | null;
   lossQuarters: number;
+  emergencyLoanUsed: boolean;
 }
 
 async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<RunResult> {
+  const profile = sc.profile;
   const director = new ScriptedWorldDirector(FIXTURE);
   const competitors: Competitor[] = INITIAL_COMPETITORS as unknown as Competitor[];
   const models: Model[] = [];
-  let cash = START_CASH, reputation = 50, brandAwareness = 0;
+  let cash = profile.startingCash, reputation = 50, brandAwareness = 0;
   let peak = cash, min = cash, totalRev = 0, totalUnits = 0, lossQ = 0;
   let bankruptQ: number | null = null;
   let qIdx = 0;
+  let emergencyLoanUsed = false;
+  let emergencyLoanQuarterlyPayment = 0;
+  let emergencyLoanQuartersRemaining = 0;
 
   outer: for (let year = 1983; year <= 1992; year++) {
     for (let q = 1; q <= 4; q++) {
@@ -206,12 +211,10 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       for (const m of s.releases(year, q)) { cash -= m.developmentCost; models.push(m); }
       if (bankruptQ !== null) continue;
 
-      // Welt-Events (scripted) + Stress-Shocks.
       const events = await director.generate({ userId: seedSalt, year, quarter: q });
       let demandBoost = 0;
       for (const ev of events) demandBoost += ev.applied_effects?.demand_delta ?? 0;
 
-      // Pflicht-Shocks aus dem Szenario obendrauf (Rezession, RAM-Knappheit, …).
       const shocks = activeShocks(sc, year, q);
       let bomMult = 1;
       let shockDemand = 0;
@@ -252,6 +255,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
             bomMultiplier: bomMult,
             demandMultiplier: 1 + combinedDemand,
             aiCompetitorPressure: aiPressure,
+            marketingSaturationPoint: profile.marketingSaturationPoint,
           } as never,
         );
         revenue += res.revenue;
@@ -259,11 +263,19 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
         units += res.unitsSold;
       }
 
+      // Fixkosten skalieren mit Schwierigkeit (Gehälter, Portfolio, Overhead).
       const infl = Math.pow(1.03, Math.max(0, year - 1983));
-      const salaries = Math.round(s.employees * 6000 * infl);
-      const portfolio = Math.round(activeModelCount * 3000 * infl);
-      const overhead = Math.round((10_000 + s.employees * 1000) * infl);
-      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead;
+      const fcm = profile.fixedCostMultiplier;
+      const salaries = Math.round(s.employees * 6000 * infl * fcm);
+      const portfolio = Math.round(activeModelCount * 3000 * infl * fcm);
+      const overhead = Math.round((10_000 + s.employees * 1000) * infl * fcm);
+      // Notkredit-Annuität (nur Normal-Modus).
+      let loanPayment = 0;
+      if (emergencyLoanQuartersRemaining > 0) {
+        loanPayment = emergencyLoanQuarterlyPayment;
+        emergencyLoanQuartersRemaining--;
+      }
+      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead + loanPayment;
       const net = profit - expenses;
       cash += net;
       totalRev += revenue;
@@ -273,13 +285,29 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       const buildup = Math.min(8, (marketingEffective / (200_000 * infl)) * 4);
       const decay = marketingEffective < 50_000 * infl ? 5 : 0;
       brandAwareness = Math.max(0, Math.min(100, brandAwareness + buildup - decay));
-      // Im Stress-Profil bestraft Verlust die Reputation stärker.
-      const repHit = sc.id === "stress" && net < -500_000 ? -3 : (units > 0 ? 2 : -1);
+      // Reputations-Verlust skaliert mit Schwierigkeits-Profil.
+      const baseRep = (units > 0 ? 2 : -1);
+      const repHit = baseRep < 0 ? baseRep * profile.reputationLossMultiplier : baseRep;
       reputation = Math.max(0, Math.min(100, reputation + repHit));
 
       if (cash > peak) peak = cash;
       if (cash < min) min = cash;
-      if (cash < -2_000_000 && bankruptQ === null) bankruptQ = qIdx;
+
+      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit.
+      if (cash < profile.bankruptcyCashThreshold && bankruptQ === null) {
+        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanAmount > 0) {
+          cash += profile.emergencyLoanAmount;
+          emergencyLoanUsed = true;
+          const r = profile.emergencyLoanInterest / 4;
+          const n = profile.emergencyLoanQuarters;
+          emergencyLoanQuarterlyPayment = Math.round(
+            profile.emergencyLoanAmount * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+          );
+          emergencyLoanQuartersRemaining = n;
+        } else {
+          bankruptQ = qIdx;
+        }
+      }
     }
   }
 
@@ -287,6 +315,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     strategy: s.id, scenario: sc.id, seed: parseInt(seedSalt.replace(/\D/g, "")) || 0,
     finalCash: Math.round(cash), peakCash: Math.round(peak), minCash: Math.round(min),
     totalRevenue: Math.round(totalRev), totalUnits, bankruptQuarter: bankruptQ, lossQuarters: lossQ,
+    emergencyLoanUsed,
   };
 }
 

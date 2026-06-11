@@ -669,6 +669,7 @@ export class GameMechanics {
             rngSeed, aiCompetitorPressure,
             brandAwareness: prevBrandAwareness,
             activeModelCount,
+            marketingSaturationPoint: diff.marketingSaturationPoint,
           }
         );
 

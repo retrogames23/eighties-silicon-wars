@@ -271,13 +271,25 @@ const Index = () => {
       announcedHardware
     );
     
-    // Prüfe auf Spielende
+    // Prüfe auf Spielende (Zeit-Ende oder Bankrott aus Difficulty-Check).
     if (result.gameEndCondition?.isGameEnded) {
       setGameEndCondition(result.gameEndCondition);
       setCurrentScreen('game-end');
       return;
     }
-    
+
+    // Notkredit gewährt? Spieler benachrichtigen.
+    if (result.quarterResults?.emergencyLoanGranted) {
+      const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
+      toast({
+        title: isEn ? "🆘 Emergency loan granted" : "🆘 Notkredit gewährt",
+        description: isEn
+          ? "The bank stepped in once. Next bankruptcy = game over."
+          : "Die Bank greift einmalig ein. Beim nächsten Bankrott ist das Spiel vorbei.",
+        variant: "destructive",
+      });
+    }
+
     // Custom Chip Benachrichtigung
     if (result.newCustomChip) {
       toast({

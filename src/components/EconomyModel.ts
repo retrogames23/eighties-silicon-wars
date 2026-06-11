@@ -125,8 +125,8 @@ export class EconomyModel {
   /** Bestimmt Preis-Tier eines Modells aus dem Verkaufspreis. */
   static classifyPriceTier(price: number, year: number): PriceTier {
     const infl = this.getInflationFactor(year);
-    if (price < 800 * infl) return 'budget';
-    if (price < 2500 * infl) return 'midrange';
+    if (price < 700 * infl) return 'budget';
+    if (price < 1800 * infl) return 'midrange';
     return 'premium';
   }
 

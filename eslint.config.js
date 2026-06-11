@@ -48,4 +48,27 @@ export default tseslint.config(
       "no-unreachable": "error",
     },
   },
+  {
+    // Sim-Pfad: keine Math.random — nutze quarterRng/mulberry32 aus src/lib/game/rng.ts.
+    // Begründung: Determinismus + Reproduzierbarkeit, verhindert Save-Scumming.
+    files: [
+      "src/components/Economy*.ts",
+      "src/components/AdvancedSalesSimulation.ts",
+      "src/components/PriceDecayManager.ts",
+      "src/components/ObsolescenceManager.ts",
+      "src/lib/game/**/*.ts",
+      "src/services/LivingWorldService.ts",
+      "src/services/CompetitorsService.ts",
+      "src/services/MarketEventsService.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+          message: "No Math.random in the sim path. Use quarterRng(userId, year, quarter, salt) from @/lib/game/rng for determinism.",
+        },
+      ],
+    },
+  },
 );

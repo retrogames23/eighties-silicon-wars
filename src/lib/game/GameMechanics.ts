@@ -755,9 +755,15 @@ export class GameMechanics {
     }
     // Portfolio-Wartungskosten: $3k/Quartal je aktivem Modell (Support, Lager).
     const activeModelsCount = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length;
-    const portfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
+    const rawPortfolioMaintenance = Math.round(activeModelsCount * 3000 * inflation);
     // Mindest-Overhead: gesenkt, damit kleine Teams überleben.
-    const fixedOverhead = Math.round((10000 + employeeCount * 1000) * inflation);
+    const rawFixedOverhead = Math.round((10000 + employeeCount * 1000) * inflation);
+    // Schwierigkeits-Multiplikator auf alle Fixkosten (Gehälter, Portfolio, Overhead).
+    // easy 1.00 / normal 1.10 / hard 1.25.
+    const fcm = diff.fixedCostMultiplier;
+    salaries = Math.round(salaries * fcm);
+    const portfolioMaintenance = Math.round(rawPortfolioMaintenance * fcm);
+    const fixedOverhead = Math.round(rawFixedOverhead * fcm);
 
     const quarterlyExpenses = {
       productCosts: Math.round(totalProductCosts),

@@ -290,12 +290,20 @@ export class EconomyModel {
         tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
                               { floor: 0.003, cap: 0.06 };
 
-      // Segment-Fit: Premium in Gamer, Budget in Workstation = Mismatch → Cap reduzieren.
-      // Belohnt Strategie-Konsistenz (passendes Produkt für passende Zielgruppe).
+      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch bestraft.
+      //   Premium gehört in die Workstation (zahlungskräftige Profis),
+      //   Mid-Range ins Business (Standard-Bürorechner),
+      //   Budget zu Gamern (Mass-Market-Heimcomputer).
+      // Premium kann sich im Business behaupten, aber nicht dominieren (0.55).
       const fit =
-        (tier === 'premium' && segment === 'gamer')       ? 0.5 :
-        (tier === 'budget'  && segment === 'workstation') ? 0.4 :
-        (tier === 'budget'  && segment === 'business')    ? 0.7 :
+        (tier === 'premium'  && segment === 'gamer')       ? 0.45 :
+        (tier === 'premium'  && segment === 'business')    ? 0.55 :
+        (tier === 'premium'  && segment === 'workstation') ? 1.20 :
+        (tier === 'midrange' && segment === 'workstation') ? 0.70 :
+        (tier === 'midrange' && segment === 'business')    ? 1.10 :
+        (tier === 'budget'   && segment === 'workstation') ? 0.30 :
+        (tier === 'budget'   && segment === 'business')    ? 0.60 :
+        (tier === 'budget'   && segment === 'gamer')       ? 1.15 :
         1.0;
 
       const cap = band.cap * fit;

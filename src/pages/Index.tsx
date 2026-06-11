@@ -142,7 +142,8 @@ const Index = () => {
     company: {
       name: '',
       logo: '',
-    cash: 1500000, // Startkapital 1.5M (realistisch für 80er-Garagenfirma)
+    // Wird in handleCompanySetup auf das Profil-Startkapital überschrieben.
+    cash: DIFFICULTY_PROFILES[DEFAULT_DIFFICULTY].startingCash,
     employees: 0, // Synchronisiert mit Team-Größe (StaffService)
     reputation: 50, // Startwert für Reputation
     marketShare: 0, // Kein Marktanteil
@@ -165,6 +166,8 @@ const Index = () => {
     customChips: [],
     totalRevenue: 0,
     seedSalt: generateSeedSalt(),
+    difficulty: DEFAULT_DIFFICULTY,
+    emergencyLoanUsed: false,
   });
 
   const handleIntroComplete = () => {
@@ -173,12 +176,15 @@ const Index = () => {
 
 
   const handleCompanySetup = (setup: CompanySetupData) => {
+    const profile = DIFFICULTY_PROFILES[setup.difficulty] ?? DIFFICULTY_PROFILES[DEFAULT_DIFFICULTY];
     setGameState(prev => ({
       ...prev,
+      difficulty: setup.difficulty,
       company: {
         ...prev.company,
         name: setup.name,
-        logo: setup.logo
+        logo: setup.logo,
+        cash: profile.startingCash,
       }
     }));
     setCurrentScreen('dashboard');

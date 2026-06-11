@@ -77,6 +77,10 @@ interface GameState {
   seedSalt?: string;
   /** Anti-Save-Scum: Lade-Zähler pro Quartal. */
   loadGuard?: { loadCount: number; lastLoadedQuarterKey: string };
+  /** Gewählter Schwierigkeitsgrad (siehe Difficulty.ts). Legacy-Saves → "easy". */
+  difficulty?: DifficultyId;
+  /** Wurde der einmalige Notkredit (Normal-Modus) bereits in Anspruch genommen? */
+  emergencyLoanUsed?: boolean;
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';

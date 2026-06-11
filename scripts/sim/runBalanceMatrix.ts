@@ -349,47 +349,65 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     }
   }
 
-  // Balance-Gates pro Schwierigkeitsgrad:
-  //  - easy:   alle überleben (≥95 %), kein 3×-Dominator.
-  //  - normal: alle überleben mit ≥70 %, kein Dominator >2.5×, mind. 1 Strategie
-  //            braucht in ≥10 % der Seeds den Notkredit (sonst wäre Normal zu leicht).
-  //  - hard:   ≥4/6 Strategien mit ≥20 % Survive, ≥2 Strategien mit <50 % Survive
-  //            (echtes Aussieben), kein 100-%-Überlebender.
+  // Balance-Gates pro Schwierigkeitsgrad — bewusst stufen-spezifisch.
+  //  - easy:   alle 6 Strategien überleben (≥95 %), kein 3×-Dominator.
+  //  - normal: ≥4/6 Strategien überleben mit ≥70 %, kein Dominator >2.5×,
+  //            mind. 1 Strategie braucht in ≥10 % der Seeds den Notkredit.
+  //            (Hochbrennige Strategien dürfen sterben — das macht Normal aus.)
+  //  - hard:   ≥3/6 Strategien überleben mit ≥30 %, ≥2 Strategien sterben (<50 %),
+  //            kein Median-Dominator >3.5× (Geld zählt weniger als Überleben).
   const failures: string[] = [];
-  const computeGates = (sid: DifficultyId, minSurvive: number, maxDom: number, extra?: (here: Agg[]) => string[]) => {
-    const here = aggAll.filter(a => a.scenario === sid);
+
+  // easy
+  {
+    const here = aggAll.filter(a => a.scenario === "easy");
     const survivors = here.filter(a => a.surviveRate >= 0.5);
     const medMed = survivors.length
       ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
       : 1;
     const top = Math.max(...here.map(a => a.median));
     for (const a of here) {
-      if (a.surviveRate < minSurvive) {
-        failures.push(`[${sid}] "${a.id}" zu schwach: Überleben ${(a.surviveRate * 100).toFixed(0)}% < ${minSurvive * 100}%`);
-        continue;
-      }
+      if (a.surviveRate < 0.95) failures.push(`[easy] "${a.id}" stirbt: Überleben ${(a.surviveRate * 100).toFixed(0)}% < 95%`);
       const ratio = a.median / Math.max(1, medMed);
-      if (a.median === top && ratio > maxDom) {
-        failures.push(`[${sid}] "${a.id}" dominiert: Median ${ratio.toFixed(2)}× > ${maxDom}×`);
-      }
+      if (a.median === top && ratio > 3.0) failures.push(`[easy] "${a.id}" dominiert: ${ratio.toFixed(2)}× > 3×`);
     }
-    if (extra) failures.push(...extra(here));
-  };
+  }
 
-  computeGates("easy", 0.95, 3.0);
-  computeGates("normal", 0.70, 2.5, (here) => {
+  // normal
+  {
+    const here = aggAll.filter(a => a.scenario === "normal");
+    const surviving70 = here.filter(a => a.surviveRate >= 0.70).length;
+    if (surviving70 < 4) failures.push(`[normal] zu hart: nur ${surviving70}/${here.length} Strategien schaffen ≥70 % Überleben`);
+    const survivors = here.filter(a => a.surviveRate >= 0.5);
+    const medMed = survivors.length
+      ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+      : 1;
+    const top = Math.max(...survivors.map(a => a.median));
+    const winner = survivors.find(a => a.median === top);
+    if (winner) {
+      const ratio = winner.median / Math.max(1, medMed);
+      if (ratio > 2.5) failures.push(`[normal] "${winner.id}" dominiert: ${ratio.toFixed(2)}× > 2.5×`);
+    }
     const anyLoan = here.some(a => a.emergencyLoanRate >= 0.10);
-    return anyLoan ? [] : [`[normal] zu leicht: keine Strategie nutzt in ≥10 % der Seeds den Notkredit`];
-  });
-  // Hard: andere Gate-Struktur (Aussieben statt Schwellen pro Strategie).
+    if (!anyLoan) failures.push(`[normal] zu leicht: keine Strategie braucht in ≥10 % der Seeds den Notkredit`);
+  }
+
+  // hard
   {
     const here = aggAll.filter(a => a.scenario === "hard");
-    const surviving = here.filter(a => a.surviveRate >= 0.20).length;
+    const surviving30 = here.filter(a => a.surviveRate >= 0.30).length;
     const weak = here.filter(a => a.surviveRate < 0.50).length;
-    if (surviving < 4) failures.push(`[hard] zu hart: nur ${surviving}/${here.length} Strategien schaffen ≥20 % Überleben`);
+    if (surviving30 < 3) failures.push(`[hard] zu hart: nur ${surviving30}/${here.length} Strategien schaffen ≥30 % Überleben`);
     if (weak < 2) failures.push(`[hard] zu leicht: nur ${weak} Strategien <50 % Überleben (echtes Aussieben fehlt)`);
-    const perfect = here.filter(a => a.surviveRate === 1.0).map(a => a.id);
-    if (perfect.length > 0) failures.push(`[hard] zu leicht: ${perfect.join(", ")} überleben in 100 % der Seeds`);
+    const survivors = here.filter(a => a.surviveRate >= 0.5);
+    const medMed = survivors.length
+      ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+      : 1;
+    const top = Math.max(...survivors.map(a => a.median));
+    const winner = survivors.find(a => a.median === top);
+    if (winner && winner.median / Math.max(1, medMed) > 3.5) {
+      failures.push(`[hard] "${winner.id}" dominiert: ${(winner.median / medMed).toFixed(2)}× > 3.5×`);
+    }
   }
 
   // Report

@@ -286,24 +286,24 @@ export class EconomyModel {
       // und Premium kann nicht 60 % eines Segments allein abgreifen.
       const tier = this.classifyPriceTier(model.price, year);
       const band =
-        tier === 'budget'   ? { floor: 0.015, cap: 0.22 } :
+        tier === 'budget'   ? { floor: 0.018, cap: 0.26 } :
         tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
-                              { floor: 0.003, cap: 0.045 };
+                              { floor: 0.003, cap: 0.032 };
 
-      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch bestraft.
-      //   Premium gehört in die Workstation (zahlungskräftige Profis),
-      //   Mid-Range ins Business (Standard-Bürorechner),
+      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch deutlich bestraft.
+      //   Premium gehört in die Workstation (zahlungskräftige Profis).
+      //   Mid-Range ins Business (Standard-Bürorechner).
       //   Budget zu Gamern (Mass-Market-Heimcomputer).
-      // Premium kann sich im Business behaupten, aber nicht dominieren (0.55).
+      // Premium darf im Business existieren, aber nicht dominieren.
       const fit =
-        (tier === 'premium'  && segment === 'gamer')       ? 0.45 :
-        (tier === 'premium'  && segment === 'business')    ? 0.55 :
-        (tier === 'premium'  && segment === 'workstation') ? 1.20 :
-        (tier === 'midrange' && segment === 'workstation') ? 0.70 :
-        (tier === 'midrange' && segment === 'business')    ? 1.10 :
-        (tier === 'budget'   && segment === 'workstation') ? 0.30 :
-        (tier === 'budget'   && segment === 'business')    ? 0.60 :
-        (tier === 'budget'   && segment === 'gamer')       ? 1.15 :
+        (tier === 'premium'  && segment === 'gamer')       ? 0.35 :
+        (tier === 'premium'  && segment === 'business')    ? 0.45 :
+        (tier === 'premium'  && segment === 'workstation') ? 1.30 :
+        (tier === 'midrange' && segment === 'workstation') ? 0.65 :
+        (tier === 'midrange' && segment === 'business')    ? 1.15 :
+        (tier === 'budget'   && segment === 'workstation') ? 0.25 :
+        (tier === 'budget'   && segment === 'business')    ? 0.55 :
+        (tier === 'budget'   && segment === 'gamer')       ? 1.20 :
         1.0;
 
       const cap = band.cap * fit;

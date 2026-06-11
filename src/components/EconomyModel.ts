@@ -277,7 +277,29 @@ export class EconomyModel {
 
       // Optionaler Portfolio-Marktanteils-Override (Kannibalisierung).
       const shareOverride = context.segmentShareOverride?.[segment];
-      const marketPenetration = Math.min(0.08, Math.max(0.005, demandMultiplier * 0.03));
+
+      // Tier-spezifische Marktdurchdringung:
+      //   Budget   = Massenmarkt → höheres Cap und Floor (kommt auch ohne Marketing an).
+      //   Midrange = klassischer Mittelweg.
+      //   Premium  = Nische → kleineres Cap, kleinerer Floor.
+      // So skaliert eine konsequente Billig-Strategie über Stückzahl mit Premium,
+      // und Premium kann nicht 60 % eines Segments allein abgreifen.
+      const tier = this.classifyPriceTier(model.price, year);
+      const band =
+        tier === 'budget'   ? { floor: 0.012, cap: 0.16 } :
+        tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
+                              { floor: 0.003, cap: 0.06 };
+
+      // Segment-Fit: Premium in Gamer, Budget in Workstation = Mismatch → Cap reduzieren.
+      // Belohnt Strategie-Konsistenz (passendes Produkt für passende Zielgruppe).
+      const fit =
+        (tier === 'premium' && segment === 'gamer')       ? 0.5 :
+        (tier === 'budget'  && segment === 'workstation') ? 0.4 :
+        (tier === 'budget'  && segment === 'business')    ? 0.7 :
+        1.0;
+
+      const cap = band.cap * fit;
+      const marketPenetration = Math.min(cap, Math.max(band.floor, demandMultiplier * 0.04));
       const baseUnits = segmentSize * marketPenetration;
       const segmentUnits = Math.floor(
         (shareOverride !== undefined ? baseUnits * shareOverride : baseUnits) *

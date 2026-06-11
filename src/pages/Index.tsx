@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
+import { DIFFICULTY_PROFILES, DEFAULT_DIFFICULTY, type DifficultyId } from "@/lib/game/Difficulty";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
 import { StaffService } from "@/services/StaffService";

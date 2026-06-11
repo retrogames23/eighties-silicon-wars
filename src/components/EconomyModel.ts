@@ -286,9 +286,9 @@ export class EconomyModel {
       // und Premium kann nicht 60 % eines Segments allein abgreifen.
       const tier = this.classifyPriceTier(model.price, year);
       const band =
-        tier === 'budget'   ? { floor: 0.012, cap: 0.16 } :
+        tier === 'budget'   ? { floor: 0.015, cap: 0.22 } :
         tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
-                              { floor: 0.003, cap: 0.06 };
+                              { floor: 0.003, cap: 0.045 };
 
       // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch bestraft.
       //   Premium gehört in die Workstation (zahlungskräftige Profis),

@@ -489,7 +489,11 @@ export class GameMechanics {
     
     console.log(`🎮 [GameMechanics] Processing Q${gameState.quarter}/${gameState.year} with EconomyModel integration`);
     
-    // 1. Prüfe auf Spielende
+    // Difficulty-Profil aus dem GameState lesen (Legacy-Saves → "easy").
+    const { getDifficultyFromGameState } = await import('@/lib/game/Difficulty');
+    const diff = getDifficultyFromGameState(gameState);
+
+    // 1. Prüfe auf Spielende (Zeit)
     const gameEndCondition = this.checkGameEnd(gameState.year, gameState.quarter);
     if (gameEndCondition.isGameEnded) {
       const finalResults = this.calculateFinalResults(gameState, competitors);

@@ -238,7 +238,7 @@ export class EconomyModel {
       quarter
     ) * this.calculateGenerationFactor(model, year, quarter);
     const marketingBoost = this.calculateMarketingEffectiveness(
-      marketingBudget, playerReputation, year, context.brandAwareness ?? 0
+      marketingBudget, playerReputation, year, context.brandAwareness ?? 0, context.marketingSaturationPoint,
     );
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;

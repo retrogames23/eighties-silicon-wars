@@ -16,6 +16,7 @@
 import { EconomyModel } from "@/components/EconomyModel";
 import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
 import { quarterSeed } from "@/lib/game/rng";
+import { DIFFICULTY_PROFILES, type DifficultyId, type DifficultyProfile } from "@/lib/game/Difficulty";
 import { ScriptedWorldDirector } from "./scriptedDirector";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -26,57 +27,78 @@ mkdirSync(OUT, { recursive: true });
 
 const SEEDS = 20;
 const QUARTERS = 40;
-const START_CASH = 1_500_000;
 const SEGMENTS = ["gamer", "business", "workstation"] as const;
 
 /**
- * Stress-Profile: simulieren reale historische Härten + KI-Konkurrenz.
- * - baseline:  ruhige Welt, keine KI-Konkurrenz — Sanity-Check.
- * - stress:    Rezession 1985, Tech-Disruption 1986 (32-bit), RAM-Knappheit 1988,
- *              plus stetig wachsender KI-Druck pro Segment (0 → 0.5 über 10 Jahre).
- *              Eine Strategie muss hier nicht reich werden, aber sie sollte überleben.
+ * Headless-Szenarien spiegeln die drei Schwierigkeitsgrade aus Difficulty.ts.
+ * Jeder Schwierigkeit ist ein Set aus Pflicht-Krisen und KI-Druck-Profil
+ * zugeordnet. Magnitudes werden mit dem `crisisMagnitudeMultiplier` skaliert,
+ * sodass dieselbe Krise auf Schwer härter zuschlägt.
  */
-type ScenarioId = "baseline" | "stress";
-
 interface ForcedShock {
-  yearQ: [number, number];                // [year, quarter] inklusiv
+  yearQ: [number, number];
   durationQ: number;
-  demandDeltaPerQ: number;                // -0.2 .. +0.2 (wird hart geclamped)
-  bomMultiplier?: number;                 // RAM-Knappheit etc.
+  demandDeltaPerQ: number;
+  bomMultiplier?: number;
   label: string;
 }
 
 interface Scenario {
-  id: ScenarioId;
+  id: DifficultyId;
   label: string;
+  profile: DifficultyProfile;
   shocks: ForcedShock[];
-  /** KI-Druck pro Segment, wachsend über Zeit. 0 = aus, 0.5 = halber TAM weg. */
   aiPressureAt: (year: number, quarter: number) => Partial<Record<"gamer"|"business"|"workstation", number>>;
 }
 
-const SCENARIOS: Scenario[] = [
-  {
-    id: "baseline",
-    label: "Baseline (ruhig)",
-    shocks: [],
-    aiPressureAt: () => ({}),
-  },
-  {
-    id: "stress",
-    label: "Stress (Rezession + KI-Konkurrenz)",
-    shocks: [
-      { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
-      { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit (Altgeräte verlieren Nachfrage)" },
-      { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0,    bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
-      { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
-    ],
-    // Linearer Anstieg: 1983 = 0, 1992 = 0.5 in gamer/business, 0.35 in workstation.
+// Pro Schwierigkeit kuratierte Krisen. Anzahl entspricht ungefähr
+// `profile.scheduledCrises`; Stärke skaliert mit `crisisMagnitudeMultiplier`.
+const SHOCK_LIBRARY: Record<DifficultyId, ForcedShock[]> = {
+  easy: [
+    { yearQ: [1985, 1], durationQ: 3, demandDeltaPerQ: -0.08, label: "Milde Marktdelle 1985" },
+    { yearQ: [1988, 2], durationQ: 2, demandDeltaPerQ: 0, bomMultiplier: 1.10, label: "Leichte RAM-Knappheit 1988" },
+  ],
+  normal: [
+    { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
+    { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit" },
+    { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0, bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
+    { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
+  ],
+  hard: [
+    { yearQ: [1984, 3], durationQ: 3, demandDeltaPerQ: -0.10, label: "Preiskrieg 1984" },
+    { yearQ: [1985, 1], durationQ: 5, demandDeltaPerQ: -0.18, label: "Tiefe Rezession 1985/86" },
+    { yearQ: [1986, 1], durationQ: 8, demandDeltaPerQ: -0.12, label: "Tech-Disruption 32-bit" },
+    { yearQ: [1988, 2], durationQ: 4, demandDeltaPerQ: 0, bomMultiplier: 1.45, label: "Schwere RAM-Knappheit 1988" },
+    { yearQ: [1989, 3], durationQ: 3, demandDeltaPerQ: -0.08, label: "Patentstreit 1989" },
+    { yearQ: [1990, 4], durationQ: 5, demandDeltaPerQ: -0.20, label: "Rezession 1990/91" },
+    { yearQ: [1991, 2], durationQ: 3, demandDeltaPerQ: -0.05, bomMultiplier: 1.20, label: "Zinsschock 1991" },
+  ],
+};
+
+function scaleShocks(profile: DifficultyProfile, shocks: ForcedShock[]): ForcedShock[] {
+  const m = profile.crisisMagnitudeMultiplier;
+  return shocks.map(s => ({
+    ...s,
+    demandDeltaPerQ: Math.max(-0.30, s.demandDeltaPerQ * m),
+    bomMultiplier: s.bomMultiplier ? 1 + (s.bomMultiplier - 1) * m : undefined,
+  }));
+}
+
+const SCENARIOS: Scenario[] = (["easy", "normal", "hard"] as DifficultyId[]).map(id => {
+  const profile = DIFFICULTY_PROFILES[id];
+  return {
+    id,
+    label: `${profile.label} (Startkapital $${profile.startingCash.toLocaleString()}, KI-Cap ${Math.round(profile.aiPressureCeiling * 100)}%)`,
+    profile,
+    shocks: scaleShocks(profile, SHOCK_LIBRARY[id]),
+    // KI-Druck steigt linear bis zum Ceiling des Profils.
     aiPressureAt: (year) => {
       const t = Math.max(0, Math.min(1, (year - 1983) / 9));
-      return { gamer: 0.50 * t, business: 0.50 * t, workstation: 0.35 * t };
+      const cap = profile.aiPressureCeiling;
+      return { gamer: cap * t, business: cap * t, workstation: cap * 0.7 * t };
     },
-  },
-];
+  };
+});
 
 function activeShocks(sc: Scenario, year: number, quarter: number): ForcedShock[] {
   return sc.shocks.filter(sh => {
@@ -157,7 +179,7 @@ const STRATEGIES: Strategy[] = [
 
 interface RunResult {
   strategy: string;
-  scenario: ScenarioId;
+  scenario: DifficultyId;
   seed: number;
   finalCash: number;
   peakCash: number;
@@ -166,16 +188,21 @@ interface RunResult {
   totalUnits: number;
   bankruptQuarter: number | null;
   lossQuarters: number;
+  emergencyLoanUsed: boolean;
 }
 
 async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<RunResult> {
+  const profile = sc.profile;
   const director = new ScriptedWorldDirector(FIXTURE);
   const competitors: Competitor[] = INITIAL_COMPETITORS as unknown as Competitor[];
   const models: Model[] = [];
-  let cash = START_CASH, reputation = 50, brandAwareness = 0;
+  let cash = profile.startingCash, reputation = 50, brandAwareness = 0;
   let peak = cash, min = cash, totalRev = 0, totalUnits = 0, lossQ = 0;
   let bankruptQ: number | null = null;
   let qIdx = 0;
+  let emergencyLoanUsed = false;
+  let emergencyLoanQuarterlyPayment = 0;
+  let emergencyLoanQuartersRemaining = 0;
 
   outer: for (let year = 1983; year <= 1992; year++) {
     for (let q = 1; q <= 4; q++) {
@@ -184,12 +211,10 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       for (const m of s.releases(year, q)) { cash -= m.developmentCost; models.push(m); }
       if (bankruptQ !== null) continue;
 
-      // Welt-Events (scripted) + Stress-Shocks.
       const events = await director.generate({ userId: seedSalt, year, quarter: q });
       let demandBoost = 0;
       for (const ev of events) demandBoost += ev.applied_effects?.demand_delta ?? 0;
 
-      // Pflicht-Shocks aus dem Szenario obendrauf (Rezession, RAM-Knappheit, …).
       const shocks = activeShocks(sc, year, q);
       let bomMult = 1;
       let shockDemand = 0;
@@ -230,6 +255,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
             bomMultiplier: bomMult,
             demandMultiplier: 1 + combinedDemand,
             aiCompetitorPressure: aiPressure,
+            marketingSaturationPoint: profile.marketingSaturationPoint,
           } as never,
         );
         revenue += res.revenue;
@@ -237,11 +263,19 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
         units += res.unitsSold;
       }
 
+      // Fixkosten skalieren mit Schwierigkeit (Gehälter, Portfolio, Overhead).
       const infl = Math.pow(1.03, Math.max(0, year - 1983));
-      const salaries = Math.round(s.employees * 6000 * infl);
-      const portfolio = Math.round(activeModelCount * 3000 * infl);
-      const overhead = Math.round((10_000 + s.employees * 1000) * infl);
-      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead;
+      const fcm = profile.fixedCostMultiplier;
+      const salaries = Math.round(s.employees * 6000 * infl * fcm);
+      const portfolio = Math.round(activeModelCount * 3000 * infl * fcm);
+      const overhead = Math.round((10_000 + s.employees * 1000) * infl * fcm);
+      // Notkredit-Annuität (nur Normal-Modus).
+      let loanPayment = 0;
+      if (emergencyLoanQuartersRemaining > 0) {
+        loanPayment = emergencyLoanQuarterlyPayment;
+        emergencyLoanQuartersRemaining--;
+      }
+      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead + loanPayment;
       const net = profit - expenses;
       cash += net;
       totalRev += revenue;
@@ -251,13 +285,29 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       const buildup = Math.min(8, (marketingEffective / (200_000 * infl)) * 4);
       const decay = marketingEffective < 50_000 * infl ? 5 : 0;
       brandAwareness = Math.max(0, Math.min(100, brandAwareness + buildup - decay));
-      // Im Stress-Profil bestraft Verlust die Reputation stärker.
-      const repHit = sc.id === "stress" && net < -500_000 ? -3 : (units > 0 ? 2 : -1);
+      // Reputations-Verlust skaliert mit Schwierigkeits-Profil.
+      const baseRep = (units > 0 ? 2 : -1);
+      const repHit = baseRep < 0 ? baseRep * profile.reputationLossMultiplier : baseRep;
       reputation = Math.max(0, Math.min(100, reputation + repHit));
 
       if (cash > peak) peak = cash;
       if (cash < min) min = cash;
-      if (cash < -2_000_000 && bankruptQ === null) bankruptQ = qIdx;
+
+      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit.
+      if (cash < profile.bankruptcyCashThreshold && bankruptQ === null) {
+        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanAmount > 0) {
+          cash += profile.emergencyLoanAmount;
+          emergencyLoanUsed = true;
+          const r = profile.emergencyLoanInterest / 4;
+          const n = profile.emergencyLoanQuarters;
+          emergencyLoanQuarterlyPayment = Math.round(
+            profile.emergencyLoanAmount * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+          );
+          emergencyLoanQuartersRemaining = n;
+        } else {
+          bankruptQ = qIdx;
+        }
+      }
     }
   }
 
@@ -265,6 +315,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     strategy: s.id, scenario: sc.id, seed: parseInt(seedSalt.replace(/\D/g, "")) || 0,
     finalCash: Math.round(cash), peakCash: Math.round(peak), minCash: Math.round(min),
     totalRevenue: Math.round(totalRev), totalUnits, bankruptQuarter: bankruptQ, lossQuarters: lossQ,
+    emergencyLoanUsed,
   };
 }
 
@@ -280,7 +331,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
   }
 
   // Aggregat pro (Szenario, Strategie).
-  interface Agg { scenario: ScenarioId; id: string; surviveRate: number; avgFinal: number; median: number; std: number; runs: number; }
+  interface Agg { scenario: DifficultyId; id: string; surviveRate: number; avgFinal: number; median: number; std: number; runs: number; emergencyLoanRate: number; }
   const aggAll: Agg[] = [];
   for (const sc of SCENARIOS) {
     const byStrat = new Map<string, RunResult[]>();
@@ -293,36 +344,69 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       const avg = rs.reduce((a, r) => a + r.finalCash, 0) / rs.length;
       const median = [...rs].sort((a, b) => a.finalCash - b.finalCash)[Math.floor(rs.length / 2)].finalCash;
       const std = Math.sqrt(rs.reduce((a, r) => a + Math.pow(r.finalCash - avg, 2), 0) / rs.length);
-      aggAll.push({ scenario: sc.id, id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length });
+      const emRate = rs.filter(r => r.emergencyLoanUsed).length / rs.length;
+      aggAll.push({ scenario: sc.id, id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length, emergencyLoanRate: emRate });
     }
   }
 
-  // Balance-Gates pro Szenario.
+  // Balance-Gates pro Schwierigkeitsgrad — bewusst stufen-spezifisch.
+  //  - easy:   alle 6 Strategien überleben (≥95 %), kein 3×-Dominator.
+  //  - normal: ≥4/6 Strategien überleben mit ≥70 %, kein Dominator >2.5×,
+  //            mind. 1 Strategie braucht in ≥10 % der Seeds den Notkredit.
+  //            (Hochbrennige Strategien dürfen sterben — das macht Normal aus.)
+  //  - hard:   ≥3/6 Strategien überleben mit ≥30 %, ≥2 Strategien sterben (<50 %),
+  //            kein Median-Dominator >3.5× (Geld zählt weniger als Überleben).
   const failures: string[] = [];
-  const scenarioGates: Record<ScenarioId, { surviveMin: number; dominanceMax: number }> = {
-    // Baseline = ruhig: niemand darf chancenlos sein, niemand 2× über Survivor-Median.
-    baseline: { surviveMin: 0.50, dominanceMax: 2.0 },
-    // Stress = hart: Überleben mind. 20 % (Insolvenzen sind erlaubt), Dominanz 2.5×.
-    stress:   { surviveMin: 0.20, dominanceMax: 2.5 },
-  };
 
-  for (const sc of SCENARIOS) {
-    const here = aggAll.filter(a => a.scenario === sc.id);
+  // easy
+  {
+    const here = aggAll.filter(a => a.scenario === "easy");
     const survivors = here.filter(a => a.surviveRate >= 0.5);
-    const medianOfMedians = survivors.length > 0
+    const medMed = survivors.length
       ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
       : 1;
-    const topMedian = Math.max(...here.map(a => a.median));
-    const gate = scenarioGates[sc.id];
+    const top = Math.max(...here.map(a => a.median));
     for (const a of here) {
-      if (a.surviveRate < gate.surviveMin) {
-        failures.push(`[${sc.id}] "${a.id}" chancenlos: Überleben ${(a.surviveRate * 100).toFixed(0)}% < ${gate.surviveMin * 100}%`);
-        continue;
-      }
-      const ratio = a.median / Math.max(1, medianOfMedians);
-      if (a.median === topMedian && ratio > gate.dominanceMax) {
-        failures.push(`[${sc.id}] "${a.id}" dominiert: Median ${ratio.toFixed(2)}× > ${gate.dominanceMax}×`);
-      }
+      if (a.surviveRate < 0.95) failures.push(`[easy] "${a.id}" stirbt: Überleben ${(a.surviveRate * 100).toFixed(0)}% < 95%`);
+      const ratio = a.median / Math.max(1, medMed);
+      if (a.median === top && ratio > 3.0) failures.push(`[easy] "${a.id}" dominiert: ${ratio.toFixed(2)}× > 3×`);
+    }
+  }
+
+  // normal
+  {
+    const here = aggAll.filter(a => a.scenario === "normal");
+    const surviving70 = here.filter(a => a.surviveRate >= 0.70).length;
+    if (surviving70 < 4) failures.push(`[normal] zu hart: nur ${surviving70}/${here.length} Strategien schaffen ≥70 % Überleben`);
+    const survivors = here.filter(a => a.surviveRate >= 0.5);
+    const medMed = survivors.length
+      ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+      : 1;
+    const top = Math.max(...survivors.map(a => a.median));
+    const winner = survivors.find(a => a.median === top);
+    if (winner) {
+      const ratio = winner.median / Math.max(1, medMed);
+      if (ratio > 2.5) failures.push(`[normal] "${winner.id}" dominiert: ${ratio.toFixed(2)}× > 2.5×`);
+    }
+    const anyLoan = here.some(a => a.emergencyLoanRate >= 0.10);
+    if (!anyLoan) failures.push(`[normal] zu leicht: keine Strategie braucht in ≥10 % der Seeds den Notkredit`);
+  }
+
+  // hard
+  {
+    const here = aggAll.filter(a => a.scenario === "hard");
+    const surviving30 = here.filter(a => a.surviveRate >= 0.30).length;
+    const weak = here.filter(a => a.surviveRate < 0.50).length;
+    if (surviving30 < 3) failures.push(`[hard] zu hart: nur ${surviving30}/${here.length} Strategien schaffen ≥30 % Überleben`);
+    if (weak < 2) failures.push(`[hard] zu leicht: nur ${weak} Strategien <50 % Überleben (echtes Aussieben fehlt)`);
+    const survivors = here.filter(a => a.surviveRate >= 0.5);
+    const medMed = survivors.length
+      ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+      : 1;
+    const top = Math.max(...survivors.map(a => a.median));
+    const winner = survivors.find(a => a.median === top);
+    if (winner && winner.median / Math.max(1, medMed) > 3.5) {
+      failures.push(`[hard] "${winner.id}" dominiert: ${(winner.median / medMed).toFixed(2)}× > 3.5×`);
     }
   }
 
@@ -332,21 +416,21 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     "# Balance-Matrix Report",
     "",
     `Generiert: ${new Date().toISOString()}`,
-    `Konfiguration: ${SCENARIOS.length} Szenarien × ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
+    `Konfiguration: ${SCENARIOS.length} Schwierigkeitsgrade × ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
     "",
   ];
   for (const sc of SCENARIOS) {
-    sections.push(`## Szenario: ${sc.label}`, "");
+    sections.push(`## ${sc.label}`, "");
     const here = aggAll.filter(a => a.scenario === sc.id);
-    sections.push("| Strategie | Überlebt | Ø Final-Cash | Median | σ |");
-    sections.push("|---|---:|---:|---:|---:|");
+    sections.push("| Strategie | Überlebt | Notkredit | Ø Final-Cash | Median | σ |");
+    sections.push("|---|---:|---:|---:|---:|---:|");
     for (const a of here) {
-      sections.push(`| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${fmt(a.avgFinal)} | ${fmt(a.median)} | ${fmt(a.std)} |`);
+      sections.push(`| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${(a.emergencyLoanRate * 100).toFixed(0)}% | ${fmt(a.avgFinal)} | ${fmt(a.median)} | ${fmt(a.std)} |`);
     }
     sections.push("");
   }
   sections.push("## Balance-Gates", "");
-  sections.push(failures.length === 0 ? "PASS — beide Szenarien im Toleranzkorridor." : failures.map(f => `- FAIL: ${f}`).join("\n"));
+  sections.push(failures.length === 0 ? "PASS — alle drei Schwierigkeitsgrade im Toleranzkorridor." : failures.map(f => `- FAIL: ${f}`).join("\n"));
   sections.push("", "Rohdaten: raw.json");
 
   const md = sections.join("\n");

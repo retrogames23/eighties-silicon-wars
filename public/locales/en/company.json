@@ -11,6 +11,27 @@
     "computer": "Computer",
     "innovation": "Innovation"
   },
+  "difficulty": {
+    "label": "Difficulty",
+    "startingCash": "Starting cash",
+    "aiPressure": "AI competition",
+    "aiPressureNone": "none",
+    "bankruptcy": "On bankruptcy",
+    "bankruptcyLoan": "one-time emergency loan",
+    "bankruptcyOver": "Game Over",
+    "easy": {
+      "label": "Easy",
+      "tagline": "Relaxed build-up, every mistake is forgivable."
+    },
+    "normal": {
+      "label": "Normal",
+      "tagline": "Classic market economy with real competition and a safety net."
+    },
+    "hard": {
+      "label": "Hard",
+      "tagline": "Hardcore: low capital, fierce AI, frequent crises, no safety net."
+    }
+  },
   "selection": {
     "title": "COMPUTER WARS",
     "subtitle": "The 80s Home Computer Revolution",

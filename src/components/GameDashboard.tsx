@@ -60,6 +60,8 @@ interface GameState {
   competitors: Competitor[];
   marketEvents: MarketEvent[];
   totalMarketSize: number;
+  /** Schwierigkeitsgrad (siehe Difficulty.ts). Legacy-Saves → "easy". */
+  difficulty?: import("@/lib/game/Difficulty").DifficultyId;
 }
 
 interface GameDashboardProps {
@@ -85,7 +87,7 @@ export const GameDashboard = ({
   user,
   aiCompetitors = [],
 }: GameDashboardProps) => {
-  const { t } = useTranslation(['ui', 'common']);
+  const { t } = useTranslation(['ui', 'common', 'company']);
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -143,9 +145,23 @@ export const GameDashboard = ({
                 <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold neon-text text-neon-green`}>
                   {gameState.company.name}
                 </h1>
-                <p className="text-neon-cyan font-mono text-sm">
-                  {formatters.quarter(gameState.quarter, gameState.year)} - CEO Terminal
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-neon-cyan font-mono text-sm">
+                    {formatters.quarter(gameState.quarter, gameState.year)} - CEO Terminal
+                  </p>
+                  {gameState.difficulty && (
+                    <span
+                      className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border ${
+                        gameState.difficulty === 'hard' ? 'border-destructive text-destructive bg-destructive/10' :
+                        gameState.difficulty === 'normal' ? 'border-neon-cyan text-neon-cyan bg-neon-cyan/10' :
+                        'border-neon-green text-neon-green bg-neon-green/10'
+                      }`}
+                      title={t(`company:difficulty.${gameState.difficulty}.tagline`)}
+                    >
+                      {t(`company:difficulty.${gameState.difficulty}.label`)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             

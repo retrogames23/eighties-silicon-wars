@@ -1,128 +1,96 @@
-# Plan: Deterministische Wirtschaftssim + lebendige LLM-Welt + headless Balance-Tests
-
 ## Ziel
 
-Zwei Schichten sauber trennen:
+Drei Schwierigkeitsgrade — **Leicht (aktueller Stand), Normal, Schwer** — als zentrales, deterministisch testbares Profil. Auswahl beim Spielstart, sichtbar in HUD, headless validierbar.
 
-1. **Sim-Core (deterministisch, regelbasiert, ohne LLM)** — entscheidet, was passiert. Reproduzierbar, testbar, fair.
-2. **Narrative-Layer (LLM)** — entscheidet, *wie es sich anfühlt*. Welt-Events, Berater, VC-Pitches, Pressetexte. Wirkt auf den Core nur über ein eng definiertes, gedeckeltes Effekt-Budget.
+## Difficulty-Profile
 
-Balance wird headless geprüft, fast komplett ohne LLM-Credits.
+Ein einziger Konfigurations-Block pro Stufe, der alle relevanten Stellschrauben kapselt. Keine verstreuten if-Abfragen.
 
----
-
-## Teil A — Sim-Core härten (deterministisch & fair)
-
-### A1. Single Source of Truth
-- `EconomyModel` bleibt einziger Ort für Sales-/Profit-Pipeline.
-- `AdvancedSalesSimulation` und Reste in `GameMechanics` als Adapter markieren oder löschen. Keine zweite Formel.
-- Alle Eingaben der Pipeline (Modelle, Markt, Events, Konkurrenten, Forschung) fließen über eine `QuarterContext`-Struktur rein, ein `QuarterResult` raus. Reine Funktion.
-
-### A2. Determinismus durchziehen
-- Pflicht: keine `Math.random()` im Sim-Pfad. Nur `quarterRng(userId, year, quarter, salt)` aus `src/lib/game/rng.ts`.
-- Lint-Regel / Test, der `Math.random` unter `src/components/Economy*`, `src/services/*`, `src/lib/game/*` verbietet.
-- Salts pro Subsystem (`"sales"`, `"competitor"`, `"events"`, `"reviews"`) damit Streams unabhängig sind.
-
-### A3. Fairness-Invarianten (als Code-Assertions im Dev-Build)
-- Kein Modell verliert >X% Appeal pro Quartal ohne dokumentierten Grund (Obsoleszenz, Event).
-- Profit-Identität: `revenue == bom + dev + marketing + production + overhead + netProfit` (±1).
-- Preis-Toleranz pro Segment hat harte Min/Max-Klammern; LLM-Effekte können sie nicht durchbrechen.
-- Wettbewerber: gleicher Algorithmus wie Spieler (gleiche Formeln, keine versteckten Boni/Mali außer Schwierigkeitsgrad-Multiplikator).
-
-### A4. Spielspaß-Hebel (regelbasiert, nicht LLM)
-- **Kurzfrist-Feedback**: jedes Quartal Top-3 Treiber für Umsatz/Verlust sichtbar im `WhyPanel` (Daten kommen aus dem `QuarterResult`, kein LLM nötig).
-- **Mittelfrist-Ziele**: Meilensteine (erste 10k Units, erste GUI-Maschine, erstes profitables Jahr) — deterministisch, triggern Events.
-- **Langfrist-Druck**: Paradigmen-Events (`ParadigmEvents.ts`) ausbauen, damit Strategien altern und Pivots nötig sind.
-
----
-
-## Teil B — LLM als Welt-Layer, nicht als Sim-Treiber
-
-### B1. Effekt-Budget verbindlich machen
-- `LivingWorldService` hat bereits Magnitude → Multiplikator + `applyBudget`. Hart festschreiben:
-  - max. 1 LLM-Call pro Quartalswechsel
-  - Summe |demand_delta| ≤ 0.20, Produkt der price_multiplier ∈ [0.8, 1.2] pro Segment
-  - Caps werden im Core erzwungen, nicht im LLM-Prompt
-- Fallback bei LLM-Ausfall: kuratierte historische Events (deterministisch aus `quarterRng`) springen ein, sodass die Welt nie „still" ist.
-
-### B2. Rollenspiel-Module mit echten, aber begrenzten Auswirkungen
-Jedes RP-Modul liefert dem Sim-Core ein **typisiertes, gedeckeltes Resultat**:
-
-| Modul | LLM-Job | Sim-Effekt (deterministisch gemappt) | Cap |
+| Hebel | Leicht | Normal | Schwer |
 |---|---|---|---|
-| VC-Pitch (`VcPitchService`) | Bewertet Pitch-Argumente, Persönlichkeit | Bewertung 0–100 → Term-Sheet (Summe, Equity, Milestone-Klausel) | feste Tabelle, Score → Summe |
-| Berater (`AdvisorChat`) | Erklärt Daten, schlägt Strategien vor | Nur Hinweise, keine direkten Stat-Änderungen | 0 |
-| Welt-Events | Schlagzeile + Magnitude | über B1-Caps | siehe B1 |
-| Presse | Rein narrativ | 0 | 0 |
-| Annual Meeting | Bewertet Geschäftsjahr | Moral-Modifier ±5% Produktivität 1 Quartal | hart geclamped |
+| Startkapital | $1.5M | $1.0M | $750k |
+| Bankrott-Schwelle | −$2.0M | −$1.0M | −$500k |
+| Bankrott-Folge | Game Over | Game Over | **Game Over (perma-loss)** |
+| Zwangs-Notkredit | — | Einmal $500k @ 12 % Zins | — (kein Rettungsnetz) |
+| KI-Druck (Ceiling) | 0 | bis 0.40 in 1992 | bis 0.70 in 1992 |
+| Fixkosten-Multiplikator | 1.00 | 1.10 | 1.25 |
+| Rezessions-Nachfrage | −15 % | −22 % | −30 % |
+| RAM-Knappheit BOM | ×1.25 | ×1.40 | ×1.60 |
+| Krisen-Anzahl 10 J | 4 | 5 | 7 (zusätzlich: Patentstreit 1989, Zinsschock 1991) |
+| Reputations-Schaden bei Verlust | normal | ×1.5 | ×2.0 |
+| Marketing-Sättigung | unverändert | bei $400k statt $500k | bei $300k |
 
-Regel: **Jeder LLM-Output, der in den Core fließt, durchläuft einen Validator** der ihn in das erlaubte numerische Korsett zwingt. Halluzinationen können nichts kaputtmachen.
+„Beides je nach Tiefe": Normal hat einen einmaligen Notkredit (12 % Zins, 8 Quartale Tilgung) als Rettungsnetz, Schwer bekommt **kein** Notkredit-Sicherheitsnetz → echte Perma-Loss.
 
-### B3. Persistenz für Replay
-- Alle LLM-Outputs mit `(user_id, year, quarter, seed)` speichern (teilweise vorhanden: `ai_world_events`, `ai_press_articles`).
-- Beim Laden eines Saves werden gespeicherte Effekte angewendet, keine neuen LLM-Calls — Save-Scumming sinnlos.
+## Architektur
 
----
+### Neuer Single-Source-of-Truth
 
-## Teil C — Headless, credit-schonende Balance-Tests
+```text
+src/lib/game/Difficulty.ts
+  ├─ type DifficultyId = "easy" | "normal" | "hard"
+  ├─ interface DifficultyProfile { ... alle Hebel oben ... }
+  └─ DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile>
+```
 
-Basis ist `scripts/sim/headlessEconomySim.ts`. Wir erweitern es zu einem Test-Harness.
+Profile sind reine Daten, kein Code. Damit kann der Headless-Runner direkt jedes Profil als zusätzliches Szenario laden.
 
-### C1. LLM komplett mockbar
-- Schnittstelle `WorldDirector` einführen mit zwei Implementierungen:
-  - `LiveWorldDirector` → ruft `world-director` Edge Function (Produktion).
-  - `ScriptedWorldDirector` → liest Events aus YAML/JSON-Fixture, deterministisch pro `(year, quarter)`.
-- Headless-Sim nutzt **immer** den Scripted-Director → **0 LLM-Credits**.
-- Genauso für VC-Pitch (Mock liefert fixe Score-Funktion).
+### Integration in bestehende Systeme
 
-### C2. Strategien & Personas
-Min. 6 Strategien (jetzt 3): Cheap-Spam, Premium-Niche, Tech-Leader, Fast-Follower, Cashflow-King, Boom-Bust-Leverage. Jede läuft 40 Quartale × N seeds (z.B. N=20).
+```text
+EconomyModel        ← liest fixedCostMultiplier, marketingSaturationPoint,
+                       aiCompetitorPressure (bereits vorhanden, jetzt aus Profil gespeist)
+GameMechanics       ← Bankrott-Schwelle, Reputations-Multiplikator
+LivingWorldService  ← Krisen-Häufigkeit (mehr forced shocks pro Quartal-Window)
+LoanService         ← Notkredit-Trigger nur in Normal, Zinssatz aus Profil
+CompanySetup        ← Auswahl-Tile (3 Karten), schreibt difficulty in gameState
+useGameState        ← persistiert difficulty im Save-Game (kein Mid-Game-Wechsel)
+GameDashboard       ← Badge im Header, Tooltip mit aktiven Modifikatoren
+```
 
-### C3. Metriken pro Lauf
-- Endkapital, Peak-Kapital, Pleite-Quartal (falls)
-- Marktanteil je Segment über Zeit
-- Profit-Volatilität (σ)
-- Anteil Quartale im Verlust
-- „Comeback-Rate" nach ersten Verlustjahr
+### UI: Auswahl im CompanySetup
 
-### C4. Balance-Kriterien (CI-tauglich)
-Tests failen, wenn:
-- Eine Strategie dominiert (>80% Win-Rate gegen alle anderen über alle Seeds)
-- Eine Strategie chancenlos ist (<5% Überleben über 10 Jahre)
-- Profit-Identität verletzt (siehe A3)
-- Determinismus-Test: gleicher Seed → byte-identisches CSV
-- LLM-Cap-Test: Scripted-Director feuert Extrem-Events → Sim bleibt in den Korsett-Grenzen (B1)
+Drei nebeneinander stehende Karten direkt nach Firmenname/Logo, vor dem „Spiel starten"-Button:
 
-### C5. Reporting
-- Markdown-Report mit Heatmap (Strategie × Seed → Endkapital)
-- CSV pro Lauf für Tiefenanalyse
-- GitHub Action: läuft bei jedem PR der Sim-Code anfasst (`src/components/Economy*`, `src/lib/game/*`, `src/services/LivingWorld*`)
+```text
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│   LEICHT    │ │   NORMAL    │ │   SCHWER    │
+│ Entspannt   │ │ Klassisch   │ │ Hardcore    │
+│ $1.5M       │ │ $1.0M       │ │ $750k       │
+│ Keine KI    │ │ KI mittel   │ │ KI stark    │
+│ Wenig Krisen│ │ Normale Welt│ │ Viele Krisen│
+└─────────────┘ └─────────────┘ └─────────────┘
+```
 
-### C6. Optionaler „LLM-Smoke-Test" (gezielt, selten)
-- Einmal pro Woche / per Hand: 1 Strategie × 20 Quartale mit echtem LLM, prüft nur, dass Outputs den Validator passieren. Kosten minimal.
+Default: **Normal** (anders als heute).
 
----
+## Headless-Balance-Validierung
 
-## Technische Details (für Entwickler)
+`runBalanceMatrix.ts` lädt jetzt 3 Profile statt fest verdrahteter „baseline/stress":
 
-- Neue Dateien: `src/lib/game/QuarterContext.ts` (Typen), `src/lib/game/WorldDirector.ts` (Interface), `scripts/sim/scriptedDirector.ts`, `scripts/sim/fixtures/events-1983-1995.json`, `scripts/sim/runBalanceMatrix.ts`, `tests/balance/*.test.ts`.
-- ESLint-Regel `no-restricted-syntax` für `Math.random` in Sim-Pfaden.
-- Validator-Helfer `clampLlmEffect(raw): AppliedEffect` zentral in `LivingWorldService`.
-- `useGameState` ruft am Quartalsende: `simCore.advance(ctx) → applyLlmEffects(result, director) → persist`.
-- Keine Änderung an UI-Komponenten in diesem Plan außer `WhyPanel` (zeigt Top-Treiber + aktive Welt-Events bereits, evtl. um „Cap erreicht"-Hinweis ergänzen).
+- **Leicht** — 100 % Survive bei allen, top/bottom Median ≤ 3×
+- **Normal** — ≥ 70 % Survive bei allen, top/bottom Median ≤ 2.5×, mind. 1 Strategie geht in ≥ 10 % der Seeds pleite (sonst zu leicht)
+- **Schwer** — ≥ 20 % Survive bei mind. 4 Strategien, weniger als 50 % bei den schlechtesten 2 (echtes Aussieben), kein 100-%-Winner
 
-## Reihenfolge
+Damit haben wir messbare Gates statt Bauchgefühl.
 
-1. A1+A2 (SOT + RNG-Lint) — Fundament
-2. A3 Invarianten + Determinismus-Test in CI
-3. C1 ScriptedDirector + C2/C3 Matrix-Runner
-4. B1 Caps hart im Code
-5. C4 Balance-Kriterien als Test-Suite
-6. B2 Rollenspiel-Validatoren konsolidieren
-7. C5 Reporting + GitHub Action
+## Save-Game-Kompatibilität
 
-## Nicht-Ziele
+`difficulty` wird optional gelesen, Default `"easy"` für alte Saves → keine Migration nötig, kein Bruch.
 
-- Keine UI-Überarbeitung.
-- Keine neuen Spielmechaniken (nur Härtung & Testbarkeit der bestehenden).
-- Kein Wechsel des LLM-Providers.
+## Out of Scope
+
+- Achievement-System für „auf Schwer gewonnen" (eigenes Feature).
+- Dynamische Difficulty (Anpassung während Partie).
+- Cosmetic-Belohnungen.
+
+## Umsetzungs-Reihenfolge
+
+1. `Difficulty.ts` mit Profilen und Reader-Helfern.
+2. `EconomyModel` und `GameMechanics` lesen aus dem aktiven Profil.
+3. `useGameState` / Save-Game-Persistenz.
+4. CompanySetup-UI mit drei Karten.
+5. `LoanService`-Notkredit-Hook für Normal.
+6. `runBalanceMatrix.ts` auf 3 Profile umstellen, Gates anpassen.
+7. HUD-Badge in `GameDashboard`.
+8. i18n-Strings in `game.json` / `ui.json` (DE + EN).

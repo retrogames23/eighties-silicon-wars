@@ -113,6 +113,12 @@ export interface EconomyContext {
   activeModelCount?: number;
   /** Intern: BOM-Cost-Hint zur Preis-Sanity-Berechnung in der Segment-Schleife. */
   _bomCostHint?: number;
+  /**
+   * Schwierigkeits-abhängiger Override des Marketing-Sättigungspunkts (nominal $).
+   * Wenn gesetzt, ersetzt er den Default in `calculateMarketingEffectiveness`.
+   * Niedriger = Marketing wird schneller ineffizient (Schwer).
+   */
+  marketingSaturationPoint?: number;
 }
 
 export class EconomyModel {
@@ -232,7 +238,7 @@ export class EconomyModel {
       quarter
     ) * this.calculateGenerationFactor(model, year, quarter);
     const marketingBoost = this.calculateMarketingEffectiveness(
-      marketingBudget, playerReputation, year, context.brandAwareness ?? 0
+      marketingBudget, playerReputation, year, context.brandAwareness ?? 0, context.marketingSaturationPoint,
     );
     const seasonalityFactor = this.getSeasonalityFactor(quarter);
     const demandEvent = context.demandMultiplier ?? 1;
@@ -581,11 +587,12 @@ export class EconomyModel {
    * - Brand-Awareness (0..100) multipliziert zusätzlich (0.7..1.4)
    */
   static calculateMarketingEffectiveness(
-    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0
+    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0,
+    saturationOverride?: number,
   ): number {
     const infl = this.getInflationFactor(year);
     const baseBudget = 25000 * infl;
-    const saturationPoint = 500000 * infl;
+    const saturationPoint = (saturationOverride ?? 500000) * infl;
 
     let effectiveness: number;
     if (marketingBudget <= saturationPoint) {

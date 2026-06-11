@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { MessagesSquare } from "lucide-react";
 import { SaveGameManager } from "@/components/SaveGameManager";
 import { type Competitor, type MarketEvent, type CustomChip, type GameEndCondition, GameMechanics, INITIAL_COMPETITORS } from "@/lib/game";
+import { DIFFICULTY_PROFILES, DEFAULT_DIFFICULTY, type DifficultyId } from "@/lib/game/Difficulty";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
 import { StaffService } from "@/services/StaffService";
@@ -76,6 +77,10 @@ interface GameState {
   seedSalt?: string;
   /** Anti-Save-Scum: Lade-Zähler pro Quartal. */
   loadGuard?: { loadCount: number; lastLoadedQuarterKey: string };
+  /** Gewählter Schwierigkeitsgrad (siehe Difficulty.ts). Legacy-Saves → "easy". */
+  difficulty?: DifficultyId;
+  /** Wurde der einmalige Notkredit (Normal-Modus) bereits in Anspruch genommen? */
+  emergencyLoanUsed?: boolean;
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
@@ -137,7 +142,8 @@ const Index = () => {
     company: {
       name: '',
       logo: '',
-    cash: 1500000, // Startkapital 1.5M (realistisch für 80er-Garagenfirma)
+    // Wird in handleCompanySetup auf das Profil-Startkapital überschrieben.
+    cash: DIFFICULTY_PROFILES[DEFAULT_DIFFICULTY].startingCash,
     employees: 0, // Synchronisiert mit Team-Größe (StaffService)
     reputation: 50, // Startwert für Reputation
     marketShare: 0, // Kein Marktanteil
@@ -160,6 +166,8 @@ const Index = () => {
     customChips: [],
     totalRevenue: 0,
     seedSalt: generateSeedSalt(),
+    difficulty: DEFAULT_DIFFICULTY,
+    emergencyLoanUsed: false,
   });
 
   const handleIntroComplete = () => {
@@ -168,12 +176,15 @@ const Index = () => {
 
 
   const handleCompanySetup = (setup: CompanySetupData) => {
+    const profile = DIFFICULTY_PROFILES[setup.difficulty] ?? DIFFICULTY_PROFILES[DEFAULT_DIFFICULTY];
     setGameState(prev => ({
       ...prev,
+      difficulty: setup.difficulty,
       company: {
         ...prev.company,
         name: setup.name,
-        logo: setup.logo
+        logo: setup.logo,
+        cash: profile.startingCash,
       }
     }));
     setCurrentScreen('dashboard');
@@ -260,13 +271,25 @@ const Index = () => {
       announcedHardware
     );
     
-    // Prüfe auf Spielende
+    // Prüfe auf Spielende (Zeit-Ende oder Bankrott aus Difficulty-Check).
     if (result.gameEndCondition?.isGameEnded) {
       setGameEndCondition(result.gameEndCondition);
       setCurrentScreen('game-end');
       return;
     }
-    
+
+    // Notkredit gewährt? Spieler benachrichtigen.
+    if (result.quarterResults?.emergencyLoanGranted) {
+      const isEn = (typeof navigator !== 'undefined' && localStorage.getItem('i18nextLng')?.startsWith('en')) ?? false;
+      toast({
+        title: isEn ? "🆘 Emergency loan granted" : "🆘 Notkredit gewährt",
+        description: isEn
+          ? "The bank stepped in once. Next bankruptcy = game over."
+          : "Die Bank greift einmalig ein. Beim nächsten Bankrott ist das Spiel vorbei.",
+        variant: "destructive",
+      });
+    }
+
     // Custom Chip Benachrichtigung
     if (result.newCustomChip) {
       toast({

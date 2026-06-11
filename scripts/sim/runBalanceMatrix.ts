@@ -16,6 +16,7 @@
 import { EconomyModel } from "@/components/EconomyModel";
 import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
 import { quarterSeed } from "@/lib/game/rng";
+import { DIFFICULTY_PROFILES, type DifficultyId, type DifficultyProfile } from "@/lib/game/Difficulty";
 import { ScriptedWorldDirector } from "./scriptedDirector";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -26,57 +27,78 @@ mkdirSync(OUT, { recursive: true });
 
 const SEEDS = 20;
 const QUARTERS = 40;
-const START_CASH = 1_500_000;
 const SEGMENTS = ["gamer", "business", "workstation"] as const;
 
 /**
- * Stress-Profile: simulieren reale historische Härten + KI-Konkurrenz.
- * - baseline:  ruhige Welt, keine KI-Konkurrenz — Sanity-Check.
- * - stress:    Rezession 1985, Tech-Disruption 1986 (32-bit), RAM-Knappheit 1988,
- *              plus stetig wachsender KI-Druck pro Segment (0 → 0.5 über 10 Jahre).
- *              Eine Strategie muss hier nicht reich werden, aber sie sollte überleben.
+ * Headless-Szenarien spiegeln die drei Schwierigkeitsgrade aus Difficulty.ts.
+ * Jeder Schwierigkeit ist ein Set aus Pflicht-Krisen und KI-Druck-Profil
+ * zugeordnet. Magnitudes werden mit dem `crisisMagnitudeMultiplier` skaliert,
+ * sodass dieselbe Krise auf Schwer härter zuschlägt.
  */
-type ScenarioId = "baseline" | "stress";
-
 interface ForcedShock {
-  yearQ: [number, number];                // [year, quarter] inklusiv
+  yearQ: [number, number];
   durationQ: number;
-  demandDeltaPerQ: number;                // -0.2 .. +0.2 (wird hart geclamped)
-  bomMultiplier?: number;                 // RAM-Knappheit etc.
+  demandDeltaPerQ: number;
+  bomMultiplier?: number;
   label: string;
 }
 
 interface Scenario {
-  id: ScenarioId;
+  id: DifficultyId;
   label: string;
+  profile: DifficultyProfile;
   shocks: ForcedShock[];
-  /** KI-Druck pro Segment, wachsend über Zeit. 0 = aus, 0.5 = halber TAM weg. */
   aiPressureAt: (year: number, quarter: number) => Partial<Record<"gamer"|"business"|"workstation", number>>;
 }
 
-const SCENARIOS: Scenario[] = [
-  {
-    id: "baseline",
-    label: "Baseline (ruhig)",
-    shocks: [],
-    aiPressureAt: () => ({}),
-  },
-  {
-    id: "stress",
-    label: "Stress (Rezession + KI-Konkurrenz)",
-    shocks: [
-      { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
-      { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit (Altgeräte verlieren Nachfrage)" },
-      { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0,    bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
-      { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
-    ],
-    // Linearer Anstieg: 1983 = 0, 1992 = 0.5 in gamer/business, 0.35 in workstation.
+// Pro Schwierigkeit kuratierte Krisen. Anzahl entspricht ungefähr
+// `profile.scheduledCrises`; Stärke skaliert mit `crisisMagnitudeMultiplier`.
+const SHOCK_LIBRARY: Record<DifficultyId, ForcedShock[]> = {
+  easy: [
+    { yearQ: [1985, 1], durationQ: 3, demandDeltaPerQ: -0.08, label: "Milde Marktdelle 1985" },
+    { yearQ: [1988, 2], durationQ: 2, demandDeltaPerQ: 0, bomMultiplier: 1.10, label: "Leichte RAM-Knappheit 1988" },
+  ],
+  normal: [
+    { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
+    { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit" },
+    { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0, bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
+    { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
+  ],
+  hard: [
+    { yearQ: [1984, 3], durationQ: 3, demandDeltaPerQ: -0.10, label: "Preiskrieg 1984" },
+    { yearQ: [1985, 1], durationQ: 5, demandDeltaPerQ: -0.18, label: "Tiefe Rezession 1985/86" },
+    { yearQ: [1986, 1], durationQ: 8, demandDeltaPerQ: -0.12, label: "Tech-Disruption 32-bit" },
+    { yearQ: [1988, 2], durationQ: 4, demandDeltaPerQ: 0, bomMultiplier: 1.45, label: "Schwere RAM-Knappheit 1988" },
+    { yearQ: [1989, 3], durationQ: 3, demandDeltaPerQ: -0.08, label: "Patentstreit 1989" },
+    { yearQ: [1990, 4], durationQ: 5, demandDeltaPerQ: -0.20, label: "Rezession 1990/91" },
+    { yearQ: [1991, 2], durationQ: 3, demandDeltaPerQ: -0.05, bomMultiplier: 1.20, label: "Zinsschock 1991" },
+  ],
+};
+
+function scaleShocks(profile: DifficultyProfile, shocks: ForcedShock[]): ForcedShock[] {
+  const m = profile.crisisMagnitudeMultiplier;
+  return shocks.map(s => ({
+    ...s,
+    demandDeltaPerQ: Math.max(-0.30, s.demandDeltaPerQ * m),
+    bomMultiplier: s.bomMultiplier ? 1 + (s.bomMultiplier - 1) * m : undefined,
+  }));
+}
+
+const SCENARIOS: Scenario[] = (["easy", "normal", "hard"] as DifficultyId[]).map(id => {
+  const profile = DIFFICULTY_PROFILES[id];
+  return {
+    id,
+    label: `${profile.label} (Startkapital $${profile.startingCash.toLocaleString()}, KI-Cap ${Math.round(profile.aiPressureCeiling * 100)}%)`,
+    profile,
+    shocks: scaleShocks(profile, SHOCK_LIBRARY[id]),
+    // KI-Druck steigt linear bis zum Ceiling des Profils.
     aiPressureAt: (year) => {
       const t = Math.max(0, Math.min(1, (year - 1983) / 9));
-      return { gamer: 0.50 * t, business: 0.50 * t, workstation: 0.35 * t };
+      const cap = profile.aiPressureCeiling;
+      return { gamer: cap * t, business: cap * t, workstation: cap * 0.7 * t };
     },
-  },
-];
+  };
+});
 
 function activeShocks(sc: Scenario, year: number, quarter: number): ForcedShock[] {
   return sc.shocks.filter(sh => {

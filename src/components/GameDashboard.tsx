@@ -87,7 +87,7 @@ export const GameDashboard = ({
   user,
   aiCompetitors = [],
 }: GameDashboardProps) => {
-  const { t } = useTranslation(['ui', 'common']);
+  const { t } = useTranslation(['ui', 'common', 'company']);
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [showMobileMenu, setShowMobileMenu] = useState(false);

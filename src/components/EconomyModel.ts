@@ -126,7 +126,7 @@ export class EconomyModel {
   static classifyPriceTier(price: number, year: number): PriceTier {
     const infl = this.getInflationFactor(year);
     if (price < 700 * infl) return 'budget';
-    if (price < 1800 * infl) return 'midrange';
+    if (price < 2200 * infl) return 'midrange';
     return 'premium';
   }
 

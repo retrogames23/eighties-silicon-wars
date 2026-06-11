@@ -311,7 +311,7 @@ export class EconomyModel {
       // Tier-spezifische Konversionsrate: Massenmarkt konvertiert deutlich leichter
       // (Heimcomputer wurden in den 80ern oft impulsgetrieben gekauft), Premium ist
       // ein langer Verkaufszyklus mit hoher Hürde.
-      const conv = tier === 'budget' ? 0.10 : tier === 'midrange' ? 0.05 : 0.025;
+      const conv = tier === 'budget' ? 0.12 : tier === 'midrange' ? 0.055 : 0.018;
       const marketPenetration = Math.min(cap, Math.max(band.floor, demandMultiplier * conv));
       const baseUnits = segmentSize * marketPenetration;
       const segmentUnits = Math.floor(

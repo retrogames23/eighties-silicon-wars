@@ -815,10 +815,44 @@ export class GameMechanics {
 
     // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
     const { clampReputationDelta } = await import('@/lib/game/AntiExploit');
-    const rawRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta;
+    // Schwierigkeit verstärkt Reputations-Verluste, nicht aber -Gewinne.
+    const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta;
+    const rawRepDelta = baseRepDelta < 0 ? baseRepDelta * diff.reputationLossMultiplier : baseRepDelta;
     const cappedRepDelta = clampReputationDelta(rawRepDelta);
     const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
     const reputationChange = newReputation - company.reputation;
+
+    // 8b. Bankrott-Check je nach Schwierigkeit.
+    //  - easy/hard: sofortiges Game Over wenn cash unter Schwelle.
+    //  - normal: einmaliger Pflicht-Notkredit, danach Game Over beim zweiten Mal.
+    let triggeredBankruptcy = false;
+    let emergencyLoanGranted = false;
+    if (cashAfterOps < diff.bankruptcyCashThreshold) {
+      const alreadyTookEmergency = !!gameState.emergencyLoanUsed;
+      if (diff.bankruptcyMode === "emergency_loan_then_game_over" && !alreadyTookEmergency && diff.emergencyLoanAmount > 0) {
+        // Notkredit ausreichen — Cash sofort gutschreiben, Loan persistieren (nur online).
+        cashAfterOps += diff.emergencyLoanAmount;
+        emergencyLoanGranted = true;
+        if (userId) {
+          try {
+            const { LoanService } = await import('@/services/LoanService');
+            await LoanService.create({
+              userId,
+              principal: diff.emergencyLoanAmount,
+              annualRate: diff.emergencyLoanInterest,
+              quartersTotal: diff.emergencyLoanQuarters,
+              year: gameState.year,
+              quarter: gameState.quarter,
+            });
+            outstandingDebt = await LoanService.getOutstandingDebt(userId);
+          } catch (e) {
+            console.warn('[Difficulty] emergency loan persist failed', e);
+          }
+        }
+      } else {
+        triggeredBankruptcy = true;
+      }
+    }
 
     // 9. Aktualisierter Spielzustand
     const updatedGameState = {

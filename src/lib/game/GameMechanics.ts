@@ -862,6 +862,8 @@ export class GameMechanics {
         ? [...gameState.customChips, newCustomChip]
         : gameState.customChips,
       totalResearchSpent: totalResearchSpent,
+      // Notkredit-Marker: einmal pro Partie. Persistiert auch über Save-Loads.
+      emergencyLoanUsed: gameState.emergencyLoanUsed || emergencyLoanGranted,
       company: {
         ...company,
         cash: cashAfterOps,
@@ -893,7 +895,21 @@ export class GameMechanics {
       reputationChange,
       marketEventMultipliers: { bomMultiplier, demandMultiplier },
       loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
+      emergencyLoanGranted,
+      bankruptcy: triggeredBankruptcy,
     };
+
+    // Bei Bankrott: GameEnd-Condition mit aussagekräftigem Text zurückgeben.
+    const bankruptcyEnd = triggeredBankruptcy ? {
+      isGameEnded: true,
+      winner: `💸 Bankrott in Q${gameState.quarter}/${gameState.year}. Cash unter Schwelle ($${Math.round(diff.bankruptcyCashThreshold).toLocaleString()}). Spiel beendet auf Schwierigkeitsgrad „${diff.label}".`,
+      finalResults: {
+        playerRank: 99,
+        finalMarketShare: newMarketShare,
+        totalRevenue: gameState.totalRevenue || 0,
+        customChipsCount: gameState.customChips?.length || 0,
+      },
+    } as GameEndCondition : undefined;
 
     return {
       updatedGameState,
@@ -902,6 +918,7 @@ export class GameMechanics {
       newCustomChip,
       newsEvents,
       marketData: this.generateMarketData(stateWithSales, competitors, modelResults),
+      gameEndCondition: bankruptcyEnd,
     };
   }
 

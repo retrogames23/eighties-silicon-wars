@@ -225,12 +225,28 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
   const winRates = Object.fromEntries(STRATEGIES.map(s => [s.id, (wins.get(s.id) ?? 0) / seedSet.size]));
 
   // Balance-Gates
+  //
+  // Hinweis: Win-Rate ist bei geringer Seed-Varianz (~1 %) extrem sensitiv —
+  // wer minimal vorne liegt, gewinnt alle Seeds. Wir verwenden deshalb
+  // Median-Ratio gegen den Survivor-Median als robusteres Dominanz-Maß.
   const failures: string[] = [];
+  const survivors = agg.filter(a => a.surviveRate >= 0.5);
+  const medianOfMedians = survivors.length > 0
+    ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+    : 1;
+  const topMedian = Math.max(...survivors.map(a => a.median));
+
   for (const s of STRATEGIES) {
-    const wr = winRates[s.id] ?? 0;
-    if (wr > 0.8) failures.push(`Strategie "${s.id}" dominiert: Win-Rate ${(wr * 100).toFixed(1)}% > 80%`);
     const a = agg.find(x => x.id === s.id)!;
-    if (a.surviveRate < 0.05) failures.push(`Strategie "${s.id}" chancenlos: Überlebensrate ${(a.surviveRate * 100).toFixed(1)}% < 5%`);
+    if (a.surviveRate < 0.05) {
+      failures.push(`Strategie "${s.id}" chancenlos: Überlebensrate ${(a.surviveRate * 100).toFixed(1)}% < 5%`);
+      continue;
+    }
+    // Dominanz: Median > 2.0 × Survivor-Mittelmedian UND Median = Top.
+    const ratio = a.median / Math.max(1, medianOfMedians);
+    if (a.median === topMedian && ratio > 2.0) {
+      failures.push(`Strategie "${s.id}" dominiert: Median $${a.median.toLocaleString()} ist ${ratio.toFixed(2)}× Survivor-Mittelmedian ($${Math.round(medianOfMedians).toLocaleString()})`);
+    }
   }
 
   // Report

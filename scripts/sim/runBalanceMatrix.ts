@@ -331,7 +331,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
   }
 
   // Aggregat pro (Szenario, Strategie).
-  interface Agg { scenario: ScenarioId; id: string; surviveRate: number; avgFinal: number; median: number; std: number; runs: number; }
+  interface Agg { scenario: DifficultyId; id: string; surviveRate: number; avgFinal: number; median: number; std: number; runs: number; emergencyLoanRate: number; }
   const aggAll: Agg[] = [];
   for (const sc of SCENARIOS) {
     const byStrat = new Map<string, RunResult[]>();
@@ -344,37 +344,52 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       const avg = rs.reduce((a, r) => a + r.finalCash, 0) / rs.length;
       const median = [...rs].sort((a, b) => a.finalCash - b.finalCash)[Math.floor(rs.length / 2)].finalCash;
       const std = Math.sqrt(rs.reduce((a, r) => a + Math.pow(r.finalCash - avg, 2), 0) / rs.length);
-      aggAll.push({ scenario: sc.id, id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length });
+      const emRate = rs.filter(r => r.emergencyLoanUsed).length / rs.length;
+      aggAll.push({ scenario: sc.id, id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length, emergencyLoanRate: emRate });
     }
   }
 
-  // Balance-Gates pro Szenario.
+  // Balance-Gates pro Schwierigkeitsgrad:
+  //  - easy:   alle überleben (≥95 %), kein 3×-Dominator.
+  //  - normal: alle überleben mit ≥70 %, kein Dominator >2.5×, mind. 1 Strategie
+  //            braucht in ≥10 % der Seeds den Notkredit (sonst wäre Normal zu leicht).
+  //  - hard:   ≥4/6 Strategien mit ≥20 % Survive, ≥2 Strategien mit <50 % Survive
+  //            (echtes Aussieben), kein 100-%-Überlebender.
   const failures: string[] = [];
-  const scenarioGates: Record<ScenarioId, { surviveMin: number; dominanceMax: number }> = {
-    // Baseline = ruhig: niemand darf chancenlos sein, niemand 2× über Survivor-Median.
-    baseline: { surviveMin: 0.50, dominanceMax: 2.0 },
-    // Stress = hart: Überleben mind. 20 % (Insolvenzen sind erlaubt), Dominanz 2.5×.
-    stress:   { surviveMin: 0.20, dominanceMax: 2.5 },
-  };
-
-  for (const sc of SCENARIOS) {
-    const here = aggAll.filter(a => a.scenario === sc.id);
+  const computeGates = (sid: DifficultyId, minSurvive: number, maxDom: number, extra?: (here: Agg[]) => string[]) => {
+    const here = aggAll.filter(a => a.scenario === sid);
     const survivors = here.filter(a => a.surviveRate >= 0.5);
-    const medianOfMedians = survivors.length > 0
+    const medMed = survivors.length
       ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
       : 1;
-    const topMedian = Math.max(...here.map(a => a.median));
-    const gate = scenarioGates[sc.id];
+    const top = Math.max(...here.map(a => a.median));
     for (const a of here) {
-      if (a.surviveRate < gate.surviveMin) {
-        failures.push(`[${sc.id}] "${a.id}" chancenlos: Überleben ${(a.surviveRate * 100).toFixed(0)}% < ${gate.surviveMin * 100}%`);
+      if (a.surviveRate < minSurvive) {
+        failures.push(`[${sid}] "${a.id}" zu schwach: Überleben ${(a.surviveRate * 100).toFixed(0)}% < ${minSurvive * 100}%`);
         continue;
       }
-      const ratio = a.median / Math.max(1, medianOfMedians);
-      if (a.median === topMedian && ratio > gate.dominanceMax) {
-        failures.push(`[${sc.id}] "${a.id}" dominiert: Median ${ratio.toFixed(2)}× > ${gate.dominanceMax}×`);
+      const ratio = a.median / Math.max(1, medMed);
+      if (a.median === top && ratio > maxDom) {
+        failures.push(`[${sid}] "${a.id}" dominiert: Median ${ratio.toFixed(2)}× > ${maxDom}×`);
       }
     }
+    if (extra) failures.push(...extra(here));
+  };
+
+  computeGates("easy", 0.95, 3.0);
+  computeGates("normal", 0.70, 2.5, (here) => {
+    const anyLoan = here.some(a => a.emergencyLoanRate >= 0.10);
+    return anyLoan ? [] : [`[normal] zu leicht: keine Strategie nutzt in ≥10 % der Seeds den Notkredit`];
+  });
+  // Hard: andere Gate-Struktur (Aussieben statt Schwellen pro Strategie).
+  {
+    const here = aggAll.filter(a => a.scenario === "hard");
+    const surviving = here.filter(a => a.surviveRate >= 0.20).length;
+    const weak = here.filter(a => a.surviveRate < 0.50).length;
+    if (surviving < 4) failures.push(`[hard] zu hart: nur ${surviving}/${here.length} Strategien schaffen ≥20 % Überleben`);
+    if (weak < 2) failures.push(`[hard] zu leicht: nur ${weak} Strategien <50 % Überleben (echtes Aussieben fehlt)`);
+    const perfect = here.filter(a => a.surviveRate === 1.0).map(a => a.id);
+    if (perfect.length > 0) failures.push(`[hard] zu leicht: ${perfect.join(", ")} überleben in 100 % der Seeds`);
   }
 
   // Report
@@ -383,21 +398,21 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     "# Balance-Matrix Report",
     "",
     `Generiert: ${new Date().toISOString()}`,
-    `Konfiguration: ${SCENARIOS.length} Szenarien × ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
+    `Konfiguration: ${SCENARIOS.length} Schwierigkeitsgrade × ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
     "",
   ];
   for (const sc of SCENARIOS) {
-    sections.push(`## Szenario: ${sc.label}`, "");
+    sections.push(`## ${sc.label}`, "");
     const here = aggAll.filter(a => a.scenario === sc.id);
-    sections.push("| Strategie | Überlebt | Ø Final-Cash | Median | σ |");
-    sections.push("|---|---:|---:|---:|---:|");
+    sections.push("| Strategie | Überlebt | Notkredit | Ø Final-Cash | Median | σ |");
+    sections.push("|---|---:|---:|---:|---:|---:|");
     for (const a of here) {
-      sections.push(`| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${fmt(a.avgFinal)} | ${fmt(a.median)} | ${fmt(a.std)} |`);
+      sections.push(`| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${(a.emergencyLoanRate * 100).toFixed(0)}% | ${fmt(a.avgFinal)} | ${fmt(a.median)} | ${fmt(a.std)} |`);
     }
     sections.push("");
   }
   sections.push("## Balance-Gates", "");
-  sections.push(failures.length === 0 ? "PASS — beide Szenarien im Toleranzkorridor." : failures.map(f => `- FAIL: ${f}`).join("\n"));
+  sections.push(failures.length === 0 ? "PASS — alle drei Schwierigkeitsgrade im Toleranzkorridor." : failures.map(f => `- FAIL: ${f}`).join("\n"));
   sections.push("", "Rohdaten: raw.json");
 
   const md = sections.join("\n");

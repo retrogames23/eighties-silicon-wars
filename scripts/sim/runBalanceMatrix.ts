@@ -270,84 +270,88 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
 
 (async () => {
   const all: RunResult[] = [];
-  for (const s of STRATEGIES) {
-    for (let i = 0; i < SEEDS; i++) {
-      const r = await runOnce(s, `seed${String(i).padStart(3, "0")}`);
-      all.push(r);
+  for (const sc of SCENARIOS) {
+    for (const s of STRATEGIES) {
+      for (let i = 0; i < SEEDS; i++) {
+        const r = await runOnce(s, sc, `seed${String(i).padStart(3, "0")}`);
+        all.push(r);
+      }
     }
   }
 
-  // Aggregate
-  const byStrat = new Map<string, RunResult[]>();
-  for (const r of all) {
-    if (!byStrat.has(r.strategy)) byStrat.set(r.strategy, []);
-    byStrat.get(r.strategy)!.push(r);
+  // Aggregat pro (Szenario, Strategie).
+  interface Agg { scenario: ScenarioId; id: string; surviveRate: number; avgFinal: number; median: number; std: number; runs: number; }
+  const aggAll: Agg[] = [];
+  for (const sc of SCENARIOS) {
+    const byStrat = new Map<string, RunResult[]>();
+    for (const r of all.filter(x => x.scenario === sc.id)) {
+      if (!byStrat.has(r.strategy)) byStrat.set(r.strategy, []);
+      byStrat.get(r.strategy)!.push(r);
+    }
+    for (const [id, rs] of byStrat.entries()) {
+      const survive = rs.filter(r => r.bankruptQuarter === null).length / rs.length;
+      const avg = rs.reduce((a, r) => a + r.finalCash, 0) / rs.length;
+      const median = [...rs].sort((a, b) => a.finalCash - b.finalCash)[Math.floor(rs.length / 2)].finalCash;
+      const std = Math.sqrt(rs.reduce((a, r) => a + Math.pow(r.finalCash - avg, 2), 0) / rs.length);
+      aggAll.push({ scenario: sc.id, id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length });
+    }
   }
-  const agg = Array.from(byStrat.entries()).map(([id, rs]) => {
-    const survive = rs.filter(r => r.bankruptQuarter === null).length / rs.length;
-    const avg = rs.reduce((a, r) => a + r.finalCash, 0) / rs.length;
-    const median = [...rs].sort((a, b) => a.finalCash - b.finalCash)[Math.floor(rs.length / 2)].finalCash;
-    const std = Math.sqrt(rs.reduce((a, r) => a + Math.pow(r.finalCash - avg, 2), 0) / rs.length);
-    return { id, surviveRate: survive, avgFinal: avg, median, std, runs: rs.length };
-  });
 
-  // Win-Rate Matrix: für jedes Seed das beste Final-Cash → Strategie
-  const seedSet = new Set(all.map(r => r.seed));
-  const wins = new Map<string, number>();
-  for (const seed of seedSet) {
-    const here = all.filter(r => r.seed === seed);
-    const winner = here.reduce((b, r) => (r.finalCash > b.finalCash ? r : b), here[0]);
-    wins.set(winner.strategy, (wins.get(winner.strategy) ?? 0) + 1);
-  }
-  const winRates = Object.fromEntries(STRATEGIES.map(s => [s.id, (wins.get(s.id) ?? 0) / seedSet.size]));
-
-  // Balance-Gates
-  //
-  // Hinweis: Win-Rate ist bei geringer Seed-Varianz (~1 %) extrem sensitiv —
-  // wer minimal vorne liegt, gewinnt alle Seeds. Wir verwenden deshalb
-  // Median-Ratio gegen den Survivor-Median als robusteres Dominanz-Maß.
+  // Balance-Gates pro Szenario.
   const failures: string[] = [];
-  const survivors = agg.filter(a => a.surviveRate >= 0.5);
-  const medianOfMedians = survivors.length > 0
-    ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
-    : 1;
-  const topMedian = Math.max(...survivors.map(a => a.median));
+  const scenarioGates: Record<ScenarioId, { surviveMin: number; dominanceMax: number }> = {
+    // Baseline = ruhig: niemand darf chancenlos sein, niemand 2× über Survivor-Median.
+    baseline: { surviveMin: 0.50, dominanceMax: 2.0 },
+    // Stress = hart: Überleben mind. 20 % (Insolvenzen sind erlaubt), Dominanz 2.5×.
+    stress:   { surviveMin: 0.20, dominanceMax: 2.5 },
+  };
 
-  for (const s of STRATEGIES) {
-    const a = agg.find(x => x.id === s.id)!;
-    if (a.surviveRate < 0.05) {
-      failures.push(`Strategie "${s.id}" chancenlos: Überlebensrate ${(a.surviveRate * 100).toFixed(1)}% < 5%`);
-      continue;
-    }
-    // Dominanz: Median > 2.0 × Survivor-Mittelmedian UND Median = Top.
-    const ratio = a.median / Math.max(1, medianOfMedians);
-    if (a.median === topMedian && ratio > 2.0) {
-      failures.push(`Strategie "${s.id}" dominiert: Median $${a.median.toLocaleString()} ist ${ratio.toFixed(2)}× Survivor-Mittelmedian ($${Math.round(medianOfMedians).toLocaleString()})`);
+  for (const sc of SCENARIOS) {
+    const here = aggAll.filter(a => a.scenario === sc.id);
+    const survivors = here.filter(a => a.surviveRate >= 0.5);
+    const medianOfMedians = survivors.length > 0
+      ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+      : 1;
+    const topMedian = Math.max(...here.map(a => a.median));
+    const gate = scenarioGates[sc.id];
+    for (const a of here) {
+      if (a.surviveRate < gate.surviveMin) {
+        failures.push(`[${sc.id}] "${a.id}" chancenlos: Überleben ${(a.surviveRate * 100).toFixed(0)}% < ${gate.surviveMin * 100}%`);
+        continue;
+      }
+      const ratio = a.median / Math.max(1, medianOfMedians);
+      if (a.median === topMedian && ratio > gate.dominanceMax) {
+        failures.push(`[${sc.id}] "${a.id}" dominiert: Median ${ratio.toFixed(2)}× > ${gate.dominanceMax}×`);
+      }
     }
   }
 
   // Report
-  const md = [
+  const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
+  const sections: string[] = [
     "# Balance-Matrix Report",
     "",
     `Generiert: ${new Date().toISOString()}`,
-    `Konfiguration: ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
+    `Konfiguration: ${SCENARIOS.length} Szenarien × ${STRATEGIES.length} Strategien × ${SEEDS} Seeds × ${QUARTERS} Quartale`,
     "",
-    "## Aggregat pro Strategie",
-    "",
-    "| Strategie | Überlebt | Win-Rate | Ø Final-Cash | Median | σ |",
-    "|---|---:|---:|---:|---:|---:|",
-    ...agg.map(a => `| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${((winRates[a.id] ?? 0) * 100).toFixed(0)}% | $${Math.round(a.avgFinal).toLocaleString()} | $${a.median.toLocaleString()} | $${Math.round(a.std).toLocaleString()} |`),
-    "",
-    "## Balance-Gates",
-    "",
-    failures.length === 0 ? "PASS — kein Dominator, niemand chancenlos." : failures.map(f => `- FAIL: ${f}`).join("\n"),
-    "",
-    "Rohdaten: raw.json",
-  ].join("\n");
+  ];
+  for (const sc of SCENARIOS) {
+    sections.push(`## Szenario: ${sc.label}`, "");
+    const here = aggAll.filter(a => a.scenario === sc.id);
+    sections.push("| Strategie | Überlebt | Ø Final-Cash | Median | σ |");
+    sections.push("|---|---:|---:|---:|---:|");
+    for (const a of here) {
+      sections.push(`| ${a.id} | ${(a.surviveRate * 100).toFixed(0)}% | ${fmt(a.avgFinal)} | ${fmt(a.median)} | ${fmt(a.std)} |`);
+    }
+    sections.push("");
+  }
+  sections.push("## Balance-Gates", "");
+  sections.push(failures.length === 0 ? "PASS — beide Szenarien im Toleranzkorridor." : failures.map(f => `- FAIL: ${f}`).join("\n"));
+  sections.push("", "Rohdaten: raw.json");
 
+  const md = sections.join("\n");
   writeFileSync(`${OUT}/REPORT.md`, md);
-  writeFileSync(`${OUT}/raw.json`, JSON.stringify({ agg, winRates, all }, null, 2));
+  writeFileSync(`${OUT}/raw.json`, JSON.stringify({ agg: aggAll, all }, null, 2));
   console.info(`Wrote ${OUT}/REPORT.md and raw.json`);
   console.info(failures.length === 0 ? "BALANCE: PASS" : `BALANCE: FAIL\n${failures.join("\n")}`);
   if (failures.length > 0) process.exit(1);

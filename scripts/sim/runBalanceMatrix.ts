@@ -56,10 +56,15 @@ const baseModel = (over: Partial<Model>): Model => ({
 
 const STRATEGIES: Strategy[] = [
   {
+    // Massenmarkt: kleine Marge, große Stückzahl, schlanke Org, regelmäßige Refreshes.
     id: "cheap_spam", label: "Cheap-Spam",
-    marketing: 250_000, research: 0, development: 50_000, employees: 8,
-    releases: (y, q) => (y === 1983 && q === 1 ? [baseModel({ name: "ZX-Lite", cpu: "Zilog Z80", gpu: "MOS VIC", ram: "16KB RAM", sound: "PC Speaker", price: 299 })] :
-                        y === 1986 && q === 1 ? [baseModel({ name: "ZX-Lite II", cpu: "Zilog Z80", gpu: "Atari GTIA", ram: "64KB RAM", sound: "AY-3-8910", price: 399, releaseYear: 1986 })] : []),
+    marketing: 90_000, research: 10_000, development: 40_000, employees: 6,
+    releases: (y, q) => (
+      y === 1983 && q === 1 ? [baseModel({ name: "ZX-Lite",    cpu: "Zilog Z80",  gpu: "MOS VIC",     ram: "16KB RAM",  sound: "PC Speaker", price: 349 })] :
+      y === 1984 && q === 3 ? [baseModel({ name: "ZX-Lite+",   cpu: "Zilog Z80",  gpu: "Atari GTIA",  ram: "64KB RAM",  sound: "AY-3-8910",  price: 449, releaseYear: 1984, releaseQuarter: 3 })] :
+      y === 1986 && q === 1 ? [baseModel({ name: "ZX-Lite II", cpu: "Intel 8088", gpu: "EGA",         ram: "256KB RAM", sound: "AY-3-8910",  price: 599, releaseYear: 1986 })] :
+      y === 1988 && q === 1 ? [baseModel({ name: "ZX-Lite III",cpu: "Intel 8088", gpu: "EGA",         ram: "256KB RAM", sound: "Sound Blaster", price: 699, releaseYear: 1988 })] :
+      y === 1990 && q === 1 ? [baseModel({ name: "ZX-Lite IV", cpu: "Intel 80286",gpu: "VGA Graphics",ram: "512KB RAM", sound: "Sound Blaster", price: 799, releaseYear: 1990 })] : []),
   },
   {
     id: "premium_niche", label: "Premium-Niche",
@@ -81,7 +86,7 @@ const STRATEGIES: Strategy[] = [
   },
   {
     id: "cashflow_king", label: "Cashflow-King",
-    marketing: 80_000, research: 30_000, development: 60_000, employees: 6,
+    marketing: 60_000, research: 25_000, development: 50_000, employees: 5,
     releases: (y, q) => (y === 1983 && q === 1 ? [baseModel({ name: "Penny", cpu: "Zilog Z80", gpu: "MOS VIC", ram: "64KB RAM", sound: "PC Speaker", price: 499 })] :
                         y === 1988 && q === 1 ? [baseModel({ name: "Penny-II", cpu: "Intel 8088", gpu: "EGA", ram: "256KB RAM", sound: "PC Speaker", price: 799, releaseYear: 1988 })] : []),
   },

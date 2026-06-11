@@ -60,6 +60,8 @@ interface GameState {
   competitors: Competitor[];
   marketEvents: MarketEvent[];
   totalMarketSize: number;
+  /** Schwierigkeitsgrad (siehe Difficulty.ts). Legacy-Saves → "easy". */
+  difficulty?: import("@/lib/game/Difficulty").DifficultyId;
 }
 
 interface GameDashboardProps {

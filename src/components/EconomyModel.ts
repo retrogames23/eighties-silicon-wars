@@ -217,9 +217,9 @@ export class EconomyModel {
   } {
     const segments = ['gamer', 'business', 'workstation'] as const;
     const segmentSizes = {
-      gamer: Math.round((70000 + (year - 1983) * 15000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
+      gamer: Math.round((90000 + (year - 1983) * 22000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
       business: Math.round((30000 + (year - 1983) * 8000) * getParadigmSegmentSizeMultiplier('business', year, quarter)),
-      workstation: Math.round(Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
+      workstation: Math.round(Math.max(0, (year >= 1987 ? 4000 + (year - 1987) * 1500 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
     };
 
     let totalUnitsSold = 0;

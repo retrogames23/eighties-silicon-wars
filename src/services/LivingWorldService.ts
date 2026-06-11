@@ -108,13 +108,15 @@ function magnitudeToEffect(ev: DirectorEvent): AppliedEffect {
       break;
   }
 
-  return {
+  // Hartes Korsett: B1-Caps werden im Code erzwungen, nicht im LLM-Prompt.
+  // Verhindert, dass Halluzinationen die Balance sprengen.
+  return clampLlmEffect({
     effect_kind: ev.effect_kind,
     price_multiplier,
     demand_delta,
     segments: ev.affected_segments,
     rationale: ev.rationale,
-  };
+  });
 }
 
 /**

@@ -587,11 +587,12 @@ export class EconomyModel {
    * - Brand-Awareness (0..100) multipliziert zusätzlich (0.7..1.4)
    */
   static calculateMarketingEffectiveness(
-    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0
+    marketingBudget: number, reputation: number, year: number = 1983, brandAwareness: number = 0,
+    saturationOverride?: number,
   ): number {
     const infl = this.getInflationFactor(year);
     const baseBudget = 25000 * infl;
-    const saturationPoint = 500000 * infl;
+    const saturationPoint = (saturationOverride ?? 500000) * infl;
 
     let effectiveness: number;
     if (marketingBudget <= saturationPoint) {

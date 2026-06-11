@@ -56,10 +56,15 @@ const baseModel = (over: Partial<Model>): Model => ({
 
 const STRATEGIES: Strategy[] = [
   {
+    // Massenmarkt: kleine Marge, große Stückzahl, schlanke Org, regelmäßige Refreshes.
     id: "cheap_spam", label: "Cheap-Spam",
-    marketing: 250_000, research: 0, development: 50_000, employees: 8,
-    releases: (y, q) => (y === 1983 && q === 1 ? [baseModel({ name: "ZX-Lite", cpu: "Zilog Z80", gpu: "MOS VIC", ram: "16KB RAM", sound: "PC Speaker", price: 299 })] :
-                        y === 1986 && q === 1 ? [baseModel({ name: "ZX-Lite II", cpu: "Zilog Z80", gpu: "Atari GTIA", ram: "64KB RAM", sound: "AY-3-8910", price: 399, releaseYear: 1986 })] : []),
+    marketing: 90_000, research: 10_000, development: 40_000, employees: 6,
+    releases: (y, q) => (
+      y === 1983 && q === 1 ? [baseModel({ name: "ZX-Lite",    cpu: "Zilog Z80",  gpu: "MOS VIC",     ram: "16KB RAM",  sound: "PC Speaker", price: 349 })] :
+      y === 1984 && q === 3 ? [baseModel({ name: "ZX-Lite+",   cpu: "Zilog Z80",  gpu: "Atari GTIA",  ram: "64KB RAM",  sound: "AY-3-8910",  price: 449, releaseYear: 1984, releaseQuarter: 3 })] :
+      y === 1986 && q === 1 ? [baseModel({ name: "ZX-Lite II", cpu: "Intel 8088", gpu: "EGA",         ram: "256KB RAM", sound: "AY-3-8910",  price: 599, releaseYear: 1986 })] :
+      y === 1988 && q === 1 ? [baseModel({ name: "ZX-Lite III",cpu: "Intel 8088", gpu: "EGA",         ram: "256KB RAM", sound: "Sound Blaster", price: 699, releaseYear: 1988 })] :
+      y === 1990 && q === 1 ? [baseModel({ name: "ZX-Lite IV", cpu: "Intel 80286",gpu: "VGA Graphics",ram: "512KB RAM", sound: "Sound Blaster", price: 799, releaseYear: 1990 })] : []),
   },
   {
     id: "premium_niche", label: "Premium-Niche",
@@ -81,7 +86,7 @@ const STRATEGIES: Strategy[] = [
   },
   {
     id: "cashflow_king", label: "Cashflow-King",
-    marketing: 80_000, research: 30_000, development: 60_000, employees: 6,
+    marketing: 60_000, research: 25_000, development: 50_000, employees: 5,
     releases: (y, q) => (y === 1983 && q === 1 ? [baseModel({ name: "Penny", cpu: "Zilog Z80", gpu: "MOS VIC", ram: "64KB RAM", sound: "PC Speaker", price: 499 })] :
                         y === 1988 && q === 1 ? [baseModel({ name: "Penny-II", cpu: "Intel 8088", gpu: "EGA", ram: "256KB RAM", sound: "PC Speaker", price: 799, releaseYear: 1988 })] : []),
   },
@@ -220,12 +225,28 @@ async function runOnce(s: Strategy, seedSalt: string): Promise<RunResult> {
   const winRates = Object.fromEntries(STRATEGIES.map(s => [s.id, (wins.get(s.id) ?? 0) / seedSet.size]));
 
   // Balance-Gates
+  //
+  // Hinweis: Win-Rate ist bei geringer Seed-Varianz (~1 %) extrem sensitiv —
+  // wer minimal vorne liegt, gewinnt alle Seeds. Wir verwenden deshalb
+  // Median-Ratio gegen den Survivor-Median als robusteres Dominanz-Maß.
   const failures: string[] = [];
+  const survivors = agg.filter(a => a.surviveRate >= 0.5);
+  const medianOfMedians = survivors.length > 0
+    ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median
+    : 1;
+  const topMedian = Math.max(...survivors.map(a => a.median));
+
   for (const s of STRATEGIES) {
-    const wr = winRates[s.id] ?? 0;
-    if (wr > 0.8) failures.push(`Strategie "${s.id}" dominiert: Win-Rate ${(wr * 100).toFixed(1)}% > 80%`);
     const a = agg.find(x => x.id === s.id)!;
-    if (a.surviveRate < 0.05) failures.push(`Strategie "${s.id}" chancenlos: Überlebensrate ${(a.surviveRate * 100).toFixed(1)}% < 5%`);
+    if (a.surviveRate < 0.05) {
+      failures.push(`Strategie "${s.id}" chancenlos: Überlebensrate ${(a.surviveRate * 100).toFixed(1)}% < 5%`);
+      continue;
+    }
+    // Dominanz: Median > 2.0 × Survivor-Mittelmedian UND Median = Top.
+    const ratio = a.median / Math.max(1, medianOfMedians);
+    if (a.median === topMedian && ratio > 2.0) {
+      failures.push(`Strategie "${s.id}" dominiert: Median $${a.median.toLocaleString()} ist ${ratio.toFixed(2)}× Survivor-Mittelmedian ($${Math.round(medianOfMedians).toLocaleString()})`);
+    }
   }
 
   // Report

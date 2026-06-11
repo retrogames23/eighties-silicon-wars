@@ -125,8 +125,8 @@ export class EconomyModel {
   /** Bestimmt Preis-Tier eines Modells aus dem Verkaufspreis. */
   static classifyPriceTier(price: number, year: number): PriceTier {
     const infl = this.getInflationFactor(year);
-    if (price < 800 * infl) return 'budget';
-    if (price < 2500 * infl) return 'midrange';
+    if (price < 700 * infl) return 'budget';
+    if (price < 2200 * infl) return 'midrange';
     return 'premium';
   }
 
@@ -217,9 +217,9 @@ export class EconomyModel {
   } {
     const segments = ['gamer', 'business', 'workstation'] as const;
     const segmentSizes = {
-      gamer: Math.round((70000 + (year - 1983) * 15000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
+      gamer: Math.round((90000 + (year - 1983) * 22000) * getParadigmSegmentSizeMultiplier('gamer', year, quarter)),
       business: Math.round((30000 + (year - 1983) * 8000) * getParadigmSegmentSizeMultiplier('business', year, quarter)),
-      workstation: Math.round(Math.max(0, (year >= 1987 ? 5000 + (year - 1987) * 2000 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
+      workstation: Math.round(Math.max(0, (year >= 1987 ? 4000 + (year - 1987) * 1500 : 0)) * getParadigmSegmentSizeMultiplier('workstation', year, quarter)),
     };
 
     let totalUnitsSold = 0;
@@ -277,7 +277,42 @@ export class EconomyModel {
 
       // Optionaler Portfolio-Marktanteils-Override (Kannibalisierung).
       const shareOverride = context.segmentShareOverride?.[segment];
-      const marketPenetration = Math.min(0.08, Math.max(0.005, demandMultiplier * 0.03));
+
+      // Tier-spezifische Marktdurchdringung:
+      //   Budget   = Massenmarkt → höheres Cap und Floor (kommt auch ohne Marketing an).
+      //   Midrange = klassischer Mittelweg.
+      //   Premium  = Nische → kleineres Cap, kleinerer Floor.
+      // So skaliert eine konsequente Billig-Strategie über Stückzahl mit Premium,
+      // und Premium kann nicht 60 % eines Segments allein abgreifen.
+      const tier = this.classifyPriceTier(model.price, year);
+      const band =
+        tier === 'budget'   ? { floor: 0.018, cap: 0.26 } :
+        tier === 'midrange' ? { floor: 0.007, cap: 0.10 } :
+                              { floor: 0.003, cap: 0.032 };
+
+      // Segment-Fit: Strategie-Konsistenz wird belohnt, Mismatch stark bestraft.
+      //   Premium gehört in die Workstation (zahlungskräftige Profis).
+      //   Mid-Range ins Business (Standard-Bürorechner).
+      //   Budget zu Gamern (Mass-Market-Heimcomputer).
+      // Premium-Produkte verkaufen sich kaum an Mainstream-Business: Einkäufer
+      // wollen Standard-PCs, keine teuren Spezialmaschinen.
+      const fit =
+        (tier === 'premium'  && segment === 'gamer')       ? 0.25 :
+        (tier === 'premium'  && segment === 'business')    ? 0.25 :
+        (tier === 'premium'  && segment === 'workstation') ? 1.35 :
+        (tier === 'midrange' && segment === 'workstation') ? 0.55 :
+        (tier === 'midrange' && segment === 'business')    ? 1.20 :
+        (tier === 'budget'   && segment === 'workstation') ? 0.20 :
+        (tier === 'budget'   && segment === 'business')    ? 0.45 :
+        (tier === 'budget'   && segment === 'gamer')       ? 1.25 :
+        1.0;
+
+      const cap = band.cap * fit;
+      // Tier-spezifische Konversionsrate: Massenmarkt konvertiert deutlich leichter
+      // (Heimcomputer wurden in den 80ern oft impulsgetrieben gekauft), Premium ist
+      // ein langer Verkaufszyklus mit hoher Hürde.
+      const conv = tier === 'budget' ? 0.14 : tier === 'midrange' ? 0.06 : 0.014;
+      const marketPenetration = Math.min(cap, Math.max(band.floor, demandMultiplier * conv));
       const baseUnits = segmentSize * marketPenetration;
       const segmentUnits = Math.floor(
         (shareOverride !== undefined ? baseUnits * shareOverride : baseUnits) *

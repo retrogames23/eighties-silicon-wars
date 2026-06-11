@@ -113,6 +113,12 @@ export interface EconomyContext {
   activeModelCount?: number;
   /** Intern: BOM-Cost-Hint zur Preis-Sanity-Berechnung in der Segment-Schleife. */
   _bomCostHint?: number;
+  /**
+   * Schwierigkeits-abhängiger Override des Marketing-Sättigungspunkts (nominal $).
+   * Wenn gesetzt, ersetzt er den Default in `calculateMarketingEffectiveness`.
+   * Niedriger = Marketing wird schneller ineffizient (Schwer).
+   */
+  marketingSaturationPoint?: number;
 }
 
 export class EconomyModel {

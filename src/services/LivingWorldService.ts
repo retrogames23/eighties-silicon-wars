@@ -12,7 +12,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
-import { clampLlmEffect, enforceSegmentDemandBudget, EFFECT_CAPS } from "@/lib/game/WorldDirector";
+import { clampLlmEffect } from "@/lib/game/WorldDirector";
 
 export type EffectKind =
   | "demand_up"

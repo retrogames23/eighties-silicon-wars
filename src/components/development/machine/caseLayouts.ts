@@ -146,4 +146,4 @@ export const CASE_LAYOUTS: Record<string, CaseLayout> = {
 export const OVERLAY_SLOTS: OverlaySlot[] = ['cpu', 'memory', 'gpu', 'sound', 'storage'];
 
 export const layoutFor = (caseId?: string): CaseLayout =>
-  CASE_LAYOUTS[caseId ?? ''] ?? CASE_LAYOUTS['beige-tower'];
+  CASE_LAYOUTS[caseId ?? ''] ?? CASE_LAYOUTS['beige-breadbox'];

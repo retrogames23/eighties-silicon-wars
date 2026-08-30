@@ -323,7 +323,11 @@
       },
       "artworkAlt": "Pixel-Grafik des Gehäuses {{name}}",
       "artworkEmpty": "Wähle ein Gehäuse, um deinen Rechner zu sehen",
-      "insideTitle": "Innenansicht"
+      "insideTitle": "Innenansicht",
+      "insideAlt": "Innenansicht des Gehäuses {{name}}",
+      "viewOutside": "Außenansicht",
+      "viewInside": "Innenansicht",
+      "noDisplay": "Kein Bildschirm"
     }
   },
   "competitors": {

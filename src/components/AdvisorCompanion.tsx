@@ -373,7 +373,7 @@ export const AdvisorCompanion = ({
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
+    <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none md:bottom-4">
       {open && (
         <Card className="pointer-events-auto retro-border bg-card/95 backdrop-blur-sm p-4 w-[min(92vw,22rem)] shadow-2xl animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-start justify-between gap-2 mb-3">

@@ -96,16 +96,16 @@ export const DevelopmentTab = ({ models, onDevelopNewModel, onDiscontinueModel }
 
       {/* Neues Modell entwickeln Button */}
       <Card className="retro-border bg-card/50 backdrop-blur-sm p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-bold text-primary neon-text">{t('ui:development.sections.newModelDevelopment')}</h3>
-            <p className="text-muted-foreground mt-1">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h3 className="text-lg sm:text-xl font-bold text-primary neon-text break-words">{t('ui:development.sections.newModelDevelopment')}</h3>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               {t('ui:development.descriptions.newModelDevelopment')}
             </p>
           </div>
           <Button 
             onClick={onDevelopNewModel}
-            className="retro-button bg-neon-green text-black hover:bg-neon-green/80 font-bold"
+            className="retro-button bg-neon-green text-black hover:bg-neon-green/80 font-bold w-full sm:w-auto shrink-0"
             size="lg"
           >
             <Plus className="w-5 h-5 mr-2" />

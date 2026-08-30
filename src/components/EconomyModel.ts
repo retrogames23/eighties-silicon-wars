@@ -267,11 +267,17 @@ export class EconomyModel {
       const baseAppeal = this.calculateSegmentAppeal(model, segment, year, quarter) / 100;
       const maxPrice = this.getSegmentMaxPrice(segment, year, quarter);
       const priceElasticity = this.calculatePriceElasticity(model.price, maxPrice, segment);
-      let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment);
+      let competitionFactor = this.calculateCompetitionImpact(model, competitors, segment, year);
 
-      // KI-Druck zieht zusätzlich vom verfügbaren Markt ab.
+      // KI-Druck (Personas/Difficulty-Ramp) zieht zusätzlich vom Markt ab.
       const aiPressure = context.aiCompetitorPressure?.[segment] ?? 0;
       competitionFactor *= Math.max(0.3, 1 - Math.min(0.5, aiPressure));
+
+      // Segment-Reputation: Markenbindung in genau dieser Zielgruppe (0.85–1.20).
+      const segRep = context.segmentReputation?.[segment];
+      const segRepFactor = segRep === undefined ? 1 : 0.85 + (Math.max(0, Math.min(100, segRep)) / 100) * 0.35;
+      competitionFactor *= segRepFactor;
+
 
       // Anti-Exploit: Preis-Sanity (Dumping unter BOM, Trust bei extrem niedrigem Preis).
       const bomHint = context._bomCostHint ?? 0;

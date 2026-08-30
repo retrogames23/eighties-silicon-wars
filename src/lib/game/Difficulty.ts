@@ -128,11 +128,17 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     bankruptcyCashThreshold: -2_000_000,
     bankruptcyMode: "game_over",
     emergencyLoanAmount: 0,
+    emergencyLoanMaxAmount: 0,
     emergencyLoanInterest: 0,
     emergencyLoanQuarters: 0,
+    bankruptcyNetWorthThreshold: -3_500_000,
     aiPressureCeiling: 0,
+    aiPressureFloor: 0,
+    aiReleaseCadenceQuarters: 10,
+    aiAggression: 0.75,
     crisisMagnitudeMultiplier: 1.0,
-    scheduledCrises: 4,
+    scheduledCrises: CRISES_EASY.length,
+    crisisCalendar: CRISES_EASY,
     reputationLossMultiplier: 1.0,
   },
   normal: {
@@ -145,11 +151,17 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     bankruptcyCashThreshold: -1_000_000,
     bankruptcyMode: "emergency_loan_then_game_over",
     emergencyLoanAmount: 500_000,
+    emergencyLoanMaxAmount: 2_000_000,
     emergencyLoanInterest: 0.12,
     emergencyLoanQuarters: 8,
+    bankruptcyNetWorthThreshold: -2_500_000,
     aiPressureCeiling: 0.40,
+    aiPressureFloor: 0.05,
+    aiReleaseCadenceQuarters: 7,
+    aiAggression: 1.0,
     crisisMagnitudeMultiplier: 1.4,
-    scheduledCrises: 5,
+    scheduledCrises: CRISES_NORMAL.length,
+    crisisCalendar: CRISES_NORMAL,
     reputationLossMultiplier: 1.5,
   },
   hard: {
@@ -162,14 +174,66 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     bankruptcyCashThreshold: -500_000,
     bankruptcyMode: "game_over",
     emergencyLoanAmount: 0,
+    emergencyLoanMaxAmount: 0,
     emergencyLoanInterest: 0,
     emergencyLoanQuarters: 0,
+    bankruptcyNetWorthThreshold: -1_500_000,
     aiPressureCeiling: 0.70,
+    aiPressureFloor: 0.12,
+    aiReleaseCadenceQuarters: 5,
+    aiAggression: 1.3,
     crisisMagnitudeMultiplier: 1.8,
-    scheduledCrises: 7,
+    scheduledCrises: CRISES_HARD.length,
+    crisisCalendar: CRISES_HARD,
     reputationLossMultiplier: 2.0,
   },
 };
+
+/** Quartals-Index seit Q1/1983 (0-basiert). */
+export function quarterIndex(year: number, quarter: number): number {
+  return (year - 1983) * 4 + (quarter - 1);
+}
+
+/**
+ * Aktive Krisen zum Zeitpunkt (year, quarter) inkl. Magnitude-Skalierung.
+ * Single Source für Live-Spiel und Headless-Balance-Runner.
+ */
+export function getActiveCrises(
+  profile: DifficultyProfile,
+  year: number,
+  quarter: number,
+): { active: ScheduledCrisis[]; demandMultiplier: number; bomMultiplier: number } {
+  const now = quarterIndex(year, quarter);
+  const m = profile.crisisMagnitudeMultiplier;
+  const active = profile.crisisCalendar.filter(c => {
+    const start = quarterIndex(c.year, c.quarter);
+    return now >= start && now < start + c.durationQuarters;
+  });
+
+  let demandDelta = 0;
+  let bomMultiplier = 1;
+  for (const c of active) {
+    demandDelta += Math.max(-0.30, c.demandDeltaPerQuarter * m);
+    if (c.bomMultiplier) bomMultiplier *= 1 + (c.bomMultiplier - 1) * m;
+  }
+  // Nachfrage darf durch Krisen maximal halbiert werden.
+  const demandMultiplier = Math.max(0.5, 1 + Math.max(-0.5, demandDelta));
+  return { active, demandMultiplier, bomMultiplier };
+}
+
+/**
+ * KI-Druck rampt über den Spielbogen 1983→1992 linear von Floor auf Ceiling.
+ * Workstation bleibt etwas ruhiger (Nischenmarkt).
+ */
+export function aiPressureAt(
+  profile: DifficultyProfile,
+  year: number,
+): Record<"gamer" | "business" | "workstation", number> {
+  const t = Math.max(0, Math.min(1, (year - 1983) / 9));
+  const level = profile.aiPressureFloor + (profile.aiPressureCeiling - profile.aiPressureFloor) * t;
+  return { gamer: level, business: level, workstation: level * 0.7 };
+}
+
 
 export const DEFAULT_DIFFICULTY: DifficultyId = "normal";
 

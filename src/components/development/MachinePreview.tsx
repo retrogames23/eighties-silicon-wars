@@ -172,9 +172,20 @@ export const MachinePreview = ({
                 {/* menu bar */}
                 <Px x={SCR.x + 2} y={SCR.y + 2} w={SCR.w - 4} h={5} fill={cs.bases} opacity={0.85} />
                 <Px x={SCR.x + 3} y={SCR.y + 3} w={2} h={2} fill={led.rgb} />
-                <text x={SCR.x + 7} y={SCR.y + 6.4} fill={cs.deep} fontSize="4" fontFamily="monospace">
+                <clipPath id="mp-screen-clip">
+                  <rect x={SCR.x + 1} y={SCR.y + 1} width={SCR.w - 2} height={SCR.h - 2} />
+                </clipPath>
+                <text
+                  x={SCR.x + 7}
+                  y={SCR.y + 6.4}
+                  fill={cs.deep}
+                  fontSize="4"
+                  fontFamily="monospace"
+                  clipPath="url(#mp-screen-clip)"
+                >
                   {title}
                 </text>
+
                 {/* desktop window */}
                 <Px x={SCR.x + 4} y={SCR.y + 9} w={SCR.w - 8} h={SCR.h - 14} fill={pcb.boardDark} />
                 <Px x={SCR.x + 5} y={SCR.y + 10} w={SCR.w - 10} h={SCR.h - 16} fill={screen.off} />

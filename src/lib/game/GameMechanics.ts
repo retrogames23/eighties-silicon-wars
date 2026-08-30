@@ -484,14 +484,21 @@ export class GameMechanics {
   /**
    * ÜBERARBEITETER processQuarterTurn mit korrekter Gewinn-Kalkulation
    */
-  static async processQuarterTurn(gameState: any, competitors: Competitor[]): Promise<QuarterTurnResult> {
+  static async processQuarterTurn(gameState: any, competitorsInput: Competitor[]): Promise<QuarterTurnResult> {
     const { budget, models, company } = gameState;
     
     console.log(`🎮 [GameMechanics] Processing Q${gameState.quarter}/${gameState.year} with EconomyModel integration`);
     
     // Difficulty-Profil aus dem GameState lesen (Legacy-Saves → "easy").
-    const { getDifficultyFromGameState } = await import('@/lib/game/Difficulty');
+    const { getDifficultyFromGameState, getActiveCrises, aiPressureAt } = await import('@/lib/game/Difficulty');
+    const { getCompetitorsAt } = await import('@/lib/game/CompetitorAI');
     const diff = getDifficultyFromGameState(gameState);
+
+    // Konkurrenz ist kein eingefrorenes Array mehr: Das Feld wird deterministisch
+    // aus (Jahr, Quartal, Difficulty) erzeugt — inkl. neuer Produktgenerationen.
+    const competitors: Competitor[] = getCompetitorsAt(diff, gameState.year, gameState.quarter);
+    void competitorsInput;
+
 
     // 1. Prüfe auf Spielende (Zeit)
     const gameEndCondition = this.checkGameEnd(gameState.year, gameState.quarter);
@@ -588,10 +595,19 @@ export class GameMechanics {
       console.log('⚠️ Market events not available, using neutral multipliers');
     }
 
-    // 5c. KI-Konkurrenz-Druck pro Segment (aus aktiven AiCompetitor-Stati).
-    //     Verbindet das CompetitorsService-System mit der Verkaufs-Sim, sodass
-    //     KI-Aktionen mechanisch (nicht nur narrativ in der Presse) wirken.
-    let aiCompetitorPressure: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {};
+    // 5b-2. Deterministischer Krisenkalender (Single Source für Live-Spiel und
+    //       Headless-Balance-Runner). Wirkt zusätzlich zu LLM-/DB-Events.
+    const crisisState = getActiveCrises(diff, gameState.year, gameState.quarter);
+    demandMultiplier *= crisisState.demandMultiplier;
+    bomMultiplier *= crisisState.bomMultiplier;
+    const activeCrisisKeys = crisisState.active.map(c => c.key);
+
+    // 5c. KI-Konkurrenz-Druck pro Segment: Basisdruck aus dem Difficulty-Profil
+    //     (rampt über die Partie hoch) plus Aktionen der lebenden Personas.
+    const baselinePressure = aiPressureAt(diff, gameState.year);
+    const aiCompetitorPressure: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {
+      ...baselinePressure,
+    };
     try {
       if (userId) {
         const { CompetitorsService } = await import('@/services/CompetitorsService');
@@ -605,13 +621,18 @@ export class GameMechanics {
             const intensity = Math.min(3, c.last_action?.intensity ?? 1) / 3;
             pressure += shareWeight * targetsMe * (0.5 + 0.5 * intensity);
           }
-          // Cap aus Schwierigkeits-Profil (easy=0, normal=0.4, hard=0.7).
-          aiCompetitorPressure[seg] = Math.min(diff.aiPressureCeiling, pressure);
+          // Personas wirken nur noch halb so stark — echte Konkurrenzprodukte
+          // tragen jetzt den Hauptteil des Wettbewerbsdrucks.
+          aiCompetitorPressure[seg] = Math.min(
+            diff.aiPressureCeiling,
+            (baselinePressure[seg] ?? 0) + pressure * 0.5,
+          );
         }
       }
     } catch (e) {
-      console.log('⚠️ AI competitors not available, pressure=0');
+      console.log('⚠️ AI competitors not available, using baseline pressure');
     }
+
 
     // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
     const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);
@@ -620,6 +641,17 @@ export class GameMechanics {
     // Brand-Awareness aus Vorquartal (Persistent), 0 falls erstes Quartal.
     const prevBrandAwareness: number = company.brandAwareness ?? 0;
     let newBrandAwareness = prevBrandAwareness;
+
+    // Segment-Reputation: Marken werden pro Zielgruppe wahrgenommen. Wer sich
+    // konsequent auf ein Segment fokussiert, baut dort Bindung auf.
+    const SEGMENTS = ['gamer', 'business', 'workstation'] as const;
+    const prevSegmentReputation: Record<string, number> = {
+      gamer: company.segmentReputation?.gamer ?? company.reputation ?? 50,
+      business: company.segmentReputation?.business ?? company.reputation ?? 50,
+      workstation: company.segmentReputation?.workstation ?? company.reputation ?? 50,
+    };
+    const segmentUnits: Record<string, number> = { gamer: 0, business: 0, workstation: 0 };
+
 
     try {
       const { EconomyModel } = await import('@/components/EconomyModel');
@@ -670,6 +702,7 @@ export class GameMechanics {
             brandAwareness: prevBrandAwareness,
             activeModelCount,
             marketingSaturationPoint: diff.marketingSaturationPoint,
+            segmentReputation: prevSegmentReputation as any,
           }
         );
 
@@ -677,6 +710,10 @@ export class GameMechanics {
         totalGrossProfit += salesResult.profitBreakdown.netProfit;
         totalProductCosts += Math.max(0, salesResult.revenue - salesResult.profitBreakdown.netProfit);
         totalUnitsSold += salesResult.unitsSold;
+        for (const seg of SEGMENTS) {
+          segmentUnits[seg] += salesResult.segmentBreakdown?.[seg]?.units ?? 0;
+        }
+
         salesByModelId.set(model.id, {
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,
@@ -822,23 +859,50 @@ export class GameMechanics {
     const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
     const reputationChange = newReputation - company.reputation;
 
+    // 8a-2. Segment-Reputation: wo verkauft wurde, wächst die Markenbindung,
+    //       wo nichts läuft, verblasst sie langsam Richtung globaler Reputation.
+    const totalSegUnits = SEGMENTS.reduce((s, seg) => s + segmentUnits[seg], 0);
+    const newSegmentReputation: Record<string, number> = {};
+    for (const seg of SEGMENTS) {
+      const prev = prevSegmentReputation[seg];
+      const share = totalSegUnits > 0 ? segmentUnits[seg] / totalSegUnits : 0;
+      // Fokus-Bonus (bis +4), sonst Drift Richtung globaler Reputation.
+      const gain = share * 4 * (cappedRepDelta >= 0 ? 1 : 0.3);
+      const drift = (newReputation - prev) * 0.15;
+      newSegmentReputation[seg] = Math.max(0, Math.min(100, prev + gain + drift - (share === 0 ? 0.5 : 0)));
+    }
+
     // 8b. Bankrott-Check je nach Schwierigkeit.
     //  - easy/hard: sofortiges Game Over wenn cash unter Schwelle.
     //  - normal: einmaliger Pflicht-Notkredit, danach Game Over beim zweiten Mal.
+    //  Zusätzlich: technische Insolvenz über die Nettoposition (Cash − Schulden).
     let triggeredBankruptcy = false;
     let emergencyLoanGranted = false;
-    if (cashAfterOps < diff.bankruptcyCashThreshold) {
+    const netWorth = cashAfterOps - outstandingDebt;
+    if (cashAfterOps < diff.bankruptcyCashThreshold || netWorth < diff.bankruptcyNetWorthThreshold) {
       const alreadyTookEmergency = !!gameState.emergencyLoanUsed;
-      if (diff.bankruptcyMode === "emergency_loan_then_game_over" && !alreadyTookEmergency && diff.emergencyLoanAmount > 0) {
-        // Notkredit ausreichen — Cash sofort gutschreiben, Loan persistieren (nur online).
-        cashAfterOps += diff.emergencyLoanAmount;
+      const canTakeEmergency =
+        diff.bankruptcyMode === "emergency_loan_then_game_over" &&
+        !alreadyTookEmergency &&
+        diff.emergencyLoanMaxAmount > 0 &&
+        netWorth >= diff.bankruptcyNetWorthThreshold;
+
+      if (canTakeEmergency) {
+        // Kreditsumme deckt das echte Loch plus Puffer für zwei Quartale
+        // Fixkosten — ein Notkredit darf nicht in den Folge-Bankrott führen.
+        const gap = Math.max(0, -cashAfterOps);
+        const buffer = Math.max(250_000, totalPeriodExpenses * 2);
+        const principal = Math.round(
+          Math.min(diff.emergencyLoanMaxAmount, Math.max(diff.emergencyLoanAmount, gap + buffer)),
+        );
+        cashAfterOps += principal;
         emergencyLoanGranted = true;
         if (userId) {
           try {
             const { LoanService } = await import('@/services/LoanService');
             await LoanService.create({
               userId,
-              principal: diff.emergencyLoanAmount,
+              principal,
               annualRate: diff.emergencyLoanInterest,
               quartersTotal: diff.emergencyLoanQuarters,
               year: gameState.year,
@@ -853,6 +917,7 @@ export class GameMechanics {
         triggeredBankruptcy = true;
       }
     }
+
 
     // 9. Aktualisierter Spielzustand
     const updatedGameState = {
@@ -870,6 +935,8 @@ export class GameMechanics {
         marketShare: newMarketShare,
         reputation: newReputation,
         brandAwareness: newBrandAwareness,
+        segmentReputation: newSegmentReputation,
+
         outstandingDebt,
         monthlyIncome: Math.round(totalRevenue / 3),
         monthlyExpenses: Math.round((totalExpensesForReporting + loanCashOut) / 3),
@@ -894,6 +961,9 @@ export class GameMechanics {
       reputation: newReputation,
       reputationChange,
       marketEventMultipliers: { bomMultiplier, demandMultiplier },
+      activeCrises: activeCrisisKeys,
+      segmentReputation: newSegmentReputation,
+
       loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
       emergencyLoanGranted,
       bankruptcy: triggeredBankruptcy,
@@ -914,7 +984,14 @@ export class GameMechanics {
     return {
       updatedGameState,
       quarterResults,
-      updatedCompetitors: this.updateCompetitorsForYear(competitors, gameState.year),
+      // Nächstes Quartal: Roster deterministisch neu erzeugen (neue Releases,
+      // auslaufende Modelle, verschobene Marktanteile).
+      updatedCompetitors: getCompetitorsAt(
+        diff,
+        gameState.quarter === 4 ? gameState.year + 1 : gameState.year,
+        gameState.quarter === 4 ? 1 : gameState.quarter + 1,
+      ),
+
       newCustomChip,
       newsEvents,
       marketData: this.generateMarketData(stateWithSales, competitors, modelResults),

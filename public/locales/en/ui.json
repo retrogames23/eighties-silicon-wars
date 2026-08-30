@@ -331,7 +331,15 @@
       "layoffs": "Layoffs",
       "partnership": "Partnership",
       "quiet_quarter": "Quiet Quarter"
-    }
+    },
+    "productsTitle": "Rival products",
+    "segments": {
+      "gamer": "Target: Gamers",
+      "business": "Target: Business",
+      "workstation": "Target: Workstation"
+    },
+    "performance": "Perf",
+    "noProducts": "No current models on the market"
   },
   "employees": {
     "title": "Staff",

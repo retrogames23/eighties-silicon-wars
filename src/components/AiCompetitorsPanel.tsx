@@ -7,12 +7,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users } from 'lucide-react';
+import { Users, Cpu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AiCompetitor } from '@/services/CompetitorsService';
+import { getRivalFirms } from '@/lib/game/CompetitorAI';
+import { getDifficultyFromGameState, type DifficultyId } from '@/lib/game/Difficulty';
 
 interface AiCompetitorsPanelProps {
   competitors: AiCompetitor[];
+  /** Aktuelles Jahr/Quartal — für das echte Produktportfolio der Konkurrenz. */
+  year?: number;
+  quarter?: number;
+  difficulty?: DifficultyId;
 }
 
 const ACTION_TONE: Record<string, string> = {
@@ -25,9 +31,15 @@ const ACTION_TONE: Record<string, string> = {
   quiet_quarter: 'bg-muted text-muted-foreground border-border',
 };
 
-export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => {
+export const AiCompetitorsPanel = ({ competitors, year, quarter, difficulty }: AiCompetitorsPanelProps) => {
   const { t } = useTranslation();
-  if (!competitors || competitors.length === 0) return null;
+
+  const rivals = year && quarter
+    ? getRivalFirms(getDifficultyFromGameState({ difficulty }), year, quarter)
+    : [];
+
+  if ((!competitors || competitors.length === 0) && rivals.length === 0) return null;
+
 
   return (
     <Card>
@@ -79,7 +91,50 @@ export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => 
             </div>
           );
         })}
+
+        {rivals.length > 0 && (
+          <div className="space-y-2 pt-1">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5" />
+              {t('ui:competitors.productsTitle')}
+            </div>
+            {rivals.map((f) => (
+              <div key={f.id} className="border rounded-md p-3 space-y-2 bg-muted/10">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm truncate">{f.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {t(`ui:competitors.segments.${f.segment}`, { defaultValue: f.segment })}
+                    </div>
+                  </div>
+                  <div className="text-right text-xs whitespace-nowrap">
+                    <div>{t('ui:competitors.market')}: <span className="font-mono">{f.marketShare.toFixed(1)}%</span></div>
+                    <div>{t('ui:competitors.reputation')}: <span className="font-mono">{Math.round(f.reputation)}</span></div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  {f.models.length === 0 && (
+                    <p className="text-xs italic text-muted-foreground">{t('ui:competitors.noProducts')}</p>
+                  )}
+                  {f.models.map((m) => (
+                    <div key={m.name} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate font-mono">{m.name}</span>
+                      <span className="flex items-center gap-2 whitespace-nowrap text-muted-foreground">
+                        <span className="font-mono">${m.price.toLocaleString()}</span>
+                        <Badge variant="outline" className="text-[10px]">
+                          {t('ui:competitors.performance')} {m.performance}
+                        </Badge>
+                        <span>Q{m.releaseQuarter}/{m.releaseYear}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
+
     </Card>
   );
 };

@@ -38,25 +38,84 @@ export interface DifficultyProfile {
    *    bei erneutem Unterschreiten Game Over.
    */
   bankruptcyMode: "game_over" | "emergency_loan_then_game_over";
-  /** Höhe des Notkredits (nur relevant bei emergency_loan_then_game_over). */
+  /** Höhe des Notkredits (Mindestbetrag, nur bei emergency_loan_then_game_over). */
   emergencyLoanAmount: number;
+  /**
+   * Obergrenze des Notkredits. Der tatsächliche Betrag richtet sich nach dem
+   * echten Loch (Fehlbetrag + Puffer), damit ein Notkredit nie in einen
+   * garantierten Folge-Bankrott führt.
+   */
+  emergencyLoanMaxAmount: number;
   /** Jahres-Zinssatz des Notkredits (z. B. 0.12 = 12 %). */
   emergencyLoanInterest: number;
   /** Laufzeit des Notkredits in Quartalen. */
   emergencyLoanQuarters: number;
+  /**
+   * Zusätzliche Insolvenzprüfung auf die Nettoposition (Cash − Schulden).
+   * Negativer Wert. Verhindert "technisch insolvent, aber Cash noch okay".
+   */
+  bankruptcyNetWorthThreshold: number;
 
   // ----- Welt / KI -----
   /** Maximaler KI-Druck pro Segment (0..1). 0 = keine KI-Konkurrenz. */
   aiPressureCeiling: number;
+  /** KI-Druck zu Spielbeginn (0..1). Der Druck rampt bis zum Ceiling hoch. */
+  aiPressureFloor: number;
+  /** Takt, in dem jede Konkurrenzfirma ein neues Modell veröffentlicht (Quartale). */
+  aiReleaseCadenceQuarters: number;
+  /** Aggressivität der KI-Preise/Specs (1 = neutral). */
+  aiAggression: number;
   /** Faktor für Stärke von Welt-Krisen (Rezession, RAM-Knappheit, …). */
   crisisMagnitudeMultiplier: number;
   /** Erwartete Pflicht-Schocks im 1983–1992-Bogen (informativ + Headless). */
   scheduledCrises: number;
+  /** Fester Krisenkalender — Single Source für Live-Spiel UND Headless-Tests. */
+  crisisCalendar: ScheduledCrisis[];
 
   // ----- Reputation -----
   /** Multiplikator für Reputations-Verlust bei Quartalsverlust. */
   reputationLossMultiplier: number;
 }
+
+/** Ein geplanter Weltschock (deterministisch, kein LLM). */
+export interface ScheduledCrisis {
+  /** i18n-Key-Suffix, z. B. "recession1985". */
+  key: string;
+  year: number;
+  quarter: number;
+  /** Dauer in Quartalen. */
+  durationQuarters: number;
+  /** Nachfrage-Delta pro Quartal (negativ = Einbruch), vor Magnitude-Skalierung. */
+  demandDeltaPerQuarter: number;
+  /** Optionaler BOM-Multiplikator (z. B. RAM-Knappheit 1.25). */
+  bomMultiplier?: number;
+}
+
+const CRISES_EASY: ScheduledCrisis[] = [
+  { key: "dip1985", year: 1985, quarter: 1, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 2, demandDeltaPerQuarter: 0, bomMultiplier: 1.10 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 4, demandDeltaPerQuarter: -0.05 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 3, demandDeltaPerQuarter: -0.06 },
+];
+
+const CRISES_NORMAL: ScheduledCrisis[] = [
+  { key: "recession1985", year: 1985, quarter: 1, durationQuarters: 4, demandDeltaPerQuarter: -0.15 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 6, demandDeltaPerQuarter: -0.10 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: 0, bomMultiplier: 1.25 },
+  { key: "priceWar1989", year: 1989, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 4, demandDeltaPerQuarter: -0.12 },
+];
+
+const CRISES_HARD: ScheduledCrisis[] = [
+  { key: "priceWar1984", year: 1984, quarter: 3, durationQuarters: 3, demandDeltaPerQuarter: -0.10 },
+  { key: "recession1985", year: 1985, quarter: 1, durationQuarters: 5, demandDeltaPerQuarter: -0.18 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 8, demandDeltaPerQuarter: -0.12 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 4, demandDeltaPerQuarter: 0, bomMultiplier: 1.45 },
+  { key: "patentFight1989", year: 1989, quarter: 3, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 5, demandDeltaPerQuarter: -0.20 },
+  { key: "rateShock1991", year: 1991, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: -0.05, bomMultiplier: 1.20 },
+];
+
 
 export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
   easy: {
@@ -69,11 +128,17 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     bankruptcyCashThreshold: -2_000_000,
     bankruptcyMode: "game_over",
     emergencyLoanAmount: 0,
+    emergencyLoanMaxAmount: 0,
     emergencyLoanInterest: 0,
     emergencyLoanQuarters: 0,
+    bankruptcyNetWorthThreshold: -3_500_000,
     aiPressureCeiling: 0,
+    aiPressureFloor: 0,
+    aiReleaseCadenceQuarters: 10,
+    aiAggression: 0.75,
     crisisMagnitudeMultiplier: 1.0,
-    scheduledCrises: 4,
+    scheduledCrises: CRISES_EASY.length,
+    crisisCalendar: CRISES_EASY,
     reputationLossMultiplier: 1.0,
   },
   normal: {
@@ -86,31 +151,91 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     bankruptcyCashThreshold: -1_000_000,
     bankruptcyMode: "emergency_loan_then_game_over",
     emergencyLoanAmount: 500_000,
+    emergencyLoanMaxAmount: 2_000_000,
     emergencyLoanInterest: 0.12,
     emergencyLoanQuarters: 8,
+    bankruptcyNetWorthThreshold: -2_500_000,
     aiPressureCeiling: 0.40,
+    aiPressureFloor: 0.05,
+    aiReleaseCadenceQuarters: 7,
+    aiAggression: 1.0,
     crisisMagnitudeMultiplier: 1.4,
-    scheduledCrises: 5,
+    scheduledCrises: CRISES_NORMAL.length,
+    crisisCalendar: CRISES_NORMAL,
     reputationLossMultiplier: 1.5,
   },
   hard: {
     id: "hard",
     label: "Schwer",
     tagline: "Hardcore: wenig Kapital, harte KI, häufige Krisen, kein Rettungsnetz.",
-    startingCash: 750_000,
+    startingCash: 900_000,
     fixedCostMultiplier: 1.25,
     marketingSaturationPoint: 300_000,
-    bankruptcyCashThreshold: -500_000,
-    bankruptcyMode: "game_over",
-    emergencyLoanAmount: 0,
-    emergencyLoanInterest: 0,
-    emergencyLoanQuarters: 0,
+    bankruptcyCashThreshold: -900_000,
+    // Auch Hardcore braucht eine (teure) zweite Chance, sonst sind
+    // investitionsintensive Strategien mathematisch unspielbar.
+    bankruptcyMode: "emergency_loan_then_game_over",
+    emergencyLoanAmount: 400_000,
+    emergencyLoanMaxAmount: 1_500_000,
+    emergencyLoanInterest: 0.20,
+    emergencyLoanQuarters: 6,
+    bankruptcyNetWorthThreshold: -1_500_000,
     aiPressureCeiling: 0.70,
+    aiPressureFloor: 0.12,
+    aiReleaseCadenceQuarters: 5,
+    aiAggression: 1.3,
     crisisMagnitudeMultiplier: 1.8,
-    scheduledCrises: 7,
+    scheduledCrises: CRISES_HARD.length,
+    crisisCalendar: CRISES_HARD,
     reputationLossMultiplier: 2.0,
   },
 };
+
+/** Quartals-Index seit Q1/1983 (0-basiert). */
+export function quarterIndex(year: number, quarter: number): number {
+  return (year - 1983) * 4 + (quarter - 1);
+}
+
+/**
+ * Aktive Krisen zum Zeitpunkt (year, quarter) inkl. Magnitude-Skalierung.
+ * Single Source für Live-Spiel und Headless-Balance-Runner.
+ */
+export function getActiveCrises(
+  profile: DifficultyProfile,
+  year: number,
+  quarter: number,
+): { active: ScheduledCrisis[]; demandMultiplier: number; bomMultiplier: number } {
+  const now = quarterIndex(year, quarter);
+  const m = profile.crisisMagnitudeMultiplier;
+  const active = profile.crisisCalendar.filter(c => {
+    const start = quarterIndex(c.year, c.quarter);
+    return now >= start && now < start + c.durationQuarters;
+  });
+
+  let demandDelta = 0;
+  let bomMultiplier = 1;
+  for (const c of active) {
+    demandDelta += Math.max(-0.30, c.demandDeltaPerQuarter * m);
+    if (c.bomMultiplier) bomMultiplier *= 1 + (c.bomMultiplier - 1) * m;
+  }
+  // Nachfrage darf durch Krisen maximal halbiert werden.
+  const demandMultiplier = Math.max(0.5, 1 + Math.max(-0.5, demandDelta));
+  return { active, demandMultiplier, bomMultiplier };
+}
+
+/**
+ * KI-Druck rampt über den Spielbogen 1983→1992 linear von Floor auf Ceiling.
+ * Workstation bleibt etwas ruhiger (Nischenmarkt).
+ */
+export function aiPressureAt(
+  profile: DifficultyProfile,
+  year: number,
+): Record<"gamer" | "business" | "workstation", number> {
+  const t = Math.max(0, Math.min(1, (year - 1983) / 9));
+  const level = profile.aiPressureFloor + (profile.aiPressureCeiling - profile.aiPressureFloor) * t;
+  return { gamer: level, business: level, workstation: level * 0.7 };
+}
+
 
 export const DEFAULT_DIFFICULTY: DifficultyId = "normal";
 

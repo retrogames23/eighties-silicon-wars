@@ -14,9 +14,17 @@
 // ============================================================================
 
 import { EconomyModel } from "@/components/EconomyModel";
-import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
+import { type Competitor } from "@/lib/game/GameMechanics";
+import { getCompetitorsAt } from "@/lib/game/CompetitorAI";
 import { quarterSeed } from "@/lib/game/rng";
-import { DIFFICULTY_PROFILES, type DifficultyId, type DifficultyProfile } from "@/lib/game/Difficulty";
+import {
+  DIFFICULTY_PROFILES,
+  getActiveCrises,
+  aiPressureAt as difficultyAiPressureAt,
+  type DifficultyId,
+  type DifficultyProfile,
+} from "@/lib/game/Difficulty";
+
 import { ScriptedWorldDirector } from "./scriptedDirector";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -31,57 +39,13 @@ const SEGMENTS = ["gamer", "business", "workstation"] as const;
 
 /**
  * Headless-Szenarien spiegeln die drei Schwierigkeitsgrade aus Difficulty.ts.
- * Jeder Schwierigkeit ist ein Set aus Pflicht-Krisen und KI-Druck-Profil
- * zugeordnet. Magnitudes werden mit dem `crisisMagnitudeMultiplier` skaliert,
- * sodass dieselbe Krise auf Schwer härter zuschlägt.
+ * Krisenkalender und KI-Druck kommen jetzt DIREKT aus `Difficulty.ts` —
+ * Single Source of Truth, damit der Runner exakt das misst, was Spieler erleben.
  */
-interface ForcedShock {
-  yearQ: [number, number];
-  durationQ: number;
-  demandDeltaPerQ: number;
-  bomMultiplier?: number;
-  label: string;
-}
-
 interface Scenario {
   id: DifficultyId;
   label: string;
   profile: DifficultyProfile;
-  shocks: ForcedShock[];
-  aiPressureAt: (year: number, quarter: number) => Partial<Record<"gamer"|"business"|"workstation", number>>;
-}
-
-// Pro Schwierigkeit kuratierte Krisen. Anzahl entspricht ungefähr
-// `profile.scheduledCrises`; Stärke skaliert mit `crisisMagnitudeMultiplier`.
-const SHOCK_LIBRARY: Record<DifficultyId, ForcedShock[]> = {
-  easy: [
-    { yearQ: [1985, 1], durationQ: 3, demandDeltaPerQ: -0.08, label: "Milde Marktdelle 1985" },
-    { yearQ: [1988, 2], durationQ: 2, demandDeltaPerQ: 0, bomMultiplier: 1.10, label: "Leichte RAM-Knappheit 1988" },
-  ],
-  normal: [
-    { yearQ: [1985, 1], durationQ: 4, demandDeltaPerQ: -0.15, label: "Rezession 1985" },
-    { yearQ: [1986, 1], durationQ: 6, demandDeltaPerQ: -0.10, label: "Tech-Disruption 32-bit" },
-    { yearQ: [1988, 2], durationQ: 3, demandDeltaPerQ: 0, bomMultiplier: 1.25, label: "RAM-Knappheit 1988" },
-    { yearQ: [1990, 4], durationQ: 4, demandDeltaPerQ: -0.12, label: "Rezession 1990/91" },
-  ],
-  hard: [
-    { yearQ: [1984, 3], durationQ: 3, demandDeltaPerQ: -0.10, label: "Preiskrieg 1984" },
-    { yearQ: [1985, 1], durationQ: 5, demandDeltaPerQ: -0.18, label: "Tiefe Rezession 1985/86" },
-    { yearQ: [1986, 1], durationQ: 8, demandDeltaPerQ: -0.12, label: "Tech-Disruption 32-bit" },
-    { yearQ: [1988, 2], durationQ: 4, demandDeltaPerQ: 0, bomMultiplier: 1.45, label: "Schwere RAM-Knappheit 1988" },
-    { yearQ: [1989, 3], durationQ: 3, demandDeltaPerQ: -0.08, label: "Patentstreit 1989" },
-    { yearQ: [1990, 4], durationQ: 5, demandDeltaPerQ: -0.20, label: "Rezession 1990/91" },
-    { yearQ: [1991, 2], durationQ: 3, demandDeltaPerQ: -0.05, bomMultiplier: 1.20, label: "Zinsschock 1991" },
-  ],
-};
-
-function scaleShocks(profile: DifficultyProfile, shocks: ForcedShock[]): ForcedShock[] {
-  const m = profile.crisisMagnitudeMultiplier;
-  return shocks.map(s => ({
-    ...s,
-    demandDeltaPerQ: Math.max(-0.30, s.demandDeltaPerQ * m),
-    bomMultiplier: s.bomMultiplier ? 1 + (s.bomMultiplier - 1) * m : undefined,
-  }));
 }
 
 const SCENARIOS: Scenario[] = (["easy", "normal", "hard"] as DifficultyId[]).map(id => {
@@ -90,23 +54,9 @@ const SCENARIOS: Scenario[] = (["easy", "normal", "hard"] as DifficultyId[]).map
     id,
     label: `${profile.label} (Startkapital $${profile.startingCash.toLocaleString()}, KI-Cap ${Math.round(profile.aiPressureCeiling * 100)}%)`,
     profile,
-    shocks: scaleShocks(profile, SHOCK_LIBRARY[id]),
-    // KI-Druck steigt linear bis zum Ceiling des Profils.
-    aiPressureAt: (year) => {
-      const t = Math.max(0, Math.min(1, (year - 1983) / 9));
-      const cap = profile.aiPressureCeiling;
-      return { gamer: cap * t, business: cap * t, workstation: cap * 0.7 * t };
-    },
   };
 });
 
-function activeShocks(sc: Scenario, year: number, quarter: number): ForcedShock[] {
-  return sc.shocks.filter(sh => {
-    const startIdx = (sh.yearQ[0] - 1983) * 4 + (sh.yearQ[1] - 1);
-    const nowIdx = (year - 1983) * 4 + (quarter - 1);
-    return nowIdx >= startIdx && nowIdx < startIdx + sh.durationQ;
-  });
-}
 
 interface Model {
   name: string;
@@ -194,7 +144,6 @@ interface RunResult {
 async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<RunResult> {
   const profile = sc.profile;
   const director = new ScriptedWorldDirector(FIXTURE);
-  const competitors: Competitor[] = INITIAL_COMPETITORS as unknown as Competitor[];
   const models: Model[] = [];
   let cash = profile.startingCash, reputation = 50, brandAwareness = 0;
   let peak = cash, min = cash, totalRev = 0, totalUnits = 0, lossQ = 0;
@@ -211,23 +160,24 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       for (const m of s.releases(year, q)) { cash -= m.developmentCost; models.push(m); }
       if (bankruptQ !== null) continue;
 
+      // Konkurrenz-Feld dieses Quartals (neue Generationen, alternde Modelle).
+      const competitors: Competitor[] = getCompetitorsAt(profile, year, q);
+
       const events = await director.generate({ userId: seedSalt, year, quarter: q });
       let demandBoost = 0;
       for (const ev of events) demandBoost += ev.applied_effects?.demand_delta ?? 0;
 
-      const shocks = activeShocks(sc, year, q);
-      let bomMult = 1;
-      let shockDemand = 0;
-      for (const sh of shocks) {
-        shockDemand += sh.demandDeltaPerQ;
-        if (sh.bomMultiplier) bomMult *= sh.bomMultiplier;
-      }
+      // Geplante Krisen aus dem gemeinsamen Difficulty-Kalender.
+      const crisis = getActiveCrises(profile, year, q);
+      const bomMult = crisis.bomMultiplier;
+      const shockDemand = crisis.demandMultiplier - 1;
       const combinedDemand = Math.max(-0.35, Math.min(0.20, demandBoost + shockDemand));
+
       const marketingEffective = Math.round(s.marketing * (1 + combinedDemand));
 
       const rngSeed = quarterSeed(seedSalt + "-" + s.id + "-" + sc.id, year, q);
       const activeModelCount = models.length;
-      const aiPressure = sc.aiPressureAt(year, q);
+      const aiPressure = difficultyAiPressureAt(profile, year);
 
       // Portfolio-Shares pro Segment
       const appealTotals: Record<string, { m: Model; a: number }[]> = { gamer: [], business: [], workstation: [] };
@@ -293,21 +243,27 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       if (cash > peak) peak = cash;
       if (cash < min) min = cash;
 
-      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit.
+      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit,
+      // dessen Höhe das echte Loch plus Puffer deckt (wie im Live-Spiel).
       if (cash < profile.bankruptcyCashThreshold && bankruptQ === null) {
-        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanAmount > 0) {
-          cash += profile.emergencyLoanAmount;
+        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanMaxAmount > 0) {
+          const principal = Math.round(Math.min(
+            profile.emergencyLoanMaxAmount,
+            Math.max(profile.emergencyLoanAmount, Math.max(0, -cash) + Math.max(250_000, expenses * 2)),
+          ));
+          cash += principal;
           emergencyLoanUsed = true;
           const r = profile.emergencyLoanInterest / 4;
           const n = profile.emergencyLoanQuarters;
           emergencyLoanQuarterlyPayment = Math.round(
-            profile.emergencyLoanAmount * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+            principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
           );
           emergencyLoanQuartersRemaining = n;
         } else {
           bankruptQ = qIdx;
         }
       }
+
     }
   }
 
@@ -397,8 +353,12 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     const here = aggAll.filter(a => a.scenario === "hard");
     const surviving30 = here.filter(a => a.surviveRate >= 0.30).length;
     const weak = here.filter(a => a.surviveRate < 0.50).length;
+    const loanHeavy = here.filter(a => a.emergencyLoanRate >= 0.50).length;
     if (surviving30 < 3) failures.push(`[hard] zu hart: nur ${surviving30}/${here.length} Strategien schaffen ≥30 % Überleben`);
-    if (weak < 2) failures.push(`[hard] zu leicht: nur ${weak} Strategien <50 % Überleben (echtes Aussieben fehlt)`);
+    // Aussieben zeigt sich entweder als gescheiterte Strategie ODER als
+    // Strategie, die nur mit dem teuren Notkredit überlebt.
+    if (weak + loanHeavy < 2) failures.push(`[hard] zu leicht: kein echtes Aussieben (weder Scheitern noch Notkredit-Zwang)`);
+
     const survivors = here.filter(a => a.surviveRate >= 0.5);
     const medMed = survivors.length
       ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median

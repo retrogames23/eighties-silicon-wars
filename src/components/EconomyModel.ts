@@ -119,7 +119,14 @@ export interface EconomyContext {
    * Niedriger = Marketing wird schneller ineffizient (Schwer).
    */
   marketingSaturationPoint?: number;
+  /**
+   * Segment-spezifische Reputation 0..100. Marken werden pro Zielgruppe
+   * wahrgenommen: Wer konsequent für Gamer baut, verkauft dort leichter,
+   * hat aber im Business-Segment keinen Bonus.
+   */
+  segmentReputation?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
 }
+
 
 export class EconomyModel {
 

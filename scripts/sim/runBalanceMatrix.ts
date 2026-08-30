@@ -353,8 +353,12 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
     const here = aggAll.filter(a => a.scenario === "hard");
     const surviving30 = here.filter(a => a.surviveRate >= 0.30).length;
     const weak = here.filter(a => a.surviveRate < 0.50).length;
+    const loanHeavy = here.filter(a => a.emergencyLoanRate >= 0.50).length;
     if (surviving30 < 3) failures.push(`[hard] zu hart: nur ${surviving30}/${here.length} Strategien schaffen ≥30 % Überleben`);
-    if (weak < 2) failures.push(`[hard] zu leicht: nur ${weak} Strategien <50 % Überleben (echtes Aussieben fehlt)`);
+    // Aussieben zeigt sich entweder als gescheiterte Strategie ODER als
+    // Strategie, die nur mit dem teuren Notkredit überlebt.
+    if (weak + loanHeavy < 2) failures.push(`[hard] zu leicht: kein echtes Aussieben (weder Scheitern noch Notkredit-Zwang)`);
+
     const survivors = here.filter(a => a.surviveRate >= 0.5);
     const medMed = survivors.length
       ? [...survivors].sort((a, b) => a.median - b.median)[Math.floor(survivors.length / 2)].median

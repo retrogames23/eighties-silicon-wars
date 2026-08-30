@@ -70,10 +70,10 @@ export const storageSprite = (kind: StorageKind): PixelMatrix => {
     optical: 'DlKKKKKKKKKKKKlWlD',
   };
   const faceRow: Record<StorageKind, string> = {
-    cassette: 'DlBKKBBBBBBKKBlllD',
-    floppy: 'DlllllllllllllllD'.padEnd(18, 'l').slice(0, 17) + 'D',
-    disk: 'DlllllBBBBBBlllllD',
-    optical: 'DlllKKKKKKKKllllID'.replace('I', 'l'),
+    cassette: 'DlBKKBBBBBBBKKBllD',
+    floppy: 'DllllllllllllllllD',
+    disk: 'DlllllBBBBBBllllllD'.slice(0, 18),
+    optical: 'DlllKKKKKKKKllllllD'.slice(0, 18),
   };
   return [
     'DDDDDDDDDDDDDDDDDD',

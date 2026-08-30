@@ -316,6 +316,10 @@
         "audience": "Zielgruppen-Passung",
         "gamer": "Gamer",
         "business": "Business"
+      },
+      "boot": {
+        "ready": "BEREIT.",
+        "unnamed": "NAMENLOS"
       }
     }
   },

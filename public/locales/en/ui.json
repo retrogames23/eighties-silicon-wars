@@ -316,6 +316,10 @@
         "audience": "Audience match",
         "gamer": "Gamer",
         "business": "Business"
+      },
+      "boot": {
+        "ready": "READY.",
+        "unnamed": "UNNAMED"
       }
     }
   },

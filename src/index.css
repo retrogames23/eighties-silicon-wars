@@ -63,6 +63,13 @@ All colors MUST be HSL.
     --case-metal: 220 8% 62%;
     --case-mini: 210 12% 55%;
 
+    /* Pixel machine preview */
+    --pcb: 150 45% 16%;
+    --pcb-trace: 150 40% 34%;
+    --pcb-pad: 45 70% 62%;
+    --screen-phosphor: 140 85% 72%;
+
+
     
     /* Gradients - softened */
     --gradient-retro: linear-gradient(135deg, hsl(120 60% 60%), hsl(180 50% 65%));

@@ -172,11 +172,13 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     fixedCostMultiplier: 1.25,
     marketingSaturationPoint: 300_000,
     bankruptcyCashThreshold: -900_000,
-    bankruptcyMode: "game_over",
-    emergencyLoanAmount: 0,
-    emergencyLoanMaxAmount: 0,
-    emergencyLoanInterest: 0,
-    emergencyLoanQuarters: 0,
+    // Auch Hardcore braucht eine (teure) zweite Chance, sonst sind
+    // investitionsintensive Strategien mathematisch unspielbar.
+    bankruptcyMode: "emergency_loan_then_game_over",
+    emergencyLoanAmount: 400_000,
+    emergencyLoanMaxAmount: 1_500_000,
+    emergencyLoanInterest: 0.20,
+    emergencyLoanQuarters: 6,
     bankruptcyNetWorthThreshold: -1_500_000,
     aiPressureCeiling: 0.70,
     aiPressureFloor: 0.12,

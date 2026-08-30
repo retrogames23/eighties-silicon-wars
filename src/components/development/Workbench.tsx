@@ -74,6 +74,7 @@ export const Workbench = (props: WorkbenchProps) => {
             selectedCase={props.selectedCase}
             ghost={ghost}
             onClearSlot={props.onClearSlot}
+            modelName={props.modelName}
           />
 
           <div className="space-y-2">

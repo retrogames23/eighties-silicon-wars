@@ -859,23 +859,50 @@ export class GameMechanics {
     const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
     const reputationChange = newReputation - company.reputation;
 
+    // 8a-2. Segment-Reputation: wo verkauft wurde, wächst die Markenbindung,
+    //       wo nichts läuft, verblasst sie langsam Richtung globaler Reputation.
+    const totalSegUnits = SEGMENTS.reduce((s, seg) => s + segmentUnits[seg], 0);
+    const newSegmentReputation: Record<string, number> = {};
+    for (const seg of SEGMENTS) {
+      const prev = prevSegmentReputation[seg];
+      const share = totalSegUnits > 0 ? segmentUnits[seg] / totalSegUnits : 0;
+      // Fokus-Bonus (bis +4), sonst Drift Richtung globaler Reputation.
+      const gain = share * 4 * (cappedRepDelta >= 0 ? 1 : 0.3);
+      const drift = (newReputation - prev) * 0.15;
+      newSegmentReputation[seg] = Math.max(0, Math.min(100, prev + gain + drift - (share === 0 ? 0.5 : 0)));
+    }
+
     // 8b. Bankrott-Check je nach Schwierigkeit.
     //  - easy/hard: sofortiges Game Over wenn cash unter Schwelle.
     //  - normal: einmaliger Pflicht-Notkredit, danach Game Over beim zweiten Mal.
+    //  Zusätzlich: technische Insolvenz über die Nettoposition (Cash − Schulden).
     let triggeredBankruptcy = false;
     let emergencyLoanGranted = false;
-    if (cashAfterOps < diff.bankruptcyCashThreshold) {
+    const netWorth = cashAfterOps - outstandingDebt;
+    if (cashAfterOps < diff.bankruptcyCashThreshold || netWorth < diff.bankruptcyNetWorthThreshold) {
       const alreadyTookEmergency = !!gameState.emergencyLoanUsed;
-      if (diff.bankruptcyMode === "emergency_loan_then_game_over" && !alreadyTookEmergency && diff.emergencyLoanAmount > 0) {
-        // Notkredit ausreichen — Cash sofort gutschreiben, Loan persistieren (nur online).
-        cashAfterOps += diff.emergencyLoanAmount;
+      const canTakeEmergency =
+        diff.bankruptcyMode === "emergency_loan_then_game_over" &&
+        !alreadyTookEmergency &&
+        diff.emergencyLoanMaxAmount > 0 &&
+        netWorth >= diff.bankruptcyNetWorthThreshold;
+
+      if (canTakeEmergency) {
+        // Kreditsumme deckt das echte Loch plus Puffer für zwei Quartale
+        // Fixkosten — ein Notkredit darf nicht in den Folge-Bankrott führen.
+        const gap = Math.max(0, -cashAfterOps);
+        const buffer = Math.max(250_000, totalPeriodExpenses * 2);
+        const principal = Math.round(
+          Math.min(diff.emergencyLoanMaxAmount, Math.max(diff.emergencyLoanAmount, gap + buffer)),
+        );
+        cashAfterOps += principal;
         emergencyLoanGranted = true;
         if (userId) {
           try {
             const { LoanService } = await import('@/services/LoanService');
             await LoanService.create({
               userId,
-              principal: diff.emergencyLoanAmount,
+              principal,
               annualRate: diff.emergencyLoanInterest,
               quartersTotal: diff.emergencyLoanQuarters,
               year: gameState.year,
@@ -890,6 +917,7 @@ export class GameMechanics {
         triggeredBankruptcy = true;
       }
     }
+
 
     // 9. Aktualisierter Spielzustand
     const updatedGameState = {

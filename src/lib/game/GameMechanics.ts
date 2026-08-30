@@ -484,14 +484,21 @@ export class GameMechanics {
   /**
    * ÜBERARBEITETER processQuarterTurn mit korrekter Gewinn-Kalkulation
    */
-  static async processQuarterTurn(gameState: any, competitors: Competitor[]): Promise<QuarterTurnResult> {
+  static async processQuarterTurn(gameState: any, competitorsInput: Competitor[]): Promise<QuarterTurnResult> {
     const { budget, models, company } = gameState;
     
     console.log(`🎮 [GameMechanics] Processing Q${gameState.quarter}/${gameState.year} with EconomyModel integration`);
     
     // Difficulty-Profil aus dem GameState lesen (Legacy-Saves → "easy").
-    const { getDifficultyFromGameState } = await import('@/lib/game/Difficulty');
+    const { getDifficultyFromGameState, getActiveCrises, aiPressureAt } = await import('@/lib/game/Difficulty');
+    const { getCompetitorsAt } = await import('@/lib/game/CompetitorAI');
     const diff = getDifficultyFromGameState(gameState);
+
+    // Konkurrenz ist kein eingefrorenes Array mehr: Das Feld wird deterministisch
+    // aus (Jahr, Quartal, Difficulty) erzeugt — inkl. neuer Produktgenerationen.
+    const competitors: Competitor[] = getCompetitorsAt(diff, gameState.year, gameState.quarter);
+    void competitorsInput;
+
 
     // 1. Prüfe auf Spielende (Zeit)
     const gameEndCondition = this.checkGameEnd(gameState.year, gameState.quarter);

@@ -9,6 +9,8 @@ import gamerRgb from '@/assets/workbench/case-gamer-rgb.png';
 import retroWood from '@/assets/workbench/case-retro-wood.png';
 import premiumMetal from '@/assets/workbench/case-premium-metal.png';
 import compactMini from '@/assets/workbench/case-compact-mini.png';
+import beigeBreadbox from '@/assets/workbench/case-beige-breadbox.png';
+import beigePizzabox from '@/assets/workbench/case-beige-pizzabox.png';
 
 import insideBeigeTower from '@/assets/workbench/inside-beige-tower.png';
 import insideBlackDesktop from '@/assets/workbench/inside-black-desktop.png';
@@ -16,6 +18,8 @@ import insideGamerRgb from '@/assets/workbench/inside-gamer-rgb.png';
 import insideRetroWood from '@/assets/workbench/inside-retro-wood.png';
 import insidePremiumMetal from '@/assets/workbench/inside-premium-metal.png';
 import insideCompactMini from '@/assets/workbench/inside-compact-mini.png';
+import insideBeigeBreadbox from '@/assets/workbench/inside-beige-breadbox.png';
+import insideBeigePizzabox from '@/assets/workbench/inside-beige-pizzabox.png';
 
 export type OverlaySlot = Exclude<SlotType, 'case' | 'display'>;
 
@@ -41,6 +45,30 @@ export interface CaseLayout {
 }
 
 export const CASE_LAYOUTS: Record<string, CaseLayout> = {
+  'beige-breadbox': {
+    closed: beigeBreadbox,
+    open: insideBeigeBreadbox,
+    screen: { x: 0.4, y: 0.13, w: 0.28, h: 0.32 },
+    slots: {
+      cpu: { x: 0.38, y: 0.6 },
+      memory: { x: 0.3, y: 0.55 },
+      gpu: { x: 0.46, y: 0.66 },
+      sound: { x: 0.52, y: 0.58 },
+      storage: { x: 0.78, y: 0.68 },
+    },
+  },
+  'beige-pizzabox': {
+    closed: beigePizzabox,
+    open: insideBeigePizzabox,
+    screen: { x: 0.36, y: 0.15, w: 0.27, h: 0.32 },
+    slots: {
+      cpu: { x: 0.4, y: 0.58 },
+      memory: { x: 0.34, y: 0.53 },
+      gpu: { x: 0.72, y: 0.55 },
+      sound: { x: 0.78, y: 0.6 },
+      storage: { x: 0.58, y: 0.63 },
+    },
+  },
   'beige-tower': {
     closed: beigeTower,
     open: insideBeigeTower,
@@ -118,4 +146,4 @@ export const CASE_LAYOUTS: Record<string, CaseLayout> = {
 export const OVERLAY_SLOTS: OverlaySlot[] = ['cpu', 'memory', 'gpu', 'sound', 'storage'];
 
 export const layoutFor = (caseId?: string): CaseLayout =>
-  CASE_LAYOUTS[caseId ?? ''] ?? CASE_LAYOUTS['beige-tower'];
+  CASE_LAYOUTS[caseId ?? ''] ?? CASE_LAYOUTS['beige-breadbox'];

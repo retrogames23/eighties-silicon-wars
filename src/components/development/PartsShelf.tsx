@@ -51,9 +51,11 @@ export const PartsShelf = ({
           description={item.description}
           cost={item.price}
           rating={Math.round((item.quality + item.design) / 2)}
-          available
+          available={item.available !== false}
+          availableYear={item.availableFromYear}
+          availableQuarter={item.availableFromQuarter}
           selected={selectedCase?.id === item.id}
-          onPick={() => onPickCase(item)}
+          onPick={() => item.available !== false && onPickCase(item)}
           onHoverStart={() => onHover({ slot: 'case', caseItem: item })}
           onHoverEnd={() => onHover(null)}
         />

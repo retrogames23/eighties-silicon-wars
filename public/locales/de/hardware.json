@@ -37,29 +37,37 @@
     "required": "CPU, GPU und Arbeitsspeicher sind erforderlich"
   },
   "cases": {
+    "beigeBreadbox": {
+      "name": "Beige Breadbox",
+      "description": "Tastaturgehäuse mit separatem Röhrenmonitor – der Heimcomputer-Klassiker"
+    },
+    "beigePizzabox": {
+      "name": "Beige Desktop-Box",
+      "description": "Flaches Bürogehäuse mit Diskettenlaufwerken, Monitor obendrauf"
+    },
     "beigeTower": {
-      "name": "Beige Tower",
-      "description": "Klassisches Business-Gehäuse in beigem Kunststoff"
+      "name": "Beige Mini-Tower",
+      "description": "Erster Turm der 286/386-Ära für ernsthafte Büroarbeit"
     },
     "blackDesktop": {
-      "name": "Black Desktop",
-      "description": "Elegantes schwarzes Desktop-Gehäuse für den Bürobereich"
+      "name": "Schwarzes Desktop",
+      "description": "Elegantes dunkles Desktop-Gehäuse für den Bürobereich"
     },
     "gamerRgb": {
-      "name": "RGB Gaming Case",
-      "description": "Stylisches Gaming-Gehäuse mit LED-Beleuchtung"
+      "name": "Gaming-Tower mit LED",
+      "description": "Stylisches Gaming-Gehäuse mit Sichtfenster und LED-Beleuchtung"
     },
     "retroWood": {
       "name": "Holz-Optik Retro",
-      "description": "Nostalgisches Gehäuse in Holzoptik für Retro-Liebhaber"
+      "description": "Nostalgisches Gehäuse in Holzoptik für Heimcomputer-Fans"
     },
     "premiumMetal": {
       "name": "Premium Metall",
-      "description": "Hochwertiges Vollmetall-Gehäuse für professionelle Anwendungen"
+      "description": "Hochwertiges Vollmetall-Gehäuse für professionelle Workstations"
     },
     "compactMini": {
-      "name": "Compact Mini",
-      "description": "Platzsparendes Mini-Gehäuse für den Schreibtisch"
+      "name": "Compact All-in-One",
+      "description": "Platzsparendes Gehäuse mit integriertem Bildschirm"
     }
   },
   "descriptions": {

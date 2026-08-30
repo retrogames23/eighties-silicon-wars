@@ -595,10 +595,19 @@ export class GameMechanics {
       console.log('⚠️ Market events not available, using neutral multipliers');
     }
 
-    // 5c. KI-Konkurrenz-Druck pro Segment (aus aktiven AiCompetitor-Stati).
-    //     Verbindet das CompetitorsService-System mit der Verkaufs-Sim, sodass
-    //     KI-Aktionen mechanisch (nicht nur narrativ in der Presse) wirken.
-    let aiCompetitorPressure: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {};
+    // 5b-2. Deterministischer Krisenkalender (Single Source für Live-Spiel und
+    //       Headless-Balance-Runner). Wirkt zusätzlich zu LLM-/DB-Events.
+    const crisisState = getActiveCrises(diff, gameState.year, gameState.quarter);
+    demandMultiplier *= crisisState.demandMultiplier;
+    bomMultiplier *= crisisState.bomMultiplier;
+    const activeCrisisKeys = crisisState.active.map(c => c.key);
+
+    // 5c. KI-Konkurrenz-Druck pro Segment: Basisdruck aus dem Difficulty-Profil
+    //     (rampt über die Partie hoch) plus Aktionen der lebenden Personas.
+    const baselinePressure = aiPressureAt(diff, gameState.year);
+    const aiCompetitorPressure: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {
+      ...baselinePressure,
+    };
     try {
       if (userId) {
         const { CompetitorsService } = await import('@/services/CompetitorsService');
@@ -612,13 +621,18 @@ export class GameMechanics {
             const intensity = Math.min(3, c.last_action?.intensity ?? 1) / 3;
             pressure += shareWeight * targetsMe * (0.5 + 0.5 * intensity);
           }
-          // Cap aus Schwierigkeits-Profil (easy=0, normal=0.4, hard=0.7).
-          aiCompetitorPressure[seg] = Math.min(diff.aiPressureCeiling, pressure);
+          // Personas wirken nur noch halb so stark — echte Konkurrenzprodukte
+          // tragen jetzt den Hauptteil des Wettbewerbsdrucks.
+          aiCompetitorPressure[seg] = Math.min(
+            diff.aiPressureCeiling,
+            (baselinePressure[seg] ?? 0) + pressure * 0.5,
+          );
         }
       }
     } catch (e) {
-      console.log('⚠️ AI competitors not available, pressure=0');
+      console.log('⚠️ AI competitors not available, using baseline pressure');
     }
+
 
     // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
     const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);

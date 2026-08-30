@@ -586,12 +586,46 @@ export class EconomyModel {
     return stepped * this.getInflationFactor(year) * getParadigmMaxPriceMultiplier(segment as Segment, year, quarter);
   }
 
-  static calculateCompetitionImpact(model: any, competitors: Competitor[], segment: string): number {
-    const similarPriceCompetitors = competitors.reduce((count, comp) => {
-      return count + comp.models.filter(m => Math.abs(m.price - model.price) < model.price * 0.3).length;
-    }, 0);
-    return Math.max(0.4, 1.0 - (similarPriceCompetitors * 0.1));
+  static calculateCompetitionImpact(
+    model: any,
+    competitors: Competitor[],
+    segment: string,
+    year?: number,
+  ): number {
+    const refYear = year ?? model.releaseYear ?? 1983;
+    const modelPerf = typeof model.performance === 'number' ? model.performance : 55;
+    const modelTier = this.classifyPriceTier(model.price, refYear);
+
+    let pressure = 0;
+    for (const comp of competitors) {
+      for (const rm of comp.models) {
+        // 1. Preisnähe: Nur Produkte im selben Preisfenster konkurrieren wirklich.
+        const rel = Math.abs(rm.price - model.price) / Math.max(1, model.price);
+        const priceProximity = Math.exp(-Math.pow(rel / 0.45, 2));
+        if (priceProximity < 0.05) continue;
+
+        // 2. Zielgruppen-Relevanz: Rivalen-Tier muss zum Segment passen.
+        const rivalTier = this.classifyPriceTier(rm.price, refYear);
+        const segFit =
+          (rivalTier === 'premium'  && segment === 'workstation') ? 1.2 :
+          (rivalTier === 'midrange' && segment === 'business')    ? 1.2 :
+          (rivalTier === 'budget'   && segment === 'gamer')       ? 1.2 :
+          (rivalTier === modelTier) ? 0.9 : 0.4;
+
+        // 3. Leistungsvorsprung: bessere Rivalen drücken stärker.
+        const perfEdge = Math.max(0.25, Math.min(1.8, 0.6 + (rm.performance - modelPerf) / 70));
+
+        // 4. Aktualität: frische Konkurrenzmodelle wirken stärker.
+        const age = (refYear - (rm.releaseYear ?? refYear)) * 4;
+        const recency = Math.max(0.25, 1 - age * 0.05);
+
+        pressure += priceProximity * segFit * perfEdge * recency;
+      }
+    }
+
+    return Math.max(0.35, 1 / (1 + 0.22 * pressure));
   }
+
 
   /**
    * Marketing-Wirkung mit Diminishing Returns, hartem Cap und Brand-Awareness.

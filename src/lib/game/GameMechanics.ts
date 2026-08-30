@@ -642,6 +642,17 @@ export class GameMechanics {
     const prevBrandAwareness: number = company.brandAwareness ?? 0;
     let newBrandAwareness = prevBrandAwareness;
 
+    // Segment-Reputation: Marken werden pro Zielgruppe wahrgenommen. Wer sich
+    // konsequent auf ein Segment fokussiert, baut dort Bindung auf.
+    const SEGMENTS = ['gamer', 'business', 'workstation'] as const;
+    const prevSegmentReputation: Record<string, number> = {
+      gamer: company.segmentReputation?.gamer ?? company.reputation ?? 50,
+      business: company.segmentReputation?.business ?? company.reputation ?? 50,
+      workstation: company.segmentReputation?.workstation ?? company.reputation ?? 50,
+    };
+    const segmentUnits: Record<string, number> = { gamer: 0, business: 0, workstation: 0 };
+
+
     try {
       const { EconomyModel } = await import('@/components/EconomyModel');
       const relevantModels = ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence);

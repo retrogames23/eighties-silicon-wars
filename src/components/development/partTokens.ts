@@ -23,6 +23,8 @@ export const slotColor = (slot: SlotType, alpha = 1) =>
   `hsl(var(${slotColorVar[slot]}) / ${alpha})`;
 
 export const caseColorVar: Record<string, string> = {
+  'beige-breadbox': '--case-beige',
+  'beige-pizzabox': '--case-beige',
   'beige-tower': '--case-beige',
   'black-desktop': '--case-black',
   'gamer-rgb': '--case-rgb',
@@ -42,4 +44,8 @@ export interface WorkbenchCase {
   design: number;
   price: number;
   description: string;
+  /** Era gating (presentation only) — chassis appear as the years progress. */
+  availableFromYear?: number;
+  availableFromQuarter?: number;
+  available?: boolean;
 }

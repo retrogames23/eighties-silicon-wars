@@ -984,7 +984,14 @@ export class GameMechanics {
     return {
       updatedGameState,
       quarterResults,
-      updatedCompetitors: this.updateCompetitorsForYear(competitors, gameState.year),
+      // Nächstes Quartal: Roster deterministisch neu erzeugen (neue Releases,
+      // auslaufende Modelle, verschobene Marktanteile).
+      updatedCompetitors: getCompetitorsAt(
+        diff,
+        gameState.quarter === 4 ? gameState.year + 1 : gameState.year,
+        gameState.quarter === 4 ? 1 : gameState.quarter + 1,
+      ),
+
       newCustomChip,
       newsEvents,
       marketData: this.generateMarketData(stateWithSales, competitors, modelResults),

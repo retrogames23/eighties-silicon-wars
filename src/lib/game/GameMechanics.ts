@@ -702,6 +702,7 @@ export class GameMechanics {
             brandAwareness: prevBrandAwareness,
             activeModelCount,
             marketingSaturationPoint: diff.marketingSaturationPoint,
+            segmentReputation: prevSegmentReputation as any,
           }
         );
 
@@ -709,6 +710,10 @@ export class GameMechanics {
         totalGrossProfit += salesResult.profitBreakdown.netProfit;
         totalProductCosts += Math.max(0, salesResult.revenue - salesResult.profitBreakdown.netProfit);
         totalUnitsSold += salesResult.unitsSold;
+        for (const seg of SEGMENTS) {
+          segmentUnits[seg] += salesResult.segmentBreakdown?.[seg]?.units ?? 0;
+        }
+
         salesByModelId.set(model.id, {
           unitsSold: salesResult.unitsSold,
           revenue: salesResult.revenue,

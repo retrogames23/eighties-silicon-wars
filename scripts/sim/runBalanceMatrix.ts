@@ -243,21 +243,27 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       if (cash > peak) peak = cash;
       if (cash < min) min = cash;
 
-      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit.
+      // Bankrott-Check je nach Profil. Normal kennt einmaligen Notkredit,
+      // dessen Höhe das echte Loch plus Puffer deckt (wie im Live-Spiel).
       if (cash < profile.bankruptcyCashThreshold && bankruptQ === null) {
-        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanAmount > 0) {
-          cash += profile.emergencyLoanAmount;
+        if (profile.bankruptcyMode === "emergency_loan_then_game_over" && !emergencyLoanUsed && profile.emergencyLoanMaxAmount > 0) {
+          const principal = Math.round(Math.min(
+            profile.emergencyLoanMaxAmount,
+            Math.max(profile.emergencyLoanAmount, Math.max(0, -cash) + Math.max(250_000, expenses * 2)),
+          ));
+          cash += principal;
           emergencyLoanUsed = true;
           const r = profile.emergencyLoanInterest / 4;
           const n = profile.emergencyLoanQuarters;
           emergencyLoanQuarterlyPayment = Math.round(
-            profile.emergencyLoanAmount * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+            principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
           );
           emergencyLoanQuartersRemaining = n;
         } else {
           bankruptQ = qIdx;
         }
       }
+
     }
   }
 

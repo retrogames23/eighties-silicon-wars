@@ -7,12 +7,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users } from 'lucide-react';
+import { Users, Cpu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AiCompetitor } from '@/services/CompetitorsService';
+import { getRivalFirms } from '@/lib/game/CompetitorAI';
+import { getDifficultyFromGameState, type DifficultyId } from '@/lib/game/Difficulty';
 
 interface AiCompetitorsPanelProps {
   competitors: AiCompetitor[];
+  /** Aktuelles Jahr/Quartal — für das echte Produktportfolio der Konkurrenz. */
+  year?: number;
+  quarter?: number;
+  difficulty?: DifficultyId;
 }
 
 const ACTION_TONE: Record<string, string> = {
@@ -25,9 +31,15 @@ const ACTION_TONE: Record<string, string> = {
   quiet_quarter: 'bg-muted text-muted-foreground border-border',
 };
 
-export const AiCompetitorsPanel = ({ competitors }: AiCompetitorsPanelProps) => {
+export const AiCompetitorsPanel = ({ competitors, year, quarter, difficulty }: AiCompetitorsPanelProps) => {
   const { t } = useTranslation();
-  if (!competitors || competitors.length === 0) return null;
+
+  const rivals = year && quarter
+    ? getRivalFirms(getDifficultyFromGameState({ difficulty }), year, quarter)
+    : [];
+
+  if ((!competitors || competitors.length === 0) && rivals.length === 0) return null;
+
 
   return (
     <Card>

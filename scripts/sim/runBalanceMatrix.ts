@@ -14,9 +14,17 @@
 // ============================================================================
 
 import { EconomyModel } from "@/components/EconomyModel";
-import { INITIAL_COMPETITORS, type Competitor } from "@/lib/game/GameMechanics";
+import { type Competitor } from "@/lib/game/GameMechanics";
+import { getCompetitorsAt } from "@/lib/game/CompetitorAI";
 import { quarterSeed } from "@/lib/game/rng";
-import { DIFFICULTY_PROFILES, type DifficultyId, type DifficultyProfile } from "@/lib/game/Difficulty";
+import {
+  DIFFICULTY_PROFILES,
+  getActiveCrises,
+  aiPressureAt as difficultyAiPressureAt,
+  type DifficultyId,
+  type DifficultyProfile,
+} from "@/lib/game/Difficulty";
+
 import { ScriptedWorldDirector } from "./scriptedDirector";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";

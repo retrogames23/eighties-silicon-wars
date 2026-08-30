@@ -37,29 +37,37 @@
     "required": "CPU, GPU and Memory are required"
   },
   "cases": {
+    "beigeBreadbox": {
+      "name": "Beige Breadbox",
+      "description": "Keyboard chassis with separate CRT monitor – the home computer classic"
+    },
+    "beigePizzabox": {
+      "name": "Beige Desktop Box",
+      "description": "Flat office chassis with floppy drives and the monitor on top"
+    },
     "beigeTower": {
-      "name": "Beige Tower",
-      "description": "Classic business case in beige plastic"
+      "name": "Beige Mini Tower",
+      "description": "The first tower of the 286/386 era for serious office work"
     },
     "blackDesktop": {
       "name": "Black Desktop",
-      "description": "Elegant black desktop case for office use"
+      "description": "Sleek dark desktop chassis for the office"
     },
     "gamerRgb": {
-      "name": "RGB Gaming Case",
-      "description": "Stylish gaming case with LED lighting"
+      "name": "LED Gaming Tower",
+      "description": "Stylish gaming chassis with side window and LED lighting"
     },
     "retroWood": {
-      "name": "Wood-Look Retro",
-      "description": "Nostalgic case in wood finish for retro enthusiasts"
+      "name": "Retro Wood Finish",
+      "description": "Nostalgic wood-grain chassis for home computer fans"
     },
     "premiumMetal": {
       "name": "Premium Metal",
-      "description": "High-quality all-metal case for professional use"
+      "description": "High-grade all-metal chassis for professional workstations"
     },
     "compactMini": {
-      "name": "Compact Mini",
-      "description": "Space-saving mini case for desktop use"
+      "name": "Compact All-in-One",
+      "description": "Space-saving chassis with a built-in screen"
     }
   },
   "descriptions": {

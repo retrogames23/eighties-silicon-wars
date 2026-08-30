@@ -206,7 +206,9 @@ export const MachinePreview = ({
                   fill={screen.phosphor}
                   fontSize="4"
                   fontFamily="monospace"
+                  clipPath="url(#mp-screen-clip)"
                 >
+
                   {t('ui:development.workbench.boot.ready')}
                 </text>
                 {/* scanlines + glass reflection */}

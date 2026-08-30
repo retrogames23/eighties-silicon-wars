@@ -331,7 +331,15 @@
       "layoffs": "Stellenabbau",
       "partnership": "Partnerschaft",
       "quiet_quarter": "Stilles Quartal"
-    }
+    },
+    "productsTitle": "Produkte der Konkurrenz",
+    "segments": {
+      "gamer": "Zielgruppe: Gamer",
+      "business": "Zielgruppe: Büro",
+      "workstation": "Zielgruppe: Workstation"
+    },
+    "performance": "Leistung",
+    "noProducts": "Aktuell keine aktuellen Modelle am Markt"
   },
   "employees": {
     "title": "Personal",

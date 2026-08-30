@@ -284,7 +284,7 @@
       "shelfTitle": "Parts Shelf",
       "statsTitle": "Key Figures",
       "previewAlt": "Live view of the assembled computer",
-      "removeHint": "Click a part in the picture to remove it",
+      "removeHint": "Click a part to remove it",
       "nameLabel": "Model name",
       "namePlaceholder": "e.g. HomeComputer Pro",
       "priceLabel": "Selling price",

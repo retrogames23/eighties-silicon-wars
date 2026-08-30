@@ -144,7 +144,6 @@ interface RunResult {
 async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<RunResult> {
   const profile = sc.profile;
   const director = new ScriptedWorldDirector(FIXTURE);
-  const competitors: Competitor[] = INITIAL_COMPETITORS as unknown as Competitor[];
   const models: Model[] = [];
   let cash = profile.startingCash, reputation = 50, brandAwareness = 0;
   let peak = cash, min = cash, totalRev = 0, totalUnits = 0, lossQ = 0;
@@ -161,18 +160,19 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
       for (const m of s.releases(year, q)) { cash -= m.developmentCost; models.push(m); }
       if (bankruptQ !== null) continue;
 
+      // Konkurrenz-Feld dieses Quartals (neue Generationen, alternde Modelle).
+      const competitors: Competitor[] = getCompetitorsAt(profile, year, q);
+
       const events = await director.generate({ userId: seedSalt, year, quarter: q });
       let demandBoost = 0;
       for (const ev of events) demandBoost += ev.applied_effects?.demand_delta ?? 0;
 
-      const shocks = activeShocks(sc, year, q);
-      let bomMult = 1;
-      let shockDemand = 0;
-      for (const sh of shocks) {
-        shockDemand += sh.demandDeltaPerQ;
-        if (sh.bomMultiplier) bomMult *= sh.bomMultiplier;
-      }
+      // Geplante Krisen aus dem gemeinsamen Difficulty-Kalender.
+      const crisis = getActiveCrises(profile, year, q);
+      const bomMult = crisis.bomMultiplier;
+      const shockDemand = crisis.demandMultiplier - 1;
       const combinedDemand = Math.max(-0.35, Math.min(0.20, demandBoost + shockDemand));
+
       const marketingEffective = Math.round(s.marketing * (1 + combinedDemand));
 
       const rngSeed = quarterSeed(seedSalt + "-" + s.id + "-" + sc.id, year, q);

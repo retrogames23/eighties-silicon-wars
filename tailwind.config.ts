@@ -57,6 +57,16 @@ export default {
         terminal: {
           green: "hsl(var(--terminal-green))",
         },
+        part: {
+          cpu: "hsl(var(--part-cpu))",
+          gpu: "hsl(var(--part-gpu))",
+          memory: "hsl(var(--part-memory))",
+          sound: "hsl(var(--part-sound))",
+          storage: "hsl(var(--part-storage))",
+          display: "hsl(var(--part-display))",
+          case: "hsl(var(--part-case))",
+        },
+
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

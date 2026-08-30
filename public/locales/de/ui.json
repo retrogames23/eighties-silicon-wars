@@ -320,7 +320,10 @@
       "boot": {
         "ready": "BEREIT.",
         "unnamed": "NAMENLOS"
-      }
+      },
+      "artworkAlt": "Pixel-Grafik des Gehäuses {{name}}",
+      "artworkEmpty": "Wähle ein Gehäuse, um deinen Rechner zu sehen",
+      "insideTitle": "Innenansicht"
     }
   },
   "competitors": {

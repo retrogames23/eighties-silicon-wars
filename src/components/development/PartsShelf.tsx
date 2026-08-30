@@ -81,7 +81,7 @@ export const PartsShelf = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+      <div className="flex sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible pb-1 -mx-1 px-1">
         {SLOT_ORDER.map(slot => {
           const Icon = slotIcon[slot];
           const isActive = slot === activeSlot;

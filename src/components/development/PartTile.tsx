@@ -45,7 +45,7 @@ export const PartTile = ({
         ${highlight ? 'ring-2 ring-amber/60' : ''}`}
       style={{ borderLeftWidth: 4, borderLeftColor: slotColor(slot, available ? 0.9 : 0.3) }}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className={`flex items-start justify-between gap-2 ${!available ? 'mt-4' : ''}`}>
         <div className="min-w-0">
           <span className="block font-semibold text-sm text-foreground truncate">{name}</span>
           {description && (

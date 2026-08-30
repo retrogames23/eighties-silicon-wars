@@ -16,7 +16,7 @@ export const MusicToggle = () => {
   } = useAudioManager();
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="fixed bottom-24 left-4 z-50 md:bottom-4">
       <div className="flex items-center gap-1 bg-card/90 backdrop-blur-sm border rounded-full pl-1 pr-1 py-1 shadow-md">
         {/* Mini title — only when playing */}
         {isEnabled && (

@@ -309,7 +309,7 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="market" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
-              <AiCompetitorsPanel competitors={aiCompetitors} year={gameState.year} quarter={gameState.quarter} difficulty={(gameState as any).difficulty} />
+              <AiCompetitorsPanel competitors={aiCompetitors} year={gameState.year} quarter={gameState.quarter} difficulty={gameState.difficulty} />
               <MarketTab 
                 competitors={gameState.competitors}
                 marketEvents={gameState.marketEvents}

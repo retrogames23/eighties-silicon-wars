@@ -38,25 +38,84 @@ export interface DifficultyProfile {
    *    bei erneutem Unterschreiten Game Over.
    */
   bankruptcyMode: "game_over" | "emergency_loan_then_game_over";
-  /** Höhe des Notkredits (nur relevant bei emergency_loan_then_game_over). */
+  /** Höhe des Notkredits (Mindestbetrag, nur bei emergency_loan_then_game_over). */
   emergencyLoanAmount: number;
+  /**
+   * Obergrenze des Notkredits. Der tatsächliche Betrag richtet sich nach dem
+   * echten Loch (Fehlbetrag + Puffer), damit ein Notkredit nie in einen
+   * garantierten Folge-Bankrott führt.
+   */
+  emergencyLoanMaxAmount: number;
   /** Jahres-Zinssatz des Notkredits (z. B. 0.12 = 12 %). */
   emergencyLoanInterest: number;
   /** Laufzeit des Notkredits in Quartalen. */
   emergencyLoanQuarters: number;
+  /**
+   * Zusätzliche Insolvenzprüfung auf die Nettoposition (Cash − Schulden).
+   * Negativer Wert. Verhindert "technisch insolvent, aber Cash noch okay".
+   */
+  bankruptcyNetWorthThreshold: number;
 
   // ----- Welt / KI -----
   /** Maximaler KI-Druck pro Segment (0..1). 0 = keine KI-Konkurrenz. */
   aiPressureCeiling: number;
+  /** KI-Druck zu Spielbeginn (0..1). Der Druck rampt bis zum Ceiling hoch. */
+  aiPressureFloor: number;
+  /** Takt, in dem jede Konkurrenzfirma ein neues Modell veröffentlicht (Quartale). */
+  aiReleaseCadenceQuarters: number;
+  /** Aggressivität der KI-Preise/Specs (1 = neutral). */
+  aiAggression: number;
   /** Faktor für Stärke von Welt-Krisen (Rezession, RAM-Knappheit, …). */
   crisisMagnitudeMultiplier: number;
   /** Erwartete Pflicht-Schocks im 1983–1992-Bogen (informativ + Headless). */
   scheduledCrises: number;
+  /** Fester Krisenkalender — Single Source für Live-Spiel UND Headless-Tests. */
+  crisisCalendar: ScheduledCrisis[];
 
   // ----- Reputation -----
   /** Multiplikator für Reputations-Verlust bei Quartalsverlust. */
   reputationLossMultiplier: number;
 }
+
+/** Ein geplanter Weltschock (deterministisch, kein LLM). */
+export interface ScheduledCrisis {
+  /** i18n-Key-Suffix, z. B. "recession1985". */
+  key: string;
+  year: number;
+  quarter: number;
+  /** Dauer in Quartalen. */
+  durationQuarters: number;
+  /** Nachfrage-Delta pro Quartal (negativ = Einbruch), vor Magnitude-Skalierung. */
+  demandDeltaPerQuarter: number;
+  /** Optionaler BOM-Multiplikator (z. B. RAM-Knappheit 1.25). */
+  bomMultiplier?: number;
+}
+
+const CRISES_EASY: ScheduledCrisis[] = [
+  { key: "dip1985", year: 1985, quarter: 1, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 2, demandDeltaPerQuarter: 0, bomMultiplier: 1.10 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 4, demandDeltaPerQuarter: -0.05 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 3, demandDeltaPerQuarter: -0.06 },
+];
+
+const CRISES_NORMAL: ScheduledCrisis[] = [
+  { key: "recession1985", year: 1985, quarter: 1, durationQuarters: 4, demandDeltaPerQuarter: -0.15 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 6, demandDeltaPerQuarter: -0.10 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: 0, bomMultiplier: 1.25 },
+  { key: "priceWar1989", year: 1989, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 4, demandDeltaPerQuarter: -0.12 },
+];
+
+const CRISES_HARD: ScheduledCrisis[] = [
+  { key: "priceWar1984", year: 1984, quarter: 3, durationQuarters: 3, demandDeltaPerQuarter: -0.10 },
+  { key: "recession1985", year: 1985, quarter: 1, durationQuarters: 5, demandDeltaPerQuarter: -0.18 },
+  { key: "techShift1986", year: 1986, quarter: 1, durationQuarters: 8, demandDeltaPerQuarter: -0.12 },
+  { key: "ramShortage1988", year: 1988, quarter: 2, durationQuarters: 4, demandDeltaPerQuarter: 0, bomMultiplier: 1.45 },
+  { key: "patentFight1989", year: 1989, quarter: 3, durationQuarters: 3, demandDeltaPerQuarter: -0.08 },
+  { key: "recession1990", year: 1990, quarter: 4, durationQuarters: 5, demandDeltaPerQuarter: -0.20 },
+  { key: "rateShock1991", year: 1991, quarter: 2, durationQuarters: 3, demandDeltaPerQuarter: -0.05, bomMultiplier: 1.20 },
+];
+
 
 export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
   easy: {

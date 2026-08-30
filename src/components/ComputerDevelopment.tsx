@@ -33,69 +33,12 @@ import { useTranslation } from 'react-i18next';
 import { Workbench } from './development/Workbench';
 import type { SlotType } from './development/partTokens';
 import type { PresetKind } from './development/QuickBuildPresets';
+import { getComputerCases } from '@/data/computerCases';
 
 
 // Use HardwareComponent from HardwareManager instead of local Component interface
 
 // Removed duplicate hardware logic - now using HardwareManager
-
-// Case-Daten
-const getComputerCases = (t: any) => [
-  {
-    id: 'beige-tower',
-    name: t('hardware:cases.beigeTower.name'),
-    type: 'office' as const,
-    quality: 65,
-    design: 40,
-    price: 80,
-    description: t('hardware:cases.beigeTower.description')
-  },
-  {
-    id: 'black-desktop',
-    name: t('hardware:cases.blackDesktop.name'),
-    type: 'office' as const,
-    quality: 70,
-    design: 55,
-    price: 120,
-    description: t('hardware:cases.blackDesktop.description')
-  },
-  {
-    id: 'gamer-rgb',
-    name: t('hardware:cases.gamerRgb.name'),
-    type: 'gamer' as const,
-    quality: 85,
-    design: 90,
-    price: 200,
-    description: t('hardware:cases.gamerRgb.description')
-  },
-  {
-    id: 'retro-wood',
-    name: t('hardware:cases.retroWood.name'),
-    type: 'gamer' as const,
-    quality: 60,
-    design: 80,
-    price: 150,
-    description: t('hardware:cases.retroWood.description')
-  },
-  {
-    id: 'premium-metal',
-    name: t('hardware:cases.premiumMetal.name'),
-    type: 'office' as const,
-    quality: 95,
-    design: 85,
-    price: 300,
-    description: t('hardware:cases.premiumMetal.description')
-  },
-  {
-    id: 'compact-mini',
-    name: t('hardware:cases.compactMini.name'),
-    type: 'office' as const,
-    quality: 75,
-    design: 65,
-    price: 100,
-    description: t('hardware:cases.compactMini.description')
-  }
-];
 
 import { ComputerModel, ComponentsSnapshot, ModelRevisionManager } from '@/types/ComputerModel';
 
@@ -132,7 +75,7 @@ interface ComputerDevelopmentProps {
 
 export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, currentQuarter, customChips, existingModels = [], editingModel }: ComputerDevelopmentProps) => {
   const { t } = useTranslation(['hardware', 'common']);
-  const computerCases = getComputerCases(t);
+  const computerCases = getComputerCases(t, currentYear, currentQuarter);
   
   const [selectedComponents, setSelectedComponents] = useState<HardwareComponent[]>([]);
   const [selectedCase, setSelectedCase] = useState<any>(null);
@@ -307,7 +250,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
       .filter((c): c is HardwareComponent => !!c);
     setSelectedComponents(picked);
 
-    const caseOptions = [...computerCases].sort((a, b) => a.price - b.price);
+    const caseOptions = computerCases.filter(c => c.available).sort((a, b) => a.price - b.price);
+    if (caseOptions.length === 0) return;
     const caseItem = kind === 'budget'
       ? caseOptions[0]
       : kind === 'highend'

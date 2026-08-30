@@ -1,96 +1,54 @@
-## Ziel
+# Werkbank statt Menü: Computerbau neu gedacht
 
-Drei Schwierigkeitsgrade — **Leicht (aktueller Stand), Normal, Schwer** — als zentrales, deterministisch testbares Profil. Auswahl beim Spielstart, sichtbar in HUD, headless validierbar.
+Der Entwicklungs-Flow ist heute ein 5-Schritt-Assistent aus Listen und Buttons (Komponenten → Gehäuse → Name → Preis → Testbericht). Ziel: eine einzige visuelle "Werkbank", auf der der Rechner live zusammenwächst, mit sofort lesbaren Mini-Infografiken zu Kosten und Leistung.
 
-## Difficulty-Profile
+## Das Kernbild
 
-Ein einziger Konfigurations-Block pro Stufe, der alle relevanten Stellschrauben kapselt. Keine verstreuten if-Abfragen.
-
-| Hebel | Leicht | Normal | Schwer |
-|---|---|---|---|
-| Startkapital | $1.5M | $1.0M | $750k |
-| Bankrott-Schwelle | −$2.0M | −$1.0M | −$500k |
-| Bankrott-Folge | Game Over | Game Over | **Game Over (perma-loss)** |
-| Zwangs-Notkredit | — | Einmal $500k @ 12 % Zins | — (kein Rettungsnetz) |
-| KI-Druck (Ceiling) | 0 | bis 0.40 in 1992 | bis 0.70 in 1992 |
-| Fixkosten-Multiplikator | 1.00 | 1.10 | 1.25 |
-| Rezessions-Nachfrage | −15 % | −22 % | −30 % |
-| RAM-Knappheit BOM | ×1.25 | ×1.40 | ×1.60 |
-| Krisen-Anzahl 10 J | 4 | 5 | 7 (zusätzlich: Patentstreit 1989, Zinsschock 1991) |
-| Reputations-Schaden bei Verlust | normal | ×1.5 | ×2.0 |
-| Marketing-Sättigung | unverändert | bei $400k statt $500k | bei $300k |
-
-„Beides je nach Tiefe": Normal hat einen einmaligen Notkredit (12 % Zins, 8 Quartale Tilgung) als Rettungsnetz, Schwer bekommt **kein** Notkredit-Sicherheitsnetz → echte Perma-Loss.
-
-## Architektur
-
-### Neuer Single-Source-of-Truth
+Ein dreigeteilter Screen (auf Mobile untereinander gestapelt):
 
 ```text
-src/lib/game/Difficulty.ts
-  ├─ type DifficultyId = "easy" | "normal" | "hard"
-  ├─ interface DifficultyProfile { ... alle Hebel oben ... }
-  └─ DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile>
++------------------+---------------------------+----------------+
+|  TEILE-REGAL     |     LIVE-RECHNER          |  KENNZAHLEN    |
+|  (Icon-Kacheln)  |   (wächst mit jedem Teil) |  (Balken/Ring) |
+|                  |                           |                |
+|  [CPU] [GPU]     |    ___________            |  Leistung ▓▓▓░ |
+|  [RAM] [Sound]   |   |  Monitor  |           |  Kosten  $412  |
+|  [HDD] [Display] |   |___________|           |  Preis   $740  |
+|                  |   [=== Case ===]          |  Marge   +80%  |
+|                  |    ○ Floppy  ▪ LED        |  Zielgruppe:   |
+|                  |                           |  Gamer 82%     |
++------------------+---------------------------+----------------+
 ```
 
-Profile sind reine Daten, kein Code. Damit kann der Headless-Runner direkt jedes Profil als zusätzliches Szenario laden.
+- **Teile-Regal**: Kategorien als horizontale Reiter-Streifen (CPU, GPU, RAM, Sound, Speicher, Display, Gehäuse). Jede Komponente ist eine Kachel mit kleinem Pixel-Icon, Name, Kosten-Chip und einem 5-Segment-Leistungsbalken. Nicht verfügbare Teile bleiben sichtbar, aber ausgegraut mit Jahr-Badge ("ab 1986 Q2") — man sieht, worauf man hinarbeitet.
+- **Live-Rechner**: eine gezeichnete 80er-Ansicht des Geräts, die sich bei jeder Auswahl sofort ändert: Gehäuseform/Farbe aus der Case-Wahl, Monitor erscheint erst mit Display-Komponente, Floppy-/Kassetten-/HDD-Schacht erscheint mit Speicher, Lautsprechergrill bei besserem Soundchip, LEDs/Lüftergitter bei High-End-CPU. Leere Slots werden als gestrichelte Umrisse angedeutet — der Spieler sieht sofort, was noch fehlt.
+- **Kennzahlen-Panel**: keine Zahlenwüste, sondern vier Mini-Grafiken: Leistungsring (0–100), gestapelter Kostenbalken (jede Komponente ein Segment in ihrer Kategoriefarbe), Preis/Marge-Slider mit farbiger Zone (rot = unter Kosten, grün = gesunde Marge) und ein Zielgruppen-Match als zwei kleine Balken "Gamer / Business".
 
-### Integration in bestehende Systeme
+## Sofort-Feedback statt Klick-Bestätigung
 
-```text
-EconomyModel        ← liest fixedCostMultiplier, marketingSaturationPoint,
-                       aiCompetitorPressure (bereits vorhanden, jetzt aus Profil gespeist)
-GameMechanics       ← Bankrott-Schwelle, Reputations-Multiplikator
-LivingWorldService  ← Krisen-Häufigkeit (mehr forced shocks pro Quartal-Window)
-LoanService         ← Notkredit-Trigger nur in Normal, Zinssatz aus Profil
-CompanySetup        ← Auswahl-Tile (3 Karten), schreibt difficulty in gameState
-useGameState        ← persistiert difficulty im Save-Game (kein Mid-Game-Wechsel)
-GameDashboard       ← Badge im Header, Tooltip mit aktiven Modifikatoren
-```
+- Beim **Hover/Antippen** einer Kachel zeigt das Kennzahlen-Panel eine Vorschau: Delta-Pfeile (Leistung +12, Kosten +$85) und der Live-Rechner blendet das Teil halbtransparent ein.
+- Nach dem Setzen: kurzer "Klick"-Effekt am Slot, das Teil rastet ins Bild, Balken animieren auf den neuen Wert.
+- Ein Teil wird durch Klick auf den Slot im Live-Rechner wieder entfernt — kein Zurücknavigieren.
+- **Schnellbau-Presets**: drei Chips über dem Regal ("Budget", "Ausgewogen", "High-End") füllen alle Pflichtslots mit dem, was der Spieler sich leisten kann. Danach kann er einzeln nachjustieren. Das ersetzt den Assistenten für Spieler, die schnell iterieren wollen.
 
-### UI: Auswahl im CompanySetup
+## Was aus dem alten Flow bleibt
 
-Drei nebeneinander stehende Karten direkt nach Firmenname/Logo, vor dem „Spiel starten"-Button:
+- Name und Preis wandern in eine schmale Leiste unter den Live-Rechner (Name-Eingabe + Preis-Slider mit der bestehenden Empfehlungslogik inkl. dynamischem Margen-Label).
+- Der Testbericht bleibt als Abschluss-Screen unverändert — er ist die Belohnung nach dem Bauen.
+- Ein einziger Primär-Button "In Entwicklung geben" unten, aktiv sobald CPU + GPU + RAM + Gehäuse gesetzt sind; fehlende Pflichtteile werden als pulsierende leere Slots markiert statt als Fehlermeldung.
 
-```text
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│   LEICHT    │ │   NORMAL    │ │   SCHWER    │
-│ Entspannt   │ │ Klassisch   │ │ Hardcore    │
-│ $1.5M       │ │ $1.0M       │ │ $750k       │
-│ Keine KI    │ │ KI mittel   │ │ KI stark    │
-│ Wenig Krisen│ │ Normale Welt│ │ Viele Krisen│
-└─────────────┘ └─────────────┘ └─────────────┘
-```
+## Technische Umsetzung
 
-Default: **Normal** (anders als heute).
+- Neue Komponenten unter `src/components/development/`: `Workbench.tsx` (Layout + State), `PartsShelf.tsx`, `PartTile.tsx`, `MachinePreview.tsx`, `StatsPanel.tsx`, `QuickBuildPresets.tsx`.
+- `ComputerDevelopment.tsx` behält Datenbeschaffung (`HardwareManager`, `HardwareAvailabilityService`, `PriceRecommendationManager`, `TestScoringMatrix`, Revisions-Logik) und rendert statt des Step-Wizards die Werkbank. Der Testbericht-Step bleibt erhalten.
+- **Keine Änderung an Spiellogik**: Leistungs-, Kosten- und Preisformeln werden unverändert weiterverwendet; die Werkbank ruft dieselben Funktionen nur häufiger (live) auf.
+- `MachinePreview` als SVG mit Layer-Komponenten (Case-Shape, Monitor, Laufwerksschacht, Tastatur, Details), gesteuert über die aktuelle Auswahl. Farben ausschließlich über semantische Tokens aus `index.css`; für die Kategoriefarben (CPU/GPU/RAM/…) neue Tokens ergänzen.
+- Mobile: Regal wird zu einem horizontal scrollbaren Kategorie-Strip mit vertikaler Kachelliste, Live-Rechner klebt als kompakte Sticky-Karte oben. Kein horizontales Scrollen der Seite, Touch-Targets ≥ 44 px.
+- i18n: alle neuen Texte in `ui.json` / `hardware.json` (DE + EN), keine hartkodierten Strings. Kategorie- und Preset-Namen als neue Keys.
 
-## Headless-Balance-Validierung
+## Reihenfolge
 
-`runBalanceMatrix.ts` lädt jetzt 3 Profile statt fest verdrahteter „baseline/stress":
-
-- **Leicht** — 100 % Survive bei allen, top/bottom Median ≤ 3×
-- **Normal** — ≥ 70 % Survive bei allen, top/bottom Median ≤ 2.5×, mind. 1 Strategie geht in ≥ 10 % der Seeds pleite (sonst zu leicht)
-- **Schwer** — ≥ 20 % Survive bei mind. 4 Strategien, weniger als 50 % bei den schlechtesten 2 (echtes Aussieben), kein 100-%-Winner
-
-Damit haben wir messbare Gates statt Bauchgefühl.
-
-## Save-Game-Kompatibilität
-
-`difficulty` wird optional gelesen, Default `"easy"` für alte Saves → keine Migration nötig, kein Bruch.
-
-## Out of Scope
-
-- Achievement-System für „auf Schwer gewonnen" (eigenes Feature).
-- Dynamische Difficulty (Anpassung während Partie).
-- Cosmetic-Belohnungen.
-
-## Umsetzungs-Reihenfolge
-
-1. `Difficulty.ts` mit Profilen und Reader-Helfern.
-2. `EconomyModel` und `GameMechanics` lesen aus dem aktiven Profil.
-3. `useGameState` / Save-Game-Persistenz.
-4. CompanySetup-UI mit drei Karten.
-5. `LoanService`-Notkredit-Hook für Normal.
-6. `runBalanceMatrix.ts` auf 3 Profile umstellen, Gates anpassen.
-7. HUD-Badge in `GameDashboard`.
-8. i18n-Strings in `game.json` / `ui.json` (DE + EN).
+1. Werkbank-Layout + Regal + Kennzahlen-Panel (funktional, Preview noch Platzhalter).
+2. `MachinePreview` in SVG mit allen Slot-Layern.
+3. Hover-Deltas, Entfernen per Slot-Klick, Presets.
+4. Name/Preis-Leiste integrieren, alten Wizard entfernen, i18n-Lauf, Mobile-Check.

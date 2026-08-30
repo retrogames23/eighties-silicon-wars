@@ -8,6 +8,9 @@ interface PartChipProps {
   matrix: PixelMatrix;
   /** Rendered width as a fraction of the stage width. */
   widthPct: number;
+  /** Center position as a fraction of the stage size. */
+  left: number;
+  top: number;
   /** Fly-in progress 0..1 (1 = snapped in place). */
   progress: number;
   ghost?: boolean;
@@ -23,6 +26,8 @@ export const PartChip = ({
   slot,
   matrix,
   widthPct,
+  left,
+  top,
   progress,
   ghost = false,
   label,
@@ -44,6 +49,8 @@ export const PartChip = ({
       disabled={!onClick}
       className="absolute -translate-x-1/2 -translate-y-1/2 p-0 bg-transparent border-0 disabled:cursor-default"
       style={{
+        left: `${left * 100}%`,
+        top: `${top * 100}%`,
         width: `${widthPct * 100}%`,
         transform: `translate(calc(-50% + ${offset}%), -50%)`,
         opacity: ghost ? 0.45 : 0.35 + progress * 0.65,

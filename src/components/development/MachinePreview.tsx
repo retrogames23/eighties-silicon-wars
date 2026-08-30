@@ -181,17 +181,18 @@ export const MachinePreview = ({
                 }
 
                 return (
-                  <div key={slot} className="absolute" style={style}>
-                    <PartChip
-                      slot={slot}
-                      matrix={matrixFor(slot, component)}
-                      widthPct={CHIP_WIDTH[slot] * 4}
-                      progress={isGhost(slot) ? 1 : progressOf(slot)}
-                      ghost={isGhost(slot)}
-                      label={component.name}
-                      onClick={selected[slot] ? () => onClearSlot(slot) : undefined}
-                    />
-                  </div>
+                  <PartChip
+                    key={slot}
+                    slot={slot}
+                    matrix={matrixFor(slot, component)}
+                    widthPct={CHIP_WIDTH[slot]}
+                    left={pos.x}
+                    top={pos.y}
+                    progress={isGhost(slot) ? 1 : progressOf(slot)}
+                    ghost={isGhost(slot)}
+                    label={component.name}
+                    onClick={selected[slot] ? () => onClearSlot(slot) : undefined}
+                  />
                 );
               })}
           </>

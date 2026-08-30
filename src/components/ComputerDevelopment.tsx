@@ -273,6 +273,47 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     }
   };
 
+  // --- Workbench helpers (presentation only, no game logic changes) ---
+  const selectedBySlot = selectedComponents.reduce((acc, comp) => {
+    acc[comp.type as SlotType] = comp;
+    return acc;
+  }, {} as Partial<Record<SlotType, HardwareComponent>>);
+
+  const clearSlot = (slot: SlotType) => {
+    if (slot === 'case') {
+      setSelectedCase(null);
+      return;
+    }
+    setSelectedComponents(prev => prev.filter(c => c.type !== slot));
+  };
+
+  const applyPreset = (kind: PresetKind) => {
+    const pick = (type: HardwareComponent['type']) => {
+      const options = allComponents
+        .filter(c => c.type === type && c.available)
+        .sort((a, b) => a.performance - b.performance);
+      if (options.length === 0) return undefined;
+      if (kind === 'budget') return options[0];
+      if (kind === 'highend') return options[options.length - 1];
+      return options[Math.floor((options.length - 1) / 2)];
+    };
+
+    const picked = (['cpu', 'gpu', 'memory', 'sound'] as HardwareComponent['type'][])
+      .map(pick)
+      .filter((c): c is HardwareComponent => !!c);
+    setSelectedComponents(picked);
+
+    const caseOptions = [...computerCases].sort((a, b) => a.price - b.price);
+    const caseItem = kind === 'budget'
+      ? caseOptions[0]
+      : kind === 'highend'
+        ? caseOptions[caseOptions.length - 1]
+        : caseOptions[Math.floor((caseOptions.length - 1) / 2)];
+    setSelectedCase(caseItem);
+    setSellingPrice(0);
+  };
+
+
   const startDevelopment = () => {
     if (!modelName.trim() || !selectedCase || sellingPrice === 0) return;
 

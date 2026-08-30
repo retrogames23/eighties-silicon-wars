@@ -320,7 +320,10 @@
       "boot": {
         "ready": "READY.",
         "unnamed": "UNNAMED"
-      }
+      },
+      "artworkAlt": "Pixel artwork of the {{name}} chassis",
+      "artworkEmpty": "Pick a chassis to see your machine",
+      "insideTitle": "Inside view"
     }
   },
   "competitors": {

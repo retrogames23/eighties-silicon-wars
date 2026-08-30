@@ -13,6 +13,8 @@ import {
 } from './machine/sprites';
 import { caseShades, led, partShades, pcb, screen, spriteColors, tone } from './machine/pixelPalette';
 import { useFlyIn } from './machine/useFlyIn';
+import { CaseArtwork } from './machine/CaseArtwork';
+
 
 interface MachinePreviewProps {
   selected: Partial<Record<SlotType, HardwareComponent>>;
@@ -132,7 +134,14 @@ export const MachinePreview = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-3">
+      {/* High-res chassis artwork */}
+      <CaseArtwork caseItem={effectiveCase} isGhost={isGhostCase} />
+
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono text-center">
+        {t('ui:development.workbench.insideTitle')}
+      </p>
+
       <svg
         viewBox={`0 0 ${GRID_W} ${GRID_H}`}
         className="w-full h-auto"
@@ -140,6 +149,7 @@ export const MachinePreview = ({
         role="img"
         aria-label={t('ui:development.workbench.previewAlt')}
       >
+
         {/* ---------- contact shadow ---------- */}
         <Dither x={CASE.x + 4} y={CASE.y + CASE.h} w={CASE.w + 6} h={4} fill={cs.deep} opacity={0.35} density={2} />
         <Dither x={KBD.x + 3} y={KBD.y + KBD.h} w={KBD.w} h={2} fill={cs.deep} opacity={0.3} density={2} />

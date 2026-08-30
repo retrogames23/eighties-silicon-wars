@@ -323,7 +323,11 @@
       },
       "artworkAlt": "Pixel artwork of the {{name}} chassis",
       "artworkEmpty": "Pick a chassis to see your machine",
-      "insideTitle": "Inside view"
+      "insideTitle": "Inside view",
+      "insideAlt": "Inside view of the {{name}} chassis",
+      "viewOutside": "Outside",
+      "viewInside": "Inside",
+      "noDisplay": "No display"
     }
   },
   "competitors": {

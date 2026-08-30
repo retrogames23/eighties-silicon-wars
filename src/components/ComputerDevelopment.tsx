@@ -30,6 +30,10 @@ import { HardwareManager, type HardwareComponent } from "@/utils/HardwareManager
 import { PriceRecommendationManager } from "@/services/PriceRecommendationManager";
 import { TestScoringMatrix } from "@/services/TestScoringMatrix";
 import { useTranslation } from 'react-i18next';
+import { Workbench } from './development/Workbench';
+import type { SlotType } from './development/partTokens';
+import type { PresetKind } from './development/QuickBuildPresets';
+
 
 // Use HardwareComponent from HardwareManager instead of local Component interface
 

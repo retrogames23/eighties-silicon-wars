@@ -278,7 +278,46 @@
       "price": "Preis"
     },
     "yearSuffix": "(für {{year}})",
-    "expectedTestScore": "Erwarteter Test-Score"
+    "expectedTestScore": "Erwarteter Test-Score",
+    "workbench": {
+      "machineTitle": "Dein Rechner",
+      "shelfTitle": "Teile-Regal",
+      "statsTitle": "Kennzahlen",
+      "previewAlt": "Live-Ansicht des zusammengebauten Computers",
+      "removeHint": "Auf ein Bauteil im Bild klicken, um es zu entfernen",
+      "nameLabel": "Modellname",
+      "namePlaceholder": "z.B. HomeComputer Pro",
+      "priceLabel": "Verkaufspreis",
+      "useRecommended": "Empfehlung",
+      "buildButton": "In Entwicklung geben",
+      "missingParts": "Es fehlt noch: {{parts}}",
+      "slots": {
+        "cpu": "Prozessor",
+        "gpu": "Grafik",
+        "memory": "Arbeitsspeicher",
+        "sound": "Sound",
+        "storage": "Speicher",
+        "display": "Bildschirm",
+        "case": "Gehäuse"
+      },
+      "presets": {
+        "label": "Schnellbau:",
+        "budget": "Budget",
+        "balanced": "Ausgewogen",
+        "highend": "High-End"
+      },
+      "stats": {
+        "performance": "Leistung",
+        "eraScore": "Testwert",
+        "cost": "Herstellkosten",
+        "price": "Preis",
+        "margin": "Marge {{pct}}%",
+        "recommended": "Empfohlen: {{price}}",
+        "audience": "Zielgruppen-Passung",
+        "gamer": "Gamer",
+        "business": "Business"
+      }
+    }
   },
   "competitors": {
     "title": "Lebende Konkurrenz",

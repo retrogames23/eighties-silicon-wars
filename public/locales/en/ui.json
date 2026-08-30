@@ -278,7 +278,46 @@
       "price": "Price"
     },
     "yearSuffix": "(for {{year}})",
-    "expectedTestScore": "Expected test score"
+    "expectedTestScore": "Expected test score",
+    "workbench": {
+      "machineTitle": "Your Machine",
+      "shelfTitle": "Parts Shelf",
+      "statsTitle": "Key Figures",
+      "previewAlt": "Live view of the assembled computer",
+      "removeHint": "Click a part in the picture to remove it",
+      "nameLabel": "Model name",
+      "namePlaceholder": "e.g. HomeComputer Pro",
+      "priceLabel": "Selling price",
+      "useRecommended": "Recommended",
+      "buildButton": "Start Development",
+      "missingParts": "Still missing: {{parts}}",
+      "slots": {
+        "cpu": "Processor",
+        "gpu": "Graphics",
+        "memory": "Memory",
+        "sound": "Sound",
+        "storage": "Storage",
+        "display": "Display",
+        "case": "Case"
+      },
+      "presets": {
+        "label": "Quick build:",
+        "budget": "Budget",
+        "balanced": "Balanced",
+        "highend": "High-End"
+      },
+      "stats": {
+        "performance": "Performance",
+        "eraScore": "Test score",
+        "cost": "Build cost",
+        "price": "Price",
+        "margin": "Margin {{pct}}%",
+        "recommended": "Recommended: {{price}}",
+        "audience": "Audience match",
+        "gamer": "Gamer",
+        "business": "Business"
+      }
+    }
   },
   "competitors": {
     "title": "Live Competitors",

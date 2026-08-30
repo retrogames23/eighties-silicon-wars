@@ -134,8 +134,9 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [modelName, setModelName] = useState('');
   const [sellingPrice, setSellingPrice] = useState(0);
-  const [currentStep, setCurrentStep] = useState<'components' | 'case' | 'name' | 'pricing' | 'testreport'>('components');
+  const [currentStep, setCurrentStep] = useState<'build' | 'testreport'>('build');
   const [developedModel, setDevelopedModel] = useState<ComputerModel | null>(null);
+
 
   // Debug logging
   console.log('ComputerDevelopment State:', {

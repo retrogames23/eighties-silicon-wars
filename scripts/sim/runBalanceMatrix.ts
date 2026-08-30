@@ -177,7 +177,7 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
 
       const rngSeed = quarterSeed(seedSalt + "-" + s.id + "-" + sc.id, year, q);
       const activeModelCount = models.length;
-      const aiPressure = sc.aiPressureAt(year, q);
+      const aiPressure = difficultyAiPressureAt(profile, year);
 
       // Portfolio-Shares pro Segment
       const appealTotals: Record<string, { m: Model; a: number }[]> = { gamer: [], business: [], workstation: [] };

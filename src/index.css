@@ -45,6 +45,24 @@ All colors MUST be HSL.
     --neon-magenta: 300 50% 70%;
     --amber: 45 70% 65%;
     --terminal-green: 120 40% 55%;
+
+    /* Hardware workbench part categories */
+    --part-cpu: 0 65% 62%;
+    --part-gpu: 210 65% 62%;
+    --part-memory: 140 55% 55%;
+    --part-sound: 285 55% 68%;
+    --part-storage: 40 75% 60%;
+    --part-display: 190 60% 60%;
+    --part-case: 30 25% 65%;
+
+    /* Case shell colors */
+    --case-beige: 40 30% 72%;
+    --case-black: 220 10% 22%;
+    --case-rgb: 260 35% 32%;
+    --case-wood: 25 45% 40%;
+    --case-metal: 220 8% 62%;
+    --case-mini: 210 12% 55%;
+
     
     /* Gradients - softened */
     --gradient-retro: linear-gradient(135deg, hsl(120 60% 60%), hsl(180 50% 65%));

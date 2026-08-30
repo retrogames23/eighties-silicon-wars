@@ -224,7 +224,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   // Initialize state from editing model if provided
   React.useEffect(() => {
     if (editingModel) {
-      setCurrentStep('components');
+      setCurrentStep('build');
       setModelName(editingModel.baseName);
       setSellingPrice(editingModel.price);
       

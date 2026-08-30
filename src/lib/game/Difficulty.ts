@@ -169,7 +169,7 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     label: "Schwer",
     tagline: "Hardcore: wenig Kapital, harte KI, häufige Krisen, kein Rettungsnetz.",
     startingCash: 900_000,
-    fixedCostMultiplier: 1.45,
+    fixedCostMultiplier: 1.25,
     marketingSaturationPoint: 300_000,
     bankruptcyCashThreshold: -900_000,
     // Auch Hardcore braucht eine (teure) zweite Chance, sonst sind
@@ -180,7 +180,7 @@ export const DIFFICULTY_PROFILES: Record<DifficultyId, DifficultyProfile> = {
     emergencyLoanInterest: 0.20,
     emergencyLoanQuarters: 6,
     bankruptcyNetWorthThreshold: -1_500_000,
-    aiPressureCeiling: 0.80,
+    aiPressureCeiling: 0.70,
     aiPressureFloor: 0.12,
     aiReleaseCadenceQuarters: 5,
     aiAggression: 1.3,

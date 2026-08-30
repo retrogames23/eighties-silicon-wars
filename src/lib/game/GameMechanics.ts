@@ -961,6 +961,9 @@ export class GameMechanics {
       reputation: newReputation,
       reputationChange,
       marketEventMultipliers: { bomMultiplier, demandMultiplier },
+      activeCrises: activeCrisisKeys,
+      segmentReputation: newSegmentReputation,
+
       loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
       emergencyLoanGranted,
       bankruptcy: triggeredBankruptcy,

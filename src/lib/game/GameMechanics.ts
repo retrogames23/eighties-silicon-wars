@@ -935,6 +935,8 @@ export class GameMechanics {
         marketShare: newMarketShare,
         reputation: newReputation,
         brandAwareness: newBrandAwareness,
+        segmentReputation: newSegmentReputation,
+
         outstandingDebt,
         monthlyIncome: Math.round(totalRevenue / 3),
         monthlyExpenses: Math.round((totalExpensesForReporting + loanCashOut) / 3),

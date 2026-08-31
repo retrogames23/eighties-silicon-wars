@@ -255,7 +255,48 @@ const Index = () => {
     });
   };
 
+  const runTurn = async () => {
+    setIsProcessingTurn(true);
+    try {
+      await executeNextTurn();
+    } catch (err) {
+      console.error('[Turn] failed', err);
+      toast({
+        title: t('toast:turn.failedTitle', 'Runde konnte nicht abgeschlossen werden'),
+        description: err instanceof Error ? err.message : String(err),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessingTurn(false);
+    }
+  };
+
+  /** Klick auf "Nächste Runde": erst Bereitschaftsprüfung, dann Rundenwechsel. */
   const handleNextTurn = async () => {
+    if (isProcessingTurn) return;
+    const readiness = evaluateTurnReadiness({
+      year: gameState.year,
+      quarter: gameState.quarter,
+      budget: gameState.budget,
+      models: gameState.models ?? [],
+      cash: gameState.company.cash,
+      quarterlyOutflow:
+        (gameState.budget.marketing ?? 0) + (gameState.budget.development ?? 0) +
+        (gameState.budget.research ?? 0) + (gameState.budget.support ?? 0) + staffAgg.totalSalary,
+      headcount: staffAgg.headcount,
+      byRole: staffAgg.byRole,
+    });
+
+    if (readiness.hasIssues) {
+      setTurnReadiness(readiness);
+      setChecklistOpen(true);
+      return;
+    }
+    setTurnReadiness(null);
+    await runTurn();
+  };
+
+  const executeNextTurn = async () => {
     // Check for new hardware before processing turn
     const previousResearchBudget = gameState.budget.research;
     

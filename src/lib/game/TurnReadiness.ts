@@ -102,7 +102,7 @@ export function evaluateTurnReadiness(input: TurnReadinessInput): TurnReadinessR
   }
 
   (Object.keys(AREA_TO_ROLE) as BudgetArea[]).forEach((area) => {
-    const spend = (input.budget as Record<string, number | undefined>)[area] ?? 0;
+    const spend = (input.budget as unknown as Record<string, number | undefined>)[area] ?? 0;
     const role = AREA_TO_ROLE[area];
     if (spend > 0 && (input.byRole?.[role] ?? 0) === 0) {
       push(`missingRole.${area}`, "warning", AREA_TAB[area], { area, role });

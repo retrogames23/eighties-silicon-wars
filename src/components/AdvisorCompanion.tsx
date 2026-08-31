@@ -85,6 +85,7 @@ export const AdvisorCompanion = ({
   budget, cash, lastQuarterRevenue, hasActiveModels,
   companyName, quarter, year, reputation, marketShare,
   activeModelsCount, competitorAvgMarketShare,
+  readiness = null, checklistOpen = false, onCloseChecklist, onProceedAnyway, onNavigateTab,
 }: AdvisorCompanionProps) => {
   const { t, i18n } = useTranslation(['advisor', 'economy']);
   const { toast } = useToast();

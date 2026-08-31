@@ -117,6 +117,11 @@ export const AdvisorCompanion = ({
     return () => { cancelled = true; };
   }, [quarter, year]);
 
+  // Rundencheckliste öffnet den Berater automatisch.
+  useEffect(() => {
+    if (checklistOpen) setOpen(true);
+  }, [checklistOpen]);
+
   // Auto-scroll chat
   useEffect(() => {
     if (mode === 'chat' && chatScrollRef.current) {

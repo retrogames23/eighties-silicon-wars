@@ -48,6 +48,33 @@
       "switchToTips": "Zurück zu Tipps"
     },
     "noTips": "Gerade keine dringenden Tipps. Soll ich die Basics nochmal durchgehen?",
-    "replayTour": "Tour erneut starten"
+    "replayTour": "Tour erneut starten",
+    "readiness": {
+      "introBlocked": "Moment, Chef! Bevor wir das Quartal abschließen, fehlen noch Grundlagen. Ohne das läuft die Firma ins Leere:",
+      "introWarning": "Kann losgehen — aber ein paar Punkte würde ich vorher noch angehen:",
+      "fixNow": "Erledige ich",
+      "proceedAnyway": "Trotzdem beenden",
+      "tabs": {
+        "account": "Budgets",
+        "development": "Entwicklung",
+        "market": "Markt",
+        "management": "Personal",
+        "financing": "Finanzierung"
+      },
+      "issues": {
+        "noStaff": "Du hast niemanden eingestellt. Stelle mindestens eine Ingenieurin oder einen Ingenieur ein — ohne Team wird kein Rechner gebaut.",
+        "noModel": "Kein Computer in Entwicklung oder im Verkauf. Gib mindestens ein Modell in Entwicklung, sonst gibt es nächstes Quartal keine Umsätze.",
+        "noMarketingBudget": "Du verkaufst Modelle, hast aber kein Marketing-Budget. Niemand kennt deine Rechner.",
+        "noDevelopmentBudget": "Ein Modell ist in Entwicklung, aber das Entwicklungsbudget steht auf 0 — das dauert ewig.",
+        "missingRole": {
+          "marketing": "Marketing-Budget ohne Marketing-Fachkraft: Das Geld verpufft.",
+          "development": "Entwicklungsbudget ohne Ingenieur:in: Das Geld verpufft.",
+          "research": "Forschungsbudget ohne Forscher:in: Das Geld verpufft.",
+          "support": "Support-Budget ohne Support-Kraft: Das Geld verpufft."
+        },
+        "noSupport": "Du verkaufst Rechner ohne Support — Rückläufer und schlechte Kritiken kosten dich Reputation.",
+        "cashTight": "Deine Barmittel decken die geplanten Quartalskosten nicht. Senke Budgets oder besorge Kapital."
+      }
+    }
   }
 }

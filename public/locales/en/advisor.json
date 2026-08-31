@@ -48,6 +48,33 @@
       "switchToTips": "Back to tips"
     },
     "noTips": "No urgent tips right now. Want to walk through the basics again?",
-    "replayTour": "Replay tour"
+    "replayTour": "Replay tour",
+    "readiness": {
+      "introBlocked": "Hold on, boss! A few basics are missing before we close the quarter:",
+      "introWarning": "We can go — but I'd sort these out first:",
+      "fixNow": "I'll fix it",
+      "proceedAnyway": "End anyway",
+      "tabs": {
+        "account": "Budgets",
+        "development": "Development",
+        "market": "Market",
+        "management": "Staff",
+        "financing": "Financing"
+      },
+      "issues": {
+        "noStaff": "You haven't hired anyone. Hire at least one engineer — no team, no computer.",
+        "noModel": "No computer in development or on sale. Put at least one model into development or there's no revenue next quarter.",
+        "noMarketingBudget": "You're selling models but marketing is at zero. Nobody knows your machines.",
+        "noDevelopmentBudget": "A model is in development but the development budget is zero — that will take forever.",
+        "missingRole": {
+          "marketing": "Marketing budget without a marketer: the money is wasted.",
+          "development": "Development budget without an engineer: the money is wasted.",
+          "research": "Research budget without a researcher: the money is wasted.",
+          "support": "Support budget without a support specialist: the money is wasted."
+        },
+        "noSupport": "You're selling machines with no support — returns and bad reviews will cost you reputation.",
+        "cashTight": "Your cash doesn't cover the planned quarterly costs. Cut budgets or raise capital."
+      }
+    }
   }
 }

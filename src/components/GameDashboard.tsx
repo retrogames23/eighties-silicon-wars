@@ -74,6 +74,10 @@ interface GameDashboardProps {
   onCashChange?: (delta: number) => void;
   user?: any;
   aiCompetitors?: AiCompetitor[];
+  /** Laufende Quartalsverarbeitung → Button zeigt Ladezustand. */
+  isProcessingTurn?: boolean;
+  /** Von außen angeforderter Tab (z.B. aus der Berater-Checkliste). */
+  focusTab?: string | null;
 }
 
 export const GameDashboard = ({ 
@@ -86,6 +90,8 @@ export const GameDashboard = ({
   onCashChange,
   user,
   aiCompetitors = [],
+  isProcessingTurn = false,
+  focusTab = null,
 }: GameDashboardProps) => {
   const { t } = useTranslation(['ui', 'common', 'company']);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -194,10 +200,13 @@ export const GameDashboard = ({
                 
                 <Button 
                   onClick={onNextTurn}
+                  disabled={isProcessingTurn}
                   className="glow-button px-8 py-3 text-lg"
                   variant="default"
                 >
-                  <Calendar className="w-5 h-5 mr-2" />
+                  {isProcessingTurn
+                    ? <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    : <Calendar className="w-5 h-5 mr-2" />}
                   {t('ui:dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -367,10 +376,13 @@ export const GameDashboard = ({
             <div className="fixed bottom-4 left-4 right-4 z-10">
               <Button 
                 onClick={onNextTurn}
+                disabled={isProcessingTurn}
                 className="w-full glow-button py-4 text-lg mobile-touch-button"
                 variant="default"
               >
-                <Calendar className="w-5 h-5 mr-2" />
+                {isProcessingTurn
+                  ? <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  : <Calendar className="w-5 h-5 mr-2" />}
                 {t('ui:dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>

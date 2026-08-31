@@ -27,6 +27,8 @@ import { StaffService } from "@/services/StaffService";
 import { AnnualMeeting } from "@/components/AnnualMeeting";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { evaluateTurnReadiness, type ReadinessTab, type TurnReadinessResult } from "@/lib/game/TurnReadiness";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Company {
@@ -88,6 +90,12 @@ type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'cas
 const Index = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { t: tt } = useTranslation(['toast']);
+  const [isProcessingTurn, setIsProcessingTurn] = useState(false);
+  const [turnReadiness, setTurnReadiness] = useState<TurnReadinessResult | null>(null);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [focusTab, setFocusTab] = useState<string | null>(null);
+  const [staffAgg, setStaffAgg] = useState<StaffAggregate>(StaffService.aggregate([]));
   
   // Debug logging
   console.log("Index component is rendering");
@@ -262,7 +270,7 @@ const Index = () => {
     } catch (err) {
       console.error('[Turn] failed', err);
       toast({
-        title: t('toast:turn.failedTitle', 'Runde konnte nicht abgeschlossen werden'),
+        title: tt('toast:turn.failedTitle'),
         description: err instanceof Error ? err.message : String(err),
         variant: 'destructive',
       });
@@ -774,6 +782,8 @@ const Index = () => {
             company: { ...prev.company, cash: prev.company.cash + delta },
           }))}
           aiCompetitors={aiCompetitors}
+          isProcessingTurn={isProcessingTurn}
+          focusTab={focusTab}
         />
         );
       
@@ -891,6 +901,15 @@ const Index = () => {
             year={gameState.year}
             reputation={gameState.company.reputation}
             marketShare={gameState.company.marketShare}
+            readiness={turnReadiness}
+            checklistOpen={checklistOpen}
+            onCloseChecklist={() => setChecklistOpen(false)}
+            onProceedAnyway={async () => {
+              setChecklistOpen(false);
+              setTurnReadiness(null);
+              await runTurn();
+            }}
+            onNavigateTab={(tab: ReadinessTab) => setFocusTab(tab)}
           />
           <AdvisorChat
             isOpen={advisorOpen}

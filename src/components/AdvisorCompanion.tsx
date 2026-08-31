@@ -117,6 +117,8 @@ export const AdvisorCompanion = ({
     return () => { cancelled = true; };
   }, [quarter, year]);
 
+  const showChecklist = Boolean(checklistOpen && readiness && (readiness.blockers.length > 0 || readiness.warnings.length > 0));
+
   // Rundencheckliste öffnet den Berater automatisch.
   useEffect(() => {
     if (checklistOpen) setOpen(true);

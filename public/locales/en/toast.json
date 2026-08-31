@@ -23,11 +23,15 @@
     "loaded": "Game loaded!",
     "deleted": "Game deleted!",
     "saveError": "Error saving game",
-    "loadError": "Error loading game",  
+    "loadError": "Error loading game",
     "deleteError": "Error deleting game",
     "loadListError": "Error loading saved games",
     "supabaseNotConfigured": "Supabase is not configured",
     "loginRequired": "Please log in to manage saved games",
     "loginRequiredSave": "Please log in to save"
+  },
+  "turn": {
+    "failedTitle": "Could not finish the quarter",
+    "failedDescription": "Please try again."
   }
 }

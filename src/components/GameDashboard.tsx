@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,7 +28,8 @@ import {
   HelpCircle,
   Save,
   Menu,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 
 import { type Competitor, type MarketEvent } from "@/lib/game";
@@ -74,6 +75,10 @@ interface GameDashboardProps {
   onCashChange?: (delta: number) => void;
   user?: any;
   aiCompetitors?: AiCompetitor[];
+  /** Laufende Quartalsverarbeitung → Button zeigt Ladezustand. */
+  isProcessingTurn?: boolean;
+  /** Von außen angeforderter Tab (z.B. aus der Berater-Checkliste). */
+  focusTab?: string | null;
 }
 
 export const GameDashboard = ({ 
@@ -86,6 +91,8 @@ export const GameDashboard = ({
   onCashChange,
   user,
   aiCompetitors = [],
+  isProcessingTurn = false,
+  focusTab = null,
 }: GameDashboardProps) => {
   const { t } = useTranslation(['ui', 'common', 'company']);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -95,6 +102,11 @@ export const GameDashboard = ({
   
   // Development-only render tracking
   useRenderTracking('GameDashboard');
+
+  // Externe Tab-Anforderung (Berater-Checkliste)
+  useEffect(() => {
+    if (focusTab) setActiveTab(focusTab);
+  }, [focusTab]);
 
   // Tab navigation for swipe gestures
   const tabs = ["account", "development", "market", "management", "financing", "headquarters"];
@@ -194,10 +206,13 @@ export const GameDashboard = ({
                 
                 <Button 
                   onClick={onNextTurn}
+                  disabled={isProcessingTurn}
                   className="glow-button px-8 py-3 text-lg"
                   variant="default"
                 >
-                  <Calendar className="w-5 h-5 mr-2" />
+                  {isProcessingTurn
+                    ? <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    : <Calendar className="w-5 h-5 mr-2" />}
                   {t('ui:dashboard.nextTurn')}
                   <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -367,10 +382,13 @@ export const GameDashboard = ({
             <div className="fixed bottom-4 left-4 right-4 z-10">
               <Button 
                 onClick={onNextTurn}
+                disabled={isProcessingTurn}
                 className="w-full glow-button py-4 text-lg mobile-touch-button"
                 variant="default"
               >
-                <Calendar className="w-5 h-5 mr-2" />
+                {isProcessingTurn
+                  ? <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  : <Calendar className="w-5 h-5 mr-2" />}
                 {t('ui:dashboard.nextTurn')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>

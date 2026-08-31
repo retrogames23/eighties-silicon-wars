@@ -21,6 +21,7 @@ import {
   type Budget,
   type BudgetArea,
 } from '@/lib/game/BudgetRules';
+import type { ReadinessIssue, ReadinessTab, TurnReadinessResult } from '@/lib/game/TurnReadiness';
 
 interface AdvisorCompanionProps {
   budget: Budget;
@@ -34,6 +35,13 @@ interface AdvisorCompanionProps {
   marketShare?: number;
   activeModelsCount?: number;
   competitorAvgMarketShare?: number;
+  /** Ergebnis der Runden-Bereitschaftsprüfung (nur gesetzt, wenn Checkliste offen). */
+  readiness?: TurnReadinessResult | null;
+  checklistOpen?: boolean;
+  onCloseChecklist?: () => void;
+  /** Nur verfügbar, wenn keine Blocker vorliegen. */
+  onProceedAnyway?: () => void;
+  onNavigateTab?: (tab: ReadinessTab) => void;
 }
 
 interface Tip {
@@ -77,6 +85,7 @@ export const AdvisorCompanion = ({
   budget, cash, lastQuarterRevenue, hasActiveModels,
   companyName, quarter, year, reputation, marketShare,
   activeModelsCount, competitorAvgMarketShare,
+  readiness = null, checklistOpen = false, onCloseChecklist, onProceedAnyway, onNavigateTab,
 }: AdvisorCompanionProps) => {
   const { t, i18n } = useTranslation(['advisor', 'economy']);
   const { toast } = useToast();
@@ -107,6 +116,13 @@ export const AdvisorCompanion = ({
     })();
     return () => { cancelled = true; };
   }, [quarter, year]);
+
+  const showChecklist = Boolean(checklistOpen && readiness && (readiness.blockers.length > 0 || readiness.warnings.length > 0));
+
+  // Rundencheckliste öffnet den Berater automatisch.
+  useEffect(() => {
+    if (checklistOpen) setOpen(true);
+  }, [checklistOpen]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -404,7 +420,58 @@ export const AdvisorCompanion = ({
             </button>
           </div>
 
+          {/* Rundencheckliste */}
+          {showChecklist && readiness && (
+            <div className="space-y-3">
+              <p className="text-sm text-foreground leading-relaxed">
+                {readiness.blockers.length > 0
+                  ? t('advisor:companion.readiness.introBlocked')
+                  : t('advisor:companion.readiness.introWarning')}
+              </p>
+              <ul className="space-y-2">
+                {[...readiness.blockers, ...readiness.warnings].map((issue: ReadinessIssue) => (
+                  <li
+                    key={issue.id}
+                    className="flex items-start gap-2 text-xs border rounded-md p-2 bg-muted/30"
+                  >
+                    <span
+                      className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${issue.severity === 'blocker' ? 'bg-destructive' : 'bg-amber'}`}
+                      aria-hidden
+                    />
+                    <span className="flex-1 leading-snug">
+                      {t(`advisor:${issue.i18nKey}`, issue.params ?? {})}
+                    </span>
+                    {onNavigateTab && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => {
+                          onNavigateTab(issue.tab);
+                          onCloseChecklist?.();
+                        }}
+                      >
+                        {t(`advisor:companion.readiness.tabs.${issue.tab}`)}
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={() => onCloseChecklist?.()}>
+                  {t('advisor:companion.readiness.fixNow')}
+                </Button>
+                {readiness.blockers.length === 0 && onProceedAnyway && (
+                  <Button size="sm" onClick={onProceedAnyway}>
+                    {t('advisor:companion.readiness.proceedAnyway')}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Mode switcher — always visible so the chat is reachable, even mid-tour */}
+          {!showChecklist && (
           <div className="flex gap-1 mb-3 text-xs">
             <button
               onClick={() => setMode('tips')}
@@ -421,9 +488,10 @@ export const AdvisorCompanion = ({
               {t('advisor:companion.tabs.chat')}
             </button>
           </div>
+          )}
 
           {/* Tour or Tip view */}
-          {(inTour || mode === 'tips') && (
+          {!showChecklist && (inTour || mode === 'tips') && (
             <>
               <p className="text-sm text-foreground leading-relaxed min-h-[3.5rem]">
                 {inTour
@@ -470,7 +538,7 @@ export const AdvisorCompanion = ({
           )}
 
           {/* Chat view */}
-          {mode === 'chat' && !inTour && (
+          {!showChecklist && mode === 'chat' && !inTour && (
             <>
               <ScrollArea className="h-56 border rounded-md p-2 bg-muted/30 mb-2">
                 <div ref={chatScrollRef} className="space-y-2 text-xs">

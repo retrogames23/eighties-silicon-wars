@@ -23,10 +23,12 @@ import { type Competitor, type MarketEvent, type CustomChip, type GameEndConditi
 import { DIFFICULTY_PROFILES, DEFAULT_DIFFICULTY, type DifficultyId } from "@/lib/game/Difficulty";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
-import { StaffService } from "@/services/StaffService";
+import { StaffService, type StaffAggregate } from "@/services/StaffService";
 import { AnnualMeeting } from "@/components/AnnualMeeting";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { evaluateTurnReadiness, type ReadinessTab, type TurnReadinessResult } from "@/lib/game/TurnReadiness";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Company {
@@ -88,6 +90,12 @@ type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'cas
 const Index = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { t: tt } = useTranslation(['toast']);
+  const [isProcessingTurn, setIsProcessingTurn] = useState(false);
+  const [turnReadiness, setTurnReadiness] = useState<TurnReadinessResult | null>(null);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [focusTab, setFocusTab] = useState<string | null>(null);
+  const [staffAgg, setStaffAgg] = useState<StaffAggregate>(StaffService.aggregate([]));
   
   // Debug logging
   console.log("Index component is rendering");
@@ -255,7 +263,48 @@ const Index = () => {
     });
   };
 
+  const runTurn = async () => {
+    setIsProcessingTurn(true);
+    try {
+      await executeNextTurn();
+    } catch (err) {
+      console.error('[Turn] failed', err);
+      toast({
+        title: tt('toast:turn.failedTitle'),
+        description: err instanceof Error ? err.message : String(err),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessingTurn(false);
+    }
+  };
+
+  /** Klick auf "Nächste Runde": erst Bereitschaftsprüfung, dann Rundenwechsel. */
   const handleNextTurn = async () => {
+    if (isProcessingTurn) return;
+    const readiness = evaluateTurnReadiness({
+      year: gameState.year,
+      quarter: gameState.quarter,
+      budget: gameState.budget,
+      models: gameState.models ?? [],
+      cash: gameState.company.cash,
+      quarterlyOutflow:
+        (gameState.budget.marketing ?? 0) + (gameState.budget.development ?? 0) +
+        (gameState.budget.research ?? 0) + (gameState.budget.support ?? 0) + staffAgg.totalSalary,
+      headcount: staffAgg.headcount,
+      byRole: staffAgg.byRole,
+    });
+
+    if (readiness.hasIssues) {
+      setTurnReadiness(readiness);
+      setChecklistOpen(true);
+      return;
+    }
+    setTurnReadiness(null);
+    await runTurn();
+  };
+
+  const executeNextTurn = async () => {
     // Check for new hardware before processing turn
     const previousResearchBudget = gameState.budget.research;
     
@@ -711,6 +760,21 @@ const Index = () => {
     return () => { cancelled = true; };
   }, [user?.id]);
 
+  // Teamdaten für die Runden-Bereitschaftsprüfung
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const team = await StaffService.list(user.id);
+        if (!cancelled) setStaffAgg(StaffService.aggregate(team));
+      } catch (e) {
+        console.warn('[Staff] aggregate load failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, gameState.quarter, gameState.year, currentScreen]);
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -733,6 +797,8 @@ const Index = () => {
             company: { ...prev.company, cash: prev.company.cash + delta },
           }))}
           aiCompetitors={aiCompetitors}
+          isProcessingTurn={isProcessingTurn}
+          focusTab={focusTab}
         />
         );
       
@@ -850,6 +916,18 @@ const Index = () => {
             year={gameState.year}
             reputation={gameState.company.reputation}
             marketShare={gameState.company.marketShare}
+            readiness={turnReadiness}
+            checklistOpen={checklistOpen}
+            onCloseChecklist={() => setChecklistOpen(false)}
+            onProceedAnyway={async () => {
+              setChecklistOpen(false);
+              setTurnReadiness(null);
+              await runTurn();
+            }}
+            onNavigateTab={(tab: ReadinessTab) => {
+              setFocusTab(tab);
+              window.setTimeout(() => setFocusTab(null), 100);
+            }}
           />
           <AdvisorChat
             isOpen={advisorOpen}

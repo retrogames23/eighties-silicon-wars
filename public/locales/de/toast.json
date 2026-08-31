@@ -29,5 +29,9 @@
     "supabaseNotConfigured": "Supabase ist nicht konfiguriert",
     "loginRequired": "Bitte melden Sie sich an, um Spielstände zu verwalten",
     "loginRequiredSave": "Bitte melden Sie sich an, um zu speichern"
+  },
+  "turn": {
+    "failedTitle": "Runde konnte nicht abgeschlossen werden",
+    "failedDescription": "Bitte versuche es erneut."
   }
 }

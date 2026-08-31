@@ -23,7 +23,7 @@ import { type Competitor, type MarketEvent, type CustomChip, type GameEndConditi
 import { DIFFICULTY_PROFILES, DEFAULT_DIFFICULTY, type DifficultyId } from "@/lib/game/Difficulty";
 import { LivingWorldService, type AiWorldEvent } from "@/services/LivingWorldService";
 import { CompetitorsService, type AiCompetitor } from "@/services/CompetitorsService";
-import { StaffService } from "@/services/StaffService";
+import { StaffService, type StaffAggregate } from "@/services/StaffService";
 import { AnnualMeeting } from "@/components/AnnualMeeting";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
@@ -760,6 +760,21 @@ const Index = () => {
     return () => { cancelled = true; };
   }, [user?.id]);
 
+  // Teamdaten für die Runden-Bereitschaftsprüfung
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const team = await StaffService.list(user.id);
+        if (!cancelled) setStaffAgg(StaffService.aggregate(team));
+      } catch (e) {
+        console.warn('[Staff] aggregate load failed', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, gameState.quarter, gameState.year, currentScreen]);
+
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -909,7 +924,10 @@ const Index = () => {
               setTurnReadiness(null);
               await runTurn();
             }}
-            onNavigateTab={(tab: ReadinessTab) => setFocusTab(tab)}
+            onNavigateTab={(tab: ReadinessTab) => {
+              setFocusTab(tab);
+              window.setTimeout(() => setFocusTab(null), 100);
+            }}
           />
           <AdvisorChat
             isOpen={advisorOpen}

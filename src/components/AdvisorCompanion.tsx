@@ -536,7 +536,7 @@ export const AdvisorCompanion = ({
           )}
 
           {/* Chat view */}
-          {mode === 'chat' && !inTour && (
+          {!showChecklist && mode === 'chat' && !inTour && (
             <>
               <ScrollArea className="h-56 border rounded-md p-2 bg-muted/30 mb-2">
                 <div ref={chatScrollRef} className="space-y-2 text-xs">

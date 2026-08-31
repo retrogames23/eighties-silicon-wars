@@ -21,6 +21,7 @@ import {
   type Budget,
   type BudgetArea,
 } from '@/lib/game/BudgetRules';
+import type { ReadinessIssue, ReadinessTab, TurnReadinessResult } from '@/lib/game/TurnReadiness';
 
 interface AdvisorCompanionProps {
   budget: Budget;
@@ -34,6 +35,13 @@ interface AdvisorCompanionProps {
   marketShare?: number;
   activeModelsCount?: number;
   competitorAvgMarketShare?: number;
+  /** Ergebnis der Runden-Bereitschaftsprüfung (nur gesetzt, wenn Checkliste offen). */
+  readiness?: TurnReadinessResult | null;
+  checklistOpen?: boolean;
+  onCloseChecklist?: () => void;
+  /** Nur verfügbar, wenn keine Blocker vorliegen. */
+  onProceedAnyway?: () => void;
+  onNavigateTab?: (tab: ReadinessTab) => void;
 }
 
 interface Tip {

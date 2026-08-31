@@ -28,7 +28,8 @@ import {
   HelpCircle,
   Save,
   Menu,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 
 import { type Competitor, type MarketEvent } from "@/lib/game";
@@ -101,6 +102,11 @@ export const GameDashboard = ({
   
   // Development-only render tracking
   useRenderTracking('GameDashboard');
+
+  // Externe Tab-Anforderung (Berater-Checkliste)
+  useEffect(() => {
+    if (focusTab) setActiveTab(focusTab);
+  }, [focusTab]);
 
   // Tab navigation for swipe gestures
   const tabs = ["account", "development", "market", "management", "financing", "headquarters"];

@@ -412,7 +412,12 @@ export const AdvisorCompanion = ({
               </div>
             </div>
             <button
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                // Auch den Checklisten-Zustand in der Parent-Komponente schließen,
+                // sonst bleibt checklistOpen=true und "Nächste Runde" reagiert nicht erneut.
+                onCloseChecklist?.();
+                setOpen(false);
+              }}
               className="text-muted-foreground hover:text-primary"
               aria-label="close"
             >

@@ -1,5 +1,5 @@
 import { type TestResult } from "./TestReport";
-import { TestScoringMatrix } from "@/services/TestScoringMatrix";
+import { TestScoringMatrix, NO_GPU_TEST_PENALTY } from "@/services/TestScoringMatrix";
 
 export class EnhancedTestReportGenerator {
   

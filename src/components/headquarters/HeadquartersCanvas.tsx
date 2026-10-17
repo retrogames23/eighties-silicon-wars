@@ -1,12 +1,12 @@
 import hqMidriseAsset from "@/assets/hq-building-5floor.jpg.asset.json";
 import hqGarage from "@/assets/hq-garage.jpg";
 import hqSmallOffice from "@/assets/hq-smalloffice.jpg";
-import hq3Floor from "@/assets/hq-3floor.jpg";
-import hq7Floor from "@/assets/hq-7floor.jpg";
+import hq3Floor from "@/assets/hq-3floor.webp";
+import hq7Floor from "@/assets/hq-7floor.webp";
 import hqHighrise from "@/assets/hq-highrise.jpg";
-import hq15Floor from "@/assets/hq-15floor.jpg";
-import hqSkyscraper from "@/assets/hq-skyscraper.jpg";
-import hqMegatower from "@/assets/hq-megatower.jpg";
+import hq15Floor from "@/assets/hq-15floor.webp";
+import hqSkyscraper from "@/assets/hq-skyscraper.webp";
+import hqMegatower from "@/assets/hq-megatower.webp";
 
 // ============================================================================
 // Headquarters illustration

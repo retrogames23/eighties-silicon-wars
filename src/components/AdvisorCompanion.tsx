@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
 import { supabase } from '@/integrations/supabase/client';
 import { StaffService, type StaffAggregate } from '@/services/StaffService';
-import advisorImg from '@/assets/advisor-dilbert.png';
+import advisorImg from '@/assets/advisor-dilbert.webp';
 import {
   summarize,
   recommendHiring,

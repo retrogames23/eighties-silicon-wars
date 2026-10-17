@@ -219,8 +219,11 @@ export const useAudioManager = () => {
   const toggleMusic = useCallback(() => {
     const store = storeRef.current || getAudioStore();
     const deck = store.decks[store.active];
+    // Decide by what the user actually hears: if autoplay was blocked the
+    // preference is "on" but nothing plays — a tap must start music.
+    const audible = store.enabled && !deck.audio.paused;
 
-    if (store.enabled) {
+    if (audible) {
       store.enabled = false;
       writeEnabledPreference(false);
       setIsEnabled(false);

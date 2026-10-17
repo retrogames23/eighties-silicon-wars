@@ -102,3 +102,45 @@ export function enforceSegmentDemandBudget(events: AiWorldEvent[]): AiWorldEvent
 function clamp(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, v));
 }
+
+// ============================================================================
+// Brücke LLM-Welt → Sim-Core: aktive (bereits geclampte) Events in Sim-Multiplikatoren.
+// Rein deterministisch; Gesamtwirkung erneut hart begrenzt.
+// ============================================================================
+export type SimSegment = "gamer" | "business" | "workstation";
+
+const SEGMENT_MAP: Record<Segment, SimSegment[]> = {
+  home: ["gamer"],
+  gaming: ["gamer"],
+  education: ["gamer"],
+  business: ["business"],
+  workstation: ["workstation"],
+  all: ["gamer", "business", "workstation"],
+};
+
+export function worldEventsToSimEffects(events: AiWorldEvent[]): {
+  bomMultiplier: number;
+  segmentDemandMultiplier: Record<SimSegment, number>;
+} {
+  const demand: Record<SimSegment, number> = { gamer: 0, business: 0, workstation: 0 };
+  let price = 1;
+  for (const ev of events) {
+    if ((ev.remaining_quarters ?? 1) <= 0) continue;
+    const fx = ev.applied_effects;
+    if (!fx) continue;
+    price *= fx.price_multiplier ?? 1;
+    const raw = (fx.segments?.length ? fx.segments : ev.affected_segments?.length ? ev.affected_segments : ["all"]) as Segment[];
+    const targets = new Set<SimSegment>();
+    for (const s of raw) for (const t of SEGMENT_MAP[s] ?? []) targets.add(t);
+    for (const t of targets) demand[t] += fx.demand_delta ?? 0;
+  }
+  const cap = EFFECT_CAPS.DEMAND_DELTA_MAX_PER_SEGMENT;
+  return {
+    bomMultiplier: clamp(price, EFFECT_CAPS.PRICE_MIN, EFFECT_CAPS.PRICE_MAX),
+    segmentDemandMultiplier: {
+      gamer: 1 + clamp(demand.gamer, -cap, cap),
+      business: 1 + clamp(demand.business, -cap, cap),
+      workstation: 1 + clamp(demand.workstation, -cap, cap),
+    },
+  };
+}

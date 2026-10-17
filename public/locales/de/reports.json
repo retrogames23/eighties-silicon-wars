@@ -87,5 +87,12 @@
       "line2": "✓ ASSERTION: Gewinnmarge = (Gewinn / Umsatz) × 100",
       "line3": "✓ ASSERTION: Gesamtkosten = BOM + Entwicklung + Marketing + Produktion + Fixkosten"
     }
+  },
+  "whyPanel": {
+    "title": "Warum ist das passiert?",
+    "subtitle": "Aktive Welt-Ereignisse, die dieses Quartal Bauteilkosten und Nachfrage in deinen Zielgruppen verändern.",
+    "meta": "Stärke {{magnitude}}/5 · noch {{remaining}} Q",
+    "price": "Bauteilkosten {{value}}",
+    "demand": "Nachfrage {{value}}"
   }
 }

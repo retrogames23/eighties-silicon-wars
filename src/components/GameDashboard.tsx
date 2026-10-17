@@ -11,6 +11,9 @@ import { CompanyManagement } from "@/components/CompanyManagement";
 import EmployeesPanel from "@/components/EmployeesPanel";
 import { HeadquartersTab } from "@/components/HeadquartersTab";
 import { FinancingPanel } from "@/components/FinancingPanel";
+import { MegaProjectsPanel, MarketThreatsCard } from "@/components/MegaProjectsPanel";
+import type { MegaProjectId, MegaProjects, PriceWar } from "@/lib/game/LateGame";
+import { getDifficultyFromGameState } from "@/lib/game/Difficulty";
 import { GameTutorial } from "@/components/GameTutorial";
 import { UserProfile } from "@/components/UserProfile";
 import { useRenderTracking } from "@/lib/dev-tools";
@@ -63,6 +66,8 @@ interface GameState {
   totalMarketSize: number;
   /** Schwierigkeitsgrad (siehe Difficulty.ts). Legacy-Saves → "easy". */
   difficulty?: import("@/lib/game/Difficulty").DifficultyId;
+  megaProjects?: MegaProjects;
+  priceWars?: PriceWar[];
 }
 
 interface GameDashboardProps {
@@ -79,6 +84,8 @@ interface GameDashboardProps {
   isProcessingTurn?: boolean;
   /** Von außen angeforderter Tab (z.B. aus der Berater-Checkliste). */
   focusTab?: string | null;
+  researchStaff?: number;
+  onStartMegaProject?: (id: MegaProjectId) => void;
 }
 
 export const GameDashboard = ({ 
@@ -93,6 +100,8 @@ export const GameDashboard = ({
   aiCompetitors = [],
   isProcessingTurn = false,
   focusTab = null,
+  researchStaff = 0,
+  onStartMegaProject,
 }: GameDashboardProps) => {
   const { t } = useTranslation(['ui', 'common', 'company']);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -324,6 +333,12 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="market" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <MarketThreatsCard
+                year={gameState.year}
+                quarter={gameState.quarter}
+                priceWars={gameState.priceWars ?? []}
+                aiAggression={(() => { const d = getDifficultyFromGameState(gameState); return d.aiPressureCeiling > 0 ? d.aiAggression : 0; })()}
+              />
               <AiCompetitorsPanel competitors={aiCompetitors} year={gameState.year} quarter={gameState.quarter} difficulty={gameState.difficulty} />
               <MarketTab 
                 competitors={gameState.competitors}
@@ -357,6 +372,16 @@ export const GameDashboard = ({
             </TabsContent>
 
             <TabsContent value="headquarters" className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <MegaProjectsPanel
+                year={gameState.year}
+                quarter={gameState.quarter}
+                cash={gameState.company.cash}
+                researchStaff={researchStaff}
+                projects={gameState.megaProjects ?? {}}
+                priceWars={gameState.priceWars ?? []}
+                aiAggression={0}
+                onStart={(id) => onStartMegaProject?.(id)}
+              />
               <HeadquartersTab 
                 cash={gameState.company.cash}
                 employees={gameState.company.employees}

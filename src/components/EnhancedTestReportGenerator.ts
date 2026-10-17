@@ -1,5 +1,5 @@
 import { type TestResult } from "./TestReport";
-import { TestScoringMatrix, NO_GPU_TEST_PENALTY } from "@/services/TestScoringMatrix";
+import { TestScoringMatrix, NO_GPU_TEST_PENALTY, NO_SOUND_TEST_PENALTY } from "@/services/TestScoringMatrix";
 
 export class EnhancedTestReportGenerator {
   
@@ -77,7 +77,8 @@ export class EnhancedTestReportGenerator {
        compatibilityResult.score * 0.1 + buildQualityResult.score * 0.1)
     );
     // No graphics chip: text-only machine — clear test penalty.
-    const overallScore = Math.max(0, rawOverall - (hasGpu ? 0 : NO_GPU_TEST_PENALTY));
+    const hasSound = !!model.sound && model.sound !== 'Unknown';
+    const overallScore = Math.max(0, rawOverall - (hasGpu ? 0 : NO_GPU_TEST_PENALTY) - (hasSound ? 0 : NO_SOUND_TEST_PENALTY));
 
     // Generate detailed comments for each category
     const gamingComments = this.generateGamingComments(cpuScores.gaming, gpuScores.gaming, ramScores.gaming, soundScores.gaming, model);

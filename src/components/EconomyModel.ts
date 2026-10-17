@@ -132,6 +132,13 @@ export interface EconomyContext {
 
 /** Appeal points gamers deduct from a model without a graphics chip. */
 export const NO_GPU_GAMER_APPEAL_PENALTY = 20;
+/** Appeal points gamers deduct from a model without a sound chip. */
+export const NO_SOUND_GAMER_APPEAL_PENALTY = 12;
+/** Appeal points business/workstation buyers deduct from a model without any drive. */
+export const NO_STORAGE_PRO_APPEAL_PENALTY = 15;
+
+const STORAGE_ACCESSORIES = ['Kassettenlaufwerk', 'Diskettenlaufwerk 5.25"', 'Diskettenlaufwerk 3.5"',
+  'Festplatte 5MB', 'Festplatte 10MB', 'Festplatte 20MB', 'CD-ROM Drive'];
 
 export class EconomyModel {
 
@@ -513,6 +520,11 @@ export class EconomyModel {
     appeal += getParadigmAppealDelta(model, segment as Segment, year, quarter, perf.ram, perf.gpu);
     // Gamers shun machines without a graphics chip.
     if (!model.gpu && segment === 'gamer') appeal -= NO_GPU_GAMER_APPEAL_PENALTY;
+    // Gamers want sound; business/workstation buyers need a drive to save work.
+    if (!model.sound && segment === 'gamer') appeal -= NO_SOUND_GAMER_APPEAL_PENALTY;
+    if ((segment === 'business' || segment === 'workstation') && !this.hasStorage(model)) {
+      appeal -= NO_STORAGE_PRO_APPEAL_PENALTY;
+    }
     return Math.max(5, Math.min(100, appeal));
   }
 
@@ -536,6 +548,10 @@ export class EconomyModel {
   }
 
   /** Storage/Display kommen aus model.accessories (Strings). Heuristik via HardwareManager. */
+  static hasStorage(model: { accessories?: unknown }): boolean {
+    return Array.isArray(model.accessories) && model.accessories.some((a) => STORAGE_ACCESSORIES.includes(a as string));
+  }
+
   static guessAccessoryPerformance(model: any, type: 'storage' | 'display'): number {
     if (!model.accessories || !Array.isArray(model.accessories)) return 15;
     const candidates = (type === 'storage'

@@ -54,7 +54,7 @@ export class HardwareManager {
       { name: 'Sound Blaster Pro', performance: 90, cost: 200, descriptionKey: 'soundBlasterPro', year: 1989, quarter: 3 }
     ],
     storage: [
-      { name: 'Kassettenlaufwerk', performance: 10, cost: 40, descriptionKey: 'cassetteDrive', year: 1983, quarter: 2 },
+      { name: 'Kassettenlaufwerk', performance: 10, cost: 40, descriptionKey: 'cassetteDrive', year: 1983, quarter: 1 },
       { name: 'Diskettenlaufwerk 5.25"', performance: 35, cost: 150, descriptionKey: 'floppy525', year: 1983, quarter: 3 },
       { name: 'Diskettenlaufwerk 3.5"', performance: 50, cost: 120, descriptionKey: 'floppy35', year: 1985, quarter: 3 },
       { name: 'Festplatte 5MB', performance: 60, cost: 1500, descriptionKey: 'hardDrive5mb', year: 1985, quarter: 2 },
@@ -63,7 +63,7 @@ export class HardwareManager {
       { name: 'CD-ROM Drive', performance: 55, cost: 800, descriptionKey: 'cdRomDrive', year: 1986, quarter: 4 }
     ],
     display: [
-      { name: 'RF Modulator', performance: 15, cost: 25, descriptionKey: 'rfModulator', year: 1983, quarter: 3 },
+      { name: 'RF Modulator', performance: 15, cost: 25, descriptionKey: 'rfModulator', year: 1983, quarter: 1 },
       { name: 'Composite Monitor', performance: 35, cost: 200, descriptionKey: 'compositeMonitor', year: 1983, quarter: 4 },
       { name: 'RGB Monitor', performance: 65, cost: 500, descriptionKey: 'rgbMonitor', year: 1984, quarter: 4 },
       { name: 'EGA Monitor', performance: 75, cost: 600, descriptionKey: 'egaMonitor', year: 1985, quarter: 4 },

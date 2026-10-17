@@ -75,6 +75,7 @@ export const Workbench = (props: WorkbenchProps) => {
             selectedCase={props.selectedCase}
             ghost={ghost}
             onClearSlot={props.onClearSlot}
+            onSelectSlot={setActiveSlot}
             modelName={props.modelName}
           />
 

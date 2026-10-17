@@ -71,9 +71,9 @@ export interface QuarterTurnResult {
 // Zeitbasierte Hardware-Verfügbarkeit (historisch korrekt)
 export const HARDWARE_TIMELINE = {
   1983: {
-    1: ['MOS 6502', 'Zilog Z80', 'MOS VIC', '4KB RAM', '16KB RAM', 'PC Speaker'],
-    2: ['TI TMS9918', 'Kassettenlaufwerk'],
-    3: ['Diskettenlaufwerk 5.25"', 'RF Modulator'],
+    1: ['MOS 6502', 'Zilog Z80', 'MOS VIC', '4KB RAM', '16KB RAM', 'PC Speaker', 'Kassettenlaufwerk', 'RF Modulator'],
+    2: ['TI TMS9918'],
+    3: ['Diskettenlaufwerk 5.25"'],
     4: ['AY-3-8910', 'Composite Monitor']
   },
   1984: {

@@ -36,6 +36,10 @@ export interface TurnReadinessInput {
   quarterlyOutflow?: number;
   headcount: number;
   byRole: Record<StaffRole, number>;
+  /** Bevorstehende Marktbedrohungen (LateGame.upcomingThreats). */
+  threats?: Array<{ kind: "disruption" | "priceWar"; id: string; segment: string; firmId?: string; quartersAhead: number }>;
+  /** Support-Abdeckung der aktiven Gerätebasis im Vorquartal (0..1). */
+  supportCoverage?: number;
 }
 
 export interface TurnReadinessResult {
@@ -111,6 +115,17 @@ export function evaluateTurnReadiness(input: TurnReadinessInput): TurnReadinessR
 
   if (released > 0 && (input.byRole?.support ?? 0) === 0 && (input.budget.support ?? 0) <= 0) {
     push("noSupport", "warning", "management");
+  }
+
+  for (const th of input.threats ?? []) {
+    if (th.kind === "disruption") {
+      push(`threat.${th.id}`, "warning", "market", { quarters: th.quartersAhead });
+    } else {
+      push(`threat.priceWar.${th.firmId ?? th.id}`, "warning", "market", { quarters: th.quartersAhead, segment: th.segment });
+    }
+  }
+  if (input.supportCoverage !== undefined && input.supportCoverage < 0.6) {
+    push("lowSupportCoverage", "warning", "account", { pct: Math.round(input.supportCoverage * 100) });
   }
 
   const outflow = input.quarterlyOutflow ?? 0;

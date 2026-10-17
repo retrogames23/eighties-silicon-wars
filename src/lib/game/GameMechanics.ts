@@ -969,6 +969,7 @@ export class GameMechanics {
       // Notkredit-Marker: einmal pro Partie. Persistiert auch über Save-Loads.
       emergencyLoanUsed: gameState.emergencyLoanUsed || emergencyLoanGranted,
       unitHistory,
+      lastSupportCoverage: scale.supportCoverage,
       megaProjects: megaRun.next,
       priceWars: [...prevPriceWars, ...(newPriceWar ? [newPriceWar] : [])].slice(-6),
       company: {

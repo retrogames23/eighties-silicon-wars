@@ -1,0 +1,53 @@
+{
+  "title": "Großprojekte",
+  "subtitle": "Langfristige Investitionen, die dein Unternehmen grundlegend verändern. Die Kosten werden über die Bauzeit verteilt.",
+  "cost": "Kosten",
+  "buildTime": "Bauzeit: {{q}} Quartale",
+  "upkeep": "Betrieb: {{amount}}/Quartal",
+  "start": "Projekt starten",
+  "building": "Im Bau ({{done}}/{{total}})",
+  "done": "In Betrieb",
+  "locked": {
+    "year": "Ab {{year}} verfügbar",
+    "staff": "Benötigt {{n}} Forscher:innen",
+    "cash": "Nicht genug Geld für die erste Rate"
+  },
+  "started": "Projekt gestartet: {{name}}",
+  "projects": {
+    "distribution": {
+      "name": "Weltweites Händlernetz",
+      "effect": "+20 % Nachfrage, Preiskriege nur halb so wirksam"
+    },
+    "os": {
+      "name": "Eigenes Betriebssystem mit grafischer Oberfläche",
+      "effect": "+15 % Nachfrage, Lizenzeinnahmen jedes Quartal"
+    },
+    "fab": {
+      "name": "Eigene Chipfabrik",
+      "effect": "−20 % Bauteilkosten auf alle Rechner"
+    },
+    "risc": {
+      "name": "Eigene RISC-Prozessorarchitektur",
+      "effect": "+15 % Nachfrage, −25 % Konkurrenzdruck"
+    }
+  },
+  "threats": {
+    "title": "Marktlage",
+    "none": "Ruhige Marktlage.",
+    "disruption": {
+      "macintosh": "Apple Macintosh setzt Workstations unter Druck",
+      "sixteenBit": "16-Bit-Revolution im Spielermarkt",
+      "ps2vga": "IBM PS/2 setzt neuen Büro-Standard",
+      "multimedia": "Multimedia-Welle im Spielermarkt"
+    },
+    "priceWar": "Preiskampf: {{firm}} senkt Preise"
+  },
+  "scale": {
+    "title": "Kosten durch Größe",
+    "warranty": "Garantie & Service",
+    "bureaucracy": "Verwaltung",
+    "complexity": "Modellvielfalt",
+    "coverage": "Support-Abdeckung: {{pct}} %",
+    "installed": "Rechner in Garantie: {{n}}"
+  }
+}

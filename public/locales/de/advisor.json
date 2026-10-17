@@ -73,7 +73,20 @@
           "support": "Support-Budget ohne Support-Kraft: Das Geld verpufft."
         },
         "noSupport": "Du verkaufst Rechner ohne Support — Rückläufer und schlechte Kritiken kosten dich Reputation.",
-        "cashTight": "Deine Barmittel decken die geplanten Quartalskosten nicht. Senke Budgets oder besorge Kapital."
+        "cashTight": "Deine Barmittel decken die geplanten Quartalskosten nicht. Senke Budgets oder besorge Kapital.",
+        "threat": {
+          "macintosh": "Gerüchte: In {{quarters}} Quartal(en) bringt Apple einen Rechner mit Maus und grafischer Oberfläche. Workstation-Kunden werden wählerischer — plane Gegenmaßnahmen!",
+          "sixteenBit": "In {{quarters}} Quartal(en) rollt die 16-Bit-Welle (Amiga, Atari ST) an. 8-Bit-Spielerechner verlieren an Reiz.",
+          "ps2vga": "IBM bereitet in {{quarters}} Quartal(en) einen neuen Business-Standard vor. Behalte die Margen im Büromarkt im Blick.",
+          "multimedia": "Die Multimedia-Welle kommt in {{quarters}} Quartal(en): Soundkarten und Windows setzen Spielerechner unter Druck.",
+          "priceWar": {
+            "commodore": "Commodore bereitet in {{quarters}} Quartal(en) eine Preissenkung im Spielermarkt vor. Überprüfe unsere Margen!",
+            "ibm": "IBM plant in {{quarters}} Quartal(en) einen Preiskampf im Büromarkt. Überprüfe unsere Margen!",
+            "apple": "Apple plant in {{quarters}} Quartal(en) einen Preiskampf bei Workstations. Überprüfe unsere Margen!",
+            "atari": "Atari plant in {{quarters}} Quartal(en) einen Preiskampf. Überprüfe unsere Margen!"
+          }
+        },
+        "lowSupportCoverage": "Unser Support deckt nur {{pct}} % der verkauften Rechner ab. Garantiefälle werden teuer und die Reputation leidet — erhöhe das Support-Budget."
       }
     }
   }

@@ -72,16 +72,49 @@ export const AdvisorChat = ({ isOpen, onClose, gameContext }: AdvisorChatProps) 
     setSending(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('advisor-chat', {
-        body: { advisor: activeAdvisor, messages: next, gameContext, language },
-        headers: { Authorization: `Bearer ${session.access_token}` },
+      const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/advisor-chat`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ advisor: activeAdvisor, messages: next, gameContext, language }),
       });
-      if (error) throw error;
-      const reply = (data as { reply?: string })?.reply ?? '…';
-      setThreads((tr) => ({
-        ...tr,
-        [activeAdvisor]: [...next, { role: 'assistant', content: reply }],
-      }));
+      if (!resp.ok || !resp.body) {
+        const detail = await resp.text().catch(() => '');
+        throw new Error(`${resp.status} ${detail}`.trim());
+      }
+      const advisor = activeAdvisor;
+      let reply = '';
+      const show = (content: string) =>
+        setThreads((tr) => ({ ...tr, [advisor]: [...next, { role: 'assistant', content }] }));
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      let done = false;
+      while (!done) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        buf += decoder.decode(chunk.value, { stream: true });
+        let nl: number;
+        while ((nl = buf.indexOf('\n')) !== -1) {
+          const line = buf.slice(0, nl).replace(/\r$/, '');
+          buf = buf.slice(nl + 1);
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') { done = true; break; }
+          try {
+            const delta = JSON.parse(payload)?.choices?.[0]?.delta?.content;
+            if (delta) { reply += delta; show(reply); }
+          } catch {
+            buf = line + '\n' + buf; // incomplete JSON, wait for more
+            break;
+          }
+        }
+      }
+      if (!reply) show('…');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast({

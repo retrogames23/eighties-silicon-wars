@@ -87,5 +87,12 @@
       "line2": "✓ ASSERTION: Profit margin = (Profit / Revenue) × 100",
       "line3": "✓ ASSERTION: Total costs = BOM + Development + Marketing + Production + Fixed costs"
     }
+  },
+  "whyPanel": {
+    "title": "Why did this happen?",
+    "subtitle": "Active world events changing component costs and demand in your target groups this quarter.",
+    "meta": "Strength {{magnitude}}/5 · {{remaining}} Q left",
+    "price": "Component costs {{value}}",
+    "demand": "Demand {{value}}"
   }
 }

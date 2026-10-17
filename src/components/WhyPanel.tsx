@@ -8,6 +8,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { AiWorldEvent } from "@/services/LivingWorldService";
 
 interface WhyPanelProps {
@@ -33,6 +34,7 @@ function pct(n: number) {
 }
 
 export const WhyPanel = ({ events }: WhyPanelProps) => {
+  const { t } = useTranslation("reports");
   if (!events.length) return null;
 
   return (
@@ -40,10 +42,10 @@ export const WhyPanel = ({ events }: WhyPanelProps) => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Sparkles className="w-5 h-5 text-primary" />
-          Warum ist das passiert?
+          {t("whyPanel.title")}
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Aktive Welt-Ereignisse, die dieses Quartal Preise und Nachfrage beeinflussen.
+          {t("whyPanel.subtitle")}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -61,7 +63,7 @@ export const WhyPanel = ({ events }: WhyPanelProps) => {
                       {ev.category}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      Stärke {ev.magnitude}/5 · noch {ev.remaining_quarters} Q
+                      {t("whyPanel.meta", { magnitude: ev.magnitude, remaining: ev.remaining_quarters })}
                     </span>
                   </div>
                   <h4 className="font-semibold text-sm leading-tight">{ev.headline}</h4>
@@ -70,10 +72,10 @@ export const WhyPanel = ({ events }: WhyPanelProps) => {
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {priceDelta !== 0 && (
-                  <Badge variant="secondary">Preis {pct(priceDelta)}</Badge>
+                  <Badge variant="secondary">{t("whyPanel.price", { value: pct(priceDelta) })}</Badge>
                 )}
                 {demandDelta !== 0 && (
-                  <Badge variant="secondary">Nachfrage {pct(demandDelta)}</Badge>
+                  <Badge variant="secondary">{t("whyPanel.demand", { value: pct(demandDelta) })}</Badge>
                 )}
                 {(ev.affected_segments ?? []).map(s => (
                   <Badge key={s} variant="outline" className="text-xs">{s}</Badge>

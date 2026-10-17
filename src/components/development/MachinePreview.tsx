@@ -20,6 +20,7 @@ interface MachinePreviewProps {
   selectedCase: WorkbenchCase | null;
   ghost?: { slot: SlotType; component?: HardwareComponent; caseItem?: WorkbenchCase } | null;
   onClearSlot: (slot: SlotType) => void;
+  onSelectSlot?: (slot: SlotType) => void;
   modelName?: string;
 }
 
@@ -57,6 +58,7 @@ export const MachinePreview = ({
   selectedCase,
   ghost,
   onClearSlot,
+  onSelectSlot,
   modelName,
 }: MachinePreviewProps) => {
   const { t } = useTranslation(['ui', 'hardware']);
@@ -102,7 +104,7 @@ export const MachinePreview = ({
             <button
               key={slot}
               type="button"
-              onClick={installed ? () => onClearSlot(slot) : undefined}
+              onClick={installed ? () => onClearSlot(slot) : () => onSelectSlot?.(slot)}
               disabled={!installed}
               title={component?.name ?? t(`ui:development.workbench.slots.${slot}`)}
               aria-label={component?.name ?? t(`ui:development.workbench.slots.${slot}`)}

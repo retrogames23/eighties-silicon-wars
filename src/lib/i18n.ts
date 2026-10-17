@@ -3,10 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
 
-// ICU Polyfills for older browsers
-import '@formatjs/intl-pluralrules/polyfill';
-import '@formatjs/intl-pluralrules/locale-data/de';
-import '@formatjs/intl-pluralrules/locale-data/en';
 
 // Define supported languages and namespaces
 const SUPPORTED_LANGUAGES = ['de', 'en'] as const;
@@ -118,8 +114,7 @@ i18n
       // Request options
       requestOptions: {
         mode: 'cors',
-        credentials: 'same-origin',
-        cache: 'no-cache'
+        credentials: 'same-origin'
       }
     },
     
@@ -131,7 +126,6 @@ i18n
     },
     
     // Load only essential namespaces initially
-    preload: ['de', 'en'],
     load: 'languageOnly',
     
     // Fallback configuration

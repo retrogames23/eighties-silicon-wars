@@ -11,7 +11,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import "@/lib/i18n";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000 } } });
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

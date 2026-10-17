@@ -138,6 +138,8 @@ export const NO_SOUND_GAMER_APPEAL_PENALTY = 12;
 export const NO_STORAGE_PRO_APPEAL_PENALTY = 15;
 /** Gamers accept a cheap cassette drive, but no storage at all hurts appeal. */
 export const NO_STORAGE_GAMER_APPEAL_PENALTY = 10;
+/** From this year on, a cassette drive alone no longer satisfies gamers. */
+export const GAMER_FLOPPY_REQUIRED_YEAR = 1986;
 
 const STORAGE_ACCESSORIES = ['Kassettenlaufwerk', 'Diskettenlaufwerk 5.25"', 'Diskettenlaufwerk 3.5"',
   'Festplatte 5MB', 'Festplatte 10MB', 'Festplatte 20MB', 'CD-ROM Drive'];
@@ -527,7 +529,7 @@ export class EconomyModel {
     if ((segment === 'business' || segment === 'workstation') && !this.hasStorage(model)) {
       appeal -= NO_STORAGE_PRO_APPEAL_PENALTY;
     }
-    if (segment === 'gamer' && !this.hasStorage(model)) {
+    if (segment === 'gamer' && !this.hasGamerStorage(model, year)) {
       appeal -= NO_STORAGE_GAMER_APPEAL_PENALTY;
     }
     return Math.max(5, Math.min(100, appeal));
@@ -555,6 +557,13 @@ export class EconomyModel {
   /** Storage/Display kommen aus model.accessories (Strings). Heuristik via HardwareManager. */
   static hasStorage(model: { accessories?: unknown }): boolean {
     return Array.isArray(model.accessories) && model.accessories.some((a) => STORAGE_ACCESSORIES.includes(a as string));
+  }
+
+  /** Gamers accept a cassette until 1985; from 1986 they expect a floppy or better. */
+  static hasGamerStorage(model: { accessories?: unknown }, year: number): boolean {
+    if (!Array.isArray(model.accessories)) return false;
+    return model.accessories.some((a) =>
+      STORAGE_ACCESSORIES.includes(a as string) && (year < GAMER_FLOPPY_REQUIRED_YEAR || a !== 'Kassettenlaufwerk'));
   }
 
   static guessAccessoryPerformance(model: any, type: 'storage' | 'display'): number {

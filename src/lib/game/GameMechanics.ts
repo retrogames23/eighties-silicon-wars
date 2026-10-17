@@ -711,7 +711,7 @@ export class GameMechanics {
           gameState.quarter,
           1000000,
           {
-            bomMultiplier, demandMultiplier, segmentShareOverride,
+            bomMultiplier, demandMultiplier, segmentDemandMultiplier, segmentShareOverride,
             rngSeed, aiCompetitorPressure,
             brandAwareness: prevBrandAwareness,
             activeModelCount,
@@ -998,7 +998,7 @@ export class GameMechanics {
       marketShareChange,
       reputation: newReputation,
       reputationChange,
-      marketEventMultipliers: { bomMultiplier, demandMultiplier },
+      marketEventMultipliers: { bomMultiplier, demandMultiplier, segmentDemandMultiplier },
       activeCrises: activeCrisisKeys,
       segmentReputation: newSegmentReputation,
 

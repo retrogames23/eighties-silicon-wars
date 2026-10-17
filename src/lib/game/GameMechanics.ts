@@ -633,6 +633,25 @@ export class GameMechanics {
       console.log('⚠️ AI competitors not available, using baseline pressure');
     }
 
+    // 5c-2. Late-Game: Großprojekte, Disruptionen, Preiskriege (deterministisch).
+    const LateGame = await import('@/lib/game/LateGame');
+    const prevPriceWars: import('@/lib/game/LateGame').PriceWar[] = gameState.priceWars ?? [];
+    const megaRun = LateGame.advanceMegaProjects(
+      gameState.megaProjects ?? {}, gameState.year,
+      ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length,
+    );
+    const megaFx = megaRun.effects;
+    bomMultiplier *= megaFx.bomMultiplier;
+    demandMultiplier *= megaFx.demandMultiplier;
+    const threats = LateGame.computeMarketThreats(
+      gameState.year, gameState.quarter, diff.aiAggression, prevPriceWars, megaFx.priceWarDampen,
+    );
+    for (const seg of ['gamer', 'business', 'workstation'] as const) {
+      aiCompetitorPressure[seg] = Math.min(0.75,
+        ((aiCompetitorPressure[seg] ?? 0) + threats.pressure[seg]) * megaFx.pressureMultiplier);
+    }
+
+
 
     // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
     const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);
@@ -802,6 +821,18 @@ export class GameMechanics {
     const portfolioMaintenance = Math.round(rawPortfolioMaintenance * fcm);
     const fixedOverhead = Math.round(rawFixedOverhead * fcm);
 
+    // Skalierungskosten (Garantie, Bürokratie, Portfolio-Komplexität).
+    const unitHistory: number[] = [...(gameState.unitHistory ?? []), totalUnitsSold].slice(-LateGame.WARRANTY_QUARTERS);
+    const scale = LateGame.computeScaleCosts({
+      year: gameState.year,
+      unitHistory,
+      supportBudget: budget.support ?? 0,
+      employees: employeeCount,
+      quarterRevenue: totalRevenue,
+      activeModels: activeModelsCount,
+      periodCostBase: salaries + fixedOverhead + portfolioMaintenance,
+    });
+
     const quarterlyExpenses = {
       productCosts: Math.round(totalProductCosts),
       marketing: budget.marketing,
@@ -811,8 +842,12 @@ export class GameMechanics {
       salaries,
       portfolioMaintenance,
       fixedOverhead,
+      warranty: Math.round(scale.warrantyCost * fcm),
+      bureaucracy: Math.round(scale.bureaucracyCost * fcm),
+      portfolioComplexity: scale.portfolioComplexityCost,
+      megaProjects: megaFx.buildCost + megaFx.upkeep,
     };
-    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts;
+    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts - megaFx.licenseIncome;
     const totalExpensesForReporting = Math.round(totalProductCosts + totalPeriodExpenses);
 
     // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.

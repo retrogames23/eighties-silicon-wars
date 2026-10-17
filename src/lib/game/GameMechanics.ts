@@ -573,26 +573,21 @@ export class GameMechanics {
       console.log('⚠️ User lookup failed, sim runs in anon mode');
     }
 
-    // 5b. Markt-Event-Multiplikatoren (BOM und Demand) holen
+    // 5b. KI-Welt-Events (LLM-Narrativ, geclampt) → Sim-Multiplikatoren.
+    //     Das LLM liefert nur Stärke/Segmente; die Wirkung rechnet worldEventsToSimEffects.
     let bomMultiplier = 1;
     let demandMultiplier = 1;
+    let segmentDemandMultiplier: Partial<Record<'gamer' | 'business' | 'workstation', number>> = {};
     try {
-      const { MarketEventsService } = await import('@/services/MarketEventsService');
       if (userId) {
-        const activeEvents = await MarketEventsService.getActiveMarketEvents(userId);
-        for (const ev of activeEvents) {
-          const t = ev.event_details.event_type;
-          if (t === 'shortage' || t === 'price_shock') {
-            bomMultiplier *= ev.current_price_multiplier;
-          } else if (t === 'surplus') {
-            bomMultiplier *= ev.current_price_multiplier; // <1
-          } else if (t === 'demand_shift' || t === 'tech_breakthrough') {
-            demandMultiplier *= ev.current_price_multiplier;
-          }
-        }
+        const { LivingWorldService } = await import('@/services/LivingWorldService');
+        const { worldEventsToSimEffects } = await import('@/lib/game/WorldDirector');
+        const worldFx = worldEventsToSimEffects(await LivingWorldService.getActive(userId));
+        bomMultiplier *= worldFx.bomMultiplier;
+        segmentDemandMultiplier = worldFx.segmentDemandMultiplier;
       }
     } catch (e) {
-      console.log('⚠️ Market events not available, using neutral multipliers');
+      console.log('⚠️ World events not available, using neutral multipliers');
     }
 
     // 5b-2. Deterministischer Krisenkalender (Single Source für Live-Spiel und

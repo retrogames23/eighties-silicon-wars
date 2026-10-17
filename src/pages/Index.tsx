@@ -30,6 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { evaluateTurnReadiness, type ReadinessTab, type TurnReadinessResult } from "@/lib/game/TurnReadiness";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { upcomingThreats, type MegaProjects, type MegaProjectId, type PriceWar } from "@/lib/game/LateGame";
+import { getDifficultyFromGameState } from "@/lib/game/Difficulty";
 
 interface Company {
   id: string;
@@ -83,6 +85,11 @@ interface GameState {
   difficulty?: DifficultyId;
   /** Wurde der einmalige Notkredit (Normal-Modus) bereits in Anspruch genommen? */
   emergencyLoanUsed?: boolean;
+  /** Late-Game-Zustand (siehe LateGame.ts). */
+  megaProjects?: MegaProjects;
+  priceWars?: PriceWar[];
+  unitHistory?: number[];
+  lastSupportCoverage?: number;
 }
 
 type GameScreen = 'intro' | 'company-setup' | 'dashboard' | 'development' | 'case-selection' | 'quarter-results' | 'game-end';
@@ -293,6 +300,11 @@ const Index = () => {
         (gameState.budget.research ?? 0) + (gameState.budget.support ?? 0) + staffAgg.totalSalary,
       headcount: staffAgg.headcount,
       byRole: staffAgg.byRole,
+      threats: (() => {
+        const d = getDifficultyFromGameState(gameState);
+        return upcomingThreats(gameState.year, gameState.quarter, d.aiPressureCeiling > 0 ? d.aiAggression : 0, gameState.priceWars ?? []);
+      })(),
+      supportCoverage: gameState.lastSupportCoverage,
     });
 
     if (readiness.hasIssues) {
@@ -578,6 +590,14 @@ const Index = () => {
   };
 
 
+  const handleStartMegaProject = (id: MegaProjectId) => {
+    setGameState(prev => ({
+      ...prev,
+      megaProjects: { ...(prev.megaProjects ?? {}), [id]: { status: 'building' as const, quartersDone: 0 } },
+    }));
+    toast({ title: tt('lategame:started', { name: tt(`lategame:projects.${id}.name`) }) });
+  };
+
   const handleDiscontinueModel = (modelId: string) => {
     setGameState(prev => ({
       ...prev,
@@ -799,6 +819,8 @@ const Index = () => {
           aiCompetitors={aiCompetitors}
           isProcessingTurn={isProcessingTurn}
           focusTab={focusTab}
+          researchStaff={staffAgg.byRole?.researcher ?? 0}
+          onStartMegaProject={handleStartMegaProject}
         />
         );
       

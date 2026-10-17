@@ -633,6 +633,25 @@ export class GameMechanics {
       console.log('⚠️ AI competitors not available, using baseline pressure');
     }
 
+    // 5c-2. Late-Game: Großprojekte, Disruptionen, Preiskriege (deterministisch).
+    const LateGame = await import('@/lib/game/LateGame');
+    const prevPriceWars: import('@/lib/game/LateGame').PriceWar[] = gameState.priceWars ?? [];
+    const megaRun = LateGame.advanceMegaProjects(
+      gameState.megaProjects ?? {}, gameState.year,
+      ModelStatusGuard.getMarketRelevantModels(modelsWithObsolescence).length,
+    );
+    const megaFx = megaRun.effects;
+    bomMultiplier *= megaFx.bomMultiplier;
+    demandMultiplier *= megaFx.demandMultiplier;
+    const threats = LateGame.computeMarketThreats(
+      gameState.year, gameState.quarter, diff.aiPressureCeiling > 0 ? diff.aiAggression : 0, prevPriceWars, megaFx.priceWarDampen,
+    );
+    for (const seg of ['gamer', 'business', 'workstation'] as const) {
+      aiCompetitorPressure[seg] = Math.min(0.75,
+        ((aiCompetitorPressure[seg] ?? 0) + threats.pressure[seg]) * megaFx.pressureMultiplier);
+    }
+
+
 
     // 5d. Deterministischer Quartals-Seed (Anti-Save-Scumming) inkl. Spiel-Salt.
     const rngSeed = quarterSeed(userId, gameState.year, gameState.quarter, gameState.seedSalt);
@@ -802,6 +821,18 @@ export class GameMechanics {
     const portfolioMaintenance = Math.round(rawPortfolioMaintenance * fcm);
     const fixedOverhead = Math.round(rawFixedOverhead * fcm);
 
+    // Skalierungskosten (Garantie, Bürokratie, Portfolio-Komplexität).
+    const unitHistory: number[] = [...(gameState.unitHistory ?? []), totalUnitsSold].slice(-LateGame.WARRANTY_QUARTERS);
+    const scale = LateGame.computeScaleCosts({
+      year: gameState.year,
+      unitHistory,
+      supportBudget: budget.support ?? 0,
+      employees: employeeCount,
+      quarterRevenue: totalRevenue,
+      activeModels: activeModelsCount,
+      periodCostBase: salaries + fixedOverhead + portfolioMaintenance,
+    });
+
     const quarterlyExpenses = {
       productCosts: Math.round(totalProductCosts),
       marketing: budget.marketing,
@@ -811,8 +842,12 @@ export class GameMechanics {
       salaries,
       portfolioMaintenance,
       fixedOverhead,
+      warranty: Math.round(scale.warrantyCost * fcm),
+      bureaucracy: Math.round(scale.bureaucracyCost * fcm),
+      portfolioComplexity: scale.portfolioComplexityCost,
+      megaProjects: megaFx.buildCost + megaFx.upkeep,
     };
-    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts;
+    const totalPeriodExpenses = Object.values(quarterlyExpenses).reduce((sum, exp) => sum + exp, 0) - quarterlyExpenses.productCosts - megaFx.licenseIncome;
     const totalExpensesForReporting = Math.round(totalProductCosts + totalPeriodExpenses);
 
     // 7. Cash = Bruttogewinn aus Verkäufen − Periodenkosten.
@@ -853,7 +888,11 @@ export class GameMechanics {
     // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
     const { clampReputationDelta } = await import('@/lib/game/AntiExploit');
     // Schwierigkeit verstärkt Reputations-Verluste, nicht aber -Gewinne.
-    const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta;
+    const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta + scale.reputationDelta;
+    const newPriceWar = LateGame.maybeStartPriceWar(
+      gameState.year, gameState.quarter, diff.aiPressureCeiling > 0 ? diff.aiAggression : 0, newMarketShare,
+      segmentUnits as Record<'gamer' | 'business' | 'workstation', number>, prevPriceWars,
+    );
     const rawRepDelta = baseRepDelta < 0 ? baseRepDelta * diff.reputationLossMultiplier : baseRepDelta;
     const cappedRepDelta = clampReputationDelta(rawRepDelta);
     const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
@@ -929,6 +968,10 @@ export class GameMechanics {
       totalResearchSpent: totalResearchSpent,
       // Notkredit-Marker: einmal pro Partie. Persistiert auch über Save-Loads.
       emergencyLoanUsed: gameState.emergencyLoanUsed || emergencyLoanGranted,
+      unitHistory,
+      lastSupportCoverage: scale.supportCoverage,
+      megaProjects: megaRun.next,
+      priceWars: [...prevPriceWars, ...(newPriceWar ? [newPriceWar] : [])].slice(-6),
       company: {
         ...company,
         cash: cashAfterOps,
@@ -967,6 +1010,13 @@ export class GameMechanics {
       loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
       emergencyLoanGranted,
       bankruptcy: triggeredBankruptcy,
+      lateGame: {
+        scale,
+        licenseIncome: megaFx.licenseIncome,
+        activeDisruptions: threats.activeDisruptions,
+        activePriceWars: threats.activePriceWars,
+        newPriceWar,
+      },
     };
 
     // Bei Bankrott: GameEnd-Condition mit aussagekräftigem Text zurückgeben.

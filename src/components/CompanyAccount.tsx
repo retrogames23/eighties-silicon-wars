@@ -73,7 +73,10 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
     + monthlyExpense('development', gameState.budget.development)
     + monthlyExpense('research', gameState.budget.research)
     + monthlyExpense('support', gameState.budget.support ?? 0);
-  const knownExpenseBreakdown = productCosts + reportedBudgetExpenses + salaries + portfolioMaintenance + fixedOverhead + loanPayments;
+  const lateGameKeys = ['warranty', 'bureaucracy', 'portfolioComplexity', 'megaProjects'] as const;
+  const lateGameRows = lateGameKeys.map(k => ({ k, amount: monthlyExpense(k) }));
+  const knownExpenseBreakdown = productCosts + reportedBudgetExpenses + salaries + portfolioMaintenance + fixedOverhead + loanPayments
+    + lateGameRows.reduce((s, r) => s + r.amount, 0);
   const otherOperating = Math.max(0, totalExpenses - knownExpenseBreakdown);
 
   const expenses = [
@@ -85,6 +88,7 @@ export const CompanyAccount = memo<CompanyAccountProps>(({ gameState }) => {
     { name: t('ui:account.expenses.salaries'), amount: salaries, category: t('ui:account.categories.operations') },
     { name: t('ui:account.expenses.portfolioMaintenance'), amount: portfolioMaintenance, category: t('ui:account.categories.operations') },
     { name: t('ui:account.expenses.fixedOverhead'), amount: fixedOverhead, category: t('ui:account.categories.operations') },
+    ...lateGameRows.map(r => ({ name: t(`ui:account.expenses.${r.k}`), amount: r.amount, category: t('ui:account.categories.operations') })),
     { name: t('ui:account.expenses.loanPayments'), amount: loanPayments, category: t('ui:account.categories.operations') },
     { name: t('ui:account.expenses.otherOperating'), amount: otherOperating, category: t('ui:account.categories.operations') },
   ].filter(item => item.amount > 0);

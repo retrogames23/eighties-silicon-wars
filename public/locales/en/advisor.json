@@ -73,7 +73,20 @@
           "support": "Support budget without a support specialist: the money is wasted."
         },
         "noSupport": "You're selling machines with no support — returns and bad reviews will cost you reputation.",
-        "cashTight": "Your cash doesn't cover the planned quarterly costs. Cut budgets or raise capital."
+        "cashTight": "Your cash doesn't cover the planned quarterly costs. Cut budgets or raise capital.",
+        "threat": {
+          "macintosh": "Rumour: in {{quarters}} quarter(s) Apple launches a computer with a mouse and graphical interface. Workstation buyers will get pickier — prepare a response!",
+          "sixteenBit": "In {{quarters}} quarter(s) the 16-bit wave (Amiga, Atari ST) arrives. 8-bit gaming machines will lose their appeal.",
+          "ps2vga": "IBM is preparing a new business standard in {{quarters}} quarter(s). Watch your office-market margins.",
+          "multimedia": "The multimedia wave hits in {{quarters}} quarter(s): sound cards and Windows put gaming machines under pressure.",
+          "priceWar": {
+            "commodore": "Commodore is preparing a price cut in the gaming market in {{quarters}} quarter(s). Check our margins!",
+            "ibm": "IBM is planning a price war in the office market in {{quarters}} quarter(s). Check our margins!",
+            "apple": "Apple is planning a price war on workstations in {{quarters}} quarter(s). Check our margins!",
+            "atari": "Atari is planning a price war in {{quarters}} quarter(s). Check our margins!"
+          }
+        },
+        "lowSupportCoverage": "Our support only covers {{pct}}% of the computers we've sold. Warranty claims get expensive and reputation suffers — raise the support budget."
       }
     }
   }

@@ -23,7 +23,11 @@
       "portfolioMaintenance": "Portfolio Maintenance",
       "fixedOverhead": "Fixed Overhead",
       "loanPayments": "Loan Payments",
-      "total": "Total"
+      "total": "Total",
+      "warranty": "Warranty & Service",
+      "bureaucracy": "Administration",
+      "portfolioComplexity": "Model Variety",
+      "megaProjects": "Major Projects"
     },
     "netProfit": "Net profit"
   },

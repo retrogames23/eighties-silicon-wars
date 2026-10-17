@@ -17,6 +17,7 @@ import { EconomyModel } from "@/components/EconomyModel";
 import { type Competitor } from "@/lib/game/GameMechanics";
 import { getCompetitorsAt } from "@/lib/game/CompetitorAI";
 import { quarterSeed } from "@/lib/game/rng";
+import { computeScaleCosts, computeMarketThreats, advanceMegaProjects, MEGA_PROJECTS, type MegaProjects } from "@/lib/game/LateGame";
 import {
   DIFFICULTY_PROFILES,
   getActiveCrises,
@@ -152,6 +153,8 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
   let emergencyLoanUsed = false;
   let emergencyLoanQuarterlyPayment = 0;
   let emergencyLoanQuartersRemaining = 0;
+  const unitHistory: number[] = [];
+  let megaProjects: MegaProjects = {};
 
   outer: for (let year = 1983; year <= 1992; year++) {
     for (let q = 1; q <= 4; q++) {
@@ -177,7 +180,15 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
 
       const rngSeed = quarterSeed(seedSalt + "-" + s.id + "-" + sc.id, year, q);
       const activeModelCount = models.length;
-      const aiPressure = difficultyAiPressureAt(profile, year);
+      const aiPressure: Record<string, number> = { ...difficultyAiPressureAt(profile, year) };
+      // Late-Game: einfache Großprojekt-Heuristik (Spieler investiert Überschuss).
+      for (const def of MEGA_PROJECTS) {
+        if (!megaProjects[def.id] && year >= def.minYear && cash > def.cost * 2.5) megaProjects = { ...megaProjects, [def.id]: { status: "building", quartersDone: 0 } };
+      }
+      const mega = advanceMegaProjects(megaProjects, year, models.length);
+      megaProjects = mega.next;
+      const threats = computeMarketThreats(year, q, profile.aiPressureCeiling > 0 ? profile.aiAggression : 0, [], mega.effects.priceWarDampen);
+      for (const seg of SEGMENTS) aiPressure[seg] = Math.min(0.75, ((aiPressure[seg] ?? 0) + threats.pressure[seg]) * mega.effects.pressureMultiplier);
 
       // Portfolio-Shares pro Segment
       const appealTotals: Record<string, { m: Model; a: number }[]> = { gamer: [], business: [], workstation: [] };
@@ -202,8 +213,8 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
           {
             rngSeed, brandAwareness, activeModelCount,
             segmentShareOverride: shareOverride,
-            bomMultiplier: bomMult,
-            demandMultiplier: 1 + combinedDemand,
+            bomMultiplier: bomMult * mega.effects.bomMultiplier,
+            demandMultiplier: (1 + combinedDemand) * mega.effects.demandMultiplier,
             aiCompetitorPressure: aiPressure,
             marketingSaturationPoint: profile.marketingSaturationPoint,
           } as never,
@@ -225,7 +236,12 @@ async function runOnce(s: Strategy, sc: Scenario, seedSalt: string): Promise<Run
         loanPayment = emergencyLoanQuarterlyPayment;
         emergencyLoanQuartersRemaining--;
       }
-      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead + loanPayment;
+      unitHistory.push(units); if (unitHistory.length > 8) unitHistory.shift();
+      const supportBudget = Math.round(Math.max(10_000, unitHistory.reduce((a, b) => a + b, 0) * 2.5) * infl);
+      const scale = computeScaleCosts({ year, unitHistory, supportBudget, employees: s.employees, quarterRevenue: revenue, activeModels: activeModelCount, periodCostBase: salaries + portfolio + overhead });
+      const lateCosts = supportBudget + Math.round((scale.warrantyCost + scale.bureaucracyCost) * fcm) + scale.portfolioComplexityCost
+        + mega.effects.buildCost + mega.effects.upkeep - mega.effects.licenseIncome;
+      const expenses = marketingEffective + s.development + s.research + salaries + portfolio + overhead + loanPayment + lateCosts;
       const net = profit - expenses;
       cash += net;
       totalRev += revenue;

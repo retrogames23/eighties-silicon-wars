@@ -1,0 +1,53 @@
+{
+  "title": "Major projects",
+  "subtitle": "Long-term investments that fundamentally change your company. Costs are spread across the build time.",
+  "cost": "Cost",
+  "buildTime": "Build time: {{q}} quarters",
+  "upkeep": "Running cost: {{amount}}/quarter",
+  "start": "Start project",
+  "building": "Under construction ({{done}}/{{total}})",
+  "done": "Operational",
+  "locked": {
+    "year": "Available from {{year}}",
+    "staff": "Requires {{n}} researchers",
+    "cash": "Not enough cash for the first instalment"
+  },
+  "started": "Project started: {{name}}",
+  "projects": {
+    "distribution": {
+      "name": "Worldwide dealer network",
+      "effect": "+20% demand, price wars only half as effective"
+    },
+    "os": {
+      "name": "Own operating system with graphical interface",
+      "effect": "+15% demand, licence income every quarter"
+    },
+    "fab": {
+      "name": "Own chip factory",
+      "effect": "−20% component costs on all computers"
+    },
+    "risc": {
+      "name": "Own RISC processor architecture",
+      "effect": "+15% demand, −25% competitor pressure"
+    }
+  },
+  "threats": {
+    "title": "Market situation",
+    "none": "The market is calm.",
+    "disruption": {
+      "macintosh": "Apple Macintosh pressures workstations",
+      "sixteenBit": "16-bit revolution in the gaming market",
+      "ps2vga": "IBM PS/2 sets a new office standard",
+      "multimedia": "Multimedia wave in the gaming market"
+    },
+    "priceWar": "Price war: {{firm}} is cutting prices"
+  },
+  "scale": {
+    "title": "Costs of size",
+    "warranty": "Warranty & service",
+    "bureaucracy": "Administration",
+    "complexity": "Model variety",
+    "coverage": "Support coverage: {{pct}}%",
+    "installed": "Computers under warranty: {{n}}"
+  }
+}

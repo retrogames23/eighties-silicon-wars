@@ -23,7 +23,11 @@
       "portfolioMaintenance": "Portfolio-Wartung",
       "fixedOverhead": "Fixkosten",
       "loanPayments": "Kreditraten",
-      "total": "Gesamt"
+      "total": "Gesamt",
+      "warranty": "Garantie & Service",
+      "bureaucracy": "Verwaltung",
+      "portfolioComplexity": "Modellvielfalt",
+      "megaProjects": "Großprojekte"
     },
     "netProfit": "Nettogewinn"
   },

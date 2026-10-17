@@ -1,0 +1,1 @@
+- Late-game systems (scale costs, disruptions/price wars, major projects) live in src/lib/game/LateGame.ts as pure deterministic functions shared by GameMechanics and the balance runner — keeps live game and headless tests identical.

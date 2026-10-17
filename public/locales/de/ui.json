@@ -111,7 +111,11 @@
       "portfolioMaintenance": "Portfolio-Wartung",
       "fixedOverhead": "Fixkosten",
       "loanPayments": "Kreditraten",
-      "otherOperating": "Sonstige Betriebskosten"
+      "otherOperating": "Sonstige Betriebskosten",
+      "warranty": "Garantie & Service",
+      "bureaucracy": "Verwaltung",
+      "portfolioComplexity": "Modellvielfalt",
+      "megaProjects": "Großprojekte"
     },
     "income": {
       "computerSales": "Computer-Verkäufe",

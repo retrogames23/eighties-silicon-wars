@@ -10,7 +10,7 @@ import '@formatjs/intl-pluralrules/locale-data/en';
 
 // Define supported languages and namespaces
 const SUPPORTED_LANGUAGES = ['de', 'en'] as const;
-const NAMESPACES = ['common', 'ui', 'economy', 'toast', 'news', 'hardware', 'products', 'reviews', 'events', 'charts', 'game', 'company', 'advisor', 'financing'] as const;
+const NAMESPACES = ['common', 'ui', 'economy', 'toast', 'news', 'hardware', 'products', 'reviews', 'events', 'charts', 'game', 'company', 'advisor', 'financing', 'lategame'] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 export type Namespace = typeof NAMESPACES[number];
@@ -108,7 +108,7 @@ i18n
       loadPath: '/locales/{{lng}}/{{ns}}.json',
       // Cache-Busting: verhindert, dass veraltete Übersetzungen aus dem
       // HTTP-Cache geladen werden, wenn JSON-Dateien aktualisiert wurden.
-      queryStringParams: { v: import.meta.env.DEV ? String(Date.now()) : '20260901' },
+      queryStringParams: { v: import.meta.env.DEV ? String(Date.now()) : '20261017' },
 
       // Lazy loading configuration
       allowMultiLoading: false,

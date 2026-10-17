@@ -136,6 +136,8 @@ export const NO_GPU_GAMER_APPEAL_PENALTY = 20;
 export const NO_SOUND_GAMER_APPEAL_PENALTY = 12;
 /** Appeal points business/workstation buyers deduct from a model without any drive. */
 export const NO_STORAGE_PRO_APPEAL_PENALTY = 15;
+/** Gamers accept a cheap cassette drive, but no storage at all hurts appeal. */
+export const NO_STORAGE_GAMER_APPEAL_PENALTY = 10;
 
 const STORAGE_ACCESSORIES = ['Kassettenlaufwerk', 'Diskettenlaufwerk 5.25"', 'Diskettenlaufwerk 3.5"',
   'Festplatte 5MB', 'Festplatte 10MB', 'Festplatte 20MB', 'CD-ROM Drive'];
@@ -524,6 +526,9 @@ export class EconomyModel {
     if (!model.sound && segment === 'gamer') appeal -= NO_SOUND_GAMER_APPEAL_PENALTY;
     if ((segment === 'business' || segment === 'workstation') && !this.hasStorage(model)) {
       appeal -= NO_STORAGE_PRO_APPEAL_PENALTY;
+    }
+    if (segment === 'gamer' && !this.hasStorage(model)) {
+      appeal -= NO_STORAGE_GAMER_APPEAL_PENALTY;
     }
     return Math.max(5, Math.min(100, appeal));
   }

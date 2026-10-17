@@ -24,10 +24,10 @@ describe('model without any drive', () => {
     const b = EconomyModel.calculateSegmentAppeal({ ...m, accessories: [] }, 'business', 1983, 1);
     expect(a - b).toBeGreaterThanOrEqual(15);
   });
-  it('does not change gamer appeal by the drive rule', () => {
+  it('loses at least 10 appeal with gamers', () => {
     const m = { ...base, sound: 'PC Speaker' };
     const a = EconomyModel.calculateSegmentAppeal({ ...m, accessories: ['Kassettenlaufwerk'] }, 'gamer', 1983, 1);
     const b = EconomyModel.calculateSegmentAppeal({ ...m, accessories: [] }, 'gamer', 1983, 1);
-    expect(a - b).toBeLessThan(15);
+    expect(a - b).toBeGreaterThanOrEqual(10);
   });
 });

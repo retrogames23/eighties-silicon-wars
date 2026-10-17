@@ -888,7 +888,11 @@ export class GameMechanics {
     // Anti-Exploit: Per-Quartal-Cap auf Reputations-Änderung (kein Snowball aus Mega-Quartal).
     const { clampReputationDelta } = await import('@/lib/game/AntiExploit');
     // Schwierigkeit verstärkt Reputations-Verluste, nicht aber -Gewinne.
-    const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta;
+    const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta + scale.reputationDelta;
+    const newPriceWar = LateGame.maybeStartPriceWar(
+      gameState.year, gameState.quarter, diff.aiAggression, newMarketShare,
+      segmentUnits as Record<'gamer' | 'business' | 'workstation', number>, prevPriceWars,
+    );
     const rawRepDelta = baseRepDelta < 0 ? baseRepDelta * diff.reputationLossMultiplier : baseRepDelta;
     const cappedRepDelta = clampReputationDelta(rawRepDelta);
     const newReputation = Math.min(100, Math.max(0, company.reputation + cappedRepDelta));
@@ -964,6 +968,9 @@ export class GameMechanics {
       totalResearchSpent: totalResearchSpent,
       // Notkredit-Marker: einmal pro Partie. Persistiert auch über Save-Loads.
       emergencyLoanUsed: gameState.emergencyLoanUsed || emergencyLoanGranted,
+      unitHistory,
+      megaProjects: megaRun.next,
+      priceWars: [...prevPriceWars, ...(newPriceWar ? [newPriceWar] : [])].slice(-6),
       company: {
         ...company,
         cash: cashAfterOps,
@@ -1002,6 +1009,13 @@ export class GameMechanics {
       loanInfo: { paid: loanCashOut, defaults: loanDefaults, outstandingDebt, logs: loanLogs },
       emergencyLoanGranted,
       bankruptcy: triggeredBankruptcy,
+      lateGame: {
+        scale,
+        licenseIncome: megaFx.licenseIncome,
+        activeDisruptions: threats.activeDisruptions,
+        activePriceWars: threats.activePriceWars,
+        newPriceWar,
+      },
     };
 
     // Bei Bankrott: GameEnd-Condition mit aussagekräftigem Text zurückgeben.

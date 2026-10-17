@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1-flash-lite',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: system },
           ...body.messages.slice(-12),

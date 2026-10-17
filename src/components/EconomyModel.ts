@@ -88,6 +88,8 @@ export interface EconomyContext {
   bomMultiplier?: number;
   /** Globaler Nachfrage-Multiplikator aus Markt-Events. */
   demandMultiplier?: number;
+  /** Segment-spezifischer Nachfrage-Multiplikator (z.B. aus KI-Welt-Events, bereits geclampt). */
+  segmentDemandMultiplier?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
   /** Markt-Anteils-Verteilung pro Segment (kommt aus Portfolio-Sim). 0..1 */
   segmentShareOverride?: Partial<Record<'gamer' | 'business' | 'workstation', number>>;
   /**
@@ -292,6 +294,7 @@ export class EconomyModel {
         seasonalityFactor *
         marketingBoost *
         demandEvent *
+        (context.segmentDemandMultiplier?.[segment] ?? 1) *
         portfolioMalus;
 
       // Optionaler Portfolio-Marktanteils-Override (Kannibalisierung).

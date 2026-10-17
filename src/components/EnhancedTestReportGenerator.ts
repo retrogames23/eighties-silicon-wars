@@ -1,5 +1,5 @@
 import { type TestResult } from "./TestReport";
-import { TestScoringMatrix } from "@/services/TestScoringMatrix";
+import { TestScoringMatrix, NO_GPU_TEST_PENALTY } from "@/services/TestScoringMatrix";
 
 export class EnhancedTestReportGenerator {
   
@@ -68,13 +68,16 @@ export class EnhancedTestReportGenerator {
 
     // Calculate overall score with proper weighting
     const hasWorkstation = year >= 1987;
-    const overallScore = hasWorkstation ? Math.round(
+    const hasGpu = !!model.gpu && model.gpu !== 'Unknown';
+    const rawOverall = hasWorkstation ? Math.round(
       (gamingScore * 0.25 + businessScore * 0.35 + workstationScore * 0.20 + 
        compatibilityResult.score * 0.1 + buildQualityResult.score * 0.1)
     ) : Math.round(
       (gamingScore * 0.35 + businessScore * 0.45 + 
        compatibilityResult.score * 0.1 + buildQualityResult.score * 0.1)
     );
+    // No graphics chip: text-only machine — clear test penalty.
+    const overallScore = Math.max(0, rawOverall - (hasGpu ? 0 : NO_GPU_TEST_PENALTY));
 
     // Generate detailed comments for each category
     const gamingComments = this.generateGamingComments(cpuScores.gaming, gpuScores.gaming, ramScores.gaming, soundScores.gaming, model);

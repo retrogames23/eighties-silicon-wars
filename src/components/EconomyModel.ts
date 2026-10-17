@@ -130,6 +130,9 @@ export interface EconomyContext {
 }
 
 
+/** Appeal points gamers deduct from a model without a graphics chip. */
+export const NO_GPU_GAMER_APPEAL_PENALTY = 20;
+
 export class EconomyModel {
 
   /** Inflations-Faktor relativ zu 1983. */
@@ -487,7 +490,7 @@ export class EconomyModel {
 
     const perf = {
       cpu: HardwareManager.getComponentByCPU(model.cpu)?.performance ?? 10,
-      gpu: HardwareManager.getComponentByGPU(model.gpu)?.performance ?? 10,
+      gpu: model.gpu ? (HardwareManager.getComponentByGPU(model.gpu)?.performance ?? 10) : 0,
       ram: HardwareManager.getComponentByRAM(model.ram)?.performance ?? 10,
       sound: HardwareManager.getComponentBySound(model.sound)?.performance ?? 5,
       storage: this.guessAccessoryPerformance(model, 'storage'),
@@ -508,6 +511,8 @@ export class EconomyModel {
     let appeal = baselineBrand + yearBoost + specScore * 55;
     // Paradigm-Events (z.B. GUI-Erwartung 1989) addieren/subtrahieren Appeal.
     appeal += getParadigmAppealDelta(model, segment as Segment, year, quarter, perf.ram, perf.gpu);
+    // Gamers shun machines without a graphics chip.
+    if (!model.gpu && segment === 'gamer') appeal -= NO_GPU_GAMER_APPEAL_PENALTY;
     return Math.max(5, Math.min(100, appeal));
   }
 

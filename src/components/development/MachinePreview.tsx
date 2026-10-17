@@ -105,7 +105,6 @@ export const MachinePreview = ({
               key={slot}
               type="button"
               onClick={installed ? () => onClearSlot(slot) : () => onSelectSlot?.(slot)}
-              disabled={!installed}
               title={component?.name ?? t(`ui:development.workbench.slots.${slot}`)}
               aria-label={component?.name ?? t(`ui:development.workbench.slots.${slot}`)}
               className="flex flex-col items-center gap-1 rounded-sm border p-2 transition-colors disabled:cursor-default"

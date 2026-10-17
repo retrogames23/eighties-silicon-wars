@@ -13,7 +13,6 @@ export * from './alert';
 export * from './scroll-area';
 export * from './accordion';
 export * from './avatar';
-export * from './calendar';
 export * from './checkbox';
 export * from './collapsible';
 export * from './hover-card';

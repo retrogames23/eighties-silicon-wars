@@ -32,6 +32,7 @@ import { evaluateTurnReadiness, type ReadinessTab, type TurnReadinessResult } fr
 import { useLanguage } from "@/contexts/LanguageContext";
 import { upcomingThreats, type MegaProjects, type MegaProjectId, type PriceWar } from "@/lib/game/LateGame";
 import { getDifficultyFromGameState } from "@/lib/game/Difficulty";
+import { sfx } from "@/lib/sfx";
 
 interface Company {
   id: string;
@@ -308,11 +309,13 @@ const Index = () => {
     });
 
     if (readiness.hasIssues) {
+      sfx.warning();
       setTurnReadiness(readiness);
       setChecklistOpen(true);
       return;
     }
     setTurnReadiness(null);
+    sfx.turn();
     await runTurn();
   };
 

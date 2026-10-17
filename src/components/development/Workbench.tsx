@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Zap, Wrench, MonitorSmartphone, Gauge } from 'lucide-react';
 import type { HardwareComponent } from '@/utils/HardwareManager';
 import { PartsShelf } from './PartsShelf';
+import { sfx } from '@/lib/sfx';
 import { MachinePreview } from './MachinePreview';
 import { StatsPanel } from './StatsPanel';
 import { QuickBuildPresets, type PresetKind } from './QuickBuildPresets';
@@ -147,8 +148,8 @@ export const Workbench = (props: WorkbenchProps) => {
             onActiveSlotChange={setActiveSlot}
             selected={props.selected}
             selectedCase={props.selectedCase}
-            onPickComponent={props.onPickComponent}
-            onPickCase={props.onPickCase}
+            onPickComponent={(c) => { sfx.click(); props.onPickComponent(c); }}
+            onPickCase={(c) => { sfx.click(); props.onPickCase(c); }}
             onHover={setGhost}
           />
         </CardContent>

@@ -1,6 +1,7 @@
 // Financing panel: bank loan & VC pitch in one tab. Fully i18n via "financing" namespace.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { sfx } from "@/lib/sfx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -377,6 +378,7 @@ function VcPitchCard({
       });
       setPhase("result");
       if (evalRes.accepted) {
+        sfx.success();
         onPitchSuccess(cash);
         toast({
           title: t('vc.toast.investedTitle'),

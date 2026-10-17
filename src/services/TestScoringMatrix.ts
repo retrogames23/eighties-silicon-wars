@@ -101,6 +101,9 @@ function computeMaxTiers(year: number, quarter: number): Record<ComponentType, n
   return result;
 }
 
+/** Points deducted from the test score when a model ships without a graphics chip. */
+export const NO_GPU_TEST_PENALTY = 12;
+
 export class TestScoringMatrix {
   /** Module-level era context. Defaults to the late-80s anchor when unset. */
   private static eraContext: EraContext | null = null;
@@ -385,6 +388,9 @@ export class TestScoringMatrix {
         70 * 0.10,  // estimated build quality placeholder
       );
     }
+
+    // No graphics chip: text-only machine — clear test penalty.
+    if (!gpuName) overall -= NO_GPU_TEST_PENALTY;
 
     this.eraContext = prev;
     return Math.min(100, Math.max(0, overall));

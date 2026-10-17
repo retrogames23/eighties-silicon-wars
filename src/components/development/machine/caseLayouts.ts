@@ -3,23 +3,23 @@
 // for the interactive part overlay. No game logic here.
 import type { SlotType } from '../partTokens';
 
-import beigeTower from '@/assets/workbench/case-beige-tower.png';
-import blackDesktop from '@/assets/workbench/case-black-desktop.png';
-import gamerRgb from '@/assets/workbench/case-gamer-rgb.png';
-import retroWood from '@/assets/workbench/case-retro-wood.png';
-import premiumMetal from '@/assets/workbench/case-premium-metal.png';
-import compactMini from '@/assets/workbench/case-compact-mini.png';
-import beigeBreadbox from '@/assets/workbench/case-beige-breadbox.png';
-import beigePizzabox from '@/assets/workbench/case-beige-pizzabox.png';
+import beigeTower from '@/assets/workbench/case-beige-tower.webp';
+import blackDesktop from '@/assets/workbench/case-black-desktop.webp';
+import gamerRgb from '@/assets/workbench/case-gamer-rgb.webp';
+import retroWood from '@/assets/workbench/case-retro-wood.webp';
+import premiumMetal from '@/assets/workbench/case-premium-metal.webp';
+import compactMini from '@/assets/workbench/case-compact-mini.webp';
+import beigeBreadbox from '@/assets/workbench/case-beige-breadbox.webp';
+import beigePizzabox from '@/assets/workbench/case-beige-pizzabox.webp';
 
-import insideBeigeTower from '@/assets/workbench/inside-beige-tower.png';
-import insideBlackDesktop from '@/assets/workbench/inside-black-desktop.png';
-import insideGamerRgb from '@/assets/workbench/inside-gamer-rgb.png';
-import insideRetroWood from '@/assets/workbench/inside-retro-wood.png';
-import insidePremiumMetal from '@/assets/workbench/inside-premium-metal.png';
-import insideCompactMini from '@/assets/workbench/inside-compact-mini.png';
-import insideBeigeBreadbox from '@/assets/workbench/inside-beige-breadbox.png';
-import insideBeigePizzabox from '@/assets/workbench/inside-beige-pizzabox.png';
+import insideBeigeTower from '@/assets/workbench/inside-beige-tower.webp';
+import insideBlackDesktop from '@/assets/workbench/inside-black-desktop.webp';
+import insideGamerRgb from '@/assets/workbench/inside-gamer-rgb.webp';
+import insideRetroWood from '@/assets/workbench/inside-retro-wood.webp';
+import insidePremiumMetal from '@/assets/workbench/inside-premium-metal.webp';
+import insideCompactMini from '@/assets/workbench/inside-compact-mini.webp';
+import insideBeigeBreadbox from '@/assets/workbench/inside-beige-breadbox.webp';
+import insideBeigePizzabox from '@/assets/workbench/inside-beige-pizzabox.webp';
 
 export type OverlaySlot = Exclude<SlotType, 'case' | 'display'>;
 

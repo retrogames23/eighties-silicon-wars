@@ -644,7 +644,7 @@ export class GameMechanics {
     bomMultiplier *= megaFx.bomMultiplier;
     demandMultiplier *= megaFx.demandMultiplier;
     const threats = LateGame.computeMarketThreats(
-      gameState.year, gameState.quarter, diff.aiAggression, prevPriceWars, megaFx.priceWarDampen,
+      gameState.year, gameState.quarter, diff.aiPressureCeiling > 0 ? diff.aiAggression : 0, prevPriceWars, megaFx.priceWarDampen,
     );
     for (const seg of ['gamer', 'business', 'workstation'] as const) {
       aiCompetitorPressure[seg] = Math.min(0.75,
@@ -890,7 +890,7 @@ export class GameMechanics {
     // Schwierigkeit verstärkt Reputations-Verluste, nicht aber -Gewinne.
     const baseRepDelta = (modelResults.length > 0 ? 2 : -1) + marketShareChange + loanReputationDelta + scale.reputationDelta;
     const newPriceWar = LateGame.maybeStartPriceWar(
-      gameState.year, gameState.quarter, diff.aiAggression, newMarketShare,
+      gameState.year, gameState.quarter, diff.aiPressureCeiling > 0 ? diff.aiAggression : 0, newMarketShare,
       segmentUnits as Record<'gamer' | 'business' | 'workstation', number>, prevPriceWars,
     );
     const rawRepDelta = baseRepDelta < 0 ? baseRepDelta * diff.reputationLossMultiplier : baseRepDelta;

@@ -96,6 +96,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
+        stream: true,
         messages: [
           { role: 'system', content: system },
           ...body.messages.slice(-12),
@@ -113,10 +114,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const data = await upstream.json();
-    const reply = data?.choices?.[0]?.message?.content ?? '';
-    return new Response(JSON.stringify({ reply }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Pass the SSE stream straight through so the advisor "types" live.
+    return new Response(upstream.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
     });
   } catch (e) {
     console.error('advisor-chat exception', e);

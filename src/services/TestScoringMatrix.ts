@@ -103,6 +103,8 @@ function computeMaxTiers(year: number, quarter: number): Record<ComponentType, n
 
 /** Points deducted from the test score when a model ships without a graphics chip. */
 export const NO_GPU_TEST_PENALTY = 12;
+/** Points deducted from the test score when a model ships without a sound chip. */
+export const NO_SOUND_TEST_PENALTY = 6;
 
 export class TestScoringMatrix {
   /** Module-level era context. Defaults to the late-80s anchor when unset. */
@@ -391,6 +393,7 @@ export class TestScoringMatrix {
 
     // No graphics chip: text-only machine — clear test penalty.
     if (!gpuName) overall -= NO_GPU_TEST_PENALTY;
+    if (!soundName) overall -= NO_SOUND_TEST_PENALTY;
 
     this.eraContext = prev;
     return Math.min(100, Math.max(0, overall));

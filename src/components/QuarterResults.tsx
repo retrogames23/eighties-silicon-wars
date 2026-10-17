@@ -36,6 +36,10 @@ interface QuarterResultsProps {
       portfolioMaintenance?: number;
       fixedOverhead?: number;
       loanPayments?: number;
+      warranty?: number;
+      bureaucracy?: number;
+      portfolioComplexity?: number;
+      megaProjects?: number;
     };
     netProfit: number;
     netCashFlow?: number;
@@ -65,6 +69,10 @@ export const QuarterResults = ({ quarter, year, results, onContinue, aiEvents = 
     { key: 'salaries', amount: results?.expenses?.salaries ?? 0 },
     { key: 'portfolioMaintenance', amount: results?.expenses?.portfolioMaintenance ?? 0 },
     { key: 'fixedOverhead', amount: results?.expenses?.fixedOverhead ?? 0 },
+    { key: 'warranty', amount: results?.expenses?.warranty ?? 0 },
+    { key: 'bureaucracy', amount: results?.expenses?.bureaucracy ?? 0 },
+    { key: 'portfolioComplexity', amount: results?.expenses?.portfolioComplexity ?? 0 },
+    { key: 'megaProjects', amount: results?.expenses?.megaProjects ?? 0 },
     { key: 'loanPayments', amount: results?.expenses?.loanPayments ?? 0 },
   ].filter(row => row.amount > 0);
   const expensesTotal = expenseRows.reduce((sum, row) => sum + row.amount, 0);

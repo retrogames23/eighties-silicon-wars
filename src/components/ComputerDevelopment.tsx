@@ -91,8 +91,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
     selectedCase: selectedCase?.name || 'none',
     selectedComponents: selectedComponents.map(c => c.name),
     canProceedToCase: selectedComponents.some(c => c.type === 'cpu') && 
-                      selectedComponents.some(c => c.type === 'gpu') && 
-                      selectedComponents.some(c => c.type === 'memory')
+                                            selectedComponents.some(c => c.type === 'memory')
   });
 
   // Lade verfügbare Komponenten über zentralen HardwareManager
@@ -109,7 +108,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const ramName = selectedComponents.find(c => c.type === 'memory')?.name || '';
   const soundName = selectedComponents.find(c => c.type === 'sound')?.name || 'PC Speaker';
   
-  const eraRelativeScore = cpuName && gpuName && ramName
+  const eraRelativeScore = cpuName && ramName
     ? TestScoringMatrix.getEraRelativeOverallScore(cpuName, gpuName, ramName, soundName, currentYear, currentQuarter)
     : 0;
     
@@ -380,8 +379,7 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   };
 
   const canProceedToCase = selectedComponents.some(c => c.type === 'cpu') && 
-                          selectedComponents.some(c => c.type === 'gpu') && 
-                          selectedComponents.some(c => c.type === 'memory');
+                                                    selectedComponents.some(c => c.type === 'memory');
                           
   const canProceedToName = canProceedToCase && selectedCase;
   const canProceedToPricing = canProceedToName && modelName.trim();

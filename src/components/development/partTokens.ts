@@ -7,7 +7,7 @@ export type SlotType = PartType | 'case';
 
 export const SLOT_ORDER: SlotType[] = ['cpu', 'gpu', 'memory', 'case', 'sound', 'storage', 'display'];
 
-export const REQUIRED_SLOTS: SlotType[] = ['cpu', 'gpu', 'memory', 'case'];
+export const REQUIRED_SLOTS: SlotType[] = ['cpu', 'memory', 'case'];
 
 export const slotColorVar: Record<SlotType, string> = {
   cpu: '--part-cpu',

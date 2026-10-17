@@ -560,7 +560,8 @@ export class EconomyModel {
       : ['RF Modulator', 'Composite Monitor', 'RGB Monitor',
          'EGA Monitor', 'VGA Monitor', 'Multisync Monitor']);
     const present = model.accessories.filter((a: string) => candidates.includes(a));
-    if (present.length === 0) return 15;
+    // No drive at all scores below even a cassette drive.
+    if (present.length === 0) return type === 'storage' ? 0 : 15;
     // Performance-Score grob aus dem HardwareManager-Baseline (gleiche Reihenfolge → steigend).
     const ranks: Record<string, number> = {
       'Kassettenlaufwerk': 10, 'Diskettenlaufwerk 5.25"': 35, 'Diskettenlaufwerk 3.5"': 50,

@@ -109,7 +109,8 @@ export const ComputerDevelopment = ({ onBack, onModelComplete, currentYear, curr
   const soundName = selectedComponents.find(c => c.type === 'sound')?.name || 'PC Speaker';
   
   const eraRelativeScore = cpuName && ramName
-    ? TestScoringMatrix.getEraRelativeOverallScore(cpuName, gpuName, ramName, soundName, currentYear, currentQuarter)
+    ? TestScoringMatrix.getEraRelativeOverallScore(cpuName, gpuName, ramName, soundName, currentYear, currentQuarter,
+        selectedComponents.filter(c => c.type === 'storage').map(c => c.name))
     : 0;
     
   // Preisempfehlung auf Basis der Test-Logik (ohne Testlauf)

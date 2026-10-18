@@ -1,5 +1,6 @@
 import { type TestResult } from "./TestReport";
 import { TestScoringMatrix, NO_GPU_TEST_PENALTY, NO_SOUND_TEST_PENALTY } from "@/services/TestScoringMatrix";
+import { EconomyModel } from './EconomyModel';
 
 export class EnhancedTestReportGenerator {
   
@@ -39,9 +40,9 @@ export class EnhancedTestReportGenerator {
     };
 
     // Calculate category scores
-    const gamingScore = TestScoringMatrix.calculateCategoryScore(
+    const gamingScore = TestScoringMatrix.adjustGamingScoreForStorage(TestScoringMatrix.calculateCategoryScore(
       cpuScores.gaming, gpuScores.gaming, ramScores.gaming, soundScores.gaming, 'gaming'
-    );
+    ), model.accessories, year);
 
     const businessScore = TestScoringMatrix.calculateCategoryScore(
       cpuScores.business, gpuScores.business, ramScores.business, soundScores.business, 'business'
@@ -82,6 +83,11 @@ export class EnhancedTestReportGenerator {
 
     // Generate detailed comments for each category
     const gamingComments = this.generateGamingComments(cpuScores.gaming, gpuScores.gaming, ramScores.gaming, soundScores.gaming, model);
+    if (!EconomyModel.hasGamerStorage(model, year)) {
+      gamingComments.push(EconomyModel.hasStorage(model)
+        ? 'reviews:testReport.storage.cassetteOutdated'
+        : 'reviews:testReport.storage.missing');
+    }
     const businessComments = this.generateBusinessComments(cpuScores.business, gpuScores.business, ramScores.business, soundScores.business, model);
     const workstationComments = hasWorkstation ? 
       this.generateWorkstationComments(cpuScores.workstation, gpuScores.workstation, ramScores.workstation, soundScores.workstation, model) :

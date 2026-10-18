@@ -11,6 +11,8 @@
  * scores ~80–90), while outdated components in a later era receive no bonus.
  */
 
+import { EconomyModel } from '@/components/EconomyModel';
+
 export interface ComponentScore {
   score: number;
   tier: number;
@@ -105,8 +107,14 @@ function computeMaxTiers(year: number, quarter: number): Record<ComponentType, n
 export const NO_GPU_TEST_PENALTY = 12;
 /** Points deducted from the test score when a model ships without a sound chip. */
 export const NO_SOUND_TEST_PENALTY = 6;
+/** Gaming suitability deduction for missing or era-inappropriate storage. */
+export const NO_GAMER_STORAGE_TEST_PENALTY = 10;
 
 export class TestScoringMatrix {
+  static adjustGamingScoreForStorage(score: number, accessories: string[] | undefined, year: number): number {
+    return Math.max(0, score - (EconomyModel.hasGamerStorage({ accessories }, year) ? 0 : NO_GAMER_STORAGE_TEST_PENALTY));
+  }
+
   /** Module-level era context. Defaults to the late-80s anchor when unset. */
   private static eraContext: EraContext | null = null;
 
@@ -345,17 +353,18 @@ export class TestScoringMatrix {
     soundName: string,
     year: number,
     quarter: number,
+    accessories?: string[],
   ): number {
     const prev = this.eraContext;
     this.setEraContext(year, quarter);
 
-    const gamingScore = this.calculateCategoryScore(
+    const gamingScore = this.adjustGamingScoreForStorage(this.calculateCategoryScore(
       this.evaluateCPU(cpuName, 'gaming'),
       this.evaluateGPU(gpuName, 'gaming'),
       this.evaluateRAM(ramName, 'gaming'),
       this.evaluateSound(soundName, 'gaming'),
       'gaming',
-    );
+    ), accessories, year);
 
     const businessScore = this.calculateCategoryScore(
       this.evaluateCPU(cpuName, 'business'),

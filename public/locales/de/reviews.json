@@ -34,6 +34,10 @@
     "recommendation": "Empfehlung"
   },
   "testReport": {
+    "storage": {
+      "missing": "Ohne Laufwerk lassen sich Spiele nicht laden — 10 Punkte Abzug bei der Spieletauglichkeit.",
+      "cassetteOutdated": "Ab 1986 reicht eine Kassette für moderne Spiele nicht mehr: Diskettenlaufwerk oder besser erwartet — 10 Punkte Abzug bei der Spieletauglichkeit."
+    },
     "magazinTitle": "Computer Test Magazin",
     "subtitle": "Unabhängiger Testbericht",
     "gamingTitle": "Spieletauglichkeit",

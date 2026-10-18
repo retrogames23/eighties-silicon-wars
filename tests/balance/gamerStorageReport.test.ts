@@ -21,12 +21,14 @@ describe('gamer storage in test reports', () => {
   it('feeds the gaming deduction into the weighted overall rating', () => {
     const floppy = report(['Diskettenlaufwerk 5.25"']);
     const missing = report([]);
-    expect(floppy.overallScore - missing.overallScore).toBe(3);
+    const weighted = (r: ReturnType<typeof report>) => Math.round(r.categories.gaming.score * 0.35 + r.categories.business.score * 0.45 + r.compatibility.score * 0.1 + r.buildQuality.score * 0.1);
+    expect(missing.overallScore).toBe(weighted(missing));
+    expect(floppy.overallScore - missing.overallScore).toBe(4);
     expect(floppy.categories.business.score).toBe(missing.categories.business.score);
   });
   it('applies the storage deduction in the workbench preview too', () => {
     const preview = (accessories: string[]) => TestScoringMatrix.getEraRelativeOverallScore(base.cpu, base.gpu, base.ram, base.sound, 1986, 1, accessories);
-    expect(preview(['Diskettenlaufwerk 5.25"']) - preview(['Kassettenlaufwerk'])).toBe(4);
+    expect(preview(['Diskettenlaufwerk 5.25"']) - preview(['Kassettenlaufwerk'])).toBe(3);
   });
   it('floors penalized gaming scores at zero', () => {
     expect(TestScoringMatrix.adjustGamingScoreForStorage(5, [], 1986)).toBe(0);

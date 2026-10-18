@@ -34,6 +34,10 @@
     "recommendation": "Recommendation"
   },
   "testReport": {
+    "storage": {
+      "missing": "Without a drive, games cannot be loaded — 10 points deducted from gaming suitability.",
+      "cassetteOutdated": "From 1986, a cassette no longer meets modern gaming needs: a floppy drive or better is expected — 10 points deducted from gaming suitability."
+    },
     "magazinTitle": "Computer Test Magazine",
     "subtitle": "Independent test report",
     "gamingTitle": "Gaming Suitability",

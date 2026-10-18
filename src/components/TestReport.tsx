@@ -154,7 +154,7 @@ export const TestReport = ({ model, testResult, onContinue, onRevise }: TestRepo
                   
                   <div className="text-sm space-y-1">
                     {testResult.categories.gaming.comments.map((comment, idx) => (
-                      <p key={idx} className="text-muted-foreground">• {translateText(comment)}</p>
+                      <p key={idx} className="text-muted-foreground">• {comment.startsWith('reviews:') ? t(comment) : translateText(comment)}</p>
                     ))}
                   </div>
                 </CardContent>

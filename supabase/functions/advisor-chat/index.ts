@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-6-luna',
         stream: true,
         messages: [
           { role: 'system', content: system },

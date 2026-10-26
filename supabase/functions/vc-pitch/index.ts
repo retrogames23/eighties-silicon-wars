@@ -55,7 +55,7 @@ function vcPersona(lang: 'de' | 'en', custom?: string) {
 }
 
 async function callGateway(apiKey: string, system: string, userPrompt: string, schema: object) {
-  const upstream = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
@@ -124,9 +124,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const apiKey = Deno.env.get('LOVABLE_API_KEY');
+    const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'LOVABLE_API_KEY missing' }), {
+      return new Response(JSON.stringify({ error: 'OPENROUTER_API_KEY missing' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

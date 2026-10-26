@@ -1,3 +1,4 @@
 - Late-game systems (scale costs, disruptions/price wars, major projects) live in src/lib/game/LateGame.ts as pure deterministic functions shared by GameMechanics and the balance runner — keeps live game and headless tests identical.
 - LLM world events affect sales only via `worldEventsToSimEffects` in src/lib/game/WorldDirector.ts (segment mapping + hard caps) — the LLM supplies narrative/magnitude, never raw numbers into the sim.
 - Test-report and workbench storage penalties use `TestScoringMatrix.adjustGamingScoreForStorage`, backed by EconomyModel's storage predicates — avoids divergent era requirements between feedback and sales.
+- All game AI edge functions call OpenRouter (OPENROUTER_API_KEY, https://openrouter.ai/api/v1/chat/completions); auth emails still use LOVABLE_API_KEY — user chose OpenRouter as AI provider.

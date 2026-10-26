@@ -4,7 +4,7 @@
 
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY")!;
 
 // Era anchors to keep the LLM historically plausible.
 function eraContext(year: number): string {
@@ -105,10 +105,10 @@ Deno.serve(async (req) => {
       `Erzeuge 1–3 neue Welt-Events. Wähle Magnitude bewusst klein (1–2) für Routine-News, 3 für spürbare Marktbewegungen, 4–5 nur für historische Wendepunkte (z. B. echter Technologiesprung). Gib für jedes Event einen kurzen rationale-Text, warum die Magnitude so gewählt ist.`
     ].filter(Boolean).join("\n");
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({

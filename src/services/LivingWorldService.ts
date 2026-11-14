@@ -201,9 +201,7 @@ export class LivingWorldService {
 
     const events = (inserted ?? []) as unknown as AiWorldEvent[];
 
-    // Pressartikel im Hintergrund — nicht awaiten, blockiert den Quartalsfluss nicht
-    void this.generatePressArticles(userId, year, quarter, events);
-
+    // Pressartikel werden on-demand erzeugt (ensurePressForQuarter), wenn die Zeitung geöffnet wird.
     return events;
   }
 
@@ -309,6 +307,41 @@ export class LivingWorldService {
         }
       }),
     );
+  }
+
+  /**
+   * On-Demand: erzeugt fehlende Pressartikel für die Events eines Quartals,
+   * erst wenn der Spieler die Zeitung öffnet. Idempotent.
+   */
+  static async ensurePressForQuarter(userId: string, year: number, quarter: number): Promise<void> {
+    const [{ data: events }, { data: existing }] = await Promise.all([
+      supabase.from("ai_world_events").select("*")
+        .eq("user_id", userId).eq("game_year", year).eq("game_quarter", quarter),
+      supabase.from("ai_press_articles").select("source_event_id")
+        .eq("user_id", userId).eq("game_year", year).eq("game_quarter", quarter),
+    ]);
+    const done = new Set((existing ?? []).map(a => a.source_event_id).filter(Boolean));
+    const missing = ((events ?? []) as unknown as AiWorldEvent[]).filter(e => !done.has(e.id));
+    if (missing.length === 0) return;
+    await this.generatePressArticles(userId, year, quarter, missing);
+  }
+
+  /**
+   * Rotation: löscht Pressartikel und abgelaufene Events, die älter als
+   * `keepQuarters` Spielquartale sind. Best-effort.
+   */
+  static async rotateOldHistory(userId: string, year: number, quarter: number, keepQuarters = 16): Promise<void> {
+    const cutoff = year * 4 + (quarter - 1) - keepQuarters;
+    const cutYear = Math.floor(cutoff / 4);
+    const cutQuarter = (cutoff % 4) + 1;
+    const olderFilter = `game_year.lt.${cutYear},and(game_year.eq.${cutYear},game_quarter.lt.${cutQuarter})`;
+    try {
+      await supabase.from("ai_press_articles").delete().eq("user_id", userId).or(olderFilter);
+      await supabase.from("ai_world_events").delete().eq("user_id", userId)
+        .eq("remaining_quarters", 0).or(olderFilter);
+    } catch (err) {
+      console.warn("[LivingWorld] rotation failed", err);
+    }
   }
 
   /**

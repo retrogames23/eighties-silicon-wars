@@ -381,6 +381,7 @@ const Index = () => {
     if (user?.id) {
       try {
         await LivingWorldService.tickActiveEvents(user.id);
+        void LivingWorldService.rotateOldHistory(user.id, gameState.year, gameState.quarter);
         aiEvents = await LivingWorldService.generateQuarterEvents({
           userId: user.id,
           year: gameState.year,
@@ -531,6 +532,7 @@ const Index = () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          await LivingWorldService.ensurePressForQuarter(user.id, quarterResults.year, quarterResults.quarter);
           const { data: articles } = await supabase
             .from('ai_press_articles')
             .select('id, headline, body, category, kind, created_at')
